@@ -12,6 +12,7 @@ library(ggplot2)
 library(deSolve)
 library(cowplot)
 library(dplyr)
+library(tidyverse)
 #library(Cairo)
 #library(grid)
 #library(gridExtra)
@@ -24,7 +25,7 @@ library(dplyr)
 
 # STEP 1: Assign parameter values
 # read data and select insect
-data <- read.csv("Temperature response data.csv", header=TRUE)
+data <- read_csv("Temperature response data.csv")
 
 # select an insect by removing # in front of name and placing # in front of other species
 #sp.data <- subset(data, Species == "Clavigralla shadabi")
@@ -38,6 +39,11 @@ params <- c(sp.data[2], sp.data[3], sp.data[4], sp.data[5],sp.data[6], sp.data[7
 yrs <- 10; # Number of years over which to run the model
 timestep <- 1; # Length of time-steps (days)
 times <- seq(0, yrs*365, by = timestep)
+# temperature parameters
+meanT.incr = 0 # Increase in mean temperature over next 50 years
+amplT.incr = 0 # Increase in amplitude of temperature fluctuations over next 50 years
+dMeanT = meanT.incr/(yrs*365) # simulate x degree increase in mean temperature over 50 years
+dAmplT = amplT.incr/(yrs*365) # simulate x degree increase in the amplitude of temperature fluctuations over 50 years
 
 
 # STEP 2: Specify model
@@ -45,10 +51,10 @@ model = function(t, State, Pars){
   with(as.list(c(State, Pars)),
        {
          # Temperature regime
-         meanT.incr = 0 # Increase in mean temperature over next 50 years
-         amplT.incr = 0 # Increase in amplitude of temperature fluctuations over next 50 years
-         dMeanT = meanT.incr/(yrs*365) # simulate x degree increase in mean temperature over 50 years
-         dAmplT = amplT.incr/(yrs*365) # simulate x degree increase in the amplitude of temperature fluctuations over 50 years
+         #meanT.incr = 0 # Increase in mean temperature over next 50 years
+         #amplT.incr = 0 # Increase in amplitude of temperature fluctuations over next 50 years
+         #dMeanT = meanT.incr/(yrs*365) # simulate x degree increase in mean temperature over 50 years
+         #dAmplT = amplT.incr/(yrs*365) # simulate x degree increase in the amplitude of temperature fluctuations over 50 years
          # temperature function
          temp = (meanT + dMeanT*times) + (amplT + dAmplT*times)*sin((2*pi*times + deltaT)/365)
          # time-series of temperature values
