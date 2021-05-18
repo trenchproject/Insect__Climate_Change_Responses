@@ -24,9 +24,10 @@ library(dplyr)
 
 # STEP 1: Assign parameter values
 # read data and select insect
-setwd("~/Documents/Christopher/Washington/Research/Population dynamics")
 data <- read.csv("Temperature response data.csv", header=TRUE)
-sp.data <- subset(data, Species == "Clavigralla shadabi")
+
+# select an insect by removing # in front of name and placing # in front of other species
+#sp.data <- subset(data, Species == "Clavigralla shadabi")
 sp.data <- subset(data, Species == "Clavigralla tomentosicollis")
 # define model parameters
 params <- c(sp.data[2], sp.data[3], sp.data[4], sp.data[5],sp.data[6], sp.data[7], sp.data[8],
