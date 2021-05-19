@@ -96,7 +96,7 @@ pop.dyn = ggplot(output[output$Variable %in% c("J", "A"), ], aes(x=time, y=Outpu
   scale_color_manual(values=c("J"="#d1495b", "A"="#30638e")) + 
   labs(x="Time", y="Density") +
   # scale_x_continuous(expand=c(0, 5)) +
-  scale_y_log10(limits=c(0.1, 100)) +
+  scale_y_log10(limits=c(1, 5)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black"),
         legend.position = "none", 
