@@ -4,9 +4,9 @@
 
 
 
-######################################
-#### Load packages
-######################################
+#################################################
+#### Load packages and set working directory ####
+#################################################
 library(tidyr)
 library(ggplot2)
 library(deSolve)
@@ -17,10 +17,10 @@ library(tidyverse)
 #library(grid)
 #library(gridExtra)
 
-
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 ######################################
-#### Simulate population dynamics
+#### Simulate population dynamics ####
 ######################################
 
 # STEP 1: Assign parameter values
@@ -121,3 +121,28 @@ Plots = ggdraw() +
 #draw_plot_label(label = c("(c)", ""), size = 18, x = c(0, 0), y = c(1, 0.5))
 Plots
 
+
+####################################################################
+#### Plot empirical time-series for Clavigralla tomentosicollis ####
+####################################################################
+
+# Read data
+data.plotA <- read_csv("Egwuatu_1977a.csv")
+
+# Convert to data frame
+data.A <- as.data.frame(data.plotA) %>%
+  gather("stage","popdens",4:5)
+
+# Plot time-series data
+plotA = ggplot(data.A, aes(x=time, y=popdens, color=stage)) + 
+  geom_line(size=1.2) +
+  scale_color_manual(values=c("J"="#d1495b", "A"="#30638e")) + 
+  labs(x="Time", y="Density") +
+  # scale_x_continuous(expand=c(0, 5)) +
+  scale_y_log10(limits=c(0.2, 10)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_blank(), axis.line = element_line(colour = "black"),
+        legend.position = "none", 
+        axis.text = element_text(size=13),
+        axis.title = element_text(size=20)) 
+plotA
