@@ -67,7 +67,8 @@ model = function(t, State, Pars){
          
          # Temperature responses
          b = bTopt*exp(-(T-Toptb)^2/(2*sb^2)) # Birth rate
-         q = qTR*exp(Aq*(1/TR-1/Tmax))*exp(-(T-Toptq)^2/(2*sq^2)) # Density-dependence
+         #q = 1 # Density-dependence (temperature-independent for simplicity)
+         q = qTR*exp(Aq*(1/TR-1/Tmax))*exp(-(T-Toptq)^2/(2*sq^2)) # Density-dependence (temperature-dependent)
          m = mTR*(T/TR)*exp(A*(1/TR-1/T))/(1+skew*(exp(AL*(1/TL-1/T))+exp(AH*(1/TH-1/T)))) # Maturation rate
          dJ = dJTR*exp(AdJ*(1/TR-1/T)) # Juvenile mortality
          dA = dATR*exp(AdA*(1/TR-1/T)) # Adult mortality
@@ -138,7 +139,7 @@ plotA.J = ggplot(data.plotA, aes(x=time, y=J, ymin=J-J_SE, ymax=J+J_SE)) +
   geom_pointrange(size=1.2, color="#d1495b") +
   geom_line(size=0.8, linetype="longdash", color="#d1495b") +
   labs(x="Time", y="Density") +
-  scale_y_log10(limits=c(0.3, 100)) +
+  scale_y_log10(limits=c(0.3, 10)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
         axis.line = element_line(colour = "black"), legend.position = "none", 
@@ -149,7 +150,7 @@ plotA.A = ggplot(data.plotA, aes(x=time, y=A, ymin=A-A_SE, ymax=A+A_SE)) +
   geom_pointrange(size=1.2, color="#30638e") +
   geom_line(size=0.8, linetype="longdash", color="#30638e") +
   labs(x="Time", y="Density") +
-  scale_y_log10(limits=c(0.3, 100)) +
+  scale_y_log10(limits=c(0.3, 10)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
         axis.line = element_line(colour = "black"), legend.position = "none", 
@@ -157,19 +158,35 @@ plotA.A = ggplot(data.plotA, aes(x=time, y=A, ymin=A-A_SE, ymax=A+A_SE)) +
 #plotA.A
 
 # Plot model dynamics
-model.dyn = ggplot(subset(output[output$Variable %in% c("J", "A"), ], time>9*365 & time<10*365),
+plotA.model = ggplot(subset(output[output$Variable %in% c("J", "A"), ], time>9*365 & time<10*365),
                           aes(x=time, y=Output, color=Variable)) + 
   geom_line(size=1.2) +
   scale_color_manual(values=c("J"="#d1495b", "A"="#30638e")) + 
   labs(x="Time", y="Density") +
-  #scale_x_continuous(limits=c(9*365, 10*365)) +
-  scale_y_log10(limits=c(0.3, 100)) +
+  scale_y_log10(limits=c(0.3, 10)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
         axis.line = element_line(colour = "black"), legend.position = "none", 
         axis.text = element_text(size=13), axis.title = element_text(size=20),
         axis.text.x = element_text(colour = "white"), axis.ticks.x = element_blank())
-model.dyn
+#plotA.model
 
-Plots.fits = ggdraw()  +  draw_plot(model.dyn) +  draw_plot(plotA.J) +  draw_plot(plotA.A)
-Plots.fits
+# Plot temperature regime
+plotA.temp  = ggplot(subset(output[output$Variable %in% c("signal"), ], time<300),
+                      aes(x=time, y=Output, color=Variable)) + 
+  geom_line(size=1.2) +
+  scale_color_manual(values=c("signal"="#d1495b")) + 
+  labs(x="Time", y="T (K)") +
+  scale_y_continuous(limits=c(298 - amplT.incr, 302 + meanT.incr + amplT.incr)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
+        axis.line = element_line(colour = "black"), legend.position = "none", 
+        axis.text = element_text(size=13), axis.title = element_text(size=20)) 
+#plotA.temp
+
+(ggdraw()  +
+    draw_plot(plotA.temp, x = 0, y = 0, width = 1, height = 0.3) +
+    draw_plot(plotA.model, x = 0, y = 0.3, width = 1, height = 0.7) +
+    draw_plot(plotA.J, x = 0, y = 0.3, width = 1, height = 0.7) +
+    draw_plot(plotA.A, x = 0, y = 0.3, width = 1, height = 0.7))
+
