@@ -115,11 +115,11 @@ temp.regime  = ggplot(output[output$Variable %in% c("signal"), ], aes(x=time, y=
         axis.text = element_text(size=13),
         axis.title = element_text(size=20))
 
-Plots = ggdraw() +
+Plots.model = ggdraw() +
   draw_plot(pop.dyn, x = 0, y = 0.5, width = 1, height = 0.5) +
   draw_plot(temp.regime, x = 0, y = 0, width = 1, height = 0.5) #+
 #draw_plot_label(label = c("(c)", ""), size = 18, x = c(0, 0), y = c(1, 0.5))
-Plots
+Plots.model
 
 
 ####################################################################
@@ -134,15 +134,42 @@ data.A <- as.data.frame(data.plotA) %>%
   gather("stage","popdens",4:5)
 
 # Plot time-series data
-plotA = ggplot(data.A, aes(x=time, y=popdens, color=stage)) + 
+plotA.J = ggplot(data.plotA, aes(x=time, y=J, ymin=J-J_SE, ymax=J+J_SE)) + 
+  geom_pointrange(size=1.2, color="#d1495b") +
+  geom_line(size=0.8, linetype="longdash", color="#d1495b") +
+  labs(x="Time", y="Density") +
+  scale_y_log10(limits=c(0.3, 100)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
+        axis.line = element_line(colour = "black"), legend.position = "none", 
+        axis.text = element_text(size=13), axis.title = element_text(size=20))
+#plotA.J
+
+plotA.A = ggplot(data.plotA, aes(x=time, y=A, ymin=A-A_SE, ymax=A+A_SE)) + 
+  geom_pointrange(size=1.2, color="#30638e") +
+  geom_line(size=0.8, linetype="longdash", color="#30638e") +
+  labs(x="Time", y="Density") +
+  scale_y_log10(limits=c(0.3, 100)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
+        axis.line = element_line(colour = "black"), legend.position = "none", 
+        axis.text = element_text(size=13), axis.title = element_text(size=20)) 
+#plotA.A
+
+# Plot model dynamics
+model.dyn = ggplot(subset(output[output$Variable %in% c("J", "A"), ], time>9*365 & time<10*365),
+                          aes(x=time, y=Output, color=Variable)) + 
   geom_line(size=1.2) +
   scale_color_manual(values=c("J"="#d1495b", "A"="#30638e")) + 
   labs(x="Time", y="Density") +
-  # scale_x_continuous(expand=c(0, 5)) +
-  scale_y_log10(limits=c(0.2, 10)) +
+  #scale_x_continuous(limits=c(9*365, 10*365)) +
+  scale_y_log10(limits=c(0.3, 100)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-        panel.background = element_blank(), axis.line = element_line(colour = "black"),
-        legend.position = "none", 
-        axis.text = element_text(size=13),
-        axis.title = element_text(size=20)) 
-plotA
+        panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
+        axis.line = element_line(colour = "black"), legend.position = "none", 
+        axis.text = element_text(size=13), axis.title = element_text(size=20),
+        axis.text.x = element_text(colour = "white"), axis.ticks.x = element_blank())
+model.dyn
+
+Plots.fits = ggdraw()  +  draw_plot(model.dyn) +  draw_plot(plotA.J) +  draw_plot(plotA.A)
+Plots.fits
