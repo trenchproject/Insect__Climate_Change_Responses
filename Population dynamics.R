@@ -1,6 +1,6 @@
-#################################################################################
-#### This R script simulates population dynamics of hemipteran insects in their native habitats
-#################################################################################
+####################################################################################################
+#### This R script simulates population dynamics of hemipteran insects in their native habitats ####
+####################################################################################################
 
 
 
@@ -128,17 +128,16 @@ Plots.model
 ####################################################################
 
 # Read data
-data.plotA <- read_csv("Egwuatu_1977a.csv")
-
-# Convert to data frame
-data.A <- as.data.frame(data.plotA) %>%
-  gather("stage","popdens",4:5)
+data.density <- read_csv("Egwuatu_1977.csv")
+# Set the plot (A, B, or C)
+data.plotA <- subset(data.density,Plot=="A")
 
 # Plot time-series data
 plotA.J = ggplot(data.plotA, aes(x=time, y=J, ymin=J-J_SE, ymax=J+J_SE)) + 
   geom_pointrange(size=1.2, color="#d1495b") +
   geom_line(size=0.8, linetype="longdash", color="#d1495b") +
   labs(x="Time", y="Density") +
+  scale_x_continuous(limits=c(200, 500)) +
   scale_y_log10(limits=c(0.3, 10)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
@@ -150,6 +149,7 @@ plotA.A = ggplot(data.plotA, aes(x=time, y=A, ymin=A-A_SE, ymax=A+A_SE)) +
   geom_pointrange(size=1.2, color="#30638e") +
   geom_line(size=0.8, linetype="longdash", color="#30638e") +
   labs(x="Time", y="Density") +
+  scale_x_continuous(limits=c(200, 500)) +
   scale_y_log10(limits=c(0.3, 10)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
@@ -158,7 +158,7 @@ plotA.A = ggplot(data.plotA, aes(x=time, y=A, ymin=A-A_SE, ymax=A+A_SE)) +
 #plotA.A
 
 # Plot model dynamics
-plotA.model = ggplot(subset(output[output$Variable %in% c("J", "A"), ], time>9*365 & time<10*365),
+plotA.model = ggplot(subset(output[output$Variable %in% c("J", "A"), ], time>=8*365+210 & time<=8*365+480),
                           aes(x=time, y=Output, color=Variable)) + 
   geom_line(size=1.2) +
   scale_color_manual(values=c("J"="#d1495b", "A"="#30638e")) + 
@@ -172,11 +172,12 @@ plotA.model = ggplot(subset(output[output$Variable %in% c("J", "A"), ], time>9*3
 #plotA.model
 
 # Plot temperature regime
-plotA.temp  = ggplot(subset(output[output$Variable %in% c("signal"), ], time<300),
+plotA.temp  = ggplot(subset(output[output$Variable %in% c("signal"), ], time>=210 & time<=480),
                       aes(x=time, y=Output, color=Variable)) + 
   geom_line(size=1.2) +
   scale_color_manual(values=c("signal"="#d1495b")) + 
   labs(x="Time", y="T (K)") +
+  scale_x_continuous(limits=c(200, 500)) +
   scale_y_continuous(limits=c(298 - amplT.incr, 302 + meanT.incr + amplT.incr)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
