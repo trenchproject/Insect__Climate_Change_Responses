@@ -50,11 +50,6 @@ dAmplT = amplT.incr/(yrs*365) # simulate x degree increase in the amplitude of t
 model = function(t, State, Pars){
   with(as.list(c(State, Pars)),
        {
-         # Temperature regime
-         #meanT.incr = 0 # Increase in mean temperature over next 50 years
-         #amplT.incr = 0 # Increase in amplitude of temperature fluctuations over next 50 years
-         #dMeanT = meanT.incr/(yrs*365) # simulate x degree increase in mean temperature over 50 years
-         #dAmplT = amplT.incr/(yrs*365) # simulate x degree increase in the amplitude of temperature fluctuations over 50 years
          # temperature function
          temp = (meanT + dMeanT*times) + (amplT + dAmplT*times)*sin((2*pi*times + deltaT)/365)
          # time-series of temperature values
@@ -86,7 +81,7 @@ model = function(t, State, Pars){
 init = c(J = 1, A = 1)
 # run model and input into data frame
 densities = as.data.frame(ode(func = model, y = init, parms = params, times = times, method = "ode45"))
-# model variables (time, life stage, density)
+# gather model variables (time, temp, life stage, density)
 output = densities[seq(0, dim(densities)[1], by=timestep), ]
 output = gather(output, key=Variable, value=Output, -time)
 
@@ -135,7 +130,7 @@ data.plotA <- subset(data.density,Plot=="A")
 # Plot time-series data
 plotA.J = ggplot(data.plotA, aes(x=time, y=J, ymin=J-J_SE, ymax=J+J_SE)) + 
   geom_pointrange(size=1.2, color="#d1495b") +
-  geom_line(size=0.8, linetype="longdash", color="#d1495b") +
+  #geom_line(size=0.8, linetype="longdash", color="#d1495b") +
   labs(x="Time", y="Density") +
   scale_x_continuous(limits=c(200, 500)) +
   scale_y_log10(limits=c(0.3, 10)) +
@@ -147,7 +142,7 @@ plotA.J = ggplot(data.plotA, aes(x=time, y=J, ymin=J-J_SE, ymax=J+J_SE)) +
 
 plotA.A = ggplot(data.plotA, aes(x=time, y=A, ymin=A-A_SE, ymax=A+A_SE)) + 
   geom_pointrange(size=1.2, color="#30638e") +
-  geom_line(size=0.8, linetype="longdash", color="#30638e") +
+  #geom_line(size=0.8, linetype="longdash", color="#30638e") +
   labs(x="Time", y="Density") +
   scale_x_continuous(limits=c(200, 500)) +
   scale_y_log10(limits=c(0.3, 10)) +
