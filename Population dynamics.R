@@ -34,7 +34,7 @@ sp.data <- subset(data, Species == "Clavigralla tomentosicollis")
 params <- c(sp.data[2], sp.data[3], sp.data[4], sp.data[5],sp.data[6], sp.data[7], sp.data[8],
             sp.data[9], sp.data[10], sp.data[11], sp.data[12], sp.data[13], sp.data[14], sp.data[15],
             sp.data[16], sp.data[17], sp.data[18], sp.data[19], sp.data[20], sp.data[21], sp.data[22],
-            sp.data[23], sp.data[24])
+            sp.data[23], sp.data[24], sp.data[25])
 # time
 yrs <- 10; # Number of years over which to run the model
 timestep <- 1; # Length of time-steps (days)
