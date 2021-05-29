@@ -1,14 +1,6 @@
 ﻿Species,Location,Lat,Long,Ref,type,Temp_Ref,Jan,Feb,Mar,Apr,May,Jun,July,Aug,Sep,Oct,Nov,Dec,Jan_2,Feb_2,Mar_2,Apr_2,May_2,Jun_2,Jul_2,Aug_2,Sep_2,Oct_2,Nov_2,Dec_2
 Clavigralla shadabi,"Benin, Abomey",6.42,2.33,Dreyer & Baumgartner 1996,monthly_mean,Scranton & Amarasekare 2018,300.3,301.5,301.9,301.6,300.8,299.5,298.8,298.6,299,299.7,300.6,300.3,,,,,,,,,,,,
-Clavigralla tomentosicollis,"Benin, Abomey",6.42,2.33,Dreyer & Baumgartner 1996,monthly_mean,Scranton & Amarasekare 2018,300.3,301.5,301.9,301.6,300.8,299.5,298.8,298.6,299,299.7,300.6,300.3,,,,,,,,,,,,
-Clavigralla tomentosicollis,"Nigeria, Ibadan",7.45,3.90,Egwuatu & Taylor 1983,"plot_A, monthly_mean",Egwuatu & Taylor 1983,,,,,,,,,,298.0,298.3,299.7,300.9,300.7,301.6,303.7,303.0,301.9,300.9,,,,,
-Clavigralla tomentosicollis,"Nigeria, Ibadan",7.45,3.90,Egwuatu & Taylor 1983,"plot_B, monthly_mean",Egwuatu & Taylor 1983,,,,,,,,,,299.1,300.3,300.2,301.1,303.3,302.5,301.4,300.3,299.2,298.2,298.3,298.7,299.3,299.5,300.1
-Clavigralla tomentosicollis,"Nigeria, Ibadan",7.45,3.90,Egwuatu & Taylor 1983,"plot_C, monthly_mean",Egwuatu & Taylor 1983,,,,,,298.3,298.2,297.8,298.1,299.3,300.4,299.9,301.0,303.2,302.2,301.0,300.4,299.2,298.2,298.1,298.3,299.1,299.4,300.1
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Clavigralla tomentosicollis Benin,"Benin, Abomey",6.42,2.33,Dreyer & Baumgartner 1996,monthly_mean,Scranton & Amarasekare 2018,300.3,301.5,301.9,301.6,300.8,299.5,298.8,298.6,299,299.7,300.6,300.3,,,,,,,,,,,,
+Clavigralla tomentosicollis Nigeria A,"Nigeria, Ibadan",7.45,3.9,Egwuatu & Taylor 1983,"plot_A, monthly_mean",Egwuatu & Taylor 1983,,,,,,,,,,298,298.3,299.7,300.9,300.7,301.6,303.7,303,301.9,300.9,,,,,
+Clavigralla tomentosicollis Nigeria B,"Nigeria, Ibadan",7.45,3.9,Egwuatu & Taylor 1983,"plot_B, monthly_mean",Egwuatu & Taylor 1983,,,,,,,,,,299.1,300.3,300.2,301.1,303.3,302.5,301.4,300.3,299.2,298.2,298.3,298.7,299.3,299.5,300.1
+Clavigralla tomentosicollis Nigeria C,"Nigeria, Ibadan",7.45,3.9,Egwuatu & Taylor 1983,"plot_C, monthly_mean",Egwuatu & Taylor 1983,,,,,,298.3,298.2,297.8,298.1,299.3,300.4,299.9,301,303.2,302.2,301,300.4,299.2,298.2,298.1,298.3,299.1,299.4,300.1
