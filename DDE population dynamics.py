@@ -2,9 +2,9 @@
 # under seasonal temperature variation and climate change
 
 # IMPORT PACKAGES
-from numpy import array, arange, hstack, vstack, savetxt
+from numpy import array, arange, hstack, vstack, savetxt, pi
 from jitcdde import jitcdde, y, t
-from symengine import exp, sin, pi
+from symengine import exp, sin
 from matplotlib.pyplot import subplots, xlabel, ylabel, yscale, xlim, ylim
 from pandas import read_csv
 
@@ -70,9 +70,9 @@ def T(t):
     if t < 0:
         return meanT # during model initiation, habitat temperature is constant at its mean
     elif t < (delta_years*yr):
-        return (meanT + m_mean*t) + (amplT+m_ampl*t)*sin(2*pi*t/yr + shiftT) # temperature variation during climate change
+        return (meanT + m_mean*t) + (amplT + m_ampl*t) * sin(2*pi*(t + shiftT)/yr) # temperature variation during climate change
     else:
-        return (meanT + delta_mean) + (amplT+delta_ampl)*sin(2*pi*t/yr + shiftT) # temperature varation after climate change "equilibriates"
+        return (meanT + delta_mean) + (amplT + delta_ampl) * sin(2*pi*(t + shiftT)/yr) # temperature varation after climate change "equilibriates"
 
 
 # Life history functions
