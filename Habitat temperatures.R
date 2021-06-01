@@ -37,3 +37,16 @@ data <- as.data.frame(data)
 fit <- nls(T_K ~ meanT + amplT*sin(2*pi*(day + shiftT)/365), data = data,
            start = list(meanT = 293, amplT = 2, shiftT = 30))
 summary(fit)
+
+# Plot model data
+ggplot(data, aes(x=day, y=T_K, ymin=295, ymax=305)) + 
+  geom_point(size=5, color="#d1495b") +
+  geom_function(fun = function(t) coef(fit)[1] + coef(fit)[2]*sin((2*pi*t + coef(fit)[3])/365),
+                size=0.8, linetype="longdash", color="#d1495b") +
+  labs(x="Time", y="Mean Temperature (K)") +
+  scale_x_continuous(limits=c(0, 720)) +
+  scale_y_log10(limits=c(295, 305)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
+        axis.line = element_line(colour = "black"), legend.position = "none", 
+        axis.text = element_text(size=13), axis.title = element_text(size=20))
