@@ -29,7 +29,9 @@ data <- read_csv("Temperature response data.csv")
 
 # select an insect by removing # in front of name and placing # in front of other species
 #sp.data <- subset(data, Species == "Clavigralla shadabi")
-sp.data <- subset(data, Species == "Clavigralla tomentosicollis")
+#sp.data <- subset(data, Species == "Clavigralla tomentosicollis Benin")
+sp.data <- subset(data, Species == "Clavigralla tomentosicollis Nigeria A")
+
 # define model parameters
 params <- c(sp.data[2], sp.data[3], sp.data[4], sp.data[5],sp.data[6], sp.data[7], sp.data[8],
             sp.data[9], sp.data[10], sp.data[11], sp.data[12], sp.data[13], sp.data[14], sp.data[15],
