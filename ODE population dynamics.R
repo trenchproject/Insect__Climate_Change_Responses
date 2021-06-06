@@ -53,7 +53,7 @@ model = function(t, State, Pars){
   with(as.list(c(State, Pars)),
        {
          # temperature function
-         temp = (meanT + dMeanT*times) + (amplT + dAmplT*times)*sin((2*pi*times + deltaT)/365)
+         temp = (meanT + dMeanT*times) + (amplT + dAmplT*times)*sin((2*pi*times + shiftT)/365)
          # time-series of temperature values
          signal = as.data.frame(list(times = times, temp = rep(0, length(times))))
          signal$temp = temp
@@ -106,7 +106,7 @@ temp.regime  = ggplot(output[output$Variable %in% c("signal"), ], aes(x=time, y=
   scale_color_manual(values=c("signal"="#d1495b")) + 
   labs(x="Time", y="Temperature (K)") +
   # scale_x_continuous(expand=c(0, 5)) +
-  scale_y_continuous(limits=c(298 - amplT.incr, 302 + meanT.incr + amplT.incr)) +
+  scale_y_continuous(limits=c(params$meanT - params$amplT - amplT.incr - 1, params$meanT + params$amplT + meanT.incr + amplT.incr + 1)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black"),
         legend.position = "none", 
@@ -123,6 +123,7 @@ Plots.model
 ####################################################################
 #### Plot empirical time-series for Clavigralla tomentosicollis ####
 ####################################################################
+
 
 # Read data
 data.density <- read_csv("Egwuatu_1977.csv")
@@ -169,13 +170,13 @@ plotA.model = ggplot(subset(output[output$Variable %in% c("J", "A"), ], time>=8*
 #plotA.model
 
 # Plot temperature regime
-plotA.temp  = ggplot(subset(output[output$Variable %in% c("signal"), ], time>=210 & time<=480),
+plotA.temp  = ggplot(subset(output[output$Variable %in% c("signal"), ], time>=200 & time<=500),
                       aes(x=time, y=Output, color=Variable)) + 
   geom_line(size=1.2) +
   scale_color_manual(values=c("signal"="#d1495b")) + 
   labs(x="Time", y="T (K)") +
   scale_x_continuous(limits=c(200, 500)) +
-  scale_y_continuous(limits=c(298 - amplT.incr, 302 + meanT.incr + amplT.incr)) +
+  scale_y_continuous(limits=c(params$meanT - params$amplT - amplT.incr - 1, params$meanT + params$amplT + meanT.incr + amplT.incr + 1)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
         axis.line = element_line(colour = "black"), legend.position = "none", 
