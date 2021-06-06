@@ -88,12 +88,12 @@ output = densities[seq(0, dim(densities)[1], by=timestep), ]
 output = gather(output, key=Variable, value=Output, -time)
 
 # Plot population dynamics
-pop.dyn = ggplot(output[output$Variable %in% c("J", "A"), ], aes(x=time, y=Output, color=Variable)) + 
+pop.dyn <- ggplot(output[output$Variable %in% c("J", "A"), ], aes(x=time, y=Output, color=Variable)) + 
   geom_line(size=1.2) +
   scale_color_manual(values=c("J"="#d1495b", "A"="#30638e")) + 
   labs(x="Time", y="Density") +
   # scale_x_continuous(expand=c(0, 5)) +
-  scale_y_log10(limits=c(1, 5)) +
+  scale_y_log10(limits=c(1, 10)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black"),
         legend.position = "none", 
@@ -101,7 +101,7 @@ pop.dyn = ggplot(output[output$Variable %in% c("J", "A"), ], aes(x=time, y=Outpu
         axis.title = element_text(size=20)) 
 
 # Plot temperature regime
-temp.regime  = ggplot(output[output$Variable %in% c("signal"), ], aes(x=time, y=Output, color=Variable)) + 
+temp.regime <- ggplot(output[output$Variable %in% c("signal"), ], aes(x=time, y=Output, color=Variable)) + 
   geom_line(size=1.2) +
   scale_color_manual(values=c("signal"="#d1495b")) + 
   labs(x="Time", y="Temperature (K)") +
@@ -113,7 +113,7 @@ temp.regime  = ggplot(output[output$Variable %in% c("signal"), ], aes(x=time, y=
         axis.text = element_text(size=13),
         axis.title = element_text(size=20))
 
-Plots.model = ggdraw() +
+Plots.model <- ggdraw() +
   draw_plot(pop.dyn, x = 0, y = 0.5, width = 1, height = 0.5) +
   draw_plot(temp.regime, x = 0, y = 0, width = 1, height = 0.5) #+
 #draw_plot_label(label = c("(c)", ""), size = 18, x = c(0, 0), y = c(1, 0.5))
@@ -128,10 +128,10 @@ Plots.model
 # Read data
 data.density <- read_csv("Egwuatu_1977.csv")
 # Set the plot (A, B, or C)
-data.plotA <- subset(data.density,Plot=="A")
+data.plot <- subset(data.density, Plot=="A")
 
 # Plot time-series data
-plotA.J = ggplot(data.plotA, aes(x=time, y=J, ymin=J-J_SE, ymax=J+J_SE)) + 
+plot.J <- ggplot(data.plot, aes(x=time, y=J, ymin=J-J_SE, ymax=J+J_SE)) + 
   geom_pointrange(size=1.2, color="#d1495b") +
   #geom_line(size=0.8, linetype="longdash", color="#d1495b") +
   labs(x="Time", y="Density") +
@@ -141,9 +141,9 @@ plotA.J = ggplot(data.plotA, aes(x=time, y=J, ymin=J-J_SE, ymax=J+J_SE)) +
         panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
         axis.line = element_line(colour = "black"), legend.position = "none", 
         axis.text = element_text(size=13), axis.title = element_text(size=20))
-#plotA.J
+#plot.J
 
-plotA.A = ggplot(data.plotA, aes(x=time, y=A, ymin=A-A_SE, ymax=A+A_SE)) + 
+plot.A <- ggplot(data.plot, aes(x=time, y=A, ymin=A-A_SE, ymax=A+A_SE)) + 
   geom_pointrange(size=1.2, color="#30638e") +
   #geom_line(size=0.8, linetype="longdash", color="#30638e") +
   labs(x="Time", y="Density") +
@@ -153,10 +153,10 @@ plotA.A = ggplot(data.plotA, aes(x=time, y=A, ymin=A-A_SE, ymax=A+A_SE)) +
         panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
         axis.line = element_line(colour = "black"), legend.position = "none", 
         axis.text = element_text(size=13), axis.title = element_text(size=20)) 
-#plotA.A
+#plot.A
 
 # Plot model dynamics
-plotA.model = ggplot(subset(output[output$Variable %in% c("J", "A"), ], time>=8*365+210 & time<=8*365+480),
+plot.model <- ggplot(subset(output[output$Variable %in% c("J", "A"), ], time>=8*365+210 & time<=8*365+480),
                           aes(x=time, y=Output, color=Variable)) + 
   geom_line(size=1.2) +
   scale_color_manual(values=c("J"="#d1495b", "A"="#30638e")) + 
@@ -167,10 +167,10 @@ plotA.model = ggplot(subset(output[output$Variable %in% c("J", "A"), ], time>=8*
         axis.line = element_line(colour = "black"), legend.position = "none", 
         axis.text = element_text(size=13), axis.title = element_text(size=20),
         axis.text.x = element_text(colour = "white"), axis.ticks.x = element_blank())
-#plotA.model
+#plot.model
 
 # Plot temperature regime
-plotA.temp  = ggplot(subset(output[output$Variable %in% c("signal"), ], time>=200 & time<=500),
+plot.temp <- ggplot(subset(output[output$Variable %in% c("signal"), ], time>=200 & time<=500),
                       aes(x=time, y=Output, color=Variable)) + 
   geom_line(size=1.2) +
   scale_color_manual(values=c("signal"="#d1495b")) + 
@@ -181,11 +181,11 @@ plotA.temp  = ggplot(subset(output[output$Variable %in% c("signal"), ], time>=20
         panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
         axis.line = element_line(colour = "black"), legend.position = "none", 
         axis.text = element_text(size=13), axis.title = element_text(size=20)) 
-#plotA.temp
+#plot.temp
 
 (ggdraw()  +
-    draw_plot(plotA.temp, x = 0, y = 0, width = 1, height = 0.3) +
-    draw_plot(plotA.model, x = 0, y = 0.3, width = 1, height = 0.7) +
-    draw_plot(plotA.J, x = 0, y = 0.3, width = 1, height = 0.7) +
-    draw_plot(plotA.A, x = 0, y = 0.3, width = 1, height = 0.7))
+    draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
+    draw_plot(plot.model, x = 0, y = 0.3, width = 1, height = 0.7) +
+    draw_plot(plot.J, x = 0, y = 0.3, width = 1, height = 0.7) +
+    draw_plot(plot.A, x = 0, y = 0.3, width = 1, height = 0.7))
 
