@@ -12,26 +12,39 @@ library(tidyverse)
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 
-# Read in time-series data
+# Read in time-series data and temperature response data
 data.density <- read_csv("Egwuatu_1977.csv")
-# Set the plot (A, B, or C)
+sp.data <- as.data.frame(read_csv("Temperature response data.csv"))
+
+
+# Select time-series data (for Nigeria data, select plot A, B, or C)
 data.TS <- subset(data.density, Plot=="A")
 
 
+# Read in model output
 # Select an insect by removing # in front of name and placing # in front of other species
-#read.data <- read_csv("Time Series Clavigralla shadabi.csv")
-#read.data <- read_csv("Time Series Clavigralla tomentosicollis Benin.csv")
-read.data <- read_csv("Time Series Clavigralla tomentosicollis Nigeria A.csv")
-data <- as.data.frame(read.data)
+#read.data <- as.data.frame(read_csv("Time Series Clavigralla shadabi.csv"))
+#sp.data <- subset(sp.data, Species == "Clavigralla shadabi")
+#read.data <- as.data.frame(read_csv("Time Series Clavigralla tomentosicollis Benin.csv"))
+#sp.data <- subset(sp.data, Species == "Clavigralla tomentosicollis Benin")
+data.model <- as.data.frame(read_csv("Time Series Clavigralla tomentosicollis Nigeria A.csv"))
+sp.data <- subset(sp.data, Species == "Clavigralla tomentosicollis Nigeria A")
 
 
 # Set plot options (default: plot last 2 year of model)
-#xmin <- nrow(data) - 2*365
-#xmax <- nrow(data)
 xmin <- 0
 xmax <-730
-ymin <- -50
+ymin <- 0
 ymax <- 50
+TS.length <- xmax - xmin # length of time-series data
+end <- nrow(data.model)
+
+# Format model output to align with time-series data
+# Remove all rows but the last x years
+data.model <- data.model[c(-1:-(end-TS.length)), ]
+
+# Re-scale time so that last x years are plotted as the first x years
+data.model <- sweep(data.model, 2, c(end-TS.length,0,0,0,0))
 
 
 # Plot time-series data
@@ -40,8 +53,8 @@ plot.J = ggplot(data.TS, aes(x=time, y=J, ymin=J-J_SE, ymax=J+J_SE)) +
   #geom_line(size=0.8, linetype="longdash", color="#d1495b") +
   labs(x="Time", y="Density") +
   scale_x_continuous(limits=c(xmin, xmax)) +
-  scale_y_continuous(limits=c(ymin, ymax)) +
-  #scale_y_log10(limits=c(0.3, 10)) +
+  #scale_y_continuous(limits=c(ymin, ymax)) +
+  scale_y_log10(limits=c(0.3, 10)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
         axis.line = element_line(colour = "black"), legend.position = "none", 
@@ -53,8 +66,8 @@ plot.A = ggplot(data.TS, aes(x=time, y=A, ymin=A-A_SE, ymax=A+A_SE)) +
   #geom_line(size=0.8, linetype="longdash", color="#30638e") +
   labs(x="Time", y="Density") +
   scale_x_continuous(limits=c(xmin, xmax)) +
-  scale_y_continuous(limits=c(ymin, ymax)) +
-  #scale_y_log10(limits=c(0.3, 10)) +
+  #scale_y_continuous(limits=c(ymin, ymax)) +
+  scale_y_log10(limits=c(0.3, 10)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
         axis.line = element_line(colour = "black"), legend.position = "none", 
@@ -62,33 +75,46 @@ plot.A = ggplot(data.TS, aes(x=time, y=A, ymin=A-A_SE, ymax=A+A_SE)) +
 #plot.A
 
 # Plot model data
-model.J = ggplot(data, aes(x=Time, y=J)) + 
+model.J = ggplot(data.model, aes(x=Time, y=J)) + 
   geom_line(size=0.8, color="#d1495b") +
   labs(x="Time", y="Density") +
   scale_x_continuous(limits=c(xmin, xmax)) +
-  scale_y_continuous(limits=c(ymin, ymax)) +
-  #scale_y_log10(limits=c(0.3, 10)) +
+  #scale_y_continuous(limits=c(ymin, ymax)) +
+  scale_y_log10(limits=c(0.3, 10)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
         axis.line = element_line(colour = "black"), legend.position = "none", 
         axis.text = element_text(size=13), axis.title = element_text(size=20))
 #model.J
 
-model.A = ggplot(data, aes(x=Time, y=A)) + 
+model.A = ggplot(data.model, aes(x=Time, y=A)) + 
   geom_line(size=0.8, color="#30638e") +
   labs(x="Time", y="Density") +
   scale_x_continuous(limits=c(xmin, xmax)) +
-  scale_y_continuous(limits=c(ymin, ymax)) +
-  #scale_y_log10(limits=c(0.3, 10)) +
+  #scale_y_continuous(limits=c(ymin, ymax)) +
+  scale_y_log10(limits=c(0.3, 10)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
         axis.line = element_line(colour = "black"), legend.position = "none", 
         axis.text = element_text(size=13), axis.title = element_text(size=20)) 
 #model.A
 
+# Plot habitat temperature function
+plot.temp <- ggplot() +
+  geom_function(fun = function(t) sp.data$meanT + sp.data$amplT*sin((2*pi*t + sp.data$shiftT)/365),
+                size=0.8, linetype="longdash", color="#d1495b") +
+  labs(x="Time", y="T (K)") +
+  scale_x_continuous(limits=c(xmin, xmax)) +
+  scale_y_continuous(limits=c(sp.data$meanT - sp.data$amplT - 1, sp.data$meanT + sp.data$amplT + 1)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
+        axis.line = element_line(colour = "black"), legend.position = "none", 
+        axis.text = element_text(size=13), axis.title = element_text(size=20))
+#plot.temp
+
 # Draw final plot
 ggdraw()  +
-  #draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
+  draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
   draw_plot(plot.J, x = 0, y = 0.3, width = 1, height = 0.7) +
   draw_plot(plot.A, x = 0, y = 0.3, width = 1, height = 0.7) +
   draw_plot(model.J, x = 0, y = 0.3, width = 1, height = 0.7) +
