@@ -14,7 +14,7 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 # Read in time-series data and temperature response data
 data.density <- read_csv("Egwuatu_1977.csv")
-sp.data <- as.data.frame(read_csv("Temperature response data.csv"))
+sp.data <- as.data.frame(read_csv("Temperature response parameters.csv"))
 
 
 # Select time-series data (for Nigeria data, select plot A, B, or C)

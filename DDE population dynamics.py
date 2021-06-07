@@ -14,7 +14,7 @@ from pandas import read_csv
 
 
 # INPUT TEMPERATURE RESPONSE DATA
-tempData = read_csv("Temperature response data.csv")
+tempData = read_csv("Temperature response parameters.csv")
 
 
 # SELECT INSECT SPECIES

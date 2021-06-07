@@ -25,7 +25,7 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 # STEP 1: Assign parameter values
 # read data and select insect
-data <- read_csv("Temperature response data.csv")
+data <- read_csv("Temperature response parameters.csv")
 
 # select an insect by removing # in front of name and placing # in front of other species
 #sp.data <- subset(data, Species == "Clavigralla shadabi")
@@ -65,7 +65,7 @@ model = function(t, State, Pars){
          # Temperature responses
          b = bTopt*exp(-(T-Toptb)^2/(2*sb^2)) # Birth rate
          #q = 1 # Density-dependence (temperature-independent for simplicity)
-         q = qTR*exp(Aq*(1/TR-1/Tmax))*exp(-(T-Toptq)^2/(2*sq^2)) # Density-dependence (temperature-dependent)
+         q = qTR/10*exp(Aq*(1/TR-1/Tmax))*exp(-(T-Toptq)^2/(2*sq^2)) # Density-dependence (temperature-dependent)
          m = mTR*(T/TR)*exp(A*(1/TR-1/T))/(1+skew*(exp(AL*(1/TL-1/T))+exp(AH*(1/TH-1/T)))) # Maturation rate
          dJ = dJTR*exp(AdJ*(1/TR-1/T)) # Juvenile mortality
          dA = dATR*exp(AdA*(1/TR-1/T)) # Adult mortality
