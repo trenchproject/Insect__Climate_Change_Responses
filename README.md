@@ -8,5 +8,6 @@ Files:
 * Habitat temperatures.csv (data file containing mean monthly temperature data)
 * ODE population dynamics.R (R code for modelling population dynamics using ordinary differential equations)
 * Temperature response data.csv (data file containing model parameters)
-* Time series <species name>.csv (data file containing DDE output from DDE population dynamics.py)
+* Temperature responses.R (R code for fitting functions to temperature response data)
+* Time series (species name).csv (data file containing DDE output from DDE population dynamics.py)
 * Time series models.R (R code for plotting model output with empirical time-series data)
