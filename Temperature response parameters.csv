@@ -1,4 +1,4 @@
-﻿Species,meanT,amplT,shiftT,bTopt,Toptb,sb,mTR,TR,AmJ,skew,AL,TL,AH,TH,dJTR,AdJ,dATR,AdA,qTR,Toptq,sq,Aq,Tmax,qTemp
-Clavigralla shadabi,300.2,1.36,35.39,8.9313,300.4365,3.6419,0.0334,298,7000,1,-70694,289.8,146729,308.7,0.0129,23770,0.0265,9710,0.2,300.4365,3.6419,9710,301.58,1
-Clavigralla tomentosicollis Benin,300.2,1.36,35.39,6.8,302.3,3.8,0.0423,298,6844,1,-124219,290,198573,310,0.024,5825,0.0573,6000,1,302.3,3.8,6000,301.58,1
-Clavigralla tomentosicollis Nigeria A,300.6,2.33,-17.28,6.8,302.3,3.8,0.0423,298,6844,1,-124219,290,198573,310,0.024,5825,0.0573,6000,10,302.3,3.8,6000,301.58,1
+﻿Species,meanT,amplT,shiftT,bTopt,Toptb,sb,mTR,TR,AmJ,skew,AL,TL,AH,TH,dJTR,AdJ,dATR,AdA,qTR,Toptq,sq,Aq,Tmax,qTemp,Notes
+Clavigralla shadabi,300.2,1.36,35.39,8.8787,300.46,3.6893,0.037,298,5674,1,-40670,290.3,157800,308.9,0.013,23621,0.027,9538,0.2,300.46,3.6893,9538,301.58,1,Using left-skewed maturation
+Clavigralla tomentosicollis Benin,300.2,1.36,35.39,6.8,302.3,3.8,0.0423,298,6844,1,-124219,290,198573,310,0.024,5825,0.0573,6000,1,302.3,3.8,6000,301.58,1,Using left-skewed maturation
+Clavigralla tomentosicollis Nigeria A,300.6,2.33,-17.28,6.8,302.3,3.8,0.0423,298,6844,1,-124219,290,198573,310,0.024,5825,0.0573,6000,10,302.3,3.8,6000,301.58,1,Using temperature response data from Benin
