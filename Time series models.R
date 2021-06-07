@@ -32,19 +32,22 @@ sp.data <- subset(sp.data, Species == "Clavigralla tomentosicollis Nigeria A")
 
 
 # Set plot options (default: plot last 2 year of model)
-xmin <- 0
-xmax <-730
+xmin <- 200
+xmax <- 500
 ymin <- 0
-ymax <- 50
+ymax <- 10
 TS.length <- xmax - xmin # length of time-series data
 end <- nrow(data.model)
 
 # Format model output to align with time-series data
-# Remove all rows but the last x years
-data.model <- data.model[c(-1:-(end-TS.length)), ]
+# Remove all rows before last 10 years + xmin days
+data.model <- data.model[c(-1:-(end - 10*365 + xmin)), ]
+
+# Remove all rows after xmax days
+data.model <- data.model[c(-(xmax - xmin + 2):-end), ]
 
 # Re-scale time so that last x years are plotted as the first x years
-data.model <- sweep(data.model, 2, c(end-TS.length,0,0,0,0))
+data.model <- sweep(data.model, 2, c(end - 10*365,0,0,0,0))
 
 
 # Plot time-series data
@@ -53,8 +56,8 @@ plot.J = ggplot(data.TS, aes(x=time, y=J, ymin=J-J_SE, ymax=J+J_SE)) +
   #geom_line(size=0.8, linetype="longdash", color="#d1495b") +
   labs(x="Time", y="Density") +
   scale_x_continuous(limits=c(xmin, xmax)) +
-  #scale_y_continuous(limits=c(ymin, ymax)) +
-  scale_y_log10(limits=c(0.3, 10)) +
+  scale_y_continuous(limits=c(ymin, ymax)) +
+  #scale_y_log10(limits=c(ymin, ymax)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
         axis.line = element_line(colour = "black"), legend.position = "none", 
@@ -66,8 +69,8 @@ plot.A = ggplot(data.TS, aes(x=time, y=A, ymin=A-A_SE, ymax=A+A_SE)) +
   #geom_line(size=0.8, linetype="longdash", color="#30638e") +
   labs(x="Time", y="Density") +
   scale_x_continuous(limits=c(xmin, xmax)) +
-  #scale_y_continuous(limits=c(ymin, ymax)) +
-  scale_y_log10(limits=c(0.3, 10)) +
+  scale_y_continuous(limits=c(ymin, ymax)) +
+  #scale_y_log10(limits=c(ymin, ymax)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
         axis.line = element_line(colour = "black"), legend.position = "none", 
@@ -79,8 +82,8 @@ model.J = ggplot(data.model, aes(x=Time, y=J)) +
   geom_line(size=0.8, color="#d1495b") +
   labs(x="Time", y="Density") +
   scale_x_continuous(limits=c(xmin, xmax)) +
-  #scale_y_continuous(limits=c(ymin, ymax)) +
-  scale_y_log10(limits=c(0.3, 10)) +
+  scale_y_continuous(limits=c(ymin, ymax)) +
+  #scale_y_log10(limits=c(ymin, ymax)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
         axis.line = element_line(colour = "black"), legend.position = "none", 
@@ -91,8 +94,8 @@ model.A = ggplot(data.model, aes(x=Time, y=A)) +
   geom_line(size=0.8, color="#30638e") +
   labs(x="Time", y="Density") +
   scale_x_continuous(limits=c(xmin, xmax)) +
-  #scale_y_continuous(limits=c(ymin, ymax)) +
-  scale_y_log10(limits=c(0.3, 10)) +
+  scale_y_continuous(limits=c(ymin, ymax)) +
+  #scale_y_log10(limits=c(ymin, ymax)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
         axis.line = element_line(colour = "black"), legend.position = "none", 
@@ -112,7 +115,16 @@ plot.temp <- ggplot() +
         axis.text = element_text(size=13), axis.title = element_text(size=20))
 #plot.temp
 
+
 # Draw final plot
+ggdraw()  +
+  draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
+  draw_plot(plot.J, x = 0, y = 0.3, width = 1, height = 0.7) +
+  draw_plot(plot.A, x = 0, y = 0.3, width = 1, height = 0.7) +
+  draw_plot(model.J, x = 0, y = 0.3, width = 1, height = 0.7) +
+  draw_plot(model.A, x = 0, y = 0.3, width = 1, height = 0.7)
+
+# First plot doesn't included last draw_plot, but it seems to work if plotted agoin
 ggdraw()  +
   draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
   draw_plot(plot.J, x = 0, y = 0.3, width = 1, height = 0.7) +

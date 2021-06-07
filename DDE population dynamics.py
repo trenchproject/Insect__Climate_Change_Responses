@@ -8,7 +8,7 @@
 from numpy import arange, hstack, vstack, savetxt
 from jitcdde import jitcdde, y, t
 from symengine import exp, sin, pi
-from matplotlib.pyplot import subplots, xlabel, ylabel, xlim, ylim #, yscale
+from matplotlib.pyplot import subplots, xlabel, ylabel, xlim, ylim#, yscale
 from pandas import read_csv
 
 
@@ -26,12 +26,12 @@ spData = tempData[tempData["Species"] == "Clavigralla tomentosicollis Nigeria A"
 # DEFINE MODEL PARAMETERS
 # Time parameters
 yr = 365 # days in year
-max_years = 50 # how long to run simulations
+max_years = 100 # how long to run simulations
 tstep = 1 # time step = 1 day
 delta_years = max_years # how long before climate change "equilibrates"
 
 # Initial abundances
-initJ = 50
+initJ = 1
 initA = 1
 
 # Habitat temperature and climate change parameters
@@ -76,7 +76,7 @@ qTopt = qTR*exp(Aq*(1/TR - 1/Tmax))
 # FUNCTIONS
 # Seasonal temperature variation (K) over time
 def T(x):
-    return (meanT + m_mean*x) + (amplT + m_ampl*x) * sin(2*pi*(x + shiftT)/yr)
+    return (meanT + m_mean*x) + 1*(amplT + m_ampl*x) * sin(2*pi*(x + shiftT)/yr)
     '''
     if x < 0:
         return meanT # during model initiation, habitat temperature is constant at its mean
@@ -162,7 +162,7 @@ ax.plot(data[:,0], data[:,2], label='A')
 ax.legend(loc='best')
 xlabel("time (days)")
 ylabel("population density")
-xlim((max_years-10)*yr,max_years*yr)
-ylim(0,40)
+xlim((max_years-1)*yr,max_years*yr)
+ylim(0,5)
 #yscale("log")
-#ylim(0.1,100)
+#ylim(0.3,10)

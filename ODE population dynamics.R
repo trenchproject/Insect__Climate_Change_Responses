@@ -92,8 +92,8 @@ pop.dyn <- ggplot(output[output$Variable %in% c("J", "A"), ], aes(x=time, y=Outp
   geom_line(size=1.2) +
   scale_color_manual(values=c("J"="#d1495b", "A"="#30638e")) + 
   labs(x="Time", y="Density") +
-  # scale_x_continuous(expand=c(0, 5)) +
-  scale_y_log10(limits=c(1, 10)) +
+  scale_y_continuous(limits=c(0, 100)) +
+  #scale_y_log10(limits=c(1, 10)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black"),
         legend.position = "none", 
@@ -105,7 +105,6 @@ temp.regime <- ggplot(output[output$Variable %in% c("signal"), ], aes(x=time, y=
   geom_line(size=1.2) +
   scale_color_manual(values=c("signal"="#d1495b")) + 
   labs(x="Time", y="Temperature (K)") +
-  # scale_x_continuous(expand=c(0, 5)) +
   scale_y_continuous(limits=c(params$meanT - params$amplT - amplT.incr - 1, params$meanT + params$amplT + meanT.incr + amplT.incr + 1)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black"),
@@ -113,11 +112,9 @@ temp.regime <- ggplot(output[output$Variable %in% c("signal"), ], aes(x=time, y=
         axis.text = element_text(size=13),
         axis.title = element_text(size=20))
 
-Plots.model <- ggdraw() +
+ggdraw() +
   draw_plot(pop.dyn, x = 0, y = 0.5, width = 1, height = 0.5) +
-  draw_plot(temp.regime, x = 0, y = 0, width = 1, height = 0.5) #+
-#draw_plot_label(label = c("(c)", ""), size = 18, x = c(0, 0), y = c(1, 0.5))
-Plots.model
+  draw_plot(temp.regime, x = 0, y = 0, width = 1, height = 0.5)
 
 
 ####################################################################
@@ -130,13 +127,21 @@ data.density <- read_csv("Egwuatu_1977.csv")
 # Set the plot (A, B, or C)
 data.plot <- subset(data.density, Plot=="A")
 
+
+# Plot options
+xmin <- 200
+xmax <- 500
+ymin <- 0
+ymax <- 10
+
 # Plot time-series data
 plot.J <- ggplot(data.plot, aes(x=time, y=J, ymin=J-J_SE, ymax=J+J_SE)) + 
   geom_pointrange(size=1.2, color="#d1495b") +
   #geom_line(size=0.8, linetype="longdash", color="#d1495b") +
   labs(x="Time", y="Density") +
-  scale_x_continuous(limits=c(200, 500)) +
-  scale_y_log10(limits=c(0.3, 10)) +
+  scale_x_continuous(limits=c(xmin, xmax)) +
+  scale_y_continuous(limits=c(ymin, ymax)) +
+  #scale_y_log10(limits=c(1, 10)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
         axis.line = element_line(colour = "black"), legend.position = "none", 
@@ -147,21 +152,23 @@ plot.A <- ggplot(data.plot, aes(x=time, y=A, ymin=A-A_SE, ymax=A+A_SE)) +
   geom_pointrange(size=1.2, color="#30638e") +
   #geom_line(size=0.8, linetype="longdash", color="#30638e") +
   labs(x="Time", y="Density") +
-  scale_x_continuous(limits=c(200, 500)) +
-  scale_y_log10(limits=c(0.3, 10)) +
+  scale_x_continuous(limits=c(xmin, xmax)) +
+  scale_y_continuous(limits=c(ymin, ymax)) +
+  #scale_y_log10(limits=c(1, 10)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
         axis.line = element_line(colour = "black"), legend.position = "none", 
         axis.text = element_text(size=13), axis.title = element_text(size=20)) 
 #plot.A
 
-# Plot model dynamics
-plot.model <- ggplot(subset(output[output$Variable %in% c("J", "A"), ], time>=8*365+210 & time<=8*365+480),
+# Plot model dynamics (starting 8 years in to avoid transients)
+plot.model <- ggplot(subset(output[output$Variable %in% c("J", "A"), ], time>=8*365+xmin & time<=8*365+xmax),
                           aes(x=time, y=Output, color=Variable)) + 
   geom_line(size=1.2) +
   scale_color_manual(values=c("J"="#d1495b", "A"="#30638e")) + 
   labs(x="Time", y="Density") +
-  scale_y_log10(limits=c(0.3, 10)) +
+  scale_y_continuous(limits=c(ymin, ymax)) +
+  #scale_y_log10(limits=c(1, 10)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
         axis.line = element_line(colour = "black"), legend.position = "none", 
@@ -175,7 +182,7 @@ plot.temp <- ggplot(subset(output[output$Variable %in% c("signal"), ], time>=200
   geom_line(size=1.2) +
   scale_color_manual(values=c("signal"="#d1495b")) + 
   labs(x="Time", y="T (K)") +
-  scale_x_continuous(limits=c(200, 500)) +
+  scale_x_continuous(limits=c(xmin, xmax)) +
   scale_y_continuous(limits=c(params$meanT - params$amplT - amplT.incr - 1, params$meanT + params$amplT + meanT.incr + amplT.incr + 1)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
@@ -183,9 +190,8 @@ plot.temp <- ggplot(subset(output[output$Variable %in% c("signal"), ], time>=200
         axis.text = element_text(size=13), axis.title = element_text(size=20)) 
 #plot.temp
 
-(ggdraw()  +
+ggdraw()  +
     draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
     draw_plot(plot.model, x = 0, y = 0.3, width = 1, height = 0.7) +
     draw_plot(plot.J, x = 0, y = 0.3, width = 1, height = 0.7) +
-    draw_plot(plot.A, x = 0, y = 0.3, width = 1, height = 0.7))
-
+    draw_plot(plot.A, x = 0, y = 0.3, width = 1, height = 0.7)
