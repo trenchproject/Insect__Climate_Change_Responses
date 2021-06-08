@@ -14,11 +14,11 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 # Read in time-series data and temperature response data
 data.density <- read_csv("Egwuatu_1977.csv")
-sp.data <- as.data.frame(read_csv("Temperature response parameters.csv"))
+data <- as.data.frame(read_csv("Temperature response parameters.csv"))
 
 
 # Select time-series data (for Nigeria data, select plot A, B, or C)
-data.TS <- subset(data.density, Plot=="A")
+data.TS <- subset(data.density, Plot=="C")
 
 
 # Read in model output
@@ -27,13 +27,17 @@ data.TS <- subset(data.density, Plot=="A")
 #sp.data <- subset(sp.data, Species == "Clavigralla shadabi")
 #read.data <- as.data.frame(read_csv("Time Series Clavigralla tomentosicollis Benin.csv"))
 #sp.data <- subset(sp.data, Species == "Clavigralla tomentosicollis Benin")
-data.model <- as.data.frame(read_csv("Time Series Clavigralla tomentosicollis Nigeria A.csv"))
-sp.data <- subset(sp.data, Species == "Clavigralla tomentosicollis Nigeria A")
+#data.model <- as.data.frame(read_csv("Time Series Clavigralla tomentosicollis Nigeria A.csv"))
+#sp.data <- subset(data, Species == "Clavigralla tomentosicollis Nigeria A")
+#data.model <- as.data.frame(read_csv("Time Series Clavigralla tomentosicollis Nigeria B.csv"))
+#sp.data <- subset(data, Species == "Clavigralla tomentosicollis Nigeria B")
+data.model <- as.data.frame(read_csv("Time Series Clavigralla tomentosicollis Nigeria C.csv"))
+sp.data <- subset(data, Species == "Clavigralla tomentosicollis Nigeria C")
 
 
 # Set plot options (default: plot last 2 year of model)
 xmin <- 200
-xmax <- 500
+xmax <- 750
 ymin <- 0
 ymax <- 10
 TS.length <- xmax - xmin # length of time-series data
@@ -104,7 +108,7 @@ model.A = ggplot(data.model, aes(x=Time, y=A)) +
 
 # Plot habitat temperature function
 plot.temp <- ggplot() +
-  geom_function(fun = function(t) sp.data$meanT + sp.data$amplT*sin((2*pi*t + sp.data$shiftT)/365),
+  geom_function(fun = function(t) sp.data$meanT + sp.data$amplT*sin(2*pi*(t + sp.data$shiftT)/365),
                 size=0.8, linetype="longdash", color="#d1495b") +
   labs(x="Time", y="T (K)") +
   scale_x_continuous(limits=c(xmin, xmax)) +
@@ -117,14 +121,6 @@ plot.temp <- ggplot() +
 
 
 # Draw final plot
-ggdraw()  +
-  draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
-  draw_plot(plot.J, x = 0, y = 0.3, width = 1, height = 0.7) +
-  draw_plot(plot.A, x = 0, y = 0.3, width = 1, height = 0.7) +
-  draw_plot(model.J, x = 0, y = 0.3, width = 1, height = 0.7) +
-  draw_plot(model.A, x = 0, y = 0.3, width = 1, height = 0.7)
-
-# First plot doesn't included last draw_plot, but it seems to work if plotted agoin
 ggdraw()  +
   draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
   draw_plot(plot.J, x = 0, y = 0.3, width = 1, height = 0.7) +

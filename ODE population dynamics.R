@@ -30,7 +30,9 @@ data <- read_csv("Temperature response parameters.csv")
 # select an insect by removing # in front of name and placing # in front of other species
 #sp.data <- subset(data, Species == "Clavigralla shadabi")
 #sp.data <- subset(data, Species == "Clavigralla tomentosicollis Benin")
-sp.data <- subset(data, Species == "Clavigralla tomentosicollis Nigeria A")
+#sp.data <- subset(data, Species == "Clavigralla tomentosicollis Nigeria A")
+#sp.data <- subset(data, Species == "Clavigralla tomentosicollis Nigeria B")
+sp.data <- subset(data, Species == "Clavigralla tomentosicollis Nigeria C")
 
 # define model parameters
 params <- c(sp.data[2], sp.data[3], sp.data[4], sp.data[5],sp.data[6], sp.data[7], sp.data[8],
@@ -53,7 +55,7 @@ model = function(t, State, Pars){
   with(as.list(c(State, Pars)),
        {
          # temperature function
-         temp = (meanT + dMeanT*times) + (amplT + dAmplT*times)*sin((2*pi*times + shiftT)/365)
+         temp = (meanT + dMeanT*times) + (amplT + dAmplT*times)*sin(2*pi*(times + shiftT)/365)
          # time-series of temperature values
          signal = as.data.frame(list(times = times, temp = rep(0, length(times))))
          signal$temp = temp
@@ -65,7 +67,7 @@ model = function(t, State, Pars){
          # Temperature responses
          b = bTopt*exp(-(T-Toptb)^2/(2*sb^2)) # Birth rate
          #q = 1 # Density-dependence (temperature-independent for simplicity)
-         q = qTR/10*exp(Aq*(1/TR-1/Tmax))*exp(-(T-Toptq)^2/(2*sq^2)) # Density-dependence (temperature-dependent)
+         q = qTR*exp(Aq*(1/TR-1/Tmax))*exp(-(T-Toptq)^2/(2*sq^2)) # Density-dependence (temperature-dependent)
          m = mTR*(T/TR)*exp(A*(1/TR-1/T))/(1+skew*(exp(AL*(1/TL-1/T))+exp(AH*(1/TH-1/T)))) # Maturation rate
          dJ = dJTR*exp(AdJ*(1/TR-1/T)) # Juvenile mortality
          dA = dATR*exp(AdA*(1/TR-1/T)) # Adult mortality
@@ -125,12 +127,12 @@ ggdraw() +
 # Read data
 data.density <- read_csv("Egwuatu_1977.csv")
 # Set the plot (A, B, or C)
-data.plot <- subset(data.density, Plot=="A")
+data.plot <- subset(data.density, Plot=="C")
 
 
 # Plot options
-xmin <- 200
-xmax <- 500
+xmin <- 200 # days
+xmax <- 750 # days
 ymin <- 0
 ymax <- 10
 
@@ -177,7 +179,7 @@ plot.model <- ggplot(subset(output[output$Variable %in% c("J", "A"), ], time>=8*
 #plot.model
 
 # Plot temperature regime
-plot.temp <- ggplot(subset(output[output$Variable %in% c("signal"), ], time>=200 & time<=500),
+plot.temp <- ggplot(subset(output[output$Variable %in% c("signal"), ], time>=xmin & time<=xmax),
                       aes(x=time, y=Output, color=Variable)) + 
   geom_line(size=1.2) +
   scale_color_manual(values=c("signal"="#d1495b")) + 

@@ -17,7 +17,9 @@ temp.data <- as.data.frame(read.data)
 # Select an insect by removing # in front of name and placing # in front of other species
 #sp.data <- subset(temp.data, Species == "Clavigralla shadabi")
 #sp.data <- subset(temp.data, Species == "Clavigralla tomentosicollis Benin")
-sp.data <- subset(temp.data, Species == "Clavigralla tomentosicollis Nigeria A")
+#sp.data <- subset(temp.data, Species == "Clavigralla tomentosicollis Nigeria A")
+#sp.data <- subset(temp.data, Species == "Clavigralla tomentosicollis Nigeria B")
+sp.data <- subset(temp.data, Species == "Clavigralla tomentosicollis Nigeria C")
 
 # Remove columns that do not contain temperature data
 sp.data <- sp.data[-1:-7]
@@ -41,7 +43,7 @@ summary(fit)
 # Plot model data
 ggplot(data, aes(x=day, y=T_K)) + 
   geom_point(size=5, color="#d1495b") +
-  geom_function(fun = function(t) coef(fit)[1] + coef(fit)[2]*sin((2*pi*t + coef(fit)[3])/365),
+  geom_function(fun = function(t) coef(fit)[1] + coef(fit)[2]*sin(2*pi*(t + coef(fit)[3])/365),
                 size=0.8, linetype="longdash", color="#d1495b") +
   labs(x="Time", y="Mean Temperature (K)") +
   scale_x_continuous(limits=c(0, 720)) +

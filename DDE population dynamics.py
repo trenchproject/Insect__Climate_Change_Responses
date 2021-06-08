@@ -20,7 +20,9 @@ tempData = read_csv("Temperature response parameters.csv")
 # SELECT INSECT SPECIES
 #spData = tempData[tempData["Species"] == "Clavigralla shadabi"]
 #spData = tempData[tempData["Species"] == "Clavigralla tomentosicollis Benin"]   
-spData = tempData[tempData["Species"] == "Clavigralla tomentosicollis Nigeria A"] 
+#spData = tempData[tempData["Species"] == "Clavigralla tomentosicollis Nigeria A"]
+#spData = tempData[tempData["Species"] == "Clavigralla tomentosicollis Nigeria B"]
+spData = tempData[tempData["Species"] == "Clavigralla tomentosicollis Nigeria C"]
 
 
 # DEFINE MODEL PARAMETERS
@@ -163,6 +165,6 @@ ax.legend(loc='best')
 xlabel("time (days)")
 ylabel("population density")
 xlim((max_years-1)*yr,max_years*yr)
-ylim(0,5)
+ylim(0,10)
 #yscale("log")
 #ylim(0.3,10)
