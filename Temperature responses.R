@@ -15,8 +15,8 @@ data <- as.data.frame(read_csv("Temperature response data.csv"))
 
 # Select an insect by removing # in front of name and placing # in front of other species
 #sp.data <- subset(data, Species == "Clavigralla shadabi")
-sp.data <- subset(data, Species == "Clavigralla tomentosicollis")
-
+#sp.data <- subset(data, Species == "Clavigralla tomentosicollis Benin")
+sp.data <- subset(data, Species == "Clavigralla tomentosicollis Nigeria")
 
 # Remove columns that do not contain temperature data
 sp.data <- sp.data[-c(1:8,12,14,16,18,20,21,23,24,26,27,29,31,32,34,35)]
@@ -45,10 +45,14 @@ points(seq(Tmin,Tmax,1),coef(fec)[1]*exp(-((seq(Tmin,Tmax,1)-coef(fec)[2])^2)/(2
 mTR <- sp.data[sp.data$T_K==TR,"Development"]
 
 # NLS (monotonic response)
-# NOTE: removed data beyond max development
-dev.mon <- nls(Development ~ xTR*T_K/TR*exp(A*(1/TR-1/T_K)), data=sp.data[-c(nrow(sp.data)-1,nrow(sp.data)),],
-                      start=list(xTR=0.1, A=1000))
+dev.mon <- nls(Development ~ xTR*T_K/TR*exp(A*(1/TR-1/T_K)), data=sp.data,
+               start=list(xTR=0.1, A=1000))
 summary(dev.mon)
+
+# NOTE: removed data beyond max development
+#dev.mon <- nls(Development ~ xTR*T_K/TR*exp(A*(1/TR-1/T_K)), data=sp.data[-c(nrow(sp.data)-1,nrow(sp.data)),],
+#                      start=list(xTR=0.1, A=1000))
+#summary(dev.mon)
 
 # Plot model fits
 plot(sp.data$T_K, sp.data$Development)
