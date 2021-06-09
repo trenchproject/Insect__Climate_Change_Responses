@@ -21,8 +21,7 @@ tempData = read_csv("Temperature response parameters.csv")
 #spData = tempData[tempData["Species"] == "Clavigralla shadabi"]
 #spData = tempData[tempData["Species"] == "Clavigralla tomentosicollis Benin"]   
 #spData = tempData[tempData["Species"] == "Clavigralla tomentosicollis Nigeria A"]
-#spData = tempData[tempData["Species"] == "Clavigralla tomentosicollis Nigeria B"]
-spData = tempData[tempData["Species"] == "Clavigralla tomentosicollis Nigeria C"]
+spData = tempData[tempData["Species"] == "Clavigralla tomentosicollis Burkina Faso C"]
 
 
 # DEFINE MODEL PARAMETERS

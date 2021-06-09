@@ -29,10 +29,8 @@ data.TS <- subset(data.density, Plot=="C")
 #sp.data <- subset(sp.data, Species == "Clavigralla tomentosicollis Benin")
 #data.model <- as.data.frame(read_csv("Time Series Clavigralla tomentosicollis Nigeria A.csv"))
 #sp.data <- subset(data, Species == "Clavigralla tomentosicollis Nigeria A")
-#data.model <- as.data.frame(read_csv("Time Series Clavigralla tomentosicollis Nigeria B.csv"))
-#sp.data <- subset(data, Species == "Clavigralla tomentosicollis Nigeria B")
-data.model <- as.data.frame(read_csv("Time Series Clavigralla tomentosicollis Nigeria C.csv"))
-sp.data <- subset(data, Species == "Clavigralla tomentosicollis Nigeria C")
+data.model <- as.data.frame(read_csv("Time Series Clavigralla tomentosicollis Burkina Faso C.csv"))
+sp.data <- subset(data, Species == "Clavigralla tomentosicollis Burkina Faso C")
 
 
 # Set plot options (default: plot last 2 year of model)
