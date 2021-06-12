@@ -26,7 +26,7 @@ sp.data <- sp.data[-c(1:8,12,14,16,18,20,21,23,24,26,27,29,31,32,34,35)]
 # Set some option for nls and plots
 Tmin <- 288
 Tmax <- 318
-TR <- 298
+TR <- 308
 
 
 

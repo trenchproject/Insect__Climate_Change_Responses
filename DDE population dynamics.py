@@ -1,16 +1,14 @@
 # Delay differential equation model for predicting insect population dynamics
 # under seasonal temperature variation and climate change
 
-# Started integration around 10am, finished at 10pm
-# Started: 2:30am
 
 # IMPORT PACKAGES
 from numpy import arange, hstack, vstack, savetxt
 from jitcdde import jitcdde, y, t
-from symengine import exp, sin, pi
-from matplotlib.pyplot import subplots, xlabel, ylabel, xlim, ylim#, yscale
+from symengine import exp, pi, sin, cos, asin
+from matplotlib.pyplot import subplots, xlabel, ylabel, xlim, ylim#, plot, show#, yscale
 from pandas import read_csv
-
+from jitcxde_common import conditional
 
 
 # INPUT TEMPERATURE RESPONSE DATA
@@ -19,15 +17,15 @@ tempData = read_csv("Temperature response parameters.csv")
 
 # SELECT INSECT SPECIES
 #spData = tempData[tempData["Species"] == "Clavigralla shadabi"]
-#spData = tempData[tempData["Species"] == "Clavigralla tomentosicollis Benin"]   
-#spData = tempData[tempData["Species"] == "Clavigralla tomentosicollis Nigeria A"]
-spData = tempData[tempData["Species"] == "Clavigralla tomentosicollis Burkina Faso C"]
+#spData = tempData[tempData["Species"] == "Clavigralla tomentosicollis Benin B"]   
+#spData = tempData[tempData["Species"] == "Clavigralla tomentosicollis Nigeria B"]
+spData = tempData[tempData["Species"] == "Clavigralla tomentosicollis Burkina Faso B"]
 
 
 # DEFINE MODEL PARAMETERS
 # Time parameters
 yr = 365 # days in year
-max_years = 100 # how long to run simulations
+max_years = 50 # how long to run simulations
 tstep = 1 # time step = 1 day
 delta_years = max_years # how long before climate change "equilibrates"
 
@@ -73,33 +71,43 @@ Tmax = spData["Tmax"].values[0]
 qTemp = spData["qTemp"].values[0]
 qTopt = qTR*exp(Aq*(1/TR - 1/Tmax))
 
+# Resource variation
+Res = spData["Res"].values[0] # Res = 1 (0) if there is (not) resource variation
+Rstart = spData["Rstart"].values[0] # start date of resource availablity
+Rend = spData["Rend"].values[0] # end of resource availability
+if Rend > Rstart:               # proportion of year when resource is available
+    Rlength = (Rend - Rstart)/yr
+else:
+     Rlength = (yr - Rstart + Rend)/yr
+Rshift = cos(pi*Rlength) # shift used to model resource availability via sine wave
+
+
 
 # FUNCTIONS
 # Seasonal temperature variation (K) over time
 def T(x):
-    return (meanT + m_mean*x) + 1*(amplT + m_ampl*x) * sin(2*pi*(x + shiftT)/yr)
-    '''
-    if x < 0:
-        return meanT # during model initiation, habitat temperature is constant at its mean
-    elif x < (delta_years*yr):
-        return (meanT + m_mean*x) + (amplT + m_ampl*x) * sin(2*pi*(x + shiftT)/yr) # temperature variation during climate change
-    else:
-        return (meanT + delta_mean) + (amplT + delta_ampl) * sin(2*pi*(x + shiftT)/yr) # temperature varation after climate change "equilibriates"
-'''
+    return conditional(x, 0, meanT, # during model initiation, habitat temperature is constant at its mean
+            conditional(x, delta_years*yr, (meanT + m_mean*x) + (amplT + m_ampl*x) * sin(2*pi*(x + shiftT)/yr), # temperature regime during climate change
+                    (meanT + delta_mean) + (amplT + delta_ampl) * sin(2*pi*(x + shiftT)/yr))) # temperature regime after climate change "equilibriates"
+
+# Seasonal variation in resource quality (1 = resource available, 0 = resource unavailable)
+def R(x):
+    dum = 1/(1-Rshift)*(-Rshift + sin(2*pi*(x-Rstart)/yr + asin(Rshift))) # sine wave describing resource availability
+    return 0.5*(abs(dum) + dum) # set negative phases of sine wave to zero
 
 '''
-def conditional(observable,threshold,value_if,value_else):
-        if observable>threshold:
-                return value_if
-        else:
-                return value_else
-            '''
+# Plot resource function
+xvals = arange(0,2*yr,1)
+yvals = vstack([0.5*(abs(1/(1-Rshift)*(-Rshift + sin(2*pi*(i-Rstart)/yr + asin(Rshift)))) + 1/(1-Rshift)*(-Rshift + sin(2*pi*(i-Rstart)/yr + asin(Rshift)))) for i in xvals ])
+plot(xvals,yvals)
+show()
+'''
 
 
 # Life history functions
 # fecundity
 def b(x):
-    return bTopt * exp(-(T(x)-Toptb)**2/2/sb**2)
+    return R(x) * bTopt * exp(-(T(x)-Toptb)**2/2/sb**2)
 
 # maturation rates
 def mJ(x):
@@ -163,7 +171,7 @@ ax.plot(data[:,0], data[:,2], label='A')
 ax.legend(loc='best')
 xlabel("time (days)")
 ylabel("population density")
-xlim((max_years-1)*yr,max_years*yr)
+xlim((max_years-20)*yr,max_years*yr)
 ylim(0,10)
 #yscale("log")
 #ylim(0.3,10)

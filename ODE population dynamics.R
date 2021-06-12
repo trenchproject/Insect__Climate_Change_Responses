@@ -3,7 +3,6 @@
 ####################################################################################################
 
 
-
 #################################################
 #### Load packages and set working directory ####
 #################################################
@@ -31,8 +30,12 @@ data <- read_csv("Temperature response parameters.csv")
 #sp.data <- subset(data, Species == "Clavigralla shadabi")
 #sp.data <- subset(data, Species == "Clavigralla tomentosicollis Benin")
 #sp.data <- subset(data, Species == "Clavigralla tomentosicollis Nigeria A")
-#sp.data <- subset(data, Species == "Clavigralla tomentosicollis Nigeria B")
-sp.data <- subset(data, Species == "Clavigralla tomentosicollis Nigeria C")
+sp.data <- subset(data, Species == "Clavigralla tomentosicollis Burkina Faso A")
+
+# Read time-series data (if applicable)
+data.density <- read_csv("Egwuatu_1977.csv")
+# Set the plot (A, B, or C)
+data.plot <- subset(data.density, Plot=="B")
 
 # define model parameters
 params <- c(sp.data[2], sp.data[3], sp.data[4], sp.data[5],sp.data[6], sp.data[7], sp.data[8],
@@ -122,14 +125,6 @@ ggdraw() +
 ####################################################################
 #### Plot empirical time-series for Clavigralla tomentosicollis ####
 ####################################################################
-
-
-# Read data
-data.density <- read_csv("Egwuatu_1977.csv")
-# Set the plot (A, B, or C)
-data.plot <- subset(data.density, Plot=="C")
-
-
 # Plot options
 xmin <- 200 # days
 xmax <- 750 # days
