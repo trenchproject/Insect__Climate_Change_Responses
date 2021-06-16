@@ -3,10 +3,10 @@
 
 
 # IMPORT PACKAGES
-from numpy import arange, hstack, vstack, savetxt
+from numpy import arange, hstack, vstack, savetxt, log
 from jitcdde import jitcdde, y, t
 from symengine import exp, pi, sin, cos, asin
-from matplotlib.pyplot import subplots, xlabel, ylabel, xlim, ylim#, plot, show#, yscale
+from matplotlib.pyplot import subplots, xlabel, ylabel, xlim, ylim#, yscale#, plot, show
 from pandas import read_csv
 from jitcxde_common import conditional
 
@@ -17,9 +17,9 @@ tempData = read_csv("Temperature response parameters.csv")
 
 # SELECT INSECT SPECIES
 #spData = tempData[tempData["Species"] == "Clavigralla shadabi"]
-#spData = tempData[tempData["Species"] == "Clavigralla tomentosicollis Benin B"]   
-#spData = tempData[tempData["Species"] == "Clavigralla tomentosicollis Nigeria B"]
-spData = tempData[tempData["Species"] == "Clavigralla tomentosicollis Burkina Faso B"]
+#spData = tempData[tempData["Species"] == "Clavigralla tomentosicollis Benin"]   
+spData = tempData[tempData["Species"] == "Clavigralla tomentosicollis Nigeria A"]
+#spData = tempData[tempData["Species"] == "Clavigralla tomentosicollis Burkina Faso"]
 
 
 # DEFINE MODEL PARAMETERS
@@ -92,8 +92,11 @@ def T(x):
 
 # Seasonal variation in resource quality (1 = resource available, 0 = resource unavailable)
 def R(x):
-    dum = 1/(1-Rshift)*(-Rshift + sin(2*pi*(x-Rstart)/yr + asin(Rshift))) # sine wave describing resource availability
-    return 0.5*(abs(dum) + dum) # set negative phases of sine wave to zero
+    dummy = 1/(1-Rshift)*(-Rshift + sin(2*pi*(x-Rstart)/yr + asin(Rshift))) # 'dummy' sine wave describing resource availability
+    if Res == 1: # incorporate resource variation in model
+        return 0.5*(abs(dummy) + dummy) # set negative phases of sine wave to zero
+    else:
+        return 1 # do not incorporate resource variation in model
 
 '''
 # Plot resource function
@@ -117,6 +120,8 @@ def mJ(x):
 def dJ(x):
     return dJTR * exp(AdJ * (1/TR - 1/T(x)))
 def dA(x):
+    #dummy = R(x)/(abs(R(x)-1)+1) # 'dummy' function that is 1 when R(x) > 0 and 0 when R(x) = 0
+    #return 0.1*(1 - dummy) + dummy * dATR * exp(AdA * (1/TR - 1/T(x)))
     return dATR * exp(AdA * (1/TR - 1/T(x)))
 
 # density-dependence due to competition
@@ -156,7 +161,7 @@ DDE.adjust_diff()
 
 
 # Save data array containing time and state variables
-data = vstack([ hstack([time,DDE.integrate(time)]) for time in times ])
+data = vstack([ hstack([time, log(DDE.integrate(time))]) for time in times ])
 filename = 'Time series ' + spData["Species"].values[0] + '.csv'  
 savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='') 
 
@@ -171,7 +176,6 @@ ax.plot(data[:,0], data[:,2], label='A')
 ax.legend(loc='best')
 xlabel("time (days)")
 ylabel("population density")
-xlim((max_years-20)*yr,max_years*yr)
-ylim(0,10)
+xlim((max_years-2)*yr,max_years*yr)
 #yscale("log")
-#ylim(0.3,10)
+ylim(0,5)

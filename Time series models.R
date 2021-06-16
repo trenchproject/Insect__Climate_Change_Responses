@@ -18,26 +18,26 @@ data <- as.data.frame(read_csv("Temperature response parameters.csv"))
 
 
 # Select time-series data (for Nigeria data, select plot A, B, or C)
-data.TS <- subset(data.density, Plot=="B")
+data.TS <- subset(data.density, Plot=="A")
 
 
 # Read in model output
 # Select an insect by removing # in front of name and placing # in front of other species
 #data.model <- as.data.frame(read_csv("Time Series Clavigralla shadabi.csv"))
 #sp.data <- subset(data, Species == "Clavigralla shadabi")
-#data.model <- as.data.frame(read_csv("Time Series Clavigralla tomentosicollis Benin B.csv"))
-#sp.data <- subset(data, Species == "Clavigralla tomentosicollis Benin B")
-#data.model <- as.data.frame(read_csv("Time Series Clavigralla tomentosicollis Nigeria A.csv"))
-#sp.data <- subset(data, Species == "Clavigralla tomentosicollis Nigeria A")
-data.model <- as.data.frame(read_csv("Time Series Clavigralla tomentosicollis Burkina Faso B.csv"))
-sp.data <- subset(data, Species == "Clavigralla tomentosicollis Burkina Faso B")
+#data.model <- as.data.frame(read_csv("Time Series Clavigralla tomentosicollis Benin.csv"))
+#sp.data <- subset(data, Species == "Clavigralla tomentosicollis Benin")
+data.model <- as.data.frame(read_csv("Time Series Clavigralla tomentosicollis Nigeria A.csv"))
+sp.data <- subset(data, Species == "Clavigralla tomentosicollis Nigeria A")
+#data.model <- as.data.frame(read_csv("Time Series Clavigralla tomentosicollis Burkina Faso.csv"))
+#sp.data <- subset(data, Species == "Clavigralla tomentosicollis Burkina Faso")
 
 
 # Set plot options (default: plot last 2 year of model)
 xmin <- 200
-xmax <- 750
+xmax <- 500
 ymin <- 0
-ymax <- 10
+ymax <- 4
 TS.length <- xmax - xmin # length of time-series data
 end <- nrow(data.model)
 
@@ -56,7 +56,7 @@ data.model <- sweep(data.model, 2, c(end - 10*365,0,0,0,0))
 plot.J = ggplot(data.TS, aes(x=time, y=J, ymin=J-J_SE, ymax=J+J_SE)) + 
   geom_pointrange(size=0.8, color="#d1495b") +
   #geom_line(size=0.8, linetype="longdash", color="#d1495b") +
-  labs(x="Time", y="Density") +
+  labs(x="Time", y="Log(Density)") +
   scale_x_continuous(limits=c(xmin, xmax)) +
   scale_y_continuous(limits=c(ymin, ymax)) +
   #scale_y_log10(limits=c(ymin, ymax)) +
@@ -69,7 +69,7 @@ plot.J = ggplot(data.TS, aes(x=time, y=J, ymin=J-J_SE, ymax=J+J_SE)) +
 plot.A = ggplot(data.TS, aes(x=time, y=A, ymin=A-A_SE, ymax=A+A_SE)) + 
   geom_pointrange(size=0.8, color="#30638e") +
   #geom_line(size=0.8, linetype="longdash", color="#30638e") +
-  labs(x="Time", y="Density") +
+  labs(x="Time", y="Log(Density)") +
   scale_x_continuous(limits=c(xmin, xmax)) +
   scale_y_continuous(limits=c(ymin, ymax)) +
   #scale_y_log10(limits=c(ymin, ymax)) +
@@ -82,7 +82,7 @@ plot.A = ggplot(data.TS, aes(x=time, y=A, ymin=A-A_SE, ymax=A+A_SE)) +
 # Plot model data
 model.J = ggplot(data.model, aes(x=Time, y=J)) + 
   geom_line(size=0.8, color="#d1495b") +
-  labs(x="Time", y="Density") +
+  labs(x="Time", y="Log(Density)") +
   scale_x_continuous(limits=c(xmin, xmax)) +
   scale_y_continuous(limits=c(ymin, ymax)) +
   #scale_y_log10(limits=c(ymin, ymax)) +
@@ -94,7 +94,7 @@ model.J = ggplot(data.model, aes(x=Time, y=J)) +
 
 model.A = ggplot(data.model, aes(x=Time, y=A)) + 
   geom_line(size=0.8, color="#30638e") +
-  labs(x="Time", y="Density") +
+  labs(x="Time", y="Log(Density)") +
   scale_x_continuous(limits=c(xmin, xmax)) +
   scale_y_continuous(limits=c(ymin, ymax)) +
   #scale_y_log10(limits=c(ymin, ymax)) +
@@ -129,7 +129,7 @@ ggdraw()  +
 # Draw final plot
 ggdraw()  +
   draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
-  draw_plot(plot.J, x = 0, y = 0.3, width = 1, height = 0.7) +
+  #draw_plot(plot.J, x = 0, y = 0.3, width = 1, height = 0.7) +
   draw_plot(plot.A, x = 0, y = 0.3, width = 1, height = 0.7) +
-  draw_plot(model.J, x = 0, y = 0.3, width = 1, height = 0.7) +
+  #draw_plot(model.J, x = 0, y = 0.3, width = 1, height = 0.7) +
   draw_plot(model.A, x = 0, y = 0.3, width = 1, height = 0.7)
