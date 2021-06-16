@@ -18,7 +18,7 @@ data <- as.data.frame(read_csv("Temperature response parameters.csv"))
 
 
 # Select time-series data (for Nigeria data, select plot A, B, or C)
-data.TS <- subset(data.density, Plot=="C")
+data.TS <- subset(data.density, Plot=="B")
 
 
 # Read in model output
@@ -27,8 +27,8 @@ data.TS <- subset(data.density, Plot=="C")
 #sp.data <- subset(data, Species == "Clavigralla shadabi")
 #data.model <- as.data.frame(read_csv("Time Series Clavigralla tomentosicollis Benin.csv"))
 #sp.data <- subset(data, Species == "Clavigralla tomentosicollis Benin")
-data.model <- as.data.frame(read_csv("Time Series Clavigralla tomentosicollis Nigeria C.csv"))
-sp.data <- subset(data, Species == "Clavigralla tomentosicollis Nigeria C")
+data.model <- as.data.frame(read_csv("Time Series Clavigralla tomentosicollis Nigeria B.csv"))
+sp.data <- subset(data, Species == "Clavigralla tomentosicollis Nigeria B")
 #data.model <- as.data.frame(read_csv("Time Series Clavigralla tomentosicollis Burkina Faso.csv"))
 #sp.data <- subset(data, Species == "Clavigralla tomentosicollis Burkina Faso")
 
