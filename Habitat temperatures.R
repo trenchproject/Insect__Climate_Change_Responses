@@ -11,15 +11,15 @@ library(tidyverse)
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 # Read data
-read.data <- read_csv("Habitat temperatures.csv")
-temp.data <- as.data.frame(read.data)
+temp.data <- as.data.frame(read_csv("Habitat temperatures.csv"))
 
 # Select an insect by removing # in front of name and placing # in front of other species
 #sp.data <- subset(temp.data, Species == "Clavigralla shadabi")
 #sp.data <- subset(temp.data, Species == "Clavigralla tomentosicollis Benin")
 #sp.data <- subset(temp.data, Species == "Clavigralla tomentosicollis Nigeria A")
 #sp.data <- subset(temp.data, Species == "Clavigralla tomentosicollis Nigeria B")
-sp.data <- subset(temp.data, Species == "Clavigralla tomentosicollis Nigeria C")
+#sp.data <- subset(temp.data, Species == "Clavigralla tomentosicollis Nigeria C")
+sp.data <- subset(temp.data, Species == "Clavigralla tomentosicollis Burkina Faso")
 
 # Remove columns that do not contain temperature data
 sp.data <- sp.data[-1:-7]
@@ -47,7 +47,7 @@ ggplot(data, aes(x=day, y=T_K)) +
                 size=0.8, linetype="longdash", color="#d1495b") +
   labs(x="Time", y="Mean Temperature (K)") +
   scale_x_continuous(limits=c(0, 720)) +
-  scale_y_continuous(limits=c(coef(fit)[1] - coef(fit)[2] - 1, coef(fit)[1] + coef(fit)[2] + 1)) +
+  scale_y_continuous(limits=c(coef(fit)[1] - coef(fit)[2] - 2, coef(fit)[1] + coef(fit)[2] + 3)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
         axis.line = element_line(colour = "black"), legend.position = "none", 
