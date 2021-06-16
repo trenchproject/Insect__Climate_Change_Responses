@@ -18,7 +18,7 @@ data <- as.data.frame(read_csv("Temperature response parameters.csv"))
 
 
 # Select time-series data (for Nigeria data, select plot A, B, or C)
-data.TS <- subset(data.density, Plot=="A")
+data.TS <- subset(data.density, Plot=="C")
 
 
 # Read in model output
@@ -27,15 +27,15 @@ data.TS <- subset(data.density, Plot=="A")
 #sp.data <- subset(data, Species == "Clavigralla shadabi")
 #data.model <- as.data.frame(read_csv("Time Series Clavigralla tomentosicollis Benin.csv"))
 #sp.data <- subset(data, Species == "Clavigralla tomentosicollis Benin")
-data.model <- as.data.frame(read_csv("Time Series Clavigralla tomentosicollis Nigeria A.csv"))
-sp.data <- subset(data, Species == "Clavigralla tomentosicollis Nigeria A")
+data.model <- as.data.frame(read_csv("Time Series Clavigralla tomentosicollis Nigeria C.csv"))
+sp.data <- subset(data, Species == "Clavigralla tomentosicollis Nigeria C")
 #data.model <- as.data.frame(read_csv("Time Series Clavigralla tomentosicollis Burkina Faso.csv"))
 #sp.data <- subset(data, Species == "Clavigralla tomentosicollis Burkina Faso")
 
 
 # Set plot options (default: plot last 2 year of model)
 xmin <- 200
-xmax <- 500
+xmax <- 750
 ymin <- 0
 ymax <- 4
 TS.length <- xmax - xmin # length of time-series data

@@ -18,7 +18,7 @@ tempData = read_csv("Temperature response parameters.csv")
 # SELECT INSECT SPECIES
 #spData = tempData[tempData["Species"] == "Clavigralla shadabi"]
 #spData = tempData[tempData["Species"] == "Clavigralla tomentosicollis Benin"]   
-spData = tempData[tempData["Species"] == "Clavigralla tomentosicollis Nigeria A"]
+spData = tempData[tempData["Species"] == "Clavigralla tomentosicollis Nigeria C"]
 #spData = tempData[tempData["Species"] == "Clavigralla tomentosicollis Burkina Faso"]
 
 
