@@ -18,7 +18,7 @@ tempData = read_csv("Temperature response parameters.csv")
 # SELECT INSECT SPECIES
 #spData = tempData[tempData["Species"] == "Clavigralla shadabi"]
 #spData = tempData[tempData["Species"] == "Clavigralla tomentosicollis Benin"]   
-spData = tempData[tempData["Species"] == "Clavigralla tomentosicollis Nigeria C"]
+spData = tempData[tempData["Species"] == "Clavigralla tomentosicollis Nigeria B"]
 #spData = tempData[tempData["Species"] == "Clavigralla tomentosicollis Burkina Faso"]
 
 
@@ -110,7 +110,8 @@ show()
 # Life history functions
 # fecundity
 def b(x):
-    return R(x) * bTopt * exp(-(T(x)-Toptb)**2/2/sb**2)
+    return bTopt * exp(-(T(x)-Toptb)**2/2/sb**2)
+    #return R(x) * bTopt * exp(-(T(x)-Toptb)**2/2/sb**2)
 
 # maturation rates
 def mJ(x):

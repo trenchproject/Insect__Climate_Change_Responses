@@ -37,7 +37,7 @@ sp.data <- subset(data, Species == "Clavigralla tomentosicollis Nigeria B")
 xmin <- 200
 xmax <- 750
 ymin <- 0
-ymax <- 4
+ymax <- 10
 TS.length <- xmax - xmin # length of time-series data
 end <- nrow(data.model)
 
