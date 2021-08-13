@@ -20,39 +20,52 @@ fit <- nls(T_K ~ (meanT + dMean * days) + (amplT + dAmpl * days) * sin(2*pi*(day
            start = list(meanT = 300, dMean = 0.1, amplT = 5, dAmpl = 0.1, shiftT = 30))
 summary(fit)
 
-# Plot model data
+# Plot model fit to TEMPERATURE data
 xmin <- 0
 xmax <- 360*(1991-1961)
 ggplot(data, aes(x=days, y=T_K)) + 
   geom_point(size=3, color="black") +
-  geom_function(fun = function(t){(coef(fit)[1] + coef(fit)[2] * t) + (coef(fit)[3] + coef(fit)[4] * t) * sin(2*pi*(t + coef(fit)[5])/360)},
-                size=1, color="#d1495b") +
+  geom_line(size=0.8) +
+  #geom_function(fun = function(t){(coef(fit)[1] + coef(fit)[2] * t) + (coef(fit)[3] + coef(fit)[4] * t) * sin(2*pi*(t + coef(fit)[5])/360)},
+  #              size=1, color="#d1495b") +
   labs(x="Time (days)", y="Mean Temperature (K)") +
   scale_x_continuous(limits=c(xmin, xmax)) +
-  scale_y_continuous(limits=c(coef(fit)[1] - coef(fit)[2] - 4, coef(fit)[1] + coef(fit)[2] + 6)) +
+  scale_y_continuous(limits=c(coef(fit)[1] - coef(fit)[2] - 6, coef(fit)[1] + coef(fit)[2] + 2)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
         axis.line = element_line(colour = "black"), legend.position = "none", 
         axis.text = element_text(size=13), axis.title = element_text(size=20))
 
-# for 1 year
-ggplot(data, aes(x=days, y=T_K)) + 
-  geom_point(size=3, color="black") +
-  geom_function(fun = function(t){(coef(fit)[1] + coef(fit)[2] * t) + (coef(fit)[3] + coef(fit)[4] * t) * sin(2*pi*(t + coef(fit)[5])/360)},
-                size=1, color="#d1495b") +
-  labs(x="Time (days)", y="Mean Temperature (K)") +
-  scale_x_continuous(limits=c(0, 360)) +
-  scale_y_continuous(limits=c(coef(fit)[1] - coef(fit)[2] - 4, coef(fit)[1] + coef(fit)[2] + 6)) +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-        panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
-        axis.line = element_line(colour = "black"), legend.position = "none", 
-        axis.text = element_text(size=13), axis.title = element_text(size=20))
-
-# pooled across years
+# Plot fit to TEMPERATURE data pooled across years
 ggplot(data, aes(x=month, y=T_K)) + 
   geom_point(size=3, color="black") +
   scale_x_continuous(limits=c(0, 12)) +
-  scale_y_continuous(limits=c(coef(fit)[1] - coef(fit)[2] - 4, coef(fit)[1] + coef(fit)[2] + 6)) +
+  scale_y_continuous(limits=c(coef(fit)[1] - coef(fit)[2] - 6, coef(fit)[1] + coef(fit)[2] + 2)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
+        axis.line = element_line(colour = "black"), legend.position = "none", 
+        axis.text = element_text(size=13), axis.title = element_text(size=20))
+
+
+# Plot model fit to PRECIPITATION data
+ymin <- 0
+ymax <- 400
+ggplot(data, aes(x=days, y=Prec_mm)) + 
+  geom_point(size=3, color="blue") +
+  geom_line(size=0.8, color="blue") +
+  labs(x="Time (days)", y="Precipitation (mm)") +
+  scale_x_continuous(limits=c(xmin, xmax)) +
+  scale_y_continuous(limits=c(ymin, ymax)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
+        axis.line = element_line(colour = "black"), legend.position = "none", 
+        axis.text = element_text(size=13), axis.title = element_text(size=20))
+
+# Plot fit to PRECIPITATION data pooled across years
+ggplot(data, aes(x=month, y=Prec_mm)) + 
+  geom_point(size=3, color="blue") +
+  scale_x_continuous(limits=c(0, 12)) +
+  scale_y_continuous(limits=c(ymin, ymax)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
         axis.line = element_line(colour = "black"), legend.position = "none", 
