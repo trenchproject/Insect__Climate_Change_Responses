@@ -24,8 +24,9 @@ spData = tempData[tempData["Species"] == "Clavigralla tomentosicollis Nigeria B"
 
 # DEFINE MODEL PARAMETERS
 # Time parameters
-yr = 365 # days in year
-max_years = 50 # how long to run simulations
+yr = 360 # days in year
+init_years = 100 # how many years to use for model initiation
+max_years = init_years+30 # how long to run simulations
 tstep = 1 # time step = 1 day
 delta_years = max_years # how long before climate change "equilibrates"
 
@@ -84,13 +85,20 @@ Rshift = cos(pi*Rlength) # shift used to model resource availability via sine wa
 
 
 # FUNCTIONS
+'''
 # Seasonal temperature variation (K) over time
 def T(x):
     return conditional(x, 0, meanT, # during model initiation, habitat temperature is constant at its mean
             conditional(x, delta_years*yr, (meanT + m_mean*x) + (amplT + m_ampl*x) * sin(2*pi*(x + shiftT)/yr), # temperature regime during climate change
                     (meanT + delta_mean) + (amplT + delta_ampl) * sin(2*pi*(x + shiftT)/yr))) # temperature regime after climate change "equilibriates"
+'''
+# Seasonal temperature variation (K) over time based on Fourier analysis
+def T(x):
+    return conditional(x, init_years*yr, meanT, # during model initiation, habitat temperature is constant at its mean
+                       299.08 + 0.000127*x + 0.359 * cos(2*pi*30/(30*yr)*(x-15) + 2.57) + 1.51 * cos(2*pi*60/(30*yr)*(x-15) + 3.09) + 1.84 * cos(2*pi*90/(30*yr)*(x-15) + 1.86)) # temperature regime during historical period
 
-# Seasonal variation in resource quality (1 = resource available, 0 = resource unavailable)
+# Seasonal variation in resource quality (Res = 1: resource available, Res = 0: resource unavailable)
+Res = 0
 def R(x):
     dummy = 1/(1-Rshift)*(-Rshift + sin(2*pi*(x-Rstart)/yr + asin(Rshift))) # 'dummy' sine wave describing resource availability
     if Res == 1: # incorporate resource variation in model
@@ -177,6 +185,6 @@ ax.plot(data[:,0], data[:,2], label='A')
 ax.legend(loc='best')
 xlabel("time (days)")
 ylabel("population density")
-xlim((max_years-2)*yr,max_years*yr)
+xlim((max_years-10)*yr,max_years*yr)
 #yscale("log")
 ylim(0,5)

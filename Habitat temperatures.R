@@ -10,6 +10,56 @@ library(dplyr)
 library(tidyverse)
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
+
+#### Fit temperature functions to data from Climate Wizard using Fourier analysis ####
+# Select a location by removing # in front of name and placing # in front of other locations
+data <- as.data.frame(read_csv("Nigeria temps.csv"))
+
+# Fit sinusoidal function to habitat temperature data
+fit <- nls(T_K ~ (meanT + dMean * days) + (amplT + dAmpl * days) * sin(2*pi*(days + shiftT)/360), data = data,
+           start = list(meanT = 300, dMean = 0.1, amplT = 5, dAmpl = 0.1, shiftT = 30))
+summary(fit)
+
+# Plot model data
+xmin <- 0
+xmax <- 360*(1991-1961)
+ggplot(data, aes(x=days, y=T_K)) + 
+  geom_point(size=3, color="black") +
+  geom_function(fun = function(t){(coef(fit)[1] + coef(fit)[2] * t) + (coef(fit)[3] + coef(fit)[4] * t) * sin(2*pi*(t + coef(fit)[5])/360)},
+                size=1, color="#d1495b") +
+  labs(x="Time (days)", y="Mean Temperature (K)") +
+  scale_x_continuous(limits=c(xmin, xmax)) +
+  scale_y_continuous(limits=c(coef(fit)[1] - coef(fit)[2] - 4, coef(fit)[1] + coef(fit)[2] + 6)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
+        axis.line = element_line(colour = "black"), legend.position = "none", 
+        axis.text = element_text(size=13), axis.title = element_text(size=20))
+
+# for 1 year
+ggplot(data, aes(x=days, y=T_K)) + 
+  geom_point(size=3, color="black") +
+  geom_function(fun = function(t){(coef(fit)[1] + coef(fit)[2] * t) + (coef(fit)[3] + coef(fit)[4] * t) * sin(2*pi*(t + coef(fit)[5])/360)},
+                size=1, color="#d1495b") +
+  labs(x="Time (days)", y="Mean Temperature (K)") +
+  scale_x_continuous(limits=c(0, 360)) +
+  scale_y_continuous(limits=c(coef(fit)[1] - coef(fit)[2] - 4, coef(fit)[1] + coef(fit)[2] + 6)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
+        axis.line = element_line(colour = "black"), legend.position = "none", 
+        axis.text = element_text(size=13), axis.title = element_text(size=20))
+
+# pooled across years
+ggplot(data, aes(x=month, y=T_K)) + 
+  geom_point(size=3, color="black") +
+  scale_x_continuous(limits=c(0, 12)) +
+  scale_y_continuous(limits=c(coef(fit)[1] - coef(fit)[2] - 4, coef(fit)[1] + coef(fit)[2] + 6)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
+        axis.line = element_line(colour = "black"), legend.position = "none", 
+        axis.text = element_text(size=13), axis.title = element_text(size=20))
+
+
+########## Fit temperature functions to data from Habitat temperatures.csv ##########
 # Read data
 temp.data <- as.data.frame(read_csv("Habitat temperatures.csv"))
 
@@ -45,10 +95,11 @@ ggplot(data, aes(x=day, y=T_K)) +
   geom_point(size=5, color="#d1495b") +
   geom_function(fun = function(t) coef(fit)[1] + coef(fit)[2]*sin(2*pi*(t + coef(fit)[3])/365),
                 size=0.8, linetype="longdash", color="#d1495b") +
-  labs(x="Time", y="Mean Temperature (K)") +
+  labs(x="Time (days)", y="Mean Temperature (K)") +
   scale_x_continuous(limits=c(0, 720)) +
   scale_y_continuous(limits=c(coef(fit)[1] - coef(fit)[2] - 2, coef(fit)[1] + coef(fit)[2] + 3)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
         axis.line = element_line(colour = "black"), legend.position = "none", 
         axis.text = element_text(size=13), axis.title = element_text(size=20))
+

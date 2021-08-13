@@ -38,18 +38,20 @@ xmin <- 200
 xmax <- 750
 ymin <- 0
 ymax <- 10
+yr <- 360
 TS.length <- xmax - xmin # length of time-series data
 end <- nrow(data.model)
 
 # Format model output to align with time-series data
+# Temperature data: 1961, Insect data: 1972.67
 # Remove all rows before last 10 years + xmin days
-data.model <- data.model[c(-1:-(end - 10*365 + xmin)), ]
+data.model <- data.model[c(-1:-(end - (1972-1961)*yr + xmin)), ]
 
 # Remove all rows after xmax days
 data.model <- data.model[c(-(xmax - xmin + 2):-end), ]
 
 # Re-scale time so that last x years are plotted as the first x years
-data.model <- sweep(data.model, 2, c(end - 10*365,0,0,0,0))
+data.model <- sweep(data.model, 2, c(end - (1972-1961)*yr,0,0,0,0))
 
 
 # Plot time-series data
@@ -106,7 +108,7 @@ model.A = ggplot(data.model, aes(x=Time, y=A)) +
 
 # Plot habitat temperature function
 plot.temp <- ggplot() +
-  geom_function(fun = function(t) sp.data$meanT + sp.data$amplT*sin(2*pi*(t + sp.data$shiftT)/365),
+  geom_function(fun = function(t) sp.data$meanT + sp.data$amplT*sin(2*pi*(t + sp.data$shiftT)/yr),
                 size=0.8, linetype="longdash", color="#d1495b") +
   labs(x="Time", y="T (K)") +
   scale_x_continuous(limits=c(xmin, xmax)) +
@@ -120,7 +122,7 @@ plot.temp <- ggplot() +
 
 # Draw final plot
 ggdraw()  +
-  draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
+  #draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
   draw_plot(plot.J, x = 0, y = 0.3, width = 1, height = 0.7) +
   draw_plot(plot.A, x = 0, y = 0.3, width = 1, height = 0.7) +
   draw_plot(model.J, x = 0, y = 0.3, width = 1, height = 0.7) +
@@ -128,7 +130,7 @@ ggdraw()  +
 
 # Draw final plot
 ggdraw()  +
-  draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
+  #draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
   #draw_plot(plot.J, x = 0, y = 0.3, width = 1, height = 0.7) +
   draw_plot(plot.A, x = 0, y = 0.3, width = 1, height = 0.7) +
   #draw_plot(model.J, x = 0, y = 0.3, width = 1, height = 0.7) +
