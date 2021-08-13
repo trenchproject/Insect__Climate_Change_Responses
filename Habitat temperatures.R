@@ -13,7 +13,7 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 #### Fit temperature functions to data from Climate Wizard using Fourier analysis ####
 # Select a location by removing # in front of name and placing # in front of other locations
-data <- as.data.frame(read_csv("Nigeria temps.csv"))
+data <- as.data.frame(read_csv("Nigeria climate data.csv"))
 
 # Fit sinusoidal function to habitat temperature data
 fit <- nls(T_K ~ (meanT + dMean * days) + (amplT + dAmpl * days) * sin(2*pi*(days + shiftT)/360), data = data,

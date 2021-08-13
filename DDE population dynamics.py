@@ -185,6 +185,5 @@ ax.plot(data[:,0], data[:,2], label='A')
 ax.legend(loc='best')
 xlabel("time (days)")
 ylabel("population density")
-xlim((max_years-10)*yr,max_years*yr)
-#yscale("log")
-ylim(0,5)
+xlim((max_years-1)*yr,max_years*yr)
+ylim(0,5) # NOTE: data is log-transformed in line 173
