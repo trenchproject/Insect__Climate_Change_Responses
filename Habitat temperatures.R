@@ -30,7 +30,7 @@ ggplot(data, aes(x=days, y=T_K)) +
   #              size=1, color="#d1495b") +
   labs(x="Time (days)", y="Mean Temperature (K)") +
   scale_x_continuous(limits=c(xmin, xmax)) +
-  scale_y_continuous(limits=c(coef(fit)[1] - coef(fit)[2] - 6, coef(fit)[1] + coef(fit)[2] + 2)) +
+  scale_y_continuous(limits=c(coef(fit)[1] - coef(fit)[2] - 6, coef(fit)[1] + coef(fit)[2] + 6)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
         axis.line = element_line(colour = "black"), legend.position = "none", 
@@ -40,7 +40,7 @@ ggplot(data, aes(x=days, y=T_K)) +
 ggplot(data, aes(x=month, y=T_K)) + 
   geom_point(size=3, color="black") +
   scale_x_continuous(limits=c(0, 12)) +
-  scale_y_continuous(limits=c(coef(fit)[1] - coef(fit)[2] - 6, coef(fit)[1] + coef(fit)[2] + 2)) +
+  scale_y_continuous(limits=c(coef(fit)[1] - coef(fit)[2] - 6, coef(fit)[1] + coef(fit)[2] + 6)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
         axis.line = element_line(colour = "black"), legend.position = "none", 
