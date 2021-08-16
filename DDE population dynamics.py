@@ -103,7 +103,6 @@ def T(x):
                        299.14 + 0.000100*x + 1.84 * cos(2*pi*30/(30*yr)*(x-15) + 1.86) + 1.51 * cos(2*pi*60/(30*yr)*(x-15) + 3.09) + 0.359 * cos(2*pi*90/(30*yr)*(x-15) + 2.57)) # temperature regime during historical period
 
 # Seasonal variation in resource quality (Res = 1: resource available, Res = 0: resource unavailable)
-Res = 0
 def R(x):
     dummy = 1/(1-Rshift)*(-Rshift + sin(2*pi*(x-Rstart)/yr + asin(Rshift))) # 'dummy' sine wave describing resource availability
     if Res == 1: # incorporate resource variation in model
@@ -190,5 +189,5 @@ ax.plot(data[:,0], data[:,2], label='A')
 ax.legend(loc='best')
 xlabel("time (days)")
 ylabel("population density")
-xlim((max_years-max_years)*yr,max_years*yr)
-ylim(0,5) # NOTE: data is log-transformed in line 173
+xlim((max_years-5)*yr,max_years*yr)
+ylim(0,5) # NOTE: data is log-transformed in line 177
