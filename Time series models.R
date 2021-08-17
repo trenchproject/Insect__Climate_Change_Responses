@@ -13,12 +13,14 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 
 # Read in time-series data and temperature response data
-data.density <- read_csv("Population data Nigeria.csv")
+# Select an file by removing # in front of name and placing # in front of other files
+#data.density <- read_csv("Population data Nigeria.csv")
 data <- as.data.frame(read_csv("Temperature response parameters.csv"))
+data.density <- read_csv("Population data China.csv")
 
-
-# Select time-series data (for Nigeria data, select plot A, B, or C)
-data.TS <- subset(data.density, Plot=="B")
+# Select time-series data
+#data.TS <- subset(data.density, Plot=="B") # select plot A, B, or C
+data.TS <- subset(data.density, location=="Dafeng" & species=="Apolygus_lucorum") # select location and species
 
 
 # Read in model output
@@ -35,9 +37,9 @@ sp.data <- subset(data, Species == "Clavigralla tomentosicollis Nigeria B")
 
 # Set plot options (default: plot last 2 year of model)
 xmin <- 200
-xmax <- 750
+xmax <- 650 #750
 ymin <- 0
-ymax <- 10
+ymax <- 100 #10
 yr <- 360
 TS.length <- xmax - xmin # length of time-series data
 end <- nrow(data.model)
