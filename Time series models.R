@@ -13,7 +13,7 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 
 # Read in time-series data and temperature response data
-data.density <- read_csv("Egwuatu_1983.csv")
+data.density <- read_csv("Population data Nigeria.csv")
 data <- as.data.frame(read_csv("Temperature response parameters.csv"))
 
 
