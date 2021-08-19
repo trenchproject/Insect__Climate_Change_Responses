@@ -6,7 +6,7 @@
 from numpy import arange, hstack, vstack, savetxt, log
 from jitcdde import jitcdde, y, t
 from symengine import exp, pi, sin, cos, asin
-from matplotlib.pyplot import subplots, xlabel, ylabel, xlim, ylim#, yscale#, plot, show
+from matplotlib.pyplot import subplots, xlabel, ylabel, xlim, ylim, yscale#, plot, show
 from pandas import read_csv
 from jitcxde_common import conditional
 
@@ -18,15 +18,16 @@ tempData = read_csv("Temperature response parameters.csv")
 # SELECT INSECT SPECIES
 #spData = tempData[tempData["Species"] == "Clavigralla shadabi"]
 #spData = tempData[tempData["Species"] == "Clavigralla tomentosicollis Benin"]   
-spData = tempData[tempData["Species"] == "Clavigralla tomentosicollis Nigeria B"]
+#spData = tempData[tempData["Species"] == "Clavigralla tomentosicollis Nigeria B"]
 #spData = tempData[tempData["Species"] == "Clavigralla tomentosicollis Burkina Faso"]
-
+spData = tempData[tempData["Species"] == "Apolygus lucorum China Dafeng"]
+#spData = tempData[tempData["Species"] == "Adelphocoris suturalis China Dafeng"]
 
 # DEFINE MODEL PARAMETERS
 # Time parameters
 yr = 360 # days in year
-init_years = 50 # how many years to use for model initiation
-max_years = init_years+140 # how long to run simulations
+init_years = 10 # how many years to use for model initiation (DELETE???)
+max_years = init_years+50 # how long to run simulations
 tstep = 1 # time step = 1 day
 delta_years = max_years # how long before climate change "equilibrates"
 
@@ -38,11 +39,8 @@ initA = 1
 meanT = spData["meanT"].values[0]
 amplT = spData["amplT"].values[0] 
 shiftT = spData["shiftT"].values[0]
-delta_mean = 0
-delta_ampl = 0
- # climate change: climate will change by delta_mean and delta_ampl over delta_years
-m_mean = (delta_mean/delta_years)*(1/yr)
-m_ampl = (delta_ampl/delta_years)*(1/yr)
+delta_mean = spData["delta_mean"].values[0]
+delta_ampl = spData["delta_ampl"].values[0]
 
 # Life history and competitive traits
 # fecundity
@@ -85,23 +83,29 @@ Rshift = cos(pi*Rlength) # shift used to model resource availability via sine wa
 
 
 # FUNCTIONS
-'''
 # Seasonal temperature variation (K) over time
 def T(x):
-    return conditional(x, 0, meanT, # during model initiation, habitat temperature is constant at its mean
-            conditional(x, delta_years*yr, (meanT + m_mean*x) + (amplT + m_ampl*x) * sin(2*pi*(x + shiftT)/yr), # temperature regime during climate change
-                    (meanT + delta_mean) + (amplT + delta_ampl) * sin(2*pi*(x + shiftT)/yr))) # temperature regime after climate change "equilibriates"
-
+    return conditional(x, init_years*yr, meanT, # during model initiation, habitat temperature is constant at its mean
+            conditional(x, delta_years*yr, (meanT + delta_mean*x) + (amplT + delta_ampl*x) * sin(2*pi*(x + shiftT)/yr), # temperature regime during climate change
+                    (meanT + delta_mean*delta_years*yr) + (amplT + delta_ampl*delta_years*yr) * sin(2*pi*(x + shiftT)/yr))) # temperature regime after climate change "equilibriates"
+'''
+# Plot temperature function
+xvals = arange(0,2*delta_years*yr,1)
+yvals = vstack([(meanT + delta_mean*i) + (amplT + delta_ampl*i) * sin(2*pi*(i + shiftT)/yr) for i in xvals ])
+plot(xvals,yvals)
+show()
+'''
+'''
 # Seasonal temperature variation (K) over time based on Fourier analysis of historical data
 def T(x):
-    return conditional(x, init_years*yr, meanT, # during model initiation, habitat temperature is constant at its mean
+    return conditional(x, 0, meanT, # during model initiation, habitat temperature is constant at its mean
                        299.08 + 0.000127*x + 1.84 * cos(2*pi*30/(30*yr)*(x-15) + 1.86) + 1.51 * cos(2*pi*60/(30*yr)*(x-15) + 3.09) + 0.359 * cos(2*pi*90/(30*yr)*(x-15) + 2.57)) # temperature regime during historical period
-'''
+
 # Seasonal temperature variation (K) over time based on Fourier analysis of historical data and future trend
 def T(x):
-    return conditional(x, init_years*yr, meanT, # during model initiation, habitat temperature is constant at its mean
+    return conditional(x, 0, meanT, # during model initiation, habitat temperature is constant at its mean
                        299.14 + 0.000100*x + 1.84 * cos(2*pi*30/(30*yr)*(x-15) + 1.86) + 1.51 * cos(2*pi*60/(30*yr)*(x-15) + 3.09) + 0.359 * cos(2*pi*90/(30*yr)*(x-15) + 2.57)) # temperature regime during historical period
-
+'''
 # Seasonal variation in resource quality (Res = 1: resource available, Res = 0: resource unavailable)
 def R(x):
     dummy = 1/(1-Rshift)*(-Rshift + sin(2*pi*(x-Rstart)/yr + asin(Rshift))) # 'dummy' sine wave describing resource availability
@@ -149,13 +153,13 @@ J,A,S,τ = [y(i) for i in range(4)]
 
 # Model
 f = {
-    J: b(t)*A*exp(-q(t)*A) - b(t-τ)*y(1,t-τ)*exp(-q(t-τ)*y(1,t-τ))*mJ(t)/mJ(t-τ)*S - dJ(t)*J,
+    J: b(t)*A*exp(-q(t)*A) - b(t-τ)*y(1,t-τ)*exp(-q(t-τ)*y(1,t-τ))*mJ(t)/mJ(t-τ)*S - dJ(t)*J, # juvenile density
     
-    A: b(t-τ)*y(1,t-τ)*exp(-q(t-τ)*y(1,t-τ))*mJ(t)/mJ(t-τ)*S - dA(t)*A,
+    A: b(t-τ)*y(1,t-τ)*exp(-q(t-τ)*y(1,t-τ))*mJ(t)/mJ(t-τ)*S - dA(t)*A, # Adult density
     
-    S: S*(mJ(t)/mJ(t-τ)*dJ(t-τ) - dJ(t)),
+    S: S*(mJ(t)/mJ(t-τ)*dJ(t-τ) - dJ(t)), # Through-stage survivorship
     
-    τ: 1 -  mJ(t)/mJ(t-τ)
+    τ: 1 -  mJ(t)/mJ(t-τ) # Developmental time-delay
     }
 
 
@@ -166,7 +170,7 @@ init = [ initJ, initA, exp(-dJ(-1e-3)/mTR), 1/mTR ]
 
 
 # DDE solver
-DDE = jitcdde(f, max_delay=100, verbose=False)
+DDE = jitcdde(f, max_delay=200, verbose=False)
 
 DDE.constant_past(init)
 DDE.compile_C(simplify=False, do_cse=False, verbose=True)
@@ -174,7 +178,7 @@ DDE.adjust_diff()
 
 
 # Save data array containing time and state variables
-data = vstack([ hstack([time, log(DDE.integrate(time))]) for time in times ])
+data = vstack([ hstack([time, DDE.integrate(time)]) for time in times ])
 filename = 'Time series ' + spData["Species"].values[0] + '.csv'  
 savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='') 
 
@@ -189,5 +193,6 @@ ax.plot(data[:,0], data[:,2], label='A')
 ax.legend(loc='best')
 xlabel("time (days)")
 ylabel("population density")
-xlim((max_years-5)*yr,max_years*yr)
-ylim(0,5) # NOTE: data is log-transformed in line 177
+yscale("linear")
+xlim((max_years-2)*yr,max_years*yr)
+ylim(0,25)
