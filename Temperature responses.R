@@ -17,7 +17,8 @@ data <- as.data.frame(read_csv("Temperature response data.csv"))
 #sp.data <- subset(data, Species == "Clavigralla shadabi")
 #sp.data <- subset(data, Species == "Clavigralla tomentosicollis Benin")
 #sp.data <- subset(data, Species == "Clavigralla tomentosicollis Nigeria")
-sp.data <- subset(data, Species == "Clavigralla tomentosicollis Burkina Faso")
+#sp.data <- subset(data, Species == "Clavigralla tomentosicollis Burkina Faso")
+sp.data <- subset(data, Species == "Apolygus lucorum")
 
 # Remove columns that do not contain temperature data
 sp.data <- sp.data[-c(1:8,12,14,16,18,20,21,23,24,26,27,29,31,32,34,35)]
@@ -26,7 +27,7 @@ sp.data <- sp.data[-c(1:8,12,14,16,18,20,21,23,24,26,27,29,31,32,34,35)]
 # Set some option for nls and plots
 Tmin <- 288
 Tmax <- 318
-TR <- 298
+TR <- 293 #298
 
 
 
