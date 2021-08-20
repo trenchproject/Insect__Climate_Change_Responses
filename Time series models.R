@@ -153,18 +153,9 @@ plot.temp <- ggplot() +
 
 
 # DRAW FINAL PLOTS
-# Juvenile and adult density
 ggdraw()  +
   draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
   #draw_plot(plot.J, x = 0, y = 0.3, width = 1, height = 0.7) +
   draw_plot(plot.A, x = 0, y = 0.3, width = 1, height = 0.7) +
   draw_plot(model.J, x = 0, y = 0.3, width = 1, height = 0.7) +
-  draw_plot(model.A, x = 0, y = 0.3, width = 1, height = 0.7)
-
-# Adult density only
-ggdraw()  +
-  #draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
-  #draw_plot(plot.J, x = 0, y = 0.3, width = 1, height = 0.7) +
-  draw_plot(plot.A, x = 0, y = 0.3, width = 1, height = 0.7) +
-  #draw_plot(model.J, x = 0, y = 0.3, width = 1, height = 0.7) +
   draw_plot(model.A, x = 0, y = 0.3, width = 1, height = 0.7)

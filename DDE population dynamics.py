@@ -3,10 +3,10 @@
 
 
 # IMPORT PACKAGES
-from numpy import arange, hstack, vstack, savetxt, log
+from numpy import arange, hstack, vstack, savetxt
 from jitcdde import jitcdde, y, t
 from symengine import exp, pi, sin, cos, asin
-from matplotlib.pyplot import subplots, xlabel, ylabel, xlim, ylim, yscale#, plot, show
+from matplotlib.pyplot import subplots, xlabel, ylabel, xlim, ylim, yscale, plot, show
 from pandas import read_csv
 from jitcxde_common import conditional
 
@@ -126,8 +126,8 @@ show()
 # Life history functions
 # fecundity
 def b(x):
-    return bTopt * exp(-(T(x)-Toptb)**2/2/sb**2)
     #return R(x) * bTopt * exp(-(T(x)-Toptb)**2/2/sb**2)
+    return bTopt * exp(-(T(x)-Toptb)**2/2/sb**2)
 
 # maturation rates
 def mJ(x):
@@ -153,9 +153,9 @@ J,A,S,τ = [y(i) for i in range(4)]
 
 # Model
 f = {
-    J: b(t)*A*exp(-q(t)*A) - b(t-τ)*y(1,t-τ)*exp(-q(t-τ)*y(1,t-τ))*mJ(t)/mJ(t-τ)*S - dJ(t)*J, # juvenile density
+    J: b(t)*A*exp(-q(t)*A) - R(t)*b(t-τ)*y(1,t-τ)*exp(-q(t-τ)*y(1,t-τ))*mJ(t)/mJ(t-τ)*S - dJ(t)*J, # juvenile density
     
-    A: b(t-τ)*y(1,t-τ)*exp(-q(t-τ)*y(1,t-τ))*mJ(t)/mJ(t-τ)*S - dA(t)*A, # Adult density
+    A: R(t)*b(t-τ)*y(1,t-τ)*exp(-q(t-τ)*y(1,t-τ))*mJ(t)/mJ(t-τ)*S - dA(t)*A, # Adult density
     
     S: S*(mJ(t)/mJ(t-τ)*dJ(t-τ) - dJ(t)), # Through-stage survivorship
     
@@ -195,4 +195,4 @@ xlabel("time (days)")
 ylabel("population density")
 yscale("linear")
 xlim((max_years-2)*yr,max_years*yr)
-ylim(0,25)
+ylim(0,100)

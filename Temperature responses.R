@@ -18,8 +18,8 @@ data <- as.data.frame(read_csv("Temperature response data.csv"))
 #sp.data <- subset(data, Species == "Clavigralla tomentosicollis Benin")
 #sp.data <- subset(data, Species == "Clavigralla tomentosicollis Nigeria")
 #sp.data <- subset(data, Species == "Clavigralla tomentosicollis Burkina Faso")
-#sp.data <- subset(data, Species == "Apolygus lucorum")
-sp.data <- subset(data, Species == "Adelphocoris suturalis")
+sp.data <- subset(data, Species == "Apolygus lucorum")
+#sp.data <- subset(data, Species == "Adelphocoris suturalis")
 
 # Remove columns that do not contain temperature data
 sp.data <- sp.data[-c(1:8,12,14,16,18,20,21,23,24,26,27,29,31,32,34,35)]
