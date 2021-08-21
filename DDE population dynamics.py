@@ -85,12 +85,13 @@ Rshift = cos(pi*Rlength) # shift used to model resource availability via sine wa
 # FUNCTIONS
 # Seasonal temperature variation (K) over time
 def T(x):
-    return conditional(x, init_years*yr, meanT, # during model initiation, habitat temperature is constant at its mean
-            conditional(x, delta_years*yr, (meanT + delta_mean*x) + (amplT + delta_ampl*x) * sin(2*pi*(x + shiftT)/yr), # temperature regime during climate change
-                    (meanT + delta_mean*delta_years*yr) + (amplT + delta_ampl*delta_years*yr) * sin(2*pi*(x + shiftT)/yr))) # temperature regime after climate change "equilibriates"
+    return conditional(x, 0, meanT, # during "pre-history" (t<0), habitat temperature is constant at its mean
+                       conditional(x, init_years*yr, meanT + amplT * sin(2*pi*(x + shiftT)/yr), # during model initiation, delta_mean = 0 and delta_ampl = 0
+                                   conditional(x, delta_years*yr, (meanT + delta_mean*x) + (amplT + delta_ampl*x) * sin(2*pi*(x + shiftT)/yr), # temperature regime during climate change
+                                               (meanT + delta_mean*delta_years*yr) + (amplT + delta_ampl*delta_years*yr) * sin(2*pi*(x + shiftT)/yr)))) # temperature regime after climate change "equilibriates"
 '''
 # Plot temperature function
-xvals = arange(0,2*delta_years*yr,1)
+xvals = arange(0,1*yr,1)
 yvals = vstack([(meanT + delta_mean*i) + (amplT + delta_ampl*i) * sin(2*pi*(i + shiftT)/yr) for i in xvals ])
 plot(xvals,yvals)
 show()
@@ -110,7 +111,8 @@ def T(x):
 def R(x):
     dummy = 1/(1-Rshift)*(-Rshift + sin(2*pi*(x-Rstart)/yr + asin(Rshift))) # 'dummy' sine wave describing resource availability
     if Res == 1: # incorporate resource variation in model
-        return 0.5*(abs(dummy) + dummy) # set negative phases of sine wave to zero
+        return 0.5*(abs(dummy)/dummy + 1) # set negative phases of sine wave to zero
+        #return 0.5*(abs(dummy) + dummy) # set negative phases of sine wave to zero
     else:
         return 1 # do not incorporate resource variation in model
 
@@ -126,8 +128,8 @@ show()
 # Life history functions
 # fecundity
 def b(x):
-    #return R(x) * bTopt * exp(-(T(x)-Toptb)**2/2/sb**2)
-    return bTopt * exp(-(T(x)-Toptb)**2/2/sb**2)
+    return R(x) * bTopt * exp(-(T(x)-Toptb)**2/2/sb**2)
+    #return bTopt * exp(-(T(x)-Toptb)**2/2/sb**2)
 
 # maturation rates
 def mJ(x):
@@ -138,7 +140,7 @@ def dJ(x):
     return dJTR * exp(AdJ * (1/TR - 1/T(x)))
 def dA(x):
     #dummy = R(x)/(abs(R(x)-1)+1) # 'dummy' function that is 1 when R(x) > 0 and 0 when R(x) = 0
-    #return 0.1*(1 - dummy) + dummy * dATR * exp(AdA * (1/TR - 1/T(x)))
+    #return 0.02*(1 - dummy) + dummy * dATR * exp(AdA * (1/TR - 1/T(x)))
     return dATR * exp(AdA * (1/TR - 1/T(x)))
 
 # density-dependence due to competition
@@ -153,9 +155,9 @@ J,A,S,τ = [y(i) for i in range(4)]
 
 # Model
 f = {
-    J: b(t)*A*exp(-q(t)*A) - R(t)*b(t-τ)*y(1,t-τ)*exp(-q(t-τ)*y(1,t-τ))*mJ(t)/mJ(t-τ)*S - dJ(t)*J, # juvenile density
+    J: b(t)*A*exp(-q(t)*A) - b(t-τ)*y(1,t-τ)*exp(-q(t-τ)*y(1,t-τ))*mJ(t)/mJ(t-τ)*S - dJ(t)*J, # juvenile density
     
-    A: R(t)*b(t-τ)*y(1,t-τ)*exp(-q(t-τ)*y(1,t-τ))*mJ(t)/mJ(t-τ)*S - dA(t)*A, # Adult density
+    A: b(t-τ)*y(1,t-τ)*exp(-q(t-τ)*y(1,t-τ))*mJ(t)/mJ(t-τ)*S - dA(t)*A, # Adult density
     
     S: S*(mJ(t)/mJ(t-τ)*dJ(t-τ) - dJ(t)), # Through-stage survivorship
     
@@ -194,5 +196,5 @@ ax.legend(loc='best')
 xlabel("time (days)")
 ylabel("population density")
 yscale("linear")
-xlim((max_years-2)*yr,max_years*yr)
+xlim((max_years-max_years)*yr,max_years*yr)
 ylim(0,100)

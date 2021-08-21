@@ -42,8 +42,8 @@ sp.data <- subset(data, Species == "Apolygus lucorum China Dafeng")
 xmin <- 0 #200
 xmax <- 720 #750
 ymin <- 0
-ymax <- 100 #10
-yr <- 360
+ymax <- 60 #10
+yr <- 360 # days in a year (using 360 for simplicity)
 init_yrs <- 10 # number of years to initiate the model (from Python DDE model)
 TS.length <- xmax - xmin # length of time-series data
 end <- nrow(data.model)
@@ -72,7 +72,7 @@ data.model <- sweep(data.model, 2, c((2005-1961+init_yrs)*yr+xmin,0,0,0,0)) # fo
 plot.J = ggplot(data.TS, aes(x=time, y=J, ymin=J-J_SE, ymax=J+J_SE)) + 
   geom_pointrange(size=0.8, color="#d1495b") +
   #geom_line(size=0.8, linetype="longdash", color="#d1495b") +
-  labs(x="Time", y="Log(Density)") +
+  labs(x="Time", y="Density") +
   scale_x_continuous(limits=c(xmin, xmax)) +
   scale_y_continuous(limits=c(ymin, ymax)) +
   #scale_y_log10(limits=c(ymin, ymax)) +
@@ -80,13 +80,12 @@ plot.J = ggplot(data.TS, aes(x=time, y=J, ymin=J-J_SE, ymax=J+J_SE)) +
         panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
         axis.line = element_line(colour = "black"), legend.position = "none", 
         axis.text = element_text(size=13), axis.title = element_text(size=20))
-#plot.J
 
 # Adult density
 plot.A = ggplot(data.TS, aes(x=time, y=A, ymin=A-A_SE, ymax=A+A_SE)) + 
   geom_pointrange(size=0.8, color="#30638e") +
   #geom_line(size=0.8, linetype="longdash", color="#30638e") +
-  labs(x="Time", y="Log(Density)") +
+  labs(x="Time", y="Density") +
   scale_x_continuous(limits=c(xmin, xmax)) +
   scale_y_continuous(limits=c(ymin, ymax)) +
   #scale_y_log10(limits=c(ymin, ymax)) +
@@ -94,14 +93,13 @@ plot.A = ggplot(data.TS, aes(x=time, y=A, ymin=A-A_SE, ymax=A+A_SE)) +
         panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
         axis.line = element_line(colour = "black"), legend.position = "none", 
         axis.text = element_text(size=13), axis.title = element_text(size=20)) 
-#plot.A
 
 
 # PLOT MODEL DATA
 # Juvenile density
 model.J = ggplot(data.model, aes(x=Time, y=J)) + 
   geom_line(size=0.8, color="#d1495b") +
-  labs(x="Time", y="Log(Density)") +
+  labs(x="Time", y="Density") +
   scale_x_continuous(limits=c(xmin, xmax)) +
   scale_y_continuous(limits=c(ymin, ymax)) +
   #scale_y_log10(limits=c(ymin, ymax)) +
@@ -109,12 +107,11 @@ model.J = ggplot(data.model, aes(x=Time, y=J)) +
         panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
         axis.line = element_line(colour = "black"), legend.position = "none", 
         axis.text = element_text(size=13), axis.title = element_text(size=20))
-#model.J
 
 # Adult density
 model.A = ggplot(data.model, aes(x=Time, y=A)) + 
   geom_line(size=0.8, color="#30638e") +
-  labs(x="Time", y="Log(Density)") +
+  labs(x="Time", y="Density") +
   scale_x_continuous(limits=c(xmin, xmax)) +
   scale_y_continuous(limits=c(ymin, ymax)) +
   #scale_y_log10(limits=c(ymin, ymax)) +
@@ -122,12 +119,11 @@ model.A = ggplot(data.model, aes(x=Time, y=A)) +
         panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
         axis.line = element_line(colour = "black"), legend.position = "none", 
         axis.text = element_text(size=13), axis.title = element_text(size=20)) 
-#model.A
 
 # Insect density (juveniles + adults)
 model.I = ggplot(data.model, aes(x=Time, y=J+A)) + 
-  geom_line(size=0.8, color="#30638e") +
-  labs(x="Time", y="Log(Density)") +
+  geom_line(size=0.8, color="black") +
+  labs(x="Time", y="Density") +
   scale_x_continuous(limits=c(xmin, xmax)) +
   scale_y_continuous(limits=c(ymin, ymax)) +
   #scale_y_log10(limits=c(ymin, ymax)) +
@@ -135,27 +131,41 @@ model.I = ggplot(data.model, aes(x=Time, y=J+A)) +
         panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
         axis.line = element_line(colour = "black"), legend.position = "none", 
         axis.text = element_text(size=13), axis.title = element_text(size=20)) 
-#model.I
 
 
 # PLOT HABITAT TEMPERATURE FUNCTION
 plot.temp <- ggplot() +
-  geom_function(fun = function(t) sp.data$meanT + sp.data$amplT*sin(2*pi*(t + sp.data$shiftT)/yr),
+  geom_function(fun = function(t) (sp.data$meanT + sp.data$delta_mean*t)  + (sp.data$amplT + sp.data$delta_ampl*t) * sin(2*pi*(t + sp.data$shiftT)/yr),
                 size=0.8, linetype="longdash", color="#d1495b") +
   labs(x="Time", y="T (K)") +
   scale_x_continuous(limits=c(xmin, xmax)) +
-  scale_y_continuous(limits=c(sp.data$meanT - sp.data$amplT - 1, sp.data$meanT + sp.data$amplT + 1)) +
+  scale_y_continuous(limits=c(sp.data$meanT - abs(sp.data$amplT) - 1, sp.data$meanT + abs(sp.data$amplT) + 1)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
         axis.line = element_line(colour = "black"), legend.position = "none", 
         axis.text = element_text(size=13), axis.title = element_text(size=20))
-#plot.temp
 
 
 # DRAW FINAL PLOTS
-ggdraw()  +
+# Juveniles and adults
+#ggdraw()  +
+  #draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
+  ##draw_plot(plot.J, x = 0, y = 0.3, width = 1, height = 0.7) +
+  #draw_plot(plot.A, x = 0, y = 0.3, width = 1, height = 0.7) +
+  #draw_plot(model.J, x = 0, y = 0.3, width = 1, height = 0.7) +
+  #draw_plot(model.A, x = 0, y = 0.3, width = 1, height = 0.7)
+
+# Total insects
+plot <- ggdraw()  +
   draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
-  #draw_plot(plot.J, x = 0, y = 0.3, width = 1, height = 0.7) +
   draw_plot(plot.A, x = 0, y = 0.3, width = 1, height = 0.7) +
   draw_plot(model.J, x = 0, y = 0.3, width = 1, height = 0.7) +
-  draw_plot(model.A, x = 0, y = 0.3, width = 1, height = 0.7)
+  draw_plot(model.A, x = 0, y = 0.3, width = 1, height = 0.7) +
+  draw_plot(model.I, x = 0, y = 0.3, width = 1, height = 0.7)
+plot
+plot
+
+ggdraw()  +
+  draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
+  draw_plot(plot.A, x = 0, y = 0.3, width = 1, height = 0.7) +
+  draw_plot(model.I, x = 0, y = 0.3, width = 1, height = 0.7)
