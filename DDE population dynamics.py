@@ -27,7 +27,7 @@ spData = tempData[tempData["Species"] == "Apolygus lucorum China Dafeng"]
 # Time parameters
 yr = 360 # days in year
 init_years = 10 # how many years to use for model initiation (DELETE???)
-max_years = init_years+50 # how long to run simulations
+max_years = init_years+140 # how long to run simulations
 tstep = 1 # time step = 1 day
 delta_years = max_years # how long before climate change "equilibrates"
 
@@ -197,4 +197,4 @@ xlabel("time (days)")
 ylabel("population density")
 yscale("linear")
 xlim((max_years-max_years)*yr,max_years*yr)
-ylim(0,100)
+ylim(0,400)
