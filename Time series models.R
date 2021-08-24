@@ -24,7 +24,9 @@ data.density <- read_csv("Population data China.csv")
 # Select time-series data
 #data.TS <- subset(data.density, Plot=="B") # select plot A, B, or C
 #data.TS <- subset(data.density, location=="Dafeng" & species=="Apolygus_lucorum") # select location and species
-data.TS <- subset(data.density, location=="Dafeng" & species=="Adelphocoris_suturalis") # select location and species
+#data.TS <- subset(data.density, location=="Dafeng" & species=="Adelphocoris_suturalis") # select location and species
+data.TS <- subset(data.density, location=="Langfang" & species=="Apolygus_lucorum") # select location and species
+#data.TS <- subset(data.density, location=="Xinxiang" & species=="Adelphocoris_suturalis") # select location and species
 
 # Data transformation (if needed)
 # Convert from log to linear scale
@@ -45,10 +47,14 @@ data.TS <- subset(data.density, location=="Dafeng" & species=="Adelphocoris_sutu
 #sp.data <- subset(data, Species == "Clavigralla tomentosicollis Nigeria B")
 #data.model <- as.data.frame(read_csv("Time Series Clavigralla tomentosicollis Burkina Faso.csv"))
 #sp.data <- subset(data, Species == "Clavigralla tomentosicollis Burkina Faso")
-data.model <- as.data.frame(read_csv("Time Series Apolygus lucorum China Dafeng.csv"))
-sp.data <- subset(data, Species == "Apolygus lucorum China Dafeng")
+#data.model <- as.data.frame(read_csv("Time Series Apolygus lucorum China Dafeng.csv"))
+#sp.data <- subset(data, Species == "Apolygus lucorum China Dafeng")
 #data.model <- as.data.frame(read_csv("Time Series Adelphocoris suturalis China Dafeng.csv"))
 #sp.data <- subset(data, Species == "Adelphocoris suturalis China Dafeng")
+data.model <- as.data.frame(read_csv("Time Series Apolygus lucorum China Langfang.csv"))
+sp.data <- subset(data, Species == "Apolygus lucorum China Langfang")
+#data.model <- as.data.frame(read_csv("Time Series Adelphocoris suturalis China Xinxiang.csv"))
+#sp.data <- subset(data, Species == "Adelphocoris suturalis China Xinxiang")
 
 # Population dynamics with climate change
 clim.data <- data.model
@@ -268,7 +274,7 @@ plot.CC <- ggdraw()  +
   draw_plot(model.J.CC, x = 0, y = 0.3, width = 1, height = 0.7) +
   draw_plot(model.A.CC, x = 0, y = 0.3, width = 1, height = 0.7) +
   draw_plot(model.I.CC, x = 0, y = 0.3, width = 1, height = 0.7)
-plot.CC
+#plot.CC
 
 # Compare historical and climate change periods
 # Juveniles and adults

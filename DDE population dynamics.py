@@ -22,8 +22,8 @@ tempData = read_csv("Temperature response parameters.csv")
 #spData = tempData[tempData["Species"] == "Clavigralla tomentosicollis Burkina Faso"]
 #spData = tempData[tempData["Species"] == "Apolygus lucorum China Dafeng"]
 #spData = tempData[tempData["Species"] == "Adelphocoris suturalis China Dafeng"]
-spData = tempData[tempData["Species"] == "Apolygus lucorum China Langfang"]
-#spData = tempData[tempData["Species"] == "Adelphocoris suturalis China Xinxiang"]
+#spData = tempData[tempData["Species"] == "Apolygus lucorum China Langfang"]
+spData = tempData[tempData["Species"] == "Adelphocoris suturalis China Xinxiang"]
 
 # DEFINE MODEL PARAMETERS
 # Time parameters
