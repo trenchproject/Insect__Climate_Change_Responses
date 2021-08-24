@@ -92,7 +92,7 @@ dev.T <- nls(Development ~ coef(dev.mon)[1]*(T_K/TR)*exp(coef(dev.mon)[2]*(1/TR-
              data=sp.data, start=list(TL=kTL, TH=kTH))
 summary(dev.T)
 # Plot model fits
-plot(sp.data$T_K, sp.data$Development)
+plot(sp.data$T_K, sp.data$Development, ylim=c(0,0.07))
 points(seq(Tmin,Tmax,1), coef(dev.mon)[1]*(seq(Tmin,Tmax,1)/TR)*exp(coef(dev.mon)[2]*(1/TR-1/seq(Tmin,Tmax,1)))/
          (1+(exp(coef(dev.A)[1]*(1/coef(dev.T)[1]-1/seq(Tmin,Tmax,1)))+exp(coef(dev.A)[2]*(1/coef(dev.T)[2]-1/seq(Tmin,Tmax,1))))), type="l", col="blue")
 

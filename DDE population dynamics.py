@@ -6,7 +6,7 @@
 from numpy import arange, hstack, vstack, savetxt
 from jitcdde import jitcdde, y, t
 from symengine import exp, pi, sin, cos, asin
-from matplotlib.pyplot import subplots, xlabel, ylabel, xlim, ylim, yscale, plot, show
+from matplotlib.pyplot import subplots, xlabel, ylabel, xlim, ylim, yscale#, plot, show
 from pandas import read_csv
 from jitcxde_common import conditional
 
@@ -18,15 +18,17 @@ tempData = read_csv("Temperature response parameters.csv")
 # SELECT INSECT SPECIES
 #spData = tempData[tempData["Species"] == "Clavigralla shadabi"]
 #spData = tempData[tempData["Species"] == "Clavigralla tomentosicollis Benin"]   
-spData = tempData[tempData["Species"] == "Clavigralla tomentosicollis Nigeria B"]
+#spData = tempData[tempData["Species"] == "Clavigralla tomentosicollis Nigeria B"]
 #spData = tempData[tempData["Species"] == "Clavigralla tomentosicollis Burkina Faso"]
 #spData = tempData[tempData["Species"] == "Apolygus lucorum China Dafeng"]
 #spData = tempData[tempData["Species"] == "Adelphocoris suturalis China Dafeng"]
+spData = tempData[tempData["Species"] == "Apolygus lucorum China Langfang"]
+#spData = tempData[tempData["Species"] == "Adelphocoris suturalis China Xinxiang"]
 
 # DEFINE MODEL PARAMETERS
 # Time parameters
 yr = 360 # days in year
-init_years = 10 # how many years to use for model initiation (DELETE???)
+init_years = 10 # how many years to use for model initiation
 max_years = init_years+140 # how long to run simulations
 tstep = 1 # time step = 1 day
 delta_years = max_years # how long before climate change "equilibrates"
@@ -83,14 +85,14 @@ Rshift = cos(pi*Rlength) # shift used to model resource availability via sine wa
 
 
 # FUNCTIONS
-'''
+
 # Seasonal temperature variation (K) over time
 def T(x):
     return conditional(x, 0, meanT, # during "pre-history" (t<0), habitat temperature is constant at its mean
                        conditional(x, init_years*yr, meanT + amplT * sin(2*pi*(x + shiftT)/yr), # during model initiation, delta_mean = 0 and delta_ampl = 0
                                    conditional(x, delta_years*yr, (meanT + delta_mean*x) + (amplT + delta_ampl*x) * sin(2*pi*(x + shiftT)/yr), # temperature regime during climate change
                                                (meanT + delta_mean*delta_years*yr) + (amplT + delta_ampl*delta_years*yr) * sin(2*pi*(x + shiftT)/yr)))) # temperature regime after climate change "equilibriates"
-'''
+
 '''
 # Plot temperature function
 xvals = arange(0,1*yr,1)
@@ -98,13 +100,14 @@ yvals = vstack([(meanT + delta_mean*i) + (amplT + delta_ampl*i) * sin(2*pi*(i + 
 plot(xvals,yvals)
 show()
 '''
+'''
 # Seasonal temperature variation (K) over time based on Fourier analysis of historical data
 def T(x):
     return conditional(x, 0, meanT, # during "pre-history" (t<0), habitat temperature is constant at its mean
                        conditional(x, init_years*yr, 299.08 + 1.84*cos(2*pi*30/(30*yr)*(x-15) - 1.86) + 1.51*cos(2*pi*60/(30*yr)*(x-15) - 3.09) + 0.359*cos(2*pi*90/(30*yr)*(x-15) - 2.57), # during model initiation, no change in mean temperature
                                    conditional(x, delta_years*yr, 299.08 + 0.000127*x + 1.84*cos(2*pi*30/(30*yr)*(x-15) - 1.86) + 1.51*cos(2*pi*60/(30*yr)*(x-15) - 3.09) + 0.359*cos(2*pi*90/(30*yr)*(x-15) - 2.57), # temperature regime during climate change
                                                299.08 + 0.000127*delta_years*yr + 1.84*cos(2*pi*30/(30*yr)*(x-15) - 1.86) + 1.51*cos(2*pi*60/(30*yr)*(x-15) - 3.09) + 0.359*cos(2*pi*90/(30*yr)*(x-15) - 2.57)))) # temperature regime after climate change "equilibriates"
-'''
+
 # Plot temperature function
 xvals = arange(0,1*yr,1)
 yvals = vstack([299.08 + 1.84*cos(2*pi*30/(30*yr)*(i-15) - 1.86) + 1.51*cos(2*pi*60/(30*yr)*(i-15) - 3.09) + 0.359*cos(2*pi*90/(30*yr)*(i-15) - 2.57) for i in xvals ])
@@ -199,6 +202,6 @@ ax.plot(data[:,0], data[:,2], label='A')
 ax.legend(loc='best')
 xlabel("time (days)")
 ylabel("population density")
-yscale("log")
+yscale("linear")
 xlim((max_years-max_years)*yr,max_years*yr)
-ylim(0.1,1000)
+ylim(0,100)
