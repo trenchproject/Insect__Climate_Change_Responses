@@ -25,6 +25,13 @@ data.density <- read_csv("Population data Nigeria.csv")
 data.TS <- subset(data.density, Plot=="B") # select plot A, B, or C
 #data.TS <- subset(data.density, location=="Dafeng" & species=="Apolygus_lucorum") # select location and species
 
+# Data transformation (if needed)
+# Convert from log to linear scale
+#data.TS$J <- (10^data.TS$J) - 1
+#data.TS$J_SE <- sqrt(data.TS$J)
+#data.TS$A <- (10^data.TS$A) - 1
+#data.TS$A_SE <- sqrt(data.TS$A)
+
 
 # READ IN MODEL OUTPUT
 # From DDE population dynamics.py 
@@ -50,12 +57,12 @@ clim.data <- data.model
 xmin <- 0 #200
 xmax <- 750 #720
 ymin <- 0
-ymax <- 10 #60
+ymax <- 5 #60
 # For climate change time period
 xmin.CC <- 0 #200
-xmax.CC <- 750 #750
+xmax.CC <- 750 #720
 ymin.CC <- 0
-ymax.CC <- 10 #60
+ymax.CC <- 5 #60
 yr <- 360 # days in a year (using 360 for simplicity)
 init_yrs <- 10 # number of years to initiate the model (from Python DDE model)
 TS.length <- xmax - xmin # length of time-series data
@@ -81,7 +88,8 @@ data.model <- sweep(data.model, 2, c(data.model[[1,1]]-xmin,0,0,0,0))
 CC.steps <- clim.data[[1,1]] + xmin.CC # model time-steps before climate change period
 clim.data <- sweep(clim.data, 2, c(CC.steps,0,0,0,0))
 
-# Log transform density if needed
+# Data transformation (if needed)
+# Convert from linear to log scale
 data.model$J <- log(data.model$J, 10)
 data.model$A <- log(data.model$A, 10)
 clim.data$J <- log(clim.data$J, 10)
@@ -160,7 +168,7 @@ model.I = ggplot(data.model, aes(x=Time, y=J+A)) +
 # Climate change time period
 # Juvenile density
 model.J.CC = ggplot(clim.data, aes(x=Time, y=J)) + 
-  geom_line(size=0.8, color="#d1495b") +
+  geom_line(size=0.8, color="#d1495b", linetype="longdash") +
   labs(x="Time", y="Density") +
   scale_x_continuous(limits=c(xmin.CC, xmax.CC)) +
   scale_y_continuous(limits=c(ymin.CC, ymax.CC)) +
@@ -172,7 +180,7 @@ model.J.CC = ggplot(clim.data, aes(x=Time, y=J)) +
 
 # Adult density
 model.A.CC = ggplot(clim.data, aes(x=Time, y=A)) + 
-  geom_line(size=0.8, color="#30638e") +
+  geom_line(size=0.8, color="#30638e", linetype="longdash") +
   labs(x="Time", y="Density") +
   scale_x_continuous(limits=c(xmin.CC, xmax.CC)) +
   scale_y_continuous(limits=c(ymin.CC, ymax.CC)) +
@@ -184,7 +192,7 @@ model.A.CC = ggplot(clim.data, aes(x=Time, y=A)) +
 
 # Insect density (juveniles + adults)
 model.I.CC = ggplot(clim.data, aes(x=Time, y=J+A)) + 
-  geom_line(size=0.8, color="black") +
+  geom_line(size=0.8, color="black", linetype="longdash") +
   labs(x="Time", y="Density") +
   scale_x_continuous(limits=c(xmin.CC, xmax.CC)) +
   scale_y_continuous(limits=c(ymin.CC, ymax.CC)) +
@@ -227,9 +235,9 @@ plot.temp.CC <- ggplot() +
 # Juveniles and adults
 plot <- ggdraw()  +
   draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
-  draw_plot(plot.J, x = 0, y = 0.3, width = 1, height = 0.7) +
+  #draw_plot(plot.J, x = 0, y = 0.3, width = 1, height = 0.7) +
   draw_plot(plot.A, x = 0, y = 0.3, width = 1, height = 0.7) +
-  draw_plot(model.J, x = 0, y = 0.3, width = 1, height = 0.7) +
+  #draw_plot(model.J, x = 0, y = 0.3, width = 1, height = 0.7) +
   draw_plot(model.A, x = 0, y = 0.3, width = 1, height = 0.7)
 plot
 
@@ -247,7 +255,7 @@ plot
 # Juveniles and adults
 plot.CC <- ggdraw()  +
 draw_plot(plot.temp.CC, x = 0, y = 0, width = 1, height = 0.3) +
-draw_plot(model.J.CC, x = 0, y = 0.3, width = 1, height = 0.7) +
+#draw_plot(model.J.CC, x = 0, y = 0.3, width = 1, height = 0.7) +
 draw_plot(model.A.CC, x = 0, y = 0.3, width = 1, height = 0.7)
 plot.CC
 
@@ -258,3 +266,11 @@ plot.CC
 #  draw_plot(model.A.CC, x = 0, y = 0.3, width = 1, height = 0.7) +
 #  draw_plot(model.I.CC, x = 0, y = 0.3, width = 1, height = 0.7)
 #plot.CC
+
+# Compare historical and climate change periods
+plot.compare <- ggdraw()  +
+  #draw_plot(model.J) +
+  draw_plot(model.A) +
+  #draw_plot(model.J.CC) +
+  draw_plot(model.A.CC)
+plot.compare

@@ -18,9 +18,9 @@ tempData = read_csv("Temperature response parameters.csv")
 # SELECT INSECT SPECIES
 #spData = tempData[tempData["Species"] == "Clavigralla shadabi"]
 #spData = tempData[tempData["Species"] == "Clavigralla tomentosicollis Benin"]   
-#spData = tempData[tempData["Species"] == "Clavigralla tomentosicollis Nigeria B"]
+spData = tempData[tempData["Species"] == "Clavigralla tomentosicollis Nigeria B"]
 #spData = tempData[tempData["Species"] == "Clavigralla tomentosicollis Burkina Faso"]
-spData = tempData[tempData["Species"] == "Apolygus lucorum China Dafeng"]
+#spData = tempData[tempData["Species"] == "Apolygus lucorum China Dafeng"]
 #spData = tempData[tempData["Species"] == "Adelphocoris suturalis China Dafeng"]
 
 # DEFINE MODEL PARAMETERS
@@ -83,6 +83,7 @@ Rshift = cos(pi*Rlength) # shift used to model resource availability via sine wa
 
 
 # FUNCTIONS
+'''
 # Seasonal temperature variation (K) over time
 def T(x):
     return conditional(x, 0, meanT, # during "pre-history" (t<0), habitat temperature is constant at its mean
@@ -90,22 +91,25 @@ def T(x):
                                    conditional(x, delta_years*yr, (meanT + delta_mean*x) + (amplT + delta_ampl*x) * sin(2*pi*(x + shiftT)/yr), # temperature regime during climate change
                                                (meanT + delta_mean*delta_years*yr) + (amplT + delta_ampl*delta_years*yr) * sin(2*pi*(x + shiftT)/yr)))) # temperature regime after climate change "equilibriates"
 '''
+'''
 # Plot temperature function
 xvals = arange(0,1*yr,1)
 yvals = vstack([(meanT + delta_mean*i) + (amplT + delta_ampl*i) * sin(2*pi*(i + shiftT)/yr) for i in xvals ])
 plot(xvals,yvals)
 show()
 '''
-'''
 # Seasonal temperature variation (K) over time based on Fourier analysis of historical data
 def T(x):
-    return conditional(x, 0, meanT, # during model initiation, habitat temperature is constant at its mean
-                       299.08 + 0.000127*x + 1.84 * cos(2*pi*30/(30*yr)*(x-15) + 1.86) + 1.51 * cos(2*pi*60/(30*yr)*(x-15) + 3.09) + 0.359 * cos(2*pi*90/(30*yr)*(x-15) + 2.57)) # temperature regime during historical period
-
-# Seasonal temperature variation (K) over time based on Fourier analysis of historical data and future trend
-def T(x):
-    return conditional(x, 0, meanT, # during model initiation, habitat temperature is constant at its mean
-                       299.14 + 0.000100*x + 1.84 * cos(2*pi*30/(30*yr)*(x-15) + 1.86) + 1.51 * cos(2*pi*60/(30*yr)*(x-15) + 3.09) + 0.359 * cos(2*pi*90/(30*yr)*(x-15) + 2.57)) # temperature regime during historical period
+    return conditional(x, 0, meanT, # during "pre-history" (t<0), habitat temperature is constant at its mean
+                       conditional(x, init_years*yr, 299.08 + 1.84*cos(2*pi*30/(30*yr)*(x-15) - 1.86) + 1.51*cos(2*pi*60/(30*yr)*(x-15) - 3.09) + 0.359*cos(2*pi*90/(30*yr)*(x-15) - 2.57), # during model initiation, no change in mean temperature
+                                   conditional(x, delta_years*yr, 299.08 + 0.000127*x + 1.84*cos(2*pi*30/(30*yr)*(x-15) - 1.86) + 1.51*cos(2*pi*60/(30*yr)*(x-15) - 3.09) + 0.359*cos(2*pi*90/(30*yr)*(x-15) - 2.57), # temperature regime during climate change
+                                               299.08 + 0.000127*delta_years*yr + 1.84*cos(2*pi*30/(30*yr)*(x-15) - 1.86) + 1.51*cos(2*pi*60/(30*yr)*(x-15) - 3.09) + 0.359*cos(2*pi*90/(30*yr)*(x-15) - 2.57)))) # temperature regime after climate change "equilibriates"
+'''
+# Plot temperature function
+xvals = arange(0,1*yr,1)
+yvals = vstack([299.08 + 1.84*cos(2*pi*30/(30*yr)*(i-15) - 1.86) + 1.51*cos(2*pi*60/(30*yr)*(i-15) - 3.09) + 0.359*cos(2*pi*90/(30*yr)*(i-15) - 2.57) for i in xvals ])
+plot(xvals,yvals)
+show()
 '''
 # Seasonal variation in resource quality (Res = 1: resource available, Res = 0: resource unavailable)
 def R(x):
@@ -195,6 +199,6 @@ ax.plot(data[:,0], data[:,2], label='A')
 ax.legend(loc='best')
 xlabel("time (days)")
 ylabel("population density")
-yscale("linear")
+yscale("log")
 xlim((max_years-max_years)*yr,max_years*yr)
-ylim(0,400)
+ylim(0.1,1000)
