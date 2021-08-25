@@ -11,26 +11,46 @@ library(tidyverse)
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 
-#### Fit temperature functions to data from Climate Wizard using Fourier analysis ####
+# INPUT DATA
 # Select a location by removing # in front of name and placing # in front of other locations
-data <- as.data.frame(read_csv("Climate data Nigeria.csv"))
+#data <- as.data.frame(read_csv("Climate data Nigeria.csv"))
+#data <- as.data.frame(read_csv("Climate data China Dafeng.csv"))
+#data <- as.data.frame(read_csv("Climate data China Langfang.csv"))
+#data <- as.data.frame(read_csv("Climate data China Xinxiang.csv"))
+data <- as.data.frame(read_csv("Climate data Brazil.csv"))
 
-# Fit sinusoidal function to habitat temperature data
-fit <- nls(T_K ~ (meanT + dMean * days) + (amplT + dAmpl * days) * sin(2*pi*(days + shiftT)/360), data = data,
+#### Fit temperature functions to data from Climate Wizard using Fourier analysis ####
+
+
+# REGRESSION ANALYSES
+# Fit sinusoidal function to all data from Climate Wizard
+fit <- nls(T_K ~ (meanT + dMean * total_days) + (amplT + dAmpl * total_days) * sin(2*pi*(total_days + shiftT)/360), data = data,
            start = list(meanT = 300, dMean = 0.1, amplT = 5, dAmpl = 0.1, shiftT = 30))
 summary(fit)
 
+# Fit sinusoidal function to data from Climate Wizard for each time period
+fit.all <- nls(T_K ~ (meanT[period] + dMean[period] * days) + (amplT[period] + dAmpl[period] * days) * sin(2*pi*(days + shiftT[period])/360), data = data,
+           start = list(meanT = c(300,300,300), dMean = c(0.1,0.1,0.1), amplT = c(5,5,5), dAmpl = c(0.1,0.1,0.1), shiftT = c(30,30,30)))
+summary(fit.all)
+
+# Fit sinusoidal function to data from Climate Wizard for historical and end-century
+fit2 <- nls(T_K ~ (meanT[period] + dMean[period] * days) + (amplT[period] + dAmpl[period] * days) * sin(2*pi*(days + shiftT[period])/360), data = data,
+           start = list(meanT = c(300,300), dMean = c(0.1,0.1), amplT = c(5,5), dAmpl = c(0.1,0.1), shiftT = c(30,30)))
+summary(fit2)
+
+
+# PLOTS
 # Plot model fit to TEMPERATURE data
 xmin <- 0
-xmax <- 360*(1991-1961)
-ggplot(data, aes(x=days, y=T_K)) + 
+xmax <- 360*(2100-1960)
+ggplot(data, aes(x=total_days, y=T_K)) + 
   geom_point(size=3, color="black") +
-  geom_line(size=0.8) +
+  #geom_line(size=0.8) +
   #geom_function(fun = function(t){(coef(fit)[1] + coef(fit)[2] * t) + (coef(fit)[3] + coef(fit)[4] * t) * sin(2*pi*(t + coef(fit)[5])/360)},
-  #              size=1, color="#d1495b") +
+  #              size=0.8, color="#d1495b") +
   labs(x="Time (days)", y="Mean Temperature (K)") +
   scale_x_continuous(limits=c(xmin, xmax)) +
-  scale_y_continuous(limits=c(coef(fit)[1] - coef(fit)[2] - 6, coef(fit)[1] + coef(fit)[2] + 6)) +
+  #scale_y_continuous(limits=c(coef(fit)[1] - abs(coef(fit)[3]) - 5, coef(fit)[1] + abs(coef(fit)[3]) + 10)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
         axis.line = element_line(colour = "black"), legend.position = "none", 
