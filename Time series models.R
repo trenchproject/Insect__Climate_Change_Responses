@@ -25,7 +25,7 @@ data.density <- read_csv("Population data China.csv")
 #data.TS <- subset(data.density, Plot=="B") # select plot A, B, or C
 #data.TS <- subset(data.density, location=="Dafeng" & species=="Apolygus_lucorum") # select location and species
 #data.TS <- subset(data.density, location=="Dafeng" & species=="Adelphocoris_suturalis") # select location and species
-data.TS <- subset(data.density, location=="Langfang" & species=="Apolygus_lucorum") # select location and species
+#data.TS <- subset(data.density, location=="Langfang" & species=="Apolygus_lucorum") # select location and species
 #data.TS <- subset(data.density, location=="Xinxiang" & species=="Adelphocoris_suturalis") # select location and species
 
 # Data transformation (if needed)
@@ -39,8 +39,8 @@ data.TS <- subset(data.density, location=="Langfang" & species=="Apolygus_lucoru
 # READ IN MODEL OUTPUT
 # From DDE population dynamics.py 
 # Select an insect by removing # in front of name and placing # in front of other species
-#data.model <- as.data.frame(read_csv("Time Series Clavigralla shadabi.csv"))
-#sp.data <- subset(data, Species == "Clavigralla shadabi")
+#data.model <- as.data.frame(read_csv("Time Series Clavigralla shadabi Benin.csv"))
+#sp.data <- subset(data, Species == "Clavigralla shadabi Benin")
 #data.model <- as.data.frame(read_csv("Time Series Clavigralla tomentosicollis Benin.csv"))
 #sp.data <- subset(data, Species == "Clavigralla tomentosicollis Benin")
 #data.model <- as.data.frame(read_csv("Time Series Clavigralla tomentosicollis Nigeria B.csv"))
@@ -51,10 +51,17 @@ data.TS <- subset(data.density, location=="Langfang" & species=="Apolygus_lucoru
 #sp.data <- subset(data, Species == "Apolygus lucorum China Dafeng")
 #data.model <- as.data.frame(read_csv("Time Series Adelphocoris suturalis China Dafeng.csv"))
 #sp.data <- subset(data, Species == "Adelphocoris suturalis China Dafeng")
-data.model <- as.data.frame(read_csv("Time Series Apolygus lucorum China Langfang.csv"))
-sp.data <- subset(data, Species == "Apolygus lucorum China Langfang")
+#data.model <- as.data.frame(read_csv("Time Series Apolygus lucorum China Langfang.csv"))
+#sp.data <- subset(data, Species == "Apolygus lucorum China Langfang")
 #data.model <- as.data.frame(read_csv("Time Series Adelphocoris suturalis China Xinxiang.csv"))
 #sp.data <- subset(data, Species == "Adelphocoris suturalis China Xinxiang")
+#data.model <- as.data.frame(read_csv("Time Series Macrosiphum euphorbiae Brazil.csv"))
+#sp.data <- subset(data, Species == "Macrosiphum euphorbiae Brazil")
+#data.model <- as.data.frame(read_csv("Time Series Aulacorthum solani Brazil.csv"))
+#sp.data <- subset(data, Species == "Aulacorthum solani Brazil")
+data.model <- as.data.frame(read_csv("Time Series Uroleucon ambrosiae Brazil.csv"))
+sp.data <- subset(data, Species == "Uroleucon ambrosiae Brazil")
+
 
 # Population dynamics with climate change
 clim.data <- data.model
@@ -66,12 +73,12 @@ clim.data <- data.model
 xmin <- 0 #200
 xmax <- 720 #750
 ymin <- 0
-ymax <- 60
+ymax <- 20
 # For climate change time period
 xmin.CC <- 0 #200
 xmax.CC <- 720 #750
 ymin.CC <- 0
-ymax.CC <- 60
+ymax.CC <- 20
 yr <- 360 # days in a year (using 360 for simplicity)
 init_yrs <- 10 # number of years to initiate the model (from Python DDE model)
 TS.length <- xmax - xmin # length of time-series data
@@ -80,11 +87,13 @@ end <- nrow(data.model)
 
 # FORMAT MODEL OUTPUT TO ALIGN WITH TIME-SERIES DATA
 # Remove all rows before time-series data starts
-
 # for Clavigralla tomentosicollis
-data.model <- data.model[c(-1:-((1972-1961+init_yrs)*yr + xmin)), ]
+#data.model <- data.model[c(-1:-((1972-1961+init_yrs)*yr + xmin)), ]
 # for Apolygus lucorum
 #data.model <- data.model[c(-1:-((2005-1961+init_yrs)*yr + xmin)), ]
+# for other species
+data.model <- data.model[c(-1:-((2020-1961+init_yrs)*yr + xmin)), ]
+
 # climate change period (remove all but last 2 years of data)
 clim.data <- clim.data[c(-1:-(end-2*yr + xmin.CC)), ]
 
@@ -239,14 +248,15 @@ plot.temp.CC <- ggplot() +
         axis.text = element_text(size=13), axis.title = element_text(size=20))
 
 
+
 # DRAW FINAL PLOTS
 # Historical time period
 # Juveniles and adults
 plot <- ggdraw()  +
   draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
   #draw_plot(plot.J, x = 0, y = 0.3, width = 1, height = 0.7) +
-  draw_plot(plot.A, x = 0, y = 0.3, width = 1, height = 0.7) +
-  #draw_plot(model.J, x = 0, y = 0.3, width = 1, height = 0.7) +
+  #draw_plot(plot.A, x = 0, y = 0.3, width = 1, height = 0.7) +
+  draw_plot(model.J, x = 0, y = 0.3, width = 1, height = 0.7) +
   draw_plot(model.A, x = 0, y = 0.3, width = 1, height = 0.7)
 #plot
 
@@ -257,15 +267,14 @@ plot <- ggdraw()  +
   draw_plot(model.J, x = 0, y = 0.3, width = 1, height = 0.7) +
   draw_plot(model.A, x = 0, y = 0.3, width = 1, height = 0.7) +
   draw_plot(model.I, x = 0, y = 0.3, width = 1, height = 0.7)
-plot
 #plot
 
 # Climate change time period
 # Juveniles and adults
 plot.CC <- ggdraw()  +
-draw_plot(plot.temp.CC, x = 0, y = 0, width = 1, height = 0.3) +
-#draw_plot(model.J.CC, x = 0, y = 0.3, width = 1, height = 0.7) +
-draw_plot(model.A.CC, x = 0, y = 0.3, width = 1, height = 0.7)
+  draw_plot(plot.temp.CC, x = 0, y = 0, width = 1, height = 0.3) +
+  draw_plot(model.J.CC, x = 0, y = 0.3, width = 1, height = 0.7) +
+  draw_plot(model.A.CC, x = 0, y = 0.3, width = 1, height = 0.7)
 #plot.CC
 
 # Total insects
@@ -283,10 +292,10 @@ plot.compare <- ggdraw()  +
   draw_plot(model.A) +
   draw_plot(model.J.CC) +
   draw_plot(model.A.CC)
-#plot.compare
+plot.compare
 
 # Total insects
 plot.compare <- ggdraw()  +
   draw_plot(model.I) +
   draw_plot(model.I.CC)
-plot.compare
+#plot.compare

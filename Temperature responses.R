@@ -18,17 +18,20 @@ data <- as.data.frame(read_csv("Temperature response data.csv"))
 #sp.data <- subset(data, Species == "Clavigralla tomentosicollis Benin")
 #sp.data <- subset(data, Species == "Clavigralla tomentosicollis Nigeria")
 #sp.data <- subset(data, Species == "Clavigralla tomentosicollis Burkina Faso")
-sp.data <- subset(data, Species == "Apolygus lucorum")
+#sp.data <- subset(data, Species == "Apolygus lucorum")
 #sp.data <- subset(data, Species == "Adelphocoris suturalis")
+#sp.data <- subset(data, Species == "Macrosiphum euphorbiae Brazil")
+#sp.data <- subset(data, Species == "Aulacorthum solani Brazil")
+sp.data <- subset(data, Species == "Uroleucon ambrosiae")
 
 # Remove columns that do not contain temperature data
 sp.data <- sp.data[-c(1:8,12,14,16,18,20,21,23,24,26,27,29,31,32,34,35)]
 
 
 # Set some option for nls and plots
-Tmin <- 280 #288
+Tmin <- 285 #288
 Tmax <- 308 #318
-TR <- 293 #298
+TR <- 292 #298
 
 
 
@@ -65,7 +68,7 @@ points(seq(Tmin,Tmax,1), coef(dev)[1]*(seq(Tmin,Tmax,1)/TR)*exp(coef(dev)[2]*(1/
 
 # estimate xTR and A
 # NOTE: removed data beyond max development
-dev.mon <- nls(Development ~ xTR*T_K/TR*exp(A*(1/TR-1/T_K)), data=sp.data[-c(nrow(sp.data)-1,nrow(sp.data)),],
+dev.mon <- nls(Development ~ xTR*T_K/TR*exp(A*(1/TR-1/T_K)), data=sp.data[-c((nrow(sp.data)-1):nrow(sp.data)),],
                start=list(xTR=0.1, A=1000))
 summary(dev.mon)
 # Plot model fits
@@ -84,7 +87,7 @@ points(seq(Tmin,Tmax,1), coef(dev.mon)[1]*(seq(Tmin,Tmax,1)/TR)*exp(coef(dev.mon
 
 # estimate AL and AH separately from TL and TH if needed
 kTL <- 285 #290
-kTH <- 308 #310
+kTH <- 300 #310
 dev.A <- nls(Development ~ coef(dev.mon)[1]*(T_K/TR)*exp(coef(dev.mon)[2]*(1/TR-1/T_K))/(1+exp(AL*(1/kTL-1/T_K))+exp(AH*(1/kTH-1/T_K))),
               data=sp.data, start=list(AL=-50000, AH=50000))
 summary(dev.A)
@@ -92,23 +95,26 @@ dev.T <- nls(Development ~ coef(dev.mon)[1]*(T_K/TR)*exp(coef(dev.mon)[2]*(1/TR-
              data=sp.data, start=list(TL=kTL, TH=kTH))
 summary(dev.T)
 # Plot model fits
-plot(sp.data$T_K, sp.data$Development, ylim=c(0,0.07))
+plot(sp.data$T_K, sp.data$Development)#, ylim=c(0,0.07))
 points(seq(Tmin,Tmax,1), coef(dev.mon)[1]*(seq(Tmin,Tmax,1)/TR)*exp(coef(dev.mon)[2]*(1/TR-1/seq(Tmin,Tmax,1)))/
          (1+(exp(coef(dev.A)[1]*(1/coef(dev.T)[1]-1/seq(Tmin,Tmax,1)))+exp(coef(dev.A)[2]*(1/coef(dev.T)[2]-1/seq(Tmin,Tmax,1))))), type="l", col="blue")
 
 # estimate TH and AH separately from TL and AL if needed
-kTL <- 285.6 #290
+kTL <- 285 #290
 kAL <- -100000
 dev.H <- nls(Development ~ coef(dev.mon)[1]*(T_K/TR)*exp(coef(dev.mon)[2]*(1/TR-1/T_K))/(1+exp(kAL*(1/kTL-1/T_K))+exp(AH*(1/TH-1/T_K))),
              data=sp.data, start=list(TH=kTH, AH=50000))
 summary(dev.H)
-dev.L <- nls(Development ~ coef(dev.mon)[1]*(T_K/TR)*exp(coef(dev.mon)[2]*(1/TR-1/T_K))/(1+exp(AL*(1/kTL-1/T_K))+exp(coef(dev.H)[2]*(1/coef(dev.H)[1]-1/T_K))),
-             data=sp.data, start=list(AL=-10000))
-summary(dev.L)
+dev.AL <- nls(Development ~ coef(dev.mon)[1]*(T_K/TR)*exp(coef(dev.mon)[2]*(1/TR-1/T_K))/(1+exp(AL*(1/kTL-1/T_K))+exp(coef(dev.H)[2]*(1/coef(dev.H)[1]-1/T_K))),
+             data=sp.data, start=list(AL=-100000))
+summary(dev.AL)
+dev.TL <- nls(Development ~ coef(dev.mon)[1]*(T_K/TR)*exp(coef(dev.mon)[2]*(1/TR-1/T_K))/(1+exp(coef(dev.AL)[1]*(1/TL-1/T_K))+exp(coef(dev.H)[2]*(1/coef(dev.H)[1]-1/T_K))),
+             data=sp.data, start=list(TL=kTL))
+summary(dev.TL)
 # Plot model fits
 plot(sp.data$T_K, sp.data$Development)
 points(seq(Tmin,Tmax,1), coef(dev.mon)[1]*(seq(Tmin,Tmax,1)/TR)*exp(coef(dev.mon)[2]*(1/TR-1/seq(Tmin,Tmax,1)))/
-         (1+(exp(coef(dev.L)[1]*(1/kTL-1/seq(Tmin,Tmax,1)))+exp(coef(dev.H)[2]*(1/coef(dev.H)[1]-1/seq(Tmin,Tmax,1))))), type="l", col="blue")
+         (1+(exp(coef(dev.AL)[1]*(1/coef(dev.TL)[1]-1/seq(Tmin,Tmax,1)))+exp(coef(dev.H)[2]*(1/coef(dev.H)[1]-1/seq(Tmin,Tmax,1))))), type="l", col="blue")
 
 
 

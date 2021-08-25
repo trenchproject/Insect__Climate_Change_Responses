@@ -16,14 +16,17 @@ tempData = read_csv("Temperature response parameters.csv")
 
 
 # SELECT INSECT SPECIES
-#spData = tempData[tempData["Species"] == "Clavigralla shadabi"]
+#spData = tempData[tempData["Species"] == "Clavigralla shadabi Benin"]
 #spData = tempData[tempData["Species"] == "Clavigralla tomentosicollis Benin"]   
 #spData = tempData[tempData["Species"] == "Clavigralla tomentosicollis Nigeria B"]
 #spData = tempData[tempData["Species"] == "Clavigralla tomentosicollis Burkina Faso"]
 #spData = tempData[tempData["Species"] == "Apolygus lucorum China Dafeng"]
 #spData = tempData[tempData["Species"] == "Adelphocoris suturalis China Dafeng"]
 #spData = tempData[tempData["Species"] == "Apolygus lucorum China Langfang"]
-spData = tempData[tempData["Species"] == "Adelphocoris suturalis China Xinxiang"]
+#spData = tempData[tempData["Species"] == "Adelphocoris suturalis China Xinxiang"]
+#spData = tempData[tempData["Species"] == "Macrosiphum euphorbiae Brazil"]
+#spData = tempData[tempData["Species"] == "Aulacorthum solani Brazil"]
+spData = tempData[tempData["Species"] == "Uroleucon ambrosiae Brazil"]
 
 # DEFINE MODEL PARAMETERS
 # Time parameters

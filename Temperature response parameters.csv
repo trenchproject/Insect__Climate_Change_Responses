@@ -1,5 +1,5 @@
 ﻿Species,meanT,delta_mean,amplT,delta_ampl,shiftT,bTopt,Toptb,sb,mTR,TR,AmJ,skew,AL,TL,AH,TH,dJTR,AdJ,dATR,AdA,qTR,Toptq,sq,Aq,Tmax,qTemp,Res,Rstart,Rend,Notes
-Clavigralla shadabi,300.2,0,1.36,0,35.39,8.8787,300.46,3.6893,0.037,298,6698,1,-40670,290.3,157800,308.9,0.013,23621,0.027,9538,0.2,300.46,3.6893,9538,301.56,1,0,0,0,Fitting dJTR and dATR
+Clavigralla shadabi Benin,300.2,0,1.36,0,35.39,8.8787,300.46,3.6893,0.037,298,6698,1,-40670,290.3,157800,308.9,0.013,23621,0.027,9538,0.2,300.46,3.6893,9538,301.56,1,0,0,0,Fitting dJTR and dATR
 Clavigralla tomentosicollis Benin,300.2,0,1.36,0,35.39,6.443,303.79,5.7,0.035,296,7600,1,-158500,290,144437,310,0.008,13669,0.027,10765,0.2,303.79,5.7,10765,301.56,1,0,0,0,Fitting dJTR and dATR
 Clavigralla tomentosicollis Nigeria A,300.6,0.000127,2.33,0,-17.28,5.143,302.64,5.35,0.042,298,6366,0,1,1,1,1,0.016,10840,0.018,3916,0.5,302.64,5.35,4963,302.93,1,1,240,180,"Using fecundity, adult mortality from Burkina Faso, Resource availability shifted 2 mo earlier"
 Clavigralla tomentosicollis Nigeria B,300.2,0.000127,2.01,0,42.02,5.143,302.64,5.35,0.042,298,6366,0,1,1,1,1,0.016,10840,0.018,3916,0.5,302.64,5.35,4963,302.21,1,1,240,180,"Using fecundity, adult mortality from Burkina Faso, Resource availability shifted 2 mo earlier"
@@ -9,6 +9,6 @@ Apolygus lucorum China Dafeng,287.2,0.0000888,-12.25,0,66.11,2.7174,298.82,8.097
 Adelphocoris suturalis China Dafeng,287.2,0.0000888,-12.25,0,66.11,2.83,300.99,8.908,0.027,293,6754,1,-62876,285.2,30065,308.1,0.016,10350,0.028,5165,0.15,300.99,8.908,5165,299.45,1,1,200,255,Fitting dJTR and dATR
 Apolygus lucorum China Langfang,284.8,0.0000934,-15.03,0,74.82,2.7174,298.82,8.097,0.036,293,5654,1,-100594,283,25800,309.3,0.02,12310,0.025,3876,0.15,298.82,8.097,3876,299.83,1,1,200,255,TL=283 to avoid min_step problem in Python; Fitting dJTR and dATR
 Adelphocoris suturalis China Xinxiang,286,0.0000983,-13.45,0,76.25,2.83,300.99,8.908,0.027,293,6754,1,-62876,285.2,30065,308.1,0.016,10350,0.028,5165,0.15,300.99,8.908,5165,299.45,1,1,200,255,Fitting dJTR and dATR
-Macrosiphum euphorbiae in Brazil,292.7,0.00012,2.84,0,90.57,,,,,,,,,,,,,,,,,,,,295.54,1,0,0,0,
-Aulacorthum solani,292.7,0.00012,2.84,0,90.57,,,,,,,,,,,,,,,,,,,,295.54,1,0,0,0,
-Uroleucon ambrosiae,292.7,0.00012,2.84,0,90.57,,,,,,,,,,,,,,,,,,,,295.54,1,0,0,0,
+Macrosiphum euphorbiae Brazil,292.7,0.00012,2.84,0,90.57,3.38,292.3,4.645,0.427,292,3262,1,-63454,285.5,36530,299.8,0.084,2052,0.06,5975,0.2,292.3,4.645,5975,295.54,1,0,0,0,Fitting dJTR and dATR
+Aulacorthum solani Brazil,292.7,0.00012,2.84,0,90.57,4.08,292.1,5.03,0.439,292,7096,1,-66946,285.2,42437,298.5,0.058,18870,0.033,50920,0.2,292.1,5.03,50920,295.54,1,0,0,0,Fitting dJTR and dATR
+Uroleucon ambrosiae Brazil,292.7,0.00012,2.84,0,90.57,4.94,294.3,4.92,0.448,292,5162,1,-57240,285.4,35138,298.1,0.061,12080,0.062,14140,0.2,294.3,4.92,14140,295.54,1,0,0,0,Fitting dJTR and dATR
