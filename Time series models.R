@@ -61,14 +61,14 @@ data.density <- read_csv("Population data China.csv")
 #sp.data <- subset(data, Species == "Aulacorthum solani Brazil")
 #data.model <- as.data.frame(read_csv("Time Series Uroleucon ambrosiae Brazil.csv"))
 #sp.data <- subset(data, Species == "Uroleucon ambrosiae Brazil")
-#data.model <- as.data.frame(read_csv("Time Series Lygus lineolaris Mississippi.csv"))
-#sp.data <- subset(data, Species == "Lygus lineolaris Mississippi")
+data.model <- as.data.frame(read_csv("Time Series Lygus lineolaris Mississippi.csv"))
+sp.data <- subset(data, Species == "Lygus lineolaris Mississippi")
 #data.model <- as.data.frame(read_csv("Time Series Pilophorus typicus Japan.csv"))
 #sp.data <- subset(data, Species == "Pilophorus typicus Japan")
 #data.model <- as.data.frame(read_csv("Time Series Macrolophus pygmaeus on Myzus persicae Greece.csv"))
 #sp.data <- subset(data, Species == "Macrolophus pygmaeus on Myzus persicae Greece")
-data.model <- as.data.frame(read_csv("Time Series Macrolophus pygmaeus on Trialeurodes vaporariorum Greece.csv"))
-sp.data <- subset(data, Species == "Macrolophus pygmaeus on Trialeurodes vaporariorum Greece")
+#data.model <- as.data.frame(read_csv("Time Series Macrolophus pygmaeus on Trialeurodes vaporariorum Greece.csv"))
+#sp.data <- subset(data, Species == "Macrolophus pygmaeus on Trialeurodes vaporariorum Greece")
 
 
 # Population dynamics with climate change
@@ -81,12 +81,12 @@ clim.data <- data.model
 xmin <- 0 #200
 xmax <- 720 #750
 ymin <- 0
-ymax <- 400
+ymax <- 100
 # For climate change time period
 xmin.CC <- 0 #200
 xmax.CC <- 720 #750
 ymin.CC <- 0
-ymax.CC <- 400
+ymax.CC <- 100
 yr <- 360 # days in a year (using 360 for simplicity)
 init_yrs <- 10 # number of years to initiate the model (from Python DDE model)
 TS.length <- xmax - xmin # length of time-series data

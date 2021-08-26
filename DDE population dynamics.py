@@ -27,10 +27,10 @@ tempData = read_csv("Temperature response parameters.csv")
 #spData = tempData[tempData["Species"] == "Macrosiphum euphorbiae Brazil"]
 #spData = tempData[tempData["Species"] == "Aulacorthum solani Brazil"]
 #spData = tempData[tempData["Species"] == "Uroleucon ambrosiae Brazil"]
-#spData = tempData[tempData["Species"] == "Lygus lineolaris Mississippi"]
+spData = tempData[tempData["Species"] == "Lygus lineolaris Mississippi"]
 #spData = tempData[tempData["Species"] == "Pilophorus typicus Japan"]
 #spData = tempData[tempData["Species"] == "Macrolophus pygmaeus on Myzus persicae Greece"]
-spData = tempData[tempData["Species"] == "Macrolophus pygmaeus on Trialeurodes vaporariorum Greece"]
+#spData = tempData[tempData["Species"] == "Macrolophus pygmaeus on Trialeurodes vaporariorum Greece"]
 
 # DEFINE MODEL PARAMETERS
 # Time parameters
