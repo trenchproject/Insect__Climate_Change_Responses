@@ -22,16 +22,20 @@ data <- as.data.frame(read_csv("Temperature response data.csv"))
 #sp.data <- subset(data, Species == "Adelphocoris suturalis")
 #sp.data <- subset(data, Species == "Macrosiphum euphorbiae Brazil")
 #sp.data <- subset(data, Species == "Aulacorthum solani Brazil")
-sp.data <- subset(data, Species == "Uroleucon ambrosiae")
+#sp.data <- subset(data, Species == "Uroleucon ambrosiae")
+#sp.data <- subset(data, Species == "Lygus lineolaris")
+#sp.data <- subset(data, Species == "Pilophorus typicus")
+#sp.data <- subset(data, Species == "Macrolophus pygmaeus on Myzus persicae")
+sp.data <- subset(data, Species == "Macrolophus pygmaeus on Trialeurodes vaporariorum")
 
 # Remove columns that do not contain temperature data
-sp.data <- sp.data[-c(1:8,12,14,16,18,20,21,23,24,26,27,29,31,32,34,35)]
+sp.data <- sp.data[-c(1:8,12,14,16,18,20,22,24,26,27,29,31,32,34,35,37,39,40,42,43)]
 
 
 # Set some option for nls and plots
 Tmin <- 285 #288
 Tmax <- 308 #318
-TR <- 292 #298
+TR <- 293 #298
 
 
 
@@ -87,7 +91,7 @@ points(seq(Tmin,Tmax,1), coef(dev.mon)[1]*(seq(Tmin,Tmax,1)/TR)*exp(coef(dev.mon
 
 # estimate AL and AH separately from TL and TH if needed
 kTL <- 285 #290
-kTH <- 300 #310
+kTH <- 305 #310
 dev.A <- nls(Development ~ coef(dev.mon)[1]*(T_K/TR)*exp(coef(dev.mon)[2]*(1/TR-1/T_K))/(1+exp(AL*(1/kTL-1/T_K))+exp(AH*(1/kTH-1/T_K))),
               data=sp.data, start=list(AL=-50000, AH=50000))
 summary(dev.A)
@@ -100,7 +104,6 @@ points(seq(Tmin,Tmax,1), coef(dev.mon)[1]*(seq(Tmin,Tmax,1)/TR)*exp(coef(dev.mon
          (1+(exp(coef(dev.A)[1]*(1/coef(dev.T)[1]-1/seq(Tmin,Tmax,1)))+exp(coef(dev.A)[2]*(1/coef(dev.T)[2]-1/seq(Tmin,Tmax,1))))), type="l", col="blue")
 
 # estimate TH and AH separately from TL and AL if needed
-kTL <- 285 #290
 kAL <- -100000
 dev.H <- nls(Development ~ coef(dev.mon)[1]*(T_K/TR)*exp(coef(dev.mon)[2]*(1/TR-1/T_K))/(1+exp(kAL*(1/kTL-1/T_K))+exp(AH*(1/TH-1/T_K))),
              data=sp.data, start=list(TH=kTH, AH=50000))

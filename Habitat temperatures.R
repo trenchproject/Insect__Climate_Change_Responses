@@ -17,7 +17,10 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 #data <- as.data.frame(read_csv("Climate data China Dafeng.csv"))
 #data <- as.data.frame(read_csv("Climate data China Langfang.csv"))
 #data <- as.data.frame(read_csv("Climate data China Xinxiang.csv"))
-data <- as.data.frame(read_csv("Climate data Brazil.csv"))
+#data <- as.data.frame(read_csv("Climate data Brazil.csv"))
+#data <- as.data.frame(read_csv("Climate data Mississippi.csv"))
+#data <- as.data.frame(read_csv("Climate data Japan Monobe.csv"))
+data <- as.data.frame(read_csv("Climate data Greece.csv"))
 
 #### Fit temperature functions to data from Climate Wizard using Fourier analysis ####
 
@@ -29,14 +32,23 @@ fit <- nls(T_K ~ (meanT + dMean * total_days) + (amplT + dAmpl * total_days) * s
 summary(fit)
 
 # Fit sinusoidal function to data from Climate Wizard for each time period
-fit.all <- nls(T_K ~ (meanT[period] + dMean[period] * days) + (amplT[period] + dAmpl[period] * days) * sin(2*pi*(days + shiftT[period])/360), data = data,
-           start = list(meanT = c(300,300,300), dMean = c(0.1,0.1,0.1), amplT = c(5,5,5), dAmpl = c(0.1,0.1,0.1), shiftT = c(30,30,30)))
-summary(fit.all)
+#fit.all <- nls(T_K ~ (meanT[period] + dMean[period] * days) + (amplT[period] + dAmpl[period] * days) * sin(2*pi*(days + shiftT[period])/360), data = data,
+#           start = list(meanT = c(300,300,300), dMean = c(0.1,0.1,0.1), amplT = c(5,5,5), dAmpl = c(0.1,0.1,0.1), shiftT = c(30,30,30)))
+#summary(fit.all)
 
 # Fit sinusoidal function to data from Climate Wizard for historical and end-century
-fit2 <- nls(T_K ~ (meanT[period] + dMean[period] * days) + (amplT[period] + dAmpl[period] * days) * sin(2*pi*(days + shiftT[period])/360), data = data,
-           start = list(meanT = c(300,300), dMean = c(0.1,0.1), amplT = c(5,5), dAmpl = c(0.1,0.1), shiftT = c(30,30)))
-summary(fit2)
+# This code does not currently work
+#fit2 <- nls(T_K ~ (meanT[period] + dMean[period] * days) + (amplT[period] + dAmpl[period] * days) * sin(2*pi*(days + shiftT[period])/360), data = data,
+#           start = list(meanT = c(300,300), dMean = c(0.1,0.1), amplT = c(5,5), dAmpl = c(0.1,0.1), shiftT = c(30,30)))
+#summary(fit2)
+# Historical period
+fit.h <- nls(T_K ~ (meanT + dMean * days) + (amplT + dAmpl * days) * sin(2*pi*(days + shiftT)/360), data = subset(data, period == "historical"),
+           start = list(meanT = 300, dMean = 0.1, amplT = 5, dAmpl = 0.1, shiftT = 30))
+summary(fit.h)
+# End-century period
+fit.e <- nls(T_K ~ (meanT + dMean * days) + (amplT + dAmpl * days) * sin(2*pi*(days + shiftT)/360), data = subset(data, period == "future_end"),
+             start = list(meanT = 300, dMean = 0.1, amplT = 5, dAmpl = 0.1, shiftT = 30))
+summary(fit.e)
 
 
 # PLOTS
@@ -46,11 +58,11 @@ xmax <- 360*(2100-1960)
 ggplot(data, aes(x=total_days, y=T_K)) + 
   geom_point(size=3, color="black") +
   #geom_line(size=0.8) +
-  #geom_function(fun = function(t){(coef(fit)[1] + coef(fit)[2] * t) + (coef(fit)[3] + coef(fit)[4] * t) * sin(2*pi*(t + coef(fit)[5])/360)},
-  #              size=0.8, color="#d1495b") +
+  geom_function(fun = function(t){(coef(fit)[1] + coef(fit)[2] * t) + (coef(fit)[3] + coef(fit)[4] * t) * sin(2*pi*(t + coef(fit)[5])/360)},
+                size=0.8, color="#d1495b") +
   labs(x="Time (days)", y="Mean Temperature (K)") +
   scale_x_continuous(limits=c(xmin, xmax)) +
-  #scale_y_continuous(limits=c(coef(fit)[1] - abs(coef(fit)[3]) - 5, coef(fit)[1] + abs(coef(fit)[3]) + 10)) +
+  scale_y_continuous(limits=c(coef(fit)[1] - abs(coef(fit)[3]) - 5, coef(fit)[1] + abs(coef(fit)[3]) + 10)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
         axis.line = element_line(colour = "black"), legend.position = "none", 
@@ -60,7 +72,7 @@ ggplot(data, aes(x=total_days, y=T_K)) +
 ggplot(data, aes(x=month, y=T_K)) + 
   geom_point(size=3, color="black") +
   scale_x_continuous(limits=c(0, 12)) +
-  scale_y_continuous(limits=c(coef(fit)[1] - coef(fit)[2] - 6, coef(fit)[1] + coef(fit)[2] + 6)) +
+  scale_y_continuous(limits=c(coef(fit)[1] - abs(coef(fit)[3]) - 6, coef(fit)[1] + abs(coef(fit)[3]) + 6)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
         axis.line = element_line(colour = "black"), legend.position = "none", 
