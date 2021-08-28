@@ -4,6 +4,7 @@
 
 # IMPORT PACKAGES
 from numpy import arange, hstack, vstack, savetxt
+#from sympy import N
 from jitcdde import jitcdde, y, t
 from symengine import exp, pi, sin, cos, asin
 from matplotlib.pyplot import subplots, xlabel, ylabel, xlim, ylim, yscale#, plot, show
@@ -27,10 +28,10 @@ tempData = read_csv("Temperature response parameters.csv")
 #spData = tempData[tempData["Species"] == "Macrosiphum euphorbiae Brazil"]
 #spData = tempData[tempData["Species"] == "Aulacorthum solani Brazil"]
 #spData = tempData[tempData["Species"] == "Uroleucon ambrosiae Brazil"]
-spData = tempData[tempData["Species"] == "Lygus lineolaris Mississippi"]
+#spData = tempData[tempData["Species"] == "Lygus lineolaris Mississippi"]
 #spData = tempData[tempData["Species"] == "Pilophorus typicus Japan"]
 #spData = tempData[tempData["Species"] == "Macrolophus pygmaeus on Myzus persicae Greece"]
-#spData = tempData[tempData["Species"] == "Macrolophus pygmaeus on Trialeurodes vaporariorum Greece"]
+spData = tempData[tempData["Species"] == "Macrolophus pygmaeus on Trialeurodes vaporariorum Greece"]
 
 # DEFINE MODEL PARAMETERS
 # Time parameters
@@ -77,7 +78,7 @@ sq = spData["sq"].values[0]
 Aq = spData["Aq"].values[0]
 Tmax = spData["Tmax"].values[0]
 qTemp = spData["qTemp"].values[0]
-qTopt = qTR*exp(Aq*(1/TR - 1/Tmax))
+qTopt = qTR#*exp(Aq*(1/TR - 1/Tmax))
 
 # Resource variation
 Res = spData["Res"].values[0] # Res = 1 (0) if there is (not) resource variation
