@@ -360,13 +360,14 @@ d.min.A <- (min.A.CC-min.A)/min.A
 # temperature functions
 temp <- function(t) (sp.data$meanT + sp.data$delta_mean*(t+time.shift))  + (sp.data$amplT + sp.data$delta_ampl*(t+time.shift)) * sin(2*pi*((t+time.shift) + sp.data$shiftT)/yr)
 temp.CC <- function(t) (sp.data$meanT + sp.data$delta_mean*(t+time.shift.CC))  + (sp.data$amplT + sp.data$delta_ampl*(t+time.shift.CC)) * sin(2*pi*((t+time.shift.CC) + sp.data$shiftT)/yr)
+length <- 360 # length of time over which to compare models
 
 # reproductive activity period (birth rate > 0.1 bTopt)
 b.period <- 0
 b.period.CC <- 0
-for(i in 0:nrow(data.model)) {
+for(i in 0:length) {
   if(sp.data["bTopt"]*exp(-((temp(i)-sp.data["Toptb"])^2)/(2*sp.data["sb"]^2)) > 0.1*sp.data["bTopt"]) {b.period <- b.period + 1} }
-for(i in 0:nrow(data.model.CC)) {
+for(i in 0:length) {
   if(sp.data["bTopt"]*exp(-((temp.CC(i)-sp.data["Toptb"])^2)/(2*sp.data["sb"]^2)) > 0.1*sp.data["bTopt"]) {b.period.CC <- b.period.CC + 1} }
 d.b <- (b.period.CC-b.period)/b.period
 
@@ -382,63 +383,63 @@ for(i in 0:100) {
 # calculate time above 0.25 Mmax
 m.period <- 0
 m.period.CC <- 0
-for(i in 0:nrow(data.model)) {
+for(i in 0:length) {
   if(sp.data["mTR"]*(temp(i)/sp.data["TR"])*exp(sp.data["AmJ"]*(1/sp.data["TR"]-1/temp(i)))/(1+sp.data["skew"]*exp(sp.data["AL"]*(1/sp.data["TL"]-1/temp(i)))+exp(sp.data["AH"]*(1/sp.data["TH"]-1/temp(i)))) > 0.25*Mmax) {m.period = m.period + 1} }
-for(i in 0:nrow(data.model.CC)) {
+for(i in 0:length) {
   if(sp.data["mTR"]*(temp.CC(i)/sp.data["TR"])*exp(sp.data["AmJ"]*(1/sp.data["TR"]-1/temp.CC(i)))/(1+sp.data["skew"]*exp(sp.data["AL"]*(1/sp.data["TL"]-1/temp.CC(i)))+exp(sp.data["AH"]*(1/sp.data["TH"]-1/temp.CC(i)))) > 0.25*Mmax) {m.period.CC = m.period.CC + 1} }
 d.m <- (m.period.CC-m.period)/m.period
 
 # average reproductive rate (mean b(T))
 b.sum <- 0
 b.sum.CC <- 0
-for(i in 0:nrow(data.model)) {
+for(i in 0:length) {
   b.sum <- b.sum + (sp.data["bTopt"]*exp(-((temp(i)-sp.data["Toptb"])^2)/(2*sp.data["sb"]^2)))[[1]] }
-for(i in 0:nrow(data.model.CC)) {
+for(i in 0:length) {
   b.sum.CC <- b.sum.CC + (sp.data["bTopt"]*exp(-((temp.CC(i)-sp.data["Toptb"])^2)/(2*sp.data["sb"]^2)))[[1]] }
 d.b.ave <- (b.sum.CC-b.sum)/b.sum
 
 # average development rate (mean m(T))
 m.sum <- 0
 m.sum.CC <- 0
-for(i in 0:nrow(data.model)) {
+for(i in 0:length) {
   m.sum <- m.sum + (sp.data["mTR"]*(temp(i)/sp.data["TR"])*exp(sp.data["AmJ"]*(1/sp.data["TR"]-1/temp(i)))/(1+sp.data["skew"]*exp(sp.data["AL"]*(1/sp.data["TL"]-1/temp(i)))+exp(sp.data["AH"]*(1/sp.data["TH"]-1/temp(i)))))[[1]] }
-for(i in 0:nrow(data.model.CC)) {
+for(i in 0:length) {
   m.sum.CC <- m.sum.CC + (sp.data["mTR"]*(temp.CC(i)/sp.data["TR"])*exp(sp.data["AmJ"]*(1/sp.data["TR"]-1/temp.CC(i)))/(1+sp.data["skew"]*exp(sp.data["AL"]*(1/sp.data["TL"]-1/temp.CC(i)))+exp(sp.data["AH"]*(1/sp.data["TH"]-1/temp.CC(i)))))[[1]] }
 d.m.ave <- (m.sum.CC-m.sum)/m.sum
 
 # average adult mortality rate (mean dA(T))
 dA.sum <- 0
 dA.sum.CC <- 0
-for(i in 0:nrow(data.model)) {
+for(i in 0:length) {
   dA.sum <- dA.sum + (sp.data["dATR"]*exp(sp.data["AdA"]*(1/sp.data["TR"]-1/temp(i))))[[1]] }
-for(i in 0:nrow(data.model.CC)) {
+for(i in 0:length) {
   dA.sum.CC <- dA.sum.CC + (sp.data["dATR"]*exp(sp.data["AdA"]*(1/sp.data["TR"]-1/temp.CC(i))))[[1]] }
 d.dA.ave <- (dA.sum.CC-dA.sum)/dA.sum
 
 # time above optimum range for reproductive rate (T > ToptR0 + sR0)
 R0.period <- 0
 R0.period.CC <- 0
-for(i in 0:nrow(data.model)) {
+for(i in 0:length) {
   if(temp(i) > sp.data["ToptR0"] + sp.data["sR0"]) {R0.period = R0.period + 1} }
-for(i in 0:nrow(data.model.CC)) {
+for(i in 0:length) {
   if(temp.CC(i) > sp.data["ToptR0"] + sp.data["sR0"]) {R0.period.CC <- R0.period.CC + 1} }
 if(R0.period !=0) { d.R0 <- (R0.period.CC-R0.period)/R0.period } else {d.R0 <- 0 }
 
 # time above rTmax (T > rTmax)
 r.period <- 0
 r.period.CC <- 0
-for(i in 0:nrow(data.model)) {
+for(i in 0:length) {
   if(temp(i) > sp.data["rTmax"]) {r.period = r.period + 1} }
-for(i in 0:nrow(data.model.CC)) {
+for(i in 0:length) {
   if(temp.CC(i) > sp.data["rTmax"]) {r.period.CC <- r.period.CC + 1} }
 if(r.period !=0) { d.r <- (r.period.CC-r.period)/r.period } else {d.r <- 0 }
 
 # mean thermal safety margin (Toptr - T)
 TSM <- 0
 TSM.CC <- 0
-for(i in 0:nrow(data.model)) {
+for(i in 0:length) {
   if(temp(i) > sp.data["Toptr"]) {TSM = TSM + 1} }
-for(i in 0:nrow(data.model.CC)) {
+for(i in 0:length) {
   if(temp.CC(i) > sp.data["Toptr"]) {TSM.CC <- TSM.CC + 1} }
 if(TSM !=0) { d.TSM <- (TSM.CC-TSM)/TSM } else {d.TSM <- 0 }
 
@@ -450,7 +451,7 @@ par(mfrow=c(3,5))
 barplot(c(d.mean.J,d.mean.A), col=c("#d1495b","#30638e"), ylim=c(-0.5,2), main=expression("Mean density"))
 barplot(c(d.max.J,d.max.A), col=c("#d1495b","#30638e"), ylim=c(-0.5,4), main=expression("Peak density"))
 barplot(c(d.time.J,d.time.A), col=c("#d1495b","#30638e"), ylim=c(-200,200), main=expression("Timing of peak"))
-barplot(c(d.min.J,d.min.A), col=c("#d1495b","#30638e"), ylim=c(0,10), main=expression("Minimum density"))
+barplot(c(d.min.J,d.min.A), col=c("#d1495b","#30638e"), ylim=c(-1,1), main=expression("Minimum density"))
 # activity periods
 barplot(d.b, col="#30638e", xlim=c(0.2,2), ylim=c(-0.5,0.5), main=expression("Rep. period"))
 barplot(d.m, col="#d1495b", xlim=c(0.2,2), ylim=c(-0.5,0.5), main=expression("Dev. period"))
@@ -461,7 +462,7 @@ barplot(d.dA.ave, col="#30638e", xlim=c(0.2,2), ylim=c(-0.5,2.5), main=expressio
 # thermal performance curves
 barplot(d.R0, col="#30638e", xlim=c(0.2,2), ylim=c(-2,2), main=expression("above R0"))
 barplot(d.r, col="#30638e", xlim=c(0.2,2), ylim=c(-2,2), main=expression("above r"))
-barplot(d.TSM, col="#30638e", xlim=c(0.2,2), ylim=c(-0.5,0.5), main=expression("Thermal margin"))
+barplot(d.TSM, col="#30638e", xlim=c(0.2,2), ylim=c(-0.5,2), main=expression("Thermal margin"))
 # habitat temperatures
 barplot((sp.data["ext_meanT"])[[1]], col="#30638e", xlim=c(0.2,2), ylim=c(0,10), main=expression("meanT"))
 barplot((sp.data["ext_amplT"])[[1]], col="#30638e", xlim=c(0.2,2), ylim=c(0,10), main=expression("amplT"))
