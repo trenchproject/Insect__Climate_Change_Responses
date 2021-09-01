@@ -13,6 +13,7 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 # INPUT DATA
 # Select a location by removing # in front of name and placing # in front of other locations
+data <- as.data.frame(read_csv("Climate data Benin.csv"))
 #data <- as.data.frame(read_csv("Climate data Nigeria.csv"))
 #data <- as.data.frame(read_csv("Climate data China Dafeng.csv"))
 #data <- as.data.frame(read_csv("Climate data China Langfang.csv"))
@@ -20,7 +21,7 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 #data <- as.data.frame(read_csv("Climate data Brazil.csv"))
 #data <- as.data.frame(read_csv("Climate data Mississippi.csv"))
 #data <- as.data.frame(read_csv("Climate data Japan Monobe.csv"))
-data <- as.data.frame(read_csv("Climate data Greece.csv"))
+#data <- as.data.frame(read_csv("Climate data Greece.csv"))
 
 #### Fit temperature functions to data from Climate Wizard using Fourier analysis ####
 

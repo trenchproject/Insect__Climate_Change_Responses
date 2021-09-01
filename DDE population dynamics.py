@@ -1,13 +1,15 @@
 # Delay differential equation model for predicting insect population dynamics
 # under seasonal temperature variation and climate change
-
+# NOTE: If code yields error: "Restarting kernel...", try increasing max_delay in the DDE solver section
+# NOTE: If code yields error: "Unsuccessful Integration: Could not integrate with the given tolerance parameters",
+#       one of the life history traits is below the minimum tolerance (1e-10)
 
 # IMPORT PACKAGES
 from numpy import arange, hstack, vstack, savetxt
 #from sympy import N
 from jitcdde import jitcdde, y, t
 from symengine import exp, pi, sin, cos, asin
-from matplotlib.pyplot import subplots, xlabel, ylabel, xlim, ylim, yscale#, plot, show
+from matplotlib.pyplot import subplots, xlabel, ylabel, xlim, ylim, yscale, plot, show
 from pandas import read_csv
 from jitcxde_common import conditional
 
@@ -17,7 +19,7 @@ tempData = read_csv("Temperature response parameters.csv")
 
 
 # SELECT INSECT SPECIES
-#spData = tempData[tempData["Species"] == "Clavigralla shadabi Benin"]
+spData = tempData[tempData["Species"] == "Clavigralla shadabi Benin"]
 #spData = tempData[tempData["Species"] == "Clavigralla tomentosicollis Benin"]   
 #spData = tempData[tempData["Species"] == "Clavigralla tomentosicollis Nigeria B"]
 #spData = tempData[tempData["Species"] == "Clavigralla tomentosicollis Burkina Faso"]
@@ -31,7 +33,7 @@ tempData = read_csv("Temperature response parameters.csv")
 #spData = tempData[tempData["Species"] == "Lygus lineolaris Mississippi"]
 #spData = tempData[tempData["Species"] == "Pilophorus typicus Japan"]
 #spData = tempData[tempData["Species"] == "Macrolophus pygmaeus on Myzus persicae Greece"]
-spData = tempData[tempData["Species"] == "Macrolophus pygmaeus on Trialeurodes vaporariorum Greece"]
+#spData = tempData[tempData["Species"] == "Macrolophus pygmaeus on Trialeurodes vaporariorum Greece"]
 
 # DEFINE MODEL PARAMETERS
 # Time parameters
@@ -39,11 +41,11 @@ yr = 360 # days in year
 init_years = 10 # how many years to use for model initiation
 max_years = init_years+140 # how long to run simulations
 tstep = 1 # time step = 1 day
-delta_years = max_years # how long before climate change "equilibrates"
+CC_years = max_years # how long before climate change "equilibrates"
 
 # Initial abundances
-initJ = 1
-initA = 1
+initJ = 1.
+initA = 1.
 
 # Habitat temperature and climate change parameters
 meanT = spData["meanT"].values[0]
@@ -51,6 +53,8 @@ amplT = spData["amplT"].values[0]
 shiftT = spData["shiftT"].values[0]
 delta_mean = spData["delta_mean"].values[0]
 delta_ampl = spData["delta_ampl"].values[0]
+#delta_mean = 2.5/(100*yr)
+#delta_ampl = 2.5/(100*yr)
 
 # Life history and competitive traits
 # fecundity
@@ -98,13 +102,12 @@ Rshift = cos(pi*Rlength) # shift used to model resource availability via sine wa
 def T(x):
     return conditional(x, 0, meanT, # during "pre-history" (t<0), habitat temperature is constant at its mean
                        conditional(x, init_years*yr, meanT + amplT * sin(2*pi*(x + shiftT)/yr), # during model initiation, delta_mean = 0 and delta_ampl = 0
-                                   conditional(x, delta_years*yr, (meanT + delta_mean*x) + (amplT + delta_ampl*x) * sin(2*pi*(x + shiftT)/yr), # temperature regime during climate change
-                                               (meanT + delta_mean*delta_years*yr) + (amplT + delta_ampl*delta_years*yr) * sin(2*pi*(x + shiftT)/yr)))) # temperature regime after climate change "equilibriates"
-
+                                   conditional(x, CC_years*yr, (meanT + delta_mean*(x-init_years*yr)) + (amplT + delta_ampl*(x-init_years*yr)) * sin(2*pi*((x-init_years*yr) + shiftT)/yr), # temperature regime during climate change
+                                               (meanT + delta_mean*CC_years*yr) + (amplT + delta_ampl*CC_years*yr) * sin(2*pi*((x-init_years*yr) + shiftT)/yr)))) # temperature regime after climate change "equilibriates"
 '''
 # Plot temperature function
-xvals = arange(0,1*yr,1)
-yvals = vstack([(meanT + delta_mean*i) + (amplT + delta_ampl*i) * sin(2*pi*(i + shiftT)/yr) for i in xvals ])
+xvals = arange(0,10*yr,1)
+yvals = vstack([(meanT + delta_mean*(i-init_years*yr)) + (amplT + delta_ampl*(i-init_years*yr)) * sin(2*pi*(i-init_years*yr + shiftT)/yr) for i in xvals ])
 plot(xvals,yvals)
 show()
 '''
@@ -113,20 +116,21 @@ show()
 def T(x):
     return conditional(x, 0, meanT, # during "pre-history" (t<0), habitat temperature is constant at its mean
                        conditional(x, init_years*yr, 299.08 + 1.84*cos(2*pi*30/(30*yr)*(x-15) - 1.86) + 1.51*cos(2*pi*60/(30*yr)*(x-15) - 3.09) + 0.359*cos(2*pi*90/(30*yr)*(x-15) - 2.57), # during model initiation, no change in mean temperature
-                                   conditional(x, delta_years*yr, 299.08 + 0.000127*x + 1.84*cos(2*pi*30/(30*yr)*(x-15) - 1.86) + 1.51*cos(2*pi*60/(30*yr)*(x-15) - 3.09) + 0.359*cos(2*pi*90/(30*yr)*(x-15) - 2.57), # temperature regime during climate change
-                                               299.08 + 0.000127*delta_years*yr + 1.84*cos(2*pi*30/(30*yr)*(x-15) - 1.86) + 1.51*cos(2*pi*60/(30*yr)*(x-15) - 3.09) + 0.359*cos(2*pi*90/(30*yr)*(x-15) - 2.57)))) # temperature regime after climate change "equilibriates"
+                                   conditional(x, CC_years*yr, 299.08 + 0*0.000127*x + delta_mean*(x-init_years*yr) + (1.84*cos(2*pi*30/(30*yr)*(x-init_years*yr-15) - 1.86) + 1.51*cos(2*pi*60/(30*yr)*(x-init_years*yr-15) - 3.09) + 0.359*cos(2*pi*90/(30*yr)*(x-init_years*yr-15) - 2.57)), # temperature regime during climate change
+                                               299.08 + 0.000127*CC_years*yr + delta_mean*CC_years*yr + 1.84*cos(2*pi*30/(30*yr)*(x-init_years*yr-15) - 1.86) + 1.51*cos(2*pi*60/(30*yr)*(x-init_years*yr-15) - 3.09) + 0.359*cos(2*pi*90/(30*yr)*(x-init_years*yr-15) - 2.57)))) # temperature regime after climate change "equilibriates"
 
 # Plot temperature function
 xvals = arange(0,1*yr,1)
-yvals = vstack([299.08 + 1.84*cos(2*pi*30/(30*yr)*(i-15) - 1.86) + 1.51*cos(2*pi*60/(30*yr)*(i-15) - 3.09) + 0.359*cos(2*pi*90/(30*yr)*(i-15) - 2.57) for i in xvals ])
+yvals = vstack([299.08 + (1.84*cos(2*pi*30/(30*yr)*(i-init_years*yr-15) - 1.86) + 1.51*cos(2*pi*60/(30*yr)*(i-init_years*yr-15) - 3.09) + 0.359*cos(2*pi*90/(30*yr)*(i-init_years*yr-15) - 2.57)) for i in xvals ])
 plot(xvals,yvals)
 show()
 '''
+
 # Seasonal variation in resource quality (Res = 1: resource available, Res = 0: resource unavailable)
 def R(x):
     dummy = 1/(1-Rshift)*(-Rshift + sin(2*pi*(x-Rstart)/yr + asin(Rshift))) # 'dummy' sine wave describing resource availability
     if Res == 1: # incorporate resource variation in model
-        return 0.5*(abs(dummy)/dummy + 1) # set negative phases of sine wave to zero
+        return 0.5*(abs(dummy)/dummy + 1) # set negative phases of sine wave to zero and positive phases to 1
         #return 0.5*(abs(dummy) + dummy) # set negative phases of sine wave to zero
     else:
         return 1 # do not incorporate resource variation in model
@@ -149,7 +153,12 @@ def b(x):
 # maturation rates
 def mJ(x):
     return mTR * T(x)/TR * exp(AmJ * (1/TR - 1/T(x))) / (1 + skew * (exp(AL*(1/TL-1/T(x)))+exp(AH*(1/TH-1/T(x)))))
-
+'''
+xvals = arange(0,max_years*yr,1)
+yvals = vstack([mJ(i) for i in xvals ])
+plot(xvals,yvals)
+show()
+'''
 # mortality rates
 def dJ(x):
     return dJTR * exp(AdJ * (1/TR - 1/T(x)))
@@ -162,17 +171,22 @@ def dA(x):
 def q(x):
     return (1-qTemp) * qTopt + qTemp * qTopt * exp(-(T(x)-Toptq)**2/2/sq**2) # q is temperature dependent if qTemp = 1 or constant if qTemp = 0
 
+# Allee effect
+A_thr = 0.00*qTopt # Allee threshold
+def Allee(x):
+    return conditional(x, A_thr, 0, 1) # if A <= A_thr then Allee = 0, otherwise Allee = 1 
 
 
 # DDE MODEL
 # Define state variables
 J,A,S,τ = [y(i) for i in range(4)]
 
-# Model
+
+# MODEL
 f = {
-    J: b(t)*A*exp(-q(t)*A) - b(t-τ)*y(1,t-τ)*exp(-q(t-τ)*y(1,t-τ))*mJ(t)/mJ(t-τ)*S - dJ(t)*J, # juvenile density
+    J: b(t)*A*Allee(A)*exp(-q(t)*A) - b(t-τ)*y(1,t-τ)*Allee(y(1,t-τ))*exp(-q(t-τ)*y(1,t-τ))*mJ(t)/mJ(t-τ)*S - dJ(t)*J, # juvenile density
     
-    A: b(t-τ)*y(1,t-τ)*exp(-q(t-τ)*y(1,t-τ))*mJ(t)/mJ(t-τ)*S - dA(t)*A, # Adult density
+    A: b(t-τ)*y(1,t-τ)*Allee(y(1,t-τ))*exp(-q(t-τ)*y(1,t-τ))*mJ(t)/mJ(t-τ)*S - dA(t)*A, # Adult density
     
     S: S*(mJ(t)/mJ(t-τ)*dJ(t-τ) - dJ(t)), # Through-stage survivorship
     
@@ -183,11 +197,11 @@ f = {
 # RUN DDE SOLVER
 # Time and initial conditions
 times = arange(0, max_years*yr, tstep)
-init = [ initJ, initA, exp(-dJ(-1e-3)/mTR), 1/mTR ]
+init = [ initJ, initA, exp(-dJ(-1e-3)/mTR), 1./mTR ]
 
 
 # DDE solver
-DDE = jitcdde(f, max_delay=200, verbose=False)
+DDE = jitcdde(f, max_delay=1e5, verbose=False)
 
 DDE.constant_past(init)
 DDE.compile_C(simplify=False, do_cse=False, verbose=True)
