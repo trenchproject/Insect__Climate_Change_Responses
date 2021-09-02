@@ -13,9 +13,9 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 # INPUT DATA
 # Select a location by removing # in front of name and placing # in front of other locations
-data <- as.data.frame(read_csv("Climate data Benin.csv"))
+#data <- as.data.frame(read_csv("Climate data Benin.csv"))
 #data <- as.data.frame(read_csv("Climate data Nigeria.csv"))
-#data <- as.data.frame(read_csv("Climate data China Dafeng.csv"))
+data <- as.data.frame(read_csv("Climate data China Dafeng.csv"))
 #data <- as.data.frame(read_csv("Climate data China Langfang.csv"))
 #data <- as.data.frame(read_csv("Climate data China Xinxiang.csv"))
 #data <- as.data.frame(read_csv("Climate data Brazil.csv"))
@@ -55,7 +55,7 @@ summary(fit.e)
 # PLOTS
 # Plot model fit to TEMPERATURE data
 xmin <- 0
-xmax <- 360*(2100-1960)
+xmax <- 360*(1991-1960)
 ggplot(data, aes(x=total_days, y=T_K)) + 
   geom_point(size=3, color="black") +
   #geom_line(size=0.8) +

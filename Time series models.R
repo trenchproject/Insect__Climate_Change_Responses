@@ -39,16 +39,16 @@ data <- as.data.frame(read_csv("Temperature response parameters.csv"))
 # READ IN MODEL OUTPUT
 # From DDE population dynamics.py 
 # Select an insect by removing # in front of name and placing # in front of other species
-data.model <- as.data.frame(read_csv("Time Series Clavigralla shadabi Benin.csv"))
-sp.data <- subset(data, Species == "Clavigralla shadabi Benin")
+#data.model <- as.data.frame(read_csv("Time Series Clavigralla shadabi Benin.csv"))
+#sp.data <- subset(data, Species == "Clavigralla shadabi Benin")
 #data.model <- as.data.frame(read_csv("Time Series Clavigralla tomentosicollis Benin.csv"))
 #sp.data <- subset(data, Species == "Clavigralla tomentosicollis Benin")
 #data.model <- as.data.frame(read_csv("Time Series Clavigralla tomentosicollis Nigeria B.csv"))
 #sp.data <- subset(data, Species == "Clavigralla tomentosicollis Nigeria B")
 #data.model <- as.data.frame(read_csv("Time Series Clavigralla tomentosicollis Burkina Faso.csv"))
 #sp.data <- subset(data, Species == "Clavigralla tomentosicollis Burkina Faso")
-#data.model <- as.data.frame(read_csv("Time Series Apolygus lucorum China Dafeng.csv"))
-#sp.data <- subset(data, Species == "Apolygus lucorum China Dafeng")
+data.model <- as.data.frame(read_csv("Time Series Apolygus lucorum China Dafeng.csv"))
+sp.data <- subset(data, Species == "Apolygus lucorum China Dafeng")
 #data.model <- as.data.frame(read_csv("Time Series Adelphocoris suturalis China Dafeng.csv"))
 #sp.data <- subset(data, Species == "Adelphocoris suturalis China Dafeng")
 #data.model <- as.data.frame(read_csv("Time Series Apolygus lucorum China Langfang.csv"))
@@ -81,12 +81,12 @@ data.model.CC <- data.model
 xmin <- 0
 xmax <- 720
 ymin <- 0
-ymax <- 200
+ymax <- 500
 # for climate change time period
 xmin.CC <- 0
 xmax.CC <- 720
 ymin.CC <- 0
-ymax.CC <- 200
+ymax.CC <- 500
 # for temperature function
 temp.min <- 295
 temp.max <- 310
@@ -238,10 +238,10 @@ model.I.CC = ggplot(data.model.CC, aes(x=Time, y=J+A)) +
 # PLOT HABITAT TEMPERATURE FUNCTION
 # Historical time period
 plot.temp <- ggplot() +
-  #geom_function(fun = function(t) (sp.data$meanT + sp.data$delta_mean*(t+time.shift))  + (sp.data$amplT + sp.data$delta_ampl*(t+time.shift)) * sin(2*pi*((t+time.shift) + sp.data$shiftT)/yr),
-  #              size=0.8, color="red") +
-  geom_function(fun = function(t) (299.08 + 0.000127*(t+time.shift) + 1.84*cos(2*pi*30/(30*yr)*((t+time.shift)-15) - 1.86) + 1.51*cos(2*pi*60/(30*yr)*((t+time.shift)-15) - 3.09) + 0.359*cos(2*pi*90/(30*yr)*((t+time.shift)-15) - 2.57)),
+  geom_function(fun = function(t) (sp.data$meanT + sp.data$delta_mean*(t+time.shift))  + (sp.data$amplT + sp.data$delta_ampl*(t+time.shift)) * sin(2*pi*((t+time.shift) + sp.data$shiftT)/yr),
                 size=0.8, color="red") +
+  #geom_function(fun = function(t) (299.08 + 0.000127*(t+time.shift) + 1.84*cos(2*pi*30/(30*yr)*((t+time.shift)-15) - 1.86) + 1.51*cos(2*pi*60/(30*yr)*((t+time.shift)-15) - 3.09) + 0.359*cos(2*pi*90/(30*yr)*((t+time.shift)-15) - 2.57)),
+  #              size=0.8, color="red") +
   labs(x="Time", y="T (K)") +
   scale_x_continuous(limits=c(xmin, xmax)) +
   scale_y_continuous(limits=c(temp.min, temp.max)) +
@@ -252,10 +252,10 @@ plot.temp <- ggplot() +
 
 # climate change time period
 plot.temp.CC <- ggplot() +
-  #geom_function(fun = function(t) (sp.data$meanT + sp.data$delta_mean*(t+time.shift.CC))  + (sp.data$amplT + sp.data$delta_ampl*(t+time.shift.CC)) * sin(2*pi*((t+time.shift.CC) + sp.data$shiftT)/yr),
-  #              size=0.8, linetype="longdash", color="red") +
-  geom_function(fun = function(t) (299.08 + 0.000127*(t+time.shift.CC) + 1.84*cos(2*pi*30/(30*yr)*((t+time.shift.CC)-15) - 1.86) + 1.51*cos(2*pi*60/(30*yr)*((t+time.shift.CC)-15) - 3.09) + 0.359*cos(2*pi*90/(30*yr)*((t+time.shift.CC)-15) - 2.57)),
+  geom_function(fun = function(t) (sp.data$meanT + sp.data$delta_mean*(t+time.shift.CC))  + (sp.data$amplT + sp.data$delta_ampl*(t+time.shift.CC)) * sin(2*pi*((t+time.shift.CC) + sp.data$shiftT)/yr),
                 size=0.8, linetype="longdash", color="red") +
+  #geom_function(fun = function(t) (299.08 + 0.000127*(t+time.shift.CC) + 1.84*cos(2*pi*30/(30*yr)*((t+time.shift.CC)-15) - 1.86) + 1.51*cos(2*pi*60/(30*yr)*((t+time.shift.CC)-15) - 3.09) + 0.359*cos(2*pi*90/(30*yr)*((t+time.shift.CC)-15) - 2.57)),
+  #              size=0.8, linetype="longdash", color="red") +
   labs(x="Time", y="T (K)") +
   scale_x_continuous(limits=c(xmin, xmax)) +
   scale_y_continuous(limits=c(temp.min, temp.max)) +
@@ -420,7 +420,7 @@ d.dA.ave <- (dA.sum.CC-dA.sum)/dA.sum
 R0.period <- 0
 R0.period.CC <- 0
 for(i in 0:length) {
-  if(temp(i) > sp.data["ToptR0"] + sp.data["sR0"]) {R0.period = R0.period + 1} }
+  if(temp(i) > sp.data["ToptR0"] + sp.data["sR0"]) {R0.period <- R0.period + 1} }
 for(i in 0:length) {
   if(temp.CC(i) > sp.data["ToptR0"] + sp.data["sR0"]) {R0.period.CC <- R0.period.CC + 1} }
 if(R0.period !=0) { d.R0 <- (R0.period.CC-R0.period)/R0.period } else {d.R0 <- 0 }
@@ -429,7 +429,7 @@ if(R0.period !=0) { d.R0 <- (R0.period.CC-R0.period)/R0.period } else {d.R0 <- 0
 r.period <- 0
 r.period.CC <- 0
 for(i in 0:length) {
-  if(temp(i) > sp.data["rTmax"]) {r.period = r.period + 1} }
+  if(temp(i) > sp.data["rTmax"]) {r.period <- r.period + 1} }
 for(i in 0:length) {
   if(temp.CC(i) > sp.data["rTmax"]) {r.period.CC <- r.period.CC + 1} }
 if(r.period !=0) { d.r <- (r.period.CC-r.period)/r.period } else {d.r <- 0 }
@@ -438,33 +438,34 @@ if(r.period !=0) { d.r <- (r.period.CC-r.period)/r.period } else {d.r <- 0 }
 TSM <- 0
 TSM.CC <- 0
 for(i in 0:length) {
-  if(temp(i) > sp.data["Toptr"]) {TSM = TSM + 1} }
+  TSM <- TSM + (sp.data["Toptr"] - temp(i)) }
 for(i in 0:length) {
-  if(temp.CC(i) > sp.data["Toptr"]) {TSM.CC <- TSM.CC + 1} }
+  TSM.CC <- TSM.CC + (sp.data["Toptr"] - temp.CC(i)) }
+TSM <- (TSM/length)[[1]]
+TSM.CC <- (TSM.CC/length)[[1]]
 if(TSM !=0) { d.TSM <- (TSM.CC-TSM)/TSM } else {d.TSM <- 0 }
-
 
 
 # PLOTS
 par(mfrow=c(3,5))
 # density metrics
-barplot(c(d.mean.J,d.mean.A), col=c("#d1495b","#30638e"), ylim=c(-0.5,2), main=expression("Mean density"))
-barplot(c(d.max.J,d.max.A), col=c("#d1495b","#30638e"), ylim=c(-0.5,4), main=expression("Peak density"))
-barplot(c(d.time.J,d.time.A), col=c("#d1495b","#30638e"), ylim=c(-200,200), main=expression("Timing of peak"))
-barplot(c(d.min.J,d.min.A), col=c("#d1495b","#30638e"), ylim=c(-1,1), main=expression("Minimum density"))
+barplot(c(d.mean.J,d.mean.A), col=c("#d1495b","#30638e"), ylim=c(-0.2,0.2), main=expression("Mean density"))
+barplot(c(d.max.J,d.max.A), col=c("#d1495b","#30638e"), ylim=c(-0.2,0.2), main=expression("Peak density"))
+barplot(c(d.time.J,d.time.A), col=c("#d1495b","#30638e"), ylim=c(-20,20), main=expression("Timing of peak"))
+barplot(c(d.min.J,d.min.A), col=c("#d1495b","#30638e"), ylim=c(-0.4,0.4), main=expression("Minimum density"))
 # activity periods
 barplot(d.b, col="#30638e", xlim=c(0.2,2), ylim=c(-0.5,0.5), main=expression("Rep. period"))
 barplot(d.m, col="#d1495b", xlim=c(0.2,2), ylim=c(-0.5,0.5), main=expression("Dev. period"))
 # average life history traits
 barplot(d.b.ave, col="#30638e", xlim=c(0.2,2), ylim=c(-0.5,0.5), main=expression("Mean b(T)"))
 barplot(d.m.ave, col="#d1495b", xlim=c(0.2,2), ylim=c(-0.5,0.5), main=expression("Mean m(T)"))
-barplot(d.dA.ave, col="#30638e", xlim=c(0.2,2), ylim=c(-0.5,2.5), main=expression("Mean dA(T)"))
+barplot(d.dA.ave, col="#30638e", xlim=c(0.2,2), ylim=c(-0.5,0.5), main=expression("Mean dA(T)"))
 # thermal performance curves
-barplot(d.R0, col="#30638e", xlim=c(0.2,2), ylim=c(-2,2), main=expression("above R0"))
-barplot(d.r, col="#30638e", xlim=c(0.2,2), ylim=c(-2,2), main=expression("above r"))
-barplot(d.TSM, col="#30638e", xlim=c(0.2,2), ylim=c(-0.5,2), main=expression("Thermal margin"))
+barplot(c(R0.period,R0.period.CC), col=c("purple","red"), ylim=c(0,100), main=expression("above R0"))
+barplot(c(r.period,r.period.CC), col=c("purple","red"), ylim=c(0,100), main=expression("above r"))
+barplot(c(TSM,TSM.CC), col=c("purple","red"), ylim=c(-20,20), main=expression("Thermal margin"))
 # habitat temperatures
-barplot((sp.data["ext_meanT"])[[1]], col="#30638e", xlim=c(0.2,2), ylim=c(0,10), main=expression("meanT"))
-barplot((sp.data["ext_amplT"])[[1]], col="#30638e", xlim=c(0.2,2), ylim=c(0,10), main=expression("amplT"))
-barplot((sp.data["ext_mT_aT"])[[1]], col="#30638e", xlim=c(0.2,2), ylim=c(0,10), main=expression("meanT + amplT"))
+barplot((sp.data["ext_meanT"])[[1]], col="#30638e", xlim=c(0.2,2), ylim=c(0,20), main=expression("meanT"))
+barplot((sp.data["ext_amplT"])[[1]], col="#30638e", xlim=c(0.2,2), ylim=c(0,20), main=expression("amplT"))
+barplot((sp.data["ext_mT_aT"])[[1]], col="#30638e", xlim=c(0.2,2), ylim=c(0,20), main=expression("meanT + amplT"))
 par(mfrow=c(1,1))

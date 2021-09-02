@@ -19,11 +19,11 @@ tempData = read_csv("Temperature response parameters.csv")
 
 
 # SELECT INSECT SPECIES
-spData = tempData[tempData["Species"] == "Clavigralla shadabi Benin"]
+#spData = tempData[tempData["Species"] == "Clavigralla shadabi Benin"]
 #spData = tempData[tempData["Species"] == "Clavigralla tomentosicollis Benin"]   
 #spData = tempData[tempData["Species"] == "Clavigralla tomentosicollis Nigeria B"]
 #spData = tempData[tempData["Species"] == "Clavigralla tomentosicollis Burkina Faso"]
-#spData = tempData[tempData["Species"] == "Apolygus lucorum China Dafeng"]
+spData = tempData[tempData["Species"] == "Apolygus lucorum China Dafeng"]
 #spData = tempData[tempData["Species"] == "Adelphocoris suturalis China Dafeng"]
 #spData = tempData[tempData["Species"] == "Apolygus lucorum China Langfang"]
 #spData = tempData[tempData["Species"] == "Adelphocoris suturalis China Xinxiang"]
@@ -70,6 +70,7 @@ AL = spData["AL"].values[0]
 TL = spData["TL"].values[0]
 AH = spData["AH"].values[0]
 TH = spData["TH"].values[0]
+Tmin = spData["Tmin"].values[0] # minimum developmental temperature
 # mortality
 dJTR = spData["dJTR"].values[0]
 AdJ = spData["AdJ"].values[0]
@@ -83,7 +84,7 @@ Aq = spData["Aq"].values[0]
 Tmax = spData["Tmax"].values[0]
 qTemp = spData["qTemp"].values[0]
 qTopt = qTR#*exp(Aq*(1/TR - 1/Tmax))
-
+'''
 # Resource variation
 Res = spData["Res"].values[0] # Res = 1 (0) if there is (not) resource variation
 Rstart = spData["Rstart"].values[0] # start date of resource availablity
@@ -93,7 +94,7 @@ if Rend > Rstart:               # proportion of year when resource is available
 else:
      Rlength = (yr - Rstart + Rend)/yr
 Rshift = cos(pi*Rlength) # shift used to model resource availability via sine wave
-
+'''
 
 
 # FUNCTIONS
@@ -125,7 +126,7 @@ yvals = vstack([299.08 + (1.84*cos(2*pi*30/(30*yr)*(i-init_years*yr-15) - 1.86) 
 plot(xvals,yvals)
 show()
 '''
-
+'''
 # Seasonal variation in resource quality (Res = 1: resource available, Res = 0: resource unavailable)
 def R(x):
     dummy = 1/(1-Rshift)*(-Rshift + sin(2*pi*(x-Rstart)/yr + asin(Rshift))) # 'dummy' sine wave describing resource availability
@@ -135,7 +136,6 @@ def R(x):
     else:
         return 1 # do not incorporate resource variation in model
 
-'''
 # Plot resource function
 xvals = arange(0,2*yr,1)
 yvals = vstack([0.5*(abs(1/(1-Rshift)*(-Rshift + sin(2*pi*(i-Rstart)/yr + asin(Rshift)))) + 1/(1-Rshift)*(-Rshift + sin(2*pi*(i-Rstart)/yr + asin(Rshift)))) for i in xvals ])
@@ -147,18 +147,13 @@ show()
 # Life history functions
 # fecundity
 def b(x):
-    return R(x) * bTopt * exp(-(T(x)-Toptb)**2/2/sb**2)
-    #return bTopt * exp(-(T(x)-Toptb)**2/2/sb**2)
+    #return R(x) * bTopt * exp(-(T(x)-Toptb)**2/2/sb**2)
+    return bTopt * exp(-(T(x)-Toptb)**2/2/sb**2)
 
 # maturation rates
 def mJ(x):
     return mTR * T(x)/TR * exp(AmJ * (1/TR - 1/T(x))) / (1 + skew * (exp(AL*(1/TL-1/T(x)))+exp(AH*(1/TH-1/T(x)))))
-'''
-xvals = arange(0,max_years*yr,1)
-yvals = vstack([mJ(i) for i in xvals ])
-plot(xvals,yvals)
-show()
-'''
+
 # mortality rates
 def dJ(x):
     return dJTR * exp(AdJ * (1/TR - 1/T(x)))

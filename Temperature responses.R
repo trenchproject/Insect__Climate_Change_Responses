@@ -14,11 +14,11 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 data <- as.data.frame(read_csv("Temperature response data.csv"))
 
 # Select an insect by removing # in front of name and placing # in front of other species
-sp.data <- subset(data, Species == "Clavigralla shadabi")
+#sp.data <- subset(data, Species == "Clavigralla shadabi")
 #sp.data <- subset(data, Species == "Clavigralla tomentosicollis Benin")
 #sp.data <- subset(data, Species == "Clavigralla tomentosicollis Nigeria")
 #sp.data <- subset(data, Species == "Clavigralla tomentosicollis Burkina Faso")
-#sp.data <- subset(data, Species == "Apolygus lucorum")
+sp.data <- subset(data, Species == "Apolygus lucorum")
 #sp.data <- subset(data, Species == "Adelphocoris suturalis")
 #sp.data <- subset(data, Species == "Macrosiphum euphorbiae Brazil")
 #sp.data <- subset(data, Species == "Aulacorthum solani Brazil")
@@ -35,7 +35,7 @@ sp.data <- sp.data[-c(1:8,12,14,16,18,20,22,24,26,27,29,31,32,34,35,37,39,40,42,
 # Set some option for nls and plots
 Tmin <- 285
 Tmax <- 315
-TR <- 298
+TR <- 293
 
 
 
@@ -51,7 +51,7 @@ points(seq(Tmin,Tmax,1),coef(fec)[1]*exp(-((seq(Tmin,Tmax,1)-coef(fec)[2])^2)/(2
 
 
 ############################### DEVELOPMENT ####################################
-# NLS (monotonic response)
+# Monotonic response
 dev.mon <- nls(Development ~ xTR*T_K/TR*exp(A*(1/TR-1/T_K)), data=sp.data,
                start=list(xTR=0.01, A=5000))
 summary(dev.mon)
@@ -60,7 +60,7 @@ plot(sp.data$T_K, sp.data$Development)
 points(seq(Tmin,Tmax,1), coef(dev.mon)[1]*(seq(Tmin,Tmax,1)/TR)*exp(coef(dev.mon)[2]*(1/TR-1/seq(Tmin,Tmax,1))), type="l", col="blue")
 
 
-# NLS for development (Sharpe-Schoolfield response)
+# Sharpe-Schoolfield response
 # estimate all parameters
 dev <- nls(Development ~ xTR*(T_K/TR)*exp(A*(1/TR-1/T_K))/(1+exp(AL*(1/TL-1/T_K))+exp(AH*(1/TH-1/T_K))),
               data=sp.data, start=list(xTR=0.03, A=7000, AL=-30000, AH=270000, TL=286, TH=306))
@@ -82,7 +82,7 @@ points(seq(Tmin,Tmax,1), coef(dev.mon)[1]*(seq(Tmin,Tmax,1)/TR)*exp(coef(dev.mon
 # estimate AL, AH, TL, and TH
 # NOTE: if needed, set AH based on NLS below and run code iteratively until AL and AH do not appreciably change)
 dev.SS <- nls(Development ~ coef(dev.mon)[1]*(T_K/TR)*exp(coef(dev.mon)[2]*(1/TR-1/T_K))/(1+exp(AL*(1/TL-1/T_K))+exp(AH*(1/TH-1/T_K))),
-              data=sp.data, start=list(AL=-30000, AH=270000, TL=286, TH=306))
+              data=sp.data, start=list(AL=-66000, AH=235000, TL=288, TH=309.6))
 summary(dev.SS)
 # Plot model fits
 plot(sp.data$T_K, sp.data$Development)
@@ -90,8 +90,8 @@ points(seq(Tmin,Tmax,1), coef(dev.mon)[1]*(seq(Tmin,Tmax,1)/TR)*exp(coef(dev.mon
          (1+(exp(coef(dev.SS)[1]*(1/coef(dev.SS)[3]-1/seq(Tmin,Tmax,1)))+exp(coef(dev.SS)[2]*(1/coef(dev.SS)[4]-1/seq(Tmin,Tmax,1))))), type="l", col="blue")
 
 # estimate AL and AH separately from TL and TH if needed
-kTL <- 285
-kTH <- 305
+kTL <- 288
+kTH <- 309.6
 dev.A <- nls(Development ~ coef(dev.mon)[1]*(T_K/TR)*exp(coef(dev.mon)[2]*(1/TR-1/T_K))/(1+exp(AL*(1/kTL-1/T_K))+exp(AH*(1/kTH-1/T_K))),
               data=sp.data, start=list(AL=-50000, AH=50000))
 summary(dev.A)
@@ -120,8 +120,42 @@ points(seq(Tmin,Tmax,1), coef(dev.mon)[1]*(seq(Tmin,Tmax,1)/TR)*exp(coef(dev.mon
          (1+(exp(coef(dev.AL)[1]*(1/coef(dev.TL)[1]-1/seq(Tmin,Tmax,1)))+exp(coef(dev.H)[2]*(1/coef(dev.H)[1]-1/seq(Tmin,Tmax,1))))), type="l", col="blue")
 
 
+# Minimum developmental temperature
+# NOTE: removed data beyond max development
+dev.min <- nls(Development ~ m*T_K+b, data=sp.data[-c((nrow(sp.data)-1):nrow(sp.data)),],
+               start=list(m=0.01, b=0))
+summary(dev.min)
+# Plot model fits
+plot(sp.data$T_K, sp.data$Development, xlim=c(280,Tmax))
+points(seq(280,Tmax,1), coef(dev.min)[1]*seq(280,Tmax,1)+coef(dev.min)[2], type="l", col="blue")
 
-################################ MORTALITY #####################################
+# Calculate Tmin
+Tmin <- (-coef(dev.min)[2]/coef(dev.min)[1])[[1]]
+Tmin
+
+
+
+########################### LACTIN MODEL OF DEVELOPMENT #############################
+# estimate all parameters
+#lactin <- nls(Development ~ exp(mTopt*T_K)-exp(mTopt*Tmax-(Tmax-T_K)/mDelta) + mTmin,
+#              data=sp.data, start=list(mTopt=0.05, Tmax=305, mDelta=10, mTmin=0.01))
+#summary(lactin)
+# Plot model fits
+#plot(sp.data$T_K, sp.data$Development)
+#points(seq(Tmin,Tmax,1), coef(dev.mon)[1]*(seq(Tmin,Tmax,1)/TR)*exp(coef(dev.mon)[2]*(1/TR-1/seq(Tmin,Tmax,1)))/
+#         (1+(exp(coef(dev.SS)[1]*(1/coef(dev.SS)[3]-1/seq(Tmin,Tmax,1)))+exp(coef(dev.SS)[2]*(1/coef(dev.SS)[4]-1/seq(Tmin,Tmax,1))))), type="l", col="blue")
+
+# estimate mDelta and mTmin
+#lactin.test <- nls(Development ~ exp(0.06*T_K)-exp(0.06*kTH-(kTH-T_K)/mDelta) + mTmin,
+#              data=sp.data, start=list(mDelta=1, mTmin=0.01))
+#summary(lactin.test)
+# Plot model fits
+#plot(sp.data$T_K, sp.data$Development)
+#points(seq(Tmin,Tmax,1), exp(0.06*seq(Tmin,Tmax,1))-exp(0.06*305-(305-seq(Tmin,Tmax,1))/1) + 0.01, type="l", col="blue")
+
+
+
+#################################### MORTALITY ######################################
 # Mortality estimated using fit at reference temperature
 # NLS for juvenile mortality
 mort.J <- nls(Juv_Mortality ~ xTR*exp(A*(1/TR-1/T_K)), data=sp.data,
@@ -187,28 +221,28 @@ points(seq(Tmin,Tmax,1), coef(r)[1]*(seq(Tmin,Tmax,1)/TR)*exp(coef(r)[2]*(1/TR-1
 
 # estimate xTR and A
 # NOTE: removed data beyond max r
-r.mon <- nls(r ~ xTR*T_K/TR*exp(A*(1/TR-1/T_K)), data=sp.data[-c((nrow(sp.data)-2):nrow(sp.data)),],
+r.mon <- nls(r ~ xTR*T_K/TR*exp(A*(1/TR-1/T_K)), data=sp.data[-c((nrow(sp.data)-1):nrow(sp.data)),],
                start=list(xTR=0.1, A=1000))
 summary(r.mon)
 # Plot model fits
 plot(sp.data$T_K, sp.data$r)
 points(seq(Tmin,Tmax,1), coef(r.mon)[1]*(seq(Tmin,Tmax,1)/TR)*exp(coef(r.mon)[2]*(1/TR-1/seq(Tmin,Tmax,1))), type="l", col="blue")
 
-# estimate AL, AH, TL, and TH
-# NOTE: if needed, set AH based on NLS below and run code iteratively until AL and AH do not appreciably change)
-r.SS <- nls(r ~ coef(r.mon)[1]*(T_K/TR)*exp(coef(r.mon)[2]*(1/TR-1/T_K))/(1+exp(AL*(1/TL-1/T_K))+exp(AH*(1/TH-1/T_K))),
-              data=sp.data, start=list(AL=-62000, AH=30000, TL=285.2, TH=308.1))
+# estimate AH and TH
+# NOTE: removing AL and TL
+r.SS <- nls(r ~ coef(r.mon)[1]*(T_K/TR)*exp(coef(r.mon)[2]*(1/TR-1/T_K))/(1+exp(AH*(1/TH-1/T_K))),
+              data=sp.data, start=list(AH=30000, TH=305))
 summary(r.SS)
 # Plot model fits
 plot(sp.data$T_K, sp.data$r)
 points(seq(Tmin,Tmax,1), coef(r.mon)[1]*(seq(Tmin,Tmax,1)/TR)*exp(coef(r.mon)[2]*(1/TR-1/seq(Tmin,Tmax,1)))/
-         (1+(exp(coef(r.SS)[1]*(1/coef(r.SS)[3]-1/seq(Tmin,Tmax,1)))+exp(coef(r.SS)[2]*(1/coef(r.SS)[4]-1/seq(Tmin,Tmax,1))))), type="l", col="blue")
+         (1+exp(coef(r.SS)[1]*(1/coef(r.SS)[2]-1/seq(Tmin,Tmax,1)))), type="l", col="blue")
 
 # estimate AL and AH separately from TL and TH if needed
-kTL <- 292.2
-kTH <- 304.7
+kTL <- 285
+kTH <- 305
 r.A <- nls(r ~ coef(r.mon)[1]*(T_K/TR)*exp(coef(r.mon)[2]*(1/TR-1/T_K))/(1+exp(AL*(1/kTL-1/T_K))+exp(AH*(1/kTH-1/T_K))),
-             data=sp.data, start=list(AL=-50000, AH=230000))
+             data=sp.data, start=list(AL=-50000, AH=100000))
 summary(r.A)
 r.T <- nls(r ~ coef(r.mon)[1]*(T_K/TR)*exp(coef(r.mon)[2]*(1/TR-1/T_K))/(1+exp(coef(r.A)[1]*(1/TL-1/T_K))+exp(coef(r.A)[2]*(1/TH-1/T_K))),
              data=sp.data, start=list(TL=kTL, TH=kTH))
@@ -245,5 +279,15 @@ for(i in 0:100) {
 Xmax
 Topt
 
+# Calculate Xmax and Topt for r for Clavigralla tomentosicollis in Benin
+#Xmax <- 0
+#Topt <- 0
+#for(i in 0:100) {
+#  T <- 290 + i*(315-290)/100
+#  X.T <- coef(r.mon)[1]*(T/TR)*exp(coef(r.mon)[2]*(1/TR-1/T))/(1+exp(coef(r.SS)[1]*(1/coef(r.SS)[2]-1/T)))
+#  if(X.T > Xmax) {Xmax <- X.T
+#  Topt <- T}}
+#Xmax
+#Topt
 
 
