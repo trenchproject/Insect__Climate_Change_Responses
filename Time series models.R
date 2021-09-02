@@ -81,15 +81,15 @@ data.model.CC <- data.model
 xmin <- 0
 xmax <- 720
 ymin <- 0
-ymax <- 500
+ymax <- 200
 # for climate change time period
 xmin.CC <- 0
 xmax.CC <- 720
 ymin.CC <- 0
-ymax.CC <- 500
+ymax.CC <- 200
 # for temperature function
-temp.min <- 295
-temp.max <- 310
+temp.min <- 275
+temp.max <- 305
 yr <- 360 # days in a year (using 360 for simplicity)
 init_yrs <- 10 # number of years to initiate the model (from Python DDE model)
 TS.length <- xmax - xmin # length of time-series data
@@ -242,6 +242,7 @@ plot.temp <- ggplot() +
                 size=0.8, color="red") +
   #geom_function(fun = function(t) (299.08 + 0.000127*(t+time.shift) + 1.84*cos(2*pi*30/(30*yr)*((t+time.shift)-15) - 1.86) + 1.51*cos(2*pi*60/(30*yr)*((t+time.shift)-15) - 3.09) + 0.359*cos(2*pi*90/(30*yr)*((t+time.shift)-15) - 2.57)),
   #              size=0.8, color="red") +
+  geom_function(fun = function(t) (sp.data$Tmin), size=0.8, color="black") +
   labs(x="Time", y="T (K)") +
   scale_x_continuous(limits=c(xmin, xmax)) +
   scale_y_continuous(limits=c(temp.min, temp.max)) +
@@ -256,6 +257,7 @@ plot.temp.CC <- ggplot() +
                 size=0.8, linetype="longdash", color="red") +
   #geom_function(fun = function(t) (299.08 + 0.000127*(t+time.shift.CC) + 1.84*cos(2*pi*30/(30*yr)*((t+time.shift.CC)-15) - 1.86) + 1.51*cos(2*pi*60/(30*yr)*((t+time.shift.CC)-15) - 3.09) + 0.359*cos(2*pi*90/(30*yr)*((t+time.shift.CC)-15) - 2.57)),
   #              size=0.8, linetype="longdash", color="red") +
+  geom_function(fun = function(t) (sp.data$Tmin), size=0.8, color="black") +
   labs(x="Time", y="T (K)") +
   scale_x_continuous(limits=c(xmin, xmax)) +
   scale_y_continuous(limits=c(temp.min, temp.max)) +
@@ -287,10 +289,10 @@ plot
 
 # Climate change time period
 # Juveniles and adults
-plot.CC <- ggdraw()  +
-  draw_plot(plot.temp.CC, x = 0, y = 0, width = 1, height = 0.3) +
-  draw_plot(model.J.CC, x = 0, y = 0.3, width = 1, height = 0.7) +
-  draw_plot(model.A.CC, x = 0, y = 0.3, width = 1, height = 0.7)
+#plot.CC <- ggdraw()  +
+#  draw_plot(plot.temp.CC, x = 0, y = 0, width = 1, height = 0.3) +
+#  draw_plot(model.J.CC, x = 0, y = 0.3, width = 1, height = 0.7) +
+#  draw_plot(model.A.CC, x = 0, y = 0.3, width = 1, height = 0.7)
 #plot.CC
 
 # Total insects
@@ -312,6 +314,7 @@ plot.compare <- ggdraw()  +
   draw_plot(model.A.CC, x = 0, y = 0.3, width = 1, height = 0.7)
 plot.compare
 
+
 # Total insects
 #plot.compare <- ggdraw()  +
 #  draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
@@ -320,7 +323,10 @@ plot.compare
 #  draw_plot(model.I.CC, x = 0, y = 0.3, width = 1, height = 0.7)
 #plot.compare
 
-
+# Calculate activity period (T(t) > Tmin)
+for(i in 0:length) {
+  if(temp(i) > sp.data["Tmin"]) {print(i)
+    i <- length} }
 
 
 
@@ -350,12 +356,16 @@ d.time.J <- (time.J.CC-time.J)
 d.time.A <- (time.A.CC-time.A)
 
 # minimum density
-min.J <- round(min(data.model[["J"]]), digits=2)
-min.J.CC <- round(min(data.model.CC[["J"]]), digits=2)
-min.A <- round(min(data.model[["A"]]), digits=2)
-min.A.CC <- round(min(data.model.CC[["A"]]), digits=2)
-d.min.J <- (min.J.CC-min.J)/min.J
-d.min.A <- (min.A.CC-min.A)/min.A
+min.J <- 0
+min.J.CC <- 0
+min.A <- 0
+min.A.CC <- 0
+if(min(data.model[["J"]]) > 0) { min.J <- round(min(data.model[["J"]]), digits=2) }
+if(min(data.model.CC[["J"]]) > 0) { min.J.CC <- round(min(data.model.CC[["J"]]), digits=2) }
+if(min(data.model[["A"]]) > 0) { min.A <- round(min(data.model[["A"]]), digits=2) }
+if(min(data.model.CC[["A"]]) > 0) { min.A.CC <- round(min(data.model.CC[["A"]]), digits=2) }
+if(min.J != 0) { d.min.J <- (min.J.CC-min.J)/min.J } else {d.min.J <- 0}
+if(min.A != 0) { d.min.A <- (min.A.CC-min.A)/min.A } else {d.min.A <- 0}
 
 # temperature functions
 temp <- function(t) (sp.data$meanT + sp.data$delta_mean*(t+time.shift))  + (sp.data$amplT + sp.data$delta_ampl*(t+time.shift)) * sin(2*pi*((t+time.shift) + sp.data$shiftT)/yr)
@@ -465,7 +475,7 @@ barplot(c(R0.period,R0.period.CC), col=c("purple","red"), ylim=c(0,100), main=ex
 barplot(c(r.period,r.period.CC), col=c("purple","red"), ylim=c(0,100), main=expression("above r"))
 barplot(c(TSM,TSM.CC), col=c("purple","red"), ylim=c(-20,20), main=expression("Thermal margin"))
 # habitat temperatures
-barplot((sp.data["ext_meanT"])[[1]], col="#30638e", xlim=c(0.2,2), ylim=c(0,20), main=expression("meanT"))
-barplot((sp.data["ext_amplT"])[[1]], col="#30638e", xlim=c(0.2,2), ylim=c(0,20), main=expression("amplT"))
-barplot((sp.data["ext_mT_aT"])[[1]], col="#30638e", xlim=c(0.2,2), ylim=c(0,20), main=expression("meanT + amplT"))
+barplot((sp.data["ext_meanT"])[[1]], col="#30638e", xlim=c(0.2,2), ylim=c(0,30), main=expression("meanT"))
+barplot((sp.data["ext_amplT"])[[1]], col="#30638e", xlim=c(0.2,2), ylim=c(0,30), main=expression("amplT"))
+barplot((sp.data["ext_mT_aT"])[[1]], col="#30638e", xlim=c(0.2,2), ylim=c(0,30), main=expression("meanT + amplT"))
 par(mfrow=c(1,1))

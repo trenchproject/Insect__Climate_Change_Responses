@@ -6,7 +6,7 @@
 
 # IMPORT PACKAGES
 from numpy import arange, hstack, vstack, savetxt
-#from sympy import N
+from sympy import N
 from jitcdde import jitcdde, y, t
 from symengine import exp, pi, sin, cos, asin
 from matplotlib.pyplot import subplots, xlabel, ylabel, xlim, ylim, yscale, plot, show
@@ -53,8 +53,8 @@ amplT = spData["amplT"].values[0]
 shiftT = spData["shiftT"].values[0]
 delta_mean = spData["delta_mean"].values[0]
 delta_ampl = spData["delta_ampl"].values[0]
-#delta_mean = 2.5/(100*yr)
-#delta_ampl = 2.5/(100*yr)
+#delta_mean = 14./(100*yr)
+#delta_ampl = 14./(100*yr)
 
 # Life history and competitive traits
 # fecundity
@@ -152,15 +152,14 @@ def b(x):
 
 # maturation rates
 def mJ(x):
-    return mTR * T(x)/TR * exp(AmJ * (1/TR - 1/T(x))) / (1 + skew * (exp(AL*(1/TL-1/T(x)))+exp(AH*(1/TH-1/T(x)))))
+    return conditional(mTR * T(x)/TR * exp(AmJ * (1/TR - 1/T(x))) / (1 + skew * (exp(AL*(1/TL-1/T(x)))+exp(AH*(1/TH-1/T(x))))), 1e-5,
+                       1e-5, mTR * T(x)/TR * exp(AmJ * (1/TR - 1/T(x))) / (1 + skew * (exp(AL*(1/TL-1/T(x)))+exp(AH*(1/TH-1/T(x)))))) # If mJ(T) < jitcdde min tolerance, then mJ(T) = 0
 
 # mortality rates
 def dJ(x):
     return dJTR * exp(AdJ * (1/TR - 1/T(x)))
 def dA(x):
-    #dummy = R(x)/(abs(R(x)-1)+1) # 'dummy' function that is 1 when R(x) > 0 and 0 when R(x) = 0
-    #return 0.02*(1 - dummy) + dummy * dATR * exp(AdA * (1/TR - 1/T(x)))
-    return dATR * exp(AdA * (1/TR - 1/T(x)))
+    return conditional(T(x), Tmin, 0.5, dATR * exp(AdA * (1/TR - 1/T(x)))) # if temperature < developmental min, Tmin, then dA = dATR; otherwise, use dA(T(x))
 
 # density-dependence due to competition
 def q(x):
@@ -169,7 +168,11 @@ def q(x):
 # Allee effect
 A_thr = 0.00*qTopt # Allee threshold
 def Allee(x):
-    return conditional(x, A_thr, 0, 1) # if A <= A_thr then Allee = 0, otherwise Allee = 1 
+    return conditional(x, A_thr, 0, 1) # if A < A_thr then Allee = 0; otherwise, Allee = 1 
+
+# Minimum developmental temperature
+def M(x):
+    return conditional(T(x), Tmin, 0, 1) # if temperature < developmental min, Tmin, then development M = 0; otherwise, M = 1
 
 
 # DDE MODEL
@@ -179,13 +182,13 @@ J,A,S,τ = [y(i) for i in range(4)]
 
 # MODEL
 f = {
-    J: b(t)*A*Allee(A)*exp(-q(t)*A) - b(t-τ)*y(1,t-τ)*Allee(y(1,t-τ))*exp(-q(t-τ)*y(1,t-τ))*mJ(t)/mJ(t-τ)*S - dJ(t)*J, # juvenile density
+    J: M(t)*b(t)*A*Allee(A)*exp(-q(t)*A) - M(t)*b(t-τ)*y(1,t-τ)*Allee(y(1,t-τ))*exp(-q(t-τ)*y(1,t-τ))*mJ(t)/mJ(t-τ)*S - dJ(t)*J, # juvenile density
     
-    A: b(t-τ)*y(1,t-τ)*Allee(y(1,t-τ))*exp(-q(t-τ)*y(1,t-τ))*mJ(t)/mJ(t-τ)*S - dA(t)*A, # Adult density
+    A: M(t)*b(t-τ)*y(1,t-τ)*Allee(y(1,t-τ))*exp(-q(t-τ)*y(1,t-τ))*mJ(t)/mJ(t-τ)*S - dA(t)*A, # Adult density
     
     S: S*(mJ(t)/mJ(t-τ)*dJ(t-τ) - dJ(t)), # Through-stage survivorship
     
-    τ: 1 -  mJ(t)/mJ(t-τ) # Developmental time-delay
+    τ: 1 - mJ(t)/mJ(t-τ) # Developmental time-delay
     }
 
 
@@ -221,4 +224,4 @@ xlabel("time (days)")
 ylabel("population density")
 yscale("linear")
 xlim((max_years-max_years)*yr,max_years*yr)
-ylim(0,100)
+ylim(0,500)
