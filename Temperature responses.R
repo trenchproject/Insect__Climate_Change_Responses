@@ -18,18 +18,18 @@ data <- as.data.frame(read_csv("Temperature response data.csv"))
 #sp.data <- subset(data, Species == "Clavigralla tomentosicollis Benin")
 #sp.data <- subset(data, Species == "Clavigralla tomentosicollis Nigeria")
 #sp.data <- subset(data, Species == "Clavigralla tomentosicollis Burkina Faso")
-sp.data <- subset(data, Species == "Apolygus lucorum")
+#sp.data <- subset(data, Species == "Apolygus lucorum")
 #sp.data <- subset(data, Species == "Adelphocoris suturalis")
 #sp.data <- subset(data, Species == "Macrosiphum euphorbiae Brazil")
 #sp.data <- subset(data, Species == "Aulacorthum solani Brazil")
 #sp.data <- subset(data, Species == "Uroleucon ambrosiae")
 #sp.data <- subset(data, Species == "Lygus lineolaris")
-#sp.data <- subset(data, Species == "Pilophorus typicus")
+sp.data <- subset(data, Species == "Pilophorus typicus")
 #sp.data <- subset(data, Species == "Macrolophus pygmaeus on Myzus persicae")
 #sp.data <- subset(data, Species == "Macrolophus pygmaeus on Trialeurodes vaporariorum")
 
 # Remove columns that do not contain temperature data
-sp.data <- sp.data[-c(1:8,12,14,16,18,20,22,24,26,27,29,31,32,34,35,37,39,40,42,44,46,48,49)]
+sp.data <- sp.data[-c(1:8,12,14,16,18,20,22,24,26,27,29,31,32,34,35,37,39,40,42,44,46,48,50,51)]
 
 
 # Set some option for nls and plots
@@ -72,7 +72,7 @@ points(seq(Tmin,Tmax,1), coef(dev)[1]*(seq(Tmin,Tmax,1)/TR)*exp(coef(dev)[2]*(1/
 
 # estimate xTR and A
 # NOTE: removed data beyond max development
-dev.mon <- nls(Development ~ xTR*T_K/TR*exp(A*(1/TR-1/T_K)), data=sp.data[-c((nrow(sp.data)-1):nrow(sp.data)),],
+dev.mon <- nls(Development ~ xTR*T_K/TR*exp(A*(1/TR-1/T_K)), data=sp.data[-c((nrow(sp.data)-0):nrow(sp.data)),],
                start=list(xTR=0.1, A=1000))
 summary(dev.mon)
 # Plot model fits
@@ -122,7 +122,7 @@ points(seq(Tmin,Tmax,1), coef(dev.mon)[1]*(seq(Tmin,Tmax,1)/TR)*exp(coef(dev.mon
 
 # Minimum developmental temperature
 # NOTE: removed data beyond max development
-dev.min <- nls(Development ~ m*T_K+b, data=sp.data[-c((nrow(sp.data)-1):nrow(sp.data)),],
+dev.min <- nls(Development ~ m*T_K+b, data=sp.data[-c((nrow(sp.data)-0):nrow(sp.data)),],
                start=list(m=0.01, b=0))
 summary(dev.min)
 # Plot model fits
@@ -201,7 +201,7 @@ points(seq(Tmin,Tmax,1), dATR*exp(coef(mort.A)[1]*(1/TR-1/seq(Tmin,Tmax,1))), ty
 ########################### R0 (NET REPRODUCTIVE RATE) ##############################
 # NLS
 fit.R0 <- nls(R0 ~ R0Topt*exp(-((T_K-ToptR0)^2)/(2*sR0^2)), data=sp.data,
-           start=list(R0Topt=100, ToptR0=TR, sR0=10))
+           start=list(R0Topt=10, ToptR0=TR, sR0=10))
 summary(fit.R0)
 # Plot model fits
 plot(sp.data$T_K, sp.data$R0)
@@ -212,7 +212,7 @@ points(seq(Tmin,Tmax,1),coef(fit.R0)[1]*exp(-((seq(Tmin,Tmax,1)-coef(fit.R0)[2])
 ########################### r (INTRINSIC GROWTH RATE) ###############################
 # estimate all parameters
 r <- nls(r ~ xTR*(T_K/TR)*exp(A*(1/TR-1/T_K))/(1+exp(AL*(1/TL-1/T_K))+exp(AH*(1/TH-1/T_K))),
-           data=sp.data, start=list(xTR=0.01, A=5000, AL=-150000, AH=200000, TL=290, TH=310))
+           data=sp.data, start=list(xTR=0.01, A=5000, AL=-150000, AH=200000, TL=290, TH=302))
 summary(r)
 # Plot model fits
 plot(sp.data$T_K, sp.data$r)
@@ -231,7 +231,7 @@ points(seq(Tmin,Tmax,1), coef(r.mon)[1]*(seq(Tmin,Tmax,1)/TR)*exp(coef(r.mon)[2]
 # estimate AH and TH
 # NOTE: removing AL and TL
 r.SS <- nls(r ~ coef(r.mon)[1]*(T_K/TR)*exp(coef(r.mon)[2]*(1/TR-1/T_K))/(1+exp(AH*(1/TH-1/T_K))),
-              data=sp.data, start=list(AH=30000, TH=305))
+              data=sp.data, start=list(AH=30000, TH=302))
 summary(r.SS)
 # Plot model fits
 plot(sp.data$T_K, sp.data$r)
