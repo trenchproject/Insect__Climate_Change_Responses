@@ -23,7 +23,7 @@ tempData = read_csv("Temperature response parameters.csv")
 #spData = tempData[tempData["Species"] == "Clavigralla tomentosicollis Benin"]   
 #spData = tempData[tempData["Species"] == "Clavigralla tomentosicollis Nigeria B"]
 #spData = tempData[tempData["Species"] == "Clavigralla tomentosicollis Burkina Faso"]
-spData = tempData[tempData["Species"] == "Apolygus lucorum China Dafeng"]
+#spData = tempData[tempData["Species"] == "Apolygus lucorum China Dafeng"]
 #spData = tempData[tempData["Species"] == "Adelphocoris suturalis China Dafeng"]
 #spData = tempData[tempData["Species"] == "Apolygus lucorum China Langfang"]
 #spData = tempData[tempData["Species"] == "Adelphocoris suturalis China Xinxiang"]
@@ -31,7 +31,7 @@ spData = tempData[tempData["Species"] == "Apolygus lucorum China Dafeng"]
 #spData = tempData[tempData["Species"] == "Aulacorthum solani Brazil"]
 #spData = tempData[tempData["Species"] == "Uroleucon ambrosiae Brazil"]
 #spData = tempData[tempData["Species"] == "Lygus lineolaris Mississippi"]
-#spData = tempData[tempData["Species"] == "Pilophorus typicus Japan"]
+spData = tempData[tempData["Species"] == "Pilophorus typicus Japan"]
 #spData = tempData[tempData["Species"] == "Macrolophus pygmaeus on Myzus persicae Greece"]
 #spData = tempData[tempData["Species"] == "Macrolophus pygmaeus on Trialeurodes vaporariorum Greece"]
 
@@ -51,10 +51,10 @@ initA = 1.
 meanT = spData["meanT"].values[0]
 amplT = spData["amplT"].values[0] 
 shiftT = spData["shiftT"].values[0]
-delta_mean = spData["delta_mean"].values[0]
-delta_ampl = spData["delta_ampl"].values[0]
-#delta_mean = 14./(100*yr)
-#delta_ampl = 14./(100*yr)
+#delta_mean = spData["delta_mean"].values[0]
+#delta_ampl = spData["delta_ampl"].values[0]
+delta_mean = 0./(100*yr)
+delta_ampl = 0./(100*yr)
 
 # Life history and competitive traits
 # fecundity
@@ -82,7 +82,6 @@ Toptq = spData["Toptq"].values[0]
 sq = spData["sq"].values[0]
 Aq = spData["Aq"].values[0]
 Tmax = spData["Tmax"].values[0]
-qTemp = spData["qTemp"].values[0]
 qTopt = qTR#*exp(Aq*(1/TR - 1/Tmax))
 '''
 # Resource variation
@@ -163,7 +162,7 @@ def dA(x):
 
 # density-dependence due to competition
 def q(x):
-    return (1-qTemp) * qTopt + qTemp * qTopt * exp(-(T(x)-Toptq)**2/2/sq**2) # q is temperature dependent if qTemp = 1 or constant if qTemp = 0
+    return qTopt * exp(-(T(x)-Toptq)**2/2/sq**2)
 
 # Allee effect
 A_thr = 0.00*qTopt # Allee threshold

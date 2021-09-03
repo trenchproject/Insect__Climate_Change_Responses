@@ -19,9 +19,37 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 #data <- as.data.frame(read_csv("Climate data China Langfang.csv"))
 #data <- as.data.frame(read_csv("Climate data China Xinxiang.csv"))
 #data <- as.data.frame(read_csv("Climate data Brazil.csv"))
-data <- as.data.frame(read_csv("Climate data Mississippi.csv"))
-#data <- as.data.frame(read_csv("Climate data Japan Monobe.csv"))
+#data <- as.data.frame(read_csv("Climate data Mississippi.csv"))
+data <- as.data.frame(read_csv("Climate data Japan Monobe.csv"))
 #data <- as.data.frame(read_csv("Climate data Greece.csv"))
+
+
+# Fit to historical period
+data.h <- subset(data, period == "historical")
+fit.h <- nls(T_K ~ meanT + amplT * sin(2*pi*(days + shiftT)/360), data = data.h,
+             start = list(meanT = 290, amplT = 10, shiftT = 30))
+summary(fit.h)
+
+# PLOTS
+# Plot model fit to TEMPERATURE data
+xmin <- 0
+xmax <- 360*(1991-1960)
+ggplot(data.h, aes(x=days, y=T_K)) + 
+  geom_point(size=3, color="black") +
+  #geom_line(size=0.8) +
+  geom_function(fun = function(t){coef(fit.h)[1] + coef(fit.h)[2] * sin(2*pi*(t + coef(fit.h)[3])/360)},
+                size=0.8, color="#d1495b") +
+  labs(x="Time (days)", y="Mean Temperature (K)") +
+  scale_x_continuous(limits=c(xmin, xmax)) +
+  scale_y_continuous(limits=c(coef(fit)[1] - abs(coef(fit.h)[2]) - 5, coef(fit.h)[1] + abs(coef(fit.h)[2]) + 5)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
+        axis.line = element_line(colour = "black"), legend.position = "none", 
+        axis.text = element_text(size=13), axis.title = element_text(size=20))
+
+
+
+
 
 #### Fit temperature functions to data from Climate Wizard using Fourier analysis ####
 
@@ -43,8 +71,8 @@ summary(fit)
 #           start = list(meanT = c(300,300), dMean = c(0.1,0.1), amplT = c(5,5), dAmpl = c(0.1,0.1), shiftT = c(30,30)))
 #summary(fit2)
 # Historical period
-fit.h <- nls(T_K ~ (meanT + dMean * days) + (amplT + dAmpl * days) * sin(2*pi*(days + shiftT)/360), data = subset(data, period == "historical"),
-           start = list(meanT = 300, dMean = 0.1, amplT = 5, dAmpl = 0.1, shiftT = 30))
+fit.h <- nls(T_K ~ (meanT + 0 * dMean * days) + (amplT + 0 * dAmpl * days) * sin(2*pi*(days + shiftT)/360), data = subset(data, period == "historical"),
+           start = list(meanT = 295, dMean = 0.1, amplT = 10, dAmpl = 0.1, shiftT = 30))
 summary(fit.h)
 # End-century period
 fit.e <- nls(T_K ~ (meanT + dMean * days) + (amplT + dAmpl * days) * sin(2*pi*(days + shiftT)/360), data = subset(data, period == "future_end"),
@@ -55,7 +83,7 @@ summary(fit.e)
 # PLOTS
 # Plot model fit to TEMPERATURE data
 xmin <- 0
-xmax <- 360*(2100-1960)
+xmax <- 360*(1991-1960)
 ggplot(data, aes(x=total_days, y=T_K)) + 
   geom_point(size=3, color="black") +
   #geom_line(size=0.8) +

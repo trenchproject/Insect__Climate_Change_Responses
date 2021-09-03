@@ -47,8 +47,8 @@ data <- as.data.frame(read_csv("Temperature response parameters.csv"))
 #sp.data <- subset(data, Species == "Clavigralla tomentosicollis Nigeria B")
 #data.model <- as.data.frame(read_csv("Time Series Clavigralla tomentosicollis Burkina Faso.csv"))
 #sp.data <- subset(data, Species == "Clavigralla tomentosicollis Burkina Faso")
-data.model <- as.data.frame(read_csv("Time Series Apolygus lucorum China Dafeng.csv"))
-sp.data <- subset(data, Species == "Apolygus lucorum China Dafeng")
+#data.model <- as.data.frame(read_csv("Time Series Apolygus lucorum China Dafeng.csv"))
+#sp.data <- subset(data, Species == "Apolygus lucorum China Dafeng")
 #data.model <- as.data.frame(read_csv("Time Series Adelphocoris suturalis China Dafeng.csv"))
 #sp.data <- subset(data, Species == "Adelphocoris suturalis China Dafeng")
 #data.model <- as.data.frame(read_csv("Time Series Apolygus lucorum China Langfang.csv"))
@@ -61,8 +61,8 @@ sp.data <- subset(data, Species == "Apolygus lucorum China Dafeng")
 #sp.data <- subset(data, Species == "Aulacorthum solani Brazil")
 #data.model <- as.data.frame(read_csv("Time Series Uroleucon ambrosiae Brazil.csv"))
 #sp.data <- subset(data, Species == "Uroleucon ambrosiae Brazil")
-#data.model <- as.data.frame(read_csv("Time Series Lygus lineolaris Mississippi.csv"))
-#sp.data <- subset(data, Species == "Lygus lineolaris Mississippi")
+data.model <- as.data.frame(read_csv("Time Series Lygus lineolaris Mississippi.csv"))
+sp.data <- subset(data, Species == "Lygus lineolaris Mississippi")
 #data.model <- as.data.frame(read_csv("Time Series Pilophorus typicus Japan.csv"))
 #sp.data <- subset(data, Species == "Pilophorus typicus Japan")
 #data.model <- as.data.frame(read_csv("Time Series Macrolophus pygmaeus on Myzus persicae Greece.csv"))
@@ -81,15 +81,15 @@ data.model.CC <- data.model
 xmin <- 0
 xmax <- 720
 ymin <- 0
-ymax <- 200
+ymax <- 1200
 # for climate change time period
 xmin.CC <- 0
 xmax.CC <- 720
 ymin.CC <- 0
-ymax.CC <- 200
+ymax.CC <- 1200
 # for temperature function
 temp.min <- 275
-temp.max <- 305
+temp.max <- 310
 yr <- 360 # days in a year (using 360 for simplicity)
 init_yrs <- 10 # number of years to initiate the model (from Python DDE model)
 TS.length <- xmax - xmin # length of time-series data
@@ -459,10 +459,10 @@ if(TSM !=0) { d.TSM <- (TSM.CC-TSM)/TSM } else {d.TSM <- 0 }
 # PLOTS
 par(mfrow=c(3,5))
 # density metrics
-barplot(c(d.mean.J,d.mean.A), col=c("#d1495b","#30638e"), ylim=c(-0.2,0.2), main=expression("Mean density"))
-barplot(c(d.max.J,d.max.A), col=c("#d1495b","#30638e"), ylim=c(-0.2,0.2), main=expression("Peak density"))
-barplot(c(d.time.J,d.time.A), col=c("#d1495b","#30638e"), ylim=c(-20,20), main=expression("Timing of peak"))
-barplot(c(d.min.J,d.min.A), col=c("#d1495b","#30638e"), ylim=c(-0.4,0.4), main=expression("Minimum density"))
+barplot(c(d.mean.J,d.mean.A), col=c("#d1495b","#30638e"), ylim=c(-0.6,0.6), main=expression("Mean density"))
+barplot(c(d.max.J,d.max.A), col=c("#d1495b","#30638e"), ylim=c(-0.6,0.6), main=expression("Peak density"))
+barplot(c(d.time.J,d.time.A), col=c("#d1495b","#30638e"), ylim=c(-380,20), main=expression("Timing of peak"))
+barplot(c(d.min.J,d.min.A), col=c("#d1495b","#30638e"), ylim=c(-1,0.2), main=expression("Minimum density"))
 # activity periods
 barplot(d.b, col="#30638e", xlim=c(0.2,2), ylim=c(-0.5,0.5), main=expression("Rep. period"))
 barplot(d.m, col="#d1495b", xlim=c(0.2,2), ylim=c(-0.5,0.5), main=expression("Dev. period"))
