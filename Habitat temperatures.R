@@ -41,7 +41,7 @@ ggplot(data.h, aes(x=days, y=T_K)) +
                 size=0.8, color="#d1495b") +
   labs(x="Time (days)", y="Mean Temperature (K)") +
   scale_x_continuous(limits=c(xmin, xmax)) +
-  scale_y_continuous(limits=c(coef(fit)[1] - abs(coef(fit.h)[2]) - 5, coef(fit.h)[1] + abs(coef(fit.h)[2]) + 5)) +
+  scale_y_continuous(limits=c(coef(fit.h)[1] - abs(coef(fit.h)[2]) - 5, coef(fit.h)[1] + abs(coef(fit.h)[2]) + 5)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
         axis.line = element_line(colour = "black"), legend.position = "none", 
