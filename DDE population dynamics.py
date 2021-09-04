@@ -30,8 +30,8 @@ tempData = read_csv("Temperature response parameters.csv")
 #spData = tempData[tempData["Species"] == "Macrosiphum euphorbiae Brazil"]
 #spData = tempData[tempData["Species"] == "Aulacorthum solani Brazil"]
 #spData = tempData[tempData["Species"] == "Uroleucon ambrosiae Brazil"]
-#spData = tempData[tempData["Species"] == "Lygus lineolaris Mississippi"]
-spData = tempData[tempData["Species"] == "Pilophorus typicus Japan"]
+spData = tempData[tempData["Species"] == "Lygus lineolaris Mississippi"]
+#spData = tempData[tempData["Species"] == "Pilophorus typicus Japan"]
 #spData = tempData[tempData["Species"] == "Macrolophus pygmaeus on Myzus persicae Greece"]
 #spData = tempData[tempData["Species"] == "Macrolophus pygmaeus on Trialeurodes vaporariorum Greece"]
 
@@ -39,7 +39,7 @@ spData = tempData[tempData["Species"] == "Pilophorus typicus Japan"]
 # Time parameters
 yr = 360 # days in year
 init_years = 10 # how many years to use for model initiation
-max_years = init_years+140 # how long to run simulations
+max_years = init_years+100 # how long to run simulations
 tstep = 1 # time step = 1 day
 CC_years = max_years # how long before climate change "equilibrates"
 
@@ -77,12 +77,12 @@ AdJ = spData["AdJ"].values[0]
 dATR = spData["dATR"].values[0]
 AdA = spData["AdA"].values[0]
 # competition
-qTR = spData["qTR"].values[0]
+qTopt = spData["qTopt"].values[0]
 Toptq = spData["Toptq"].values[0]
 sq = spData["sq"].values[0]
-Aq = spData["Aq"].values[0]
-Tmax = spData["Tmax"].values[0]
-qTopt = qTR#*exp(Aq*(1/TR - 1/Tmax))
+#Aq = spData["Aq"].values[0]
+#Tmax = spData["Tmax"].values[0]
+#qTopt = qTR*exp(Aq*(1/TR - 1/Tmax))
 '''
 # Resource variation
 Res = spData["Res"].values[0] # Res = 1 (0) if there is (not) resource variation
@@ -209,7 +209,8 @@ DDE.adjust_diff()
 data = vstack([ hstack([time, DDE.integrate(time)]) for time in times ])
 filename = 'Time series ' + spData["Species"].values[0] + '.csv'  
 savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='') 
-
+print(DDE.integrate(max_years*yr-180)[:2])
+print(DDE.integrate(max_years*yr)[:2])
 
 
 # PLOT

@@ -20,8 +20,8 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 #data <- as.data.frame(read_csv("Climate data China Xinxiang.csv"))
 #data <- as.data.frame(read_csv("Climate data Brazil.csv"))
 #data <- as.data.frame(read_csv("Climate data Mississippi.csv"))
-data <- as.data.frame(read_csv("Climate data Japan Monobe.csv"))
-#data <- as.data.frame(read_csv("Climate data Greece.csv"))
+#data <- as.data.frame(read_csv("Climate data Japan Monobe.csv"))
+data <- as.data.frame(read_csv("Climate data Greece.csv"))
 
 
 # Fit to historical period
