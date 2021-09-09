@@ -207,6 +207,14 @@ summary(fit.R0)
 plot(sp.data$T_K, sp.data$R0)
 points(seq(Tmin,Tmax,1),coef(fit.R0)[1]*exp(-((seq(Tmin,Tmax,1)-coef(fit.R0)[2])^2)/(2*coef(fit.R0)[3]^2)), type="l", col="blue")
 
+# calculate R0Tmax: temperature at which R0 = 1
+R0Tmax <- 0
+deltaT <- (5*coef(fit.R0)[3]/1000)[[1]] # temperature range = 5 sigma away from Topt
+for(i in 0:1000) {
+  if(coef(fit.R0)[1]*exp(-(((coef(fit.R0)[2] + i*deltaT) - coef(fit.R0)[2])^2)/(2*coef(fit.R0)[3])^2) <= 1 & R0Tmax == 0)
+  { R0Tmax <- (coef(fit.R0)[2] + i*deltaT)[[1]] }}
+R0Tmax
+
 
 
 ########################### r (INTRINSIC GROWTH RATE) ###############################

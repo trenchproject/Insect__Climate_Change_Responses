@@ -24,16 +24,16 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 data <- as.data.frame(read_csv("Climate data Greece.csv"))
 
 
-# Fit to historical period
+# HISTORICAL PERIOD (1961-1990)
+# Fit to data
 data.h <- subset(data, period == "historical")
 fit.h <- nls(T_K ~ meanT + amplT * sin(2*pi*(days + shiftT)/360), data = data.h,
              start = list(meanT = 290, amplT = 10, shiftT = 30))
 summary(fit.h)
 
-# PLOTS
-# Plot model fit to TEMPERATURE data
+# Plot
 xmin <- 0
-xmax <- 360*(1991-1960)
+xmax <- 360*(1990-1960)
 ggplot(data.h, aes(x=days, y=T_K)) + 
   geom_point(size=3, color="black") +
   #geom_line(size=0.8) +
@@ -48,132 +48,77 @@ ggplot(data.h, aes(x=days, y=T_K)) +
         axis.text = element_text(size=13), axis.title = element_text(size=20))
 
 
+# FUTURE PERIOD (2081-2100)
+# Fit to data
+data.f <- subset(data, period == "future_end")
+fit.f <- nls(T_K ~ meanT + amplT * sin(2*pi*(days + shiftT)/360), data = data.f,
+             start = list(meanT = 300, amplT = 10, shiftT = 30))
+summary(fit.f)
 
-
-
-#### Fit temperature functions to data from Climate Wizard using Fourier analysis ####
-
-
-# REGRESSION ANALYSES
-# Fit sinusoidal function to all data from Climate Wizard
-fit <- nls(T_K ~ (meanT + dMean * total_days) + (amplT + dAmpl * total_days) * sin(2*pi*(total_days + shiftT)/360), data = data,
-           start = list(meanT = 300, dMean = 0.1, amplT = 5, dAmpl = 0.1, shiftT = 30))
-summary(fit)
-
-# Fit sinusoidal function to data from Climate Wizard for each time period
-#fit.all <- nls(T_K ~ (meanT[period] + dMean[period] * days) + (amplT[period] + dAmpl[period] * days) * sin(2*pi*(days + shiftT[period])/360), data = data,
-#           start = list(meanT = c(300,300,300), dMean = c(0.1,0.1,0.1), amplT = c(5,5,5), dAmpl = c(0.1,0.1,0.1), shiftT = c(30,30,30)))
-#summary(fit.all)
-
-# Fit sinusoidal function to data from Climate Wizard for historical and end-century
-# This code does not currently work
-#fit2 <- nls(T_K ~ (meanT[period] + dMean[period] * days) + (amplT[period] + dAmpl[period] * days) * sin(2*pi*(days + shiftT[period])/360), data = data,
-#           start = list(meanT = c(300,300), dMean = c(0.1,0.1), amplT = c(5,5), dAmpl = c(0.1,0.1), shiftT = c(30,30)))
-#summary(fit2)
-# Historical period
-fit.h <- nls(T_K ~ (meanT + 0 * dMean * days) + (amplT + 0 * dAmpl * days) * sin(2*pi*(days + shiftT)/360), data = subset(data, period == "historical"),
-           start = list(meanT = 295, dMean = 0.1, amplT = 10, dAmpl = 0.1, shiftT = 30))
-summary(fit.h)
-# End-century period
-fit.e <- nls(T_K ~ (meanT + dMean * days) + (amplT + dAmpl * days) * sin(2*pi*(days + shiftT)/360), data = subset(data, period == "future_end"),
-             start = list(meanT = 300, dMean = 0.1, amplT = 5, dAmpl = 0.1, shiftT = 30))
-summary(fit.e)
-
-
-# PLOTS
-# Plot model fit to TEMPERATURE data
+# Plot
 xmin <- 0
-xmax <- 360*(1991-1960)
-ggplot(data, aes(x=total_days, y=T_K)) + 
+xmax <- 360*(2100-2080)
+ggplot(data.f, aes(x=days, y=T_K)) + 
   geom_point(size=3, color="black") +
   #geom_line(size=0.8) +
-  geom_function(fun = function(t){(coef(fit)[1] + coef(fit)[2] * t) + (coef(fit)[3] + coef(fit)[4] * t) * sin(2*pi*(t + coef(fit)[5])/360)},
+  geom_function(fun = function(t){coef(fit.f)[1] + coef(fit.f)[2] * sin(2*pi*(t + coef(fit.f)[3])/360)},
                 size=0.8, color="#d1495b") +
   labs(x="Time (days)", y="Mean Temperature (K)") +
   scale_x_continuous(limits=c(xmin, xmax)) +
-  scale_y_continuous(limits=c(coef(fit)[1] - abs(coef(fit)[3]) - 5, coef(fit)[1] + abs(coef(fit)[3]) + 10)) +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-        panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
-        axis.line = element_line(colour = "black"), legend.position = "none", 
-        axis.text = element_text(size=13), axis.title = element_text(size=20))
-
-# Plot fit to TEMPERATURE data pooled across years
-ggplot(data, aes(x=month, y=T_K)) + 
-  geom_point(size=3, color="black") +
-  scale_x_continuous(limits=c(0, 12)) +
-  scale_y_continuous(limits=c(coef(fit)[1] - abs(coef(fit)[3]) - 6, coef(fit)[1] + abs(coef(fit)[3]) + 6)) +
+  scale_y_continuous(limits=c(coef(fit.f)[1] - abs(coef(fit.f)[2]) - 5, coef(fit.f)[1] + abs(coef(fit.f)[2]) + 5)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
         axis.line = element_line(colour = "black"), legend.position = "none", 
         axis.text = element_text(size=13), axis.title = element_text(size=20))
 
 
-# Plot model fit to PRECIPITATION data
-ymin <- 0
-ymax <- 400
-ggplot(data, aes(x=days, y=Prec_mm)) + 
-  geom_point(size=3, color="blue") +
-  geom_line(size=0.8, color="blue") +
-  labs(x="Time (days)", y="Precipitation (mm)") +
-  scale_x_continuous(limits=c(xmin, xmax)) +
-  scale_y_continuous(limits=c(ymin, ymax)) +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-        panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
-        axis.line = element_line(colour = "black"), legend.position = "none", 
-        axis.text = element_text(size=13), axis.title = element_text(size=20))
 
-# Plot fit to PRECIPITATION data pooled across years
-ggplot(data, aes(x=month, y=Prec_mm)) + 
-  geom_point(size=3, color="blue") +
-  scale_x_continuous(limits=c(0, 12)) +
-  scale_y_continuous(limits=c(ymin, ymax)) +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-        panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
-        axis.line = element_line(colour = "black"), legend.position = "none", 
-        axis.text = element_text(size=13), axis.title = element_text(size=20))
-
-
-########## Fit temperature functions to data from Habitat temperatures.csv ##########
-# Read data
-temp.data <- as.data.frame(read_csv("Habitat temperatures.csv"))
+# MEAN TEMPERATURE DURING ACTIVE PERIOD (mean T when T > Tmin)
+# input temperature response parameters
+TR.data <- as.data.frame(read_csv("Temperature response parameters.csv"))
 
 # Select an insect by removing # in front of name and placing # in front of other species
-#sp.data <- subset(temp.data, Species == "Clavigralla shadabi")
-#sp.data <- subset(temp.data, Species == "Clavigralla tomentosicollis Benin")
-#sp.data <- subset(temp.data, Species == "Clavigralla tomentosicollis Nigeria A")
-#sp.data <- subset(temp.data, Species == "Clavigralla tomentosicollis Nigeria B")
-#sp.data <- subset(temp.data, Species == "Clavigralla tomentosicollis Nigeria C")
-sp.data <- subset(temp.data, Species == "Clavigralla tomentosicollis Burkina Faso")
+#sp.data <- subset(TR.data, Species == "Clavigralla shadabi Benin")
+#sp.data <- subset(TR.data, Species == "Clavigralla tomentosicollis Benin")
+#sp.data <- subset(TR.data, Species == "Clavigralla tomentosicollis Burkina Faso")
+#sp.data <- subset(TR.data, Species == "Apolygus lucorum China Dafeng")
+#sp.data <- subset(TR.data, Species == "Adelphocoris suturalis China Dafeng")
+#sp.data <- subset(TR.data, Species == "Apolygus lucorum China Langfang")
+#sp.data <- subset(TR.data, Species == "Adelphocoris suturalis China Xinxiang")
+#sp.data <- subset(TR.data, Species == "Macrosiphum euphorbiae Brazil")
+#sp.data <- subset(TR.data, Species == "Aulacorthum solani Brazil")
+#sp.data <- subset(TR.data, Species == "Uroleucon ambrosiae Brazil")
+#sp.data <- subset(TR.data, Species == "Macrolophus pygmaeus on Myzus persicae Greece")
+sp.data <- subset(TR.data, Species == "Macrolophus pygmaeus on Trialeurodes vaporariorum Greece")
 
-# Remove columns that do not contain temperature data
-sp.data <- sp.data[-1:-7]
-rownames(sp.data) <- c("T_K")
 
-# Make data table with time and mean monthly temperature
-data <- matrix(nrow = length(sp.data), ncol = 1)
-for(i in 1:length(data)) {data[i] <- 30*(i-1)+15} # mid-point of month
-colnames(data) <- c("day")
-data <- cbind(data, t(sp.data)) # mean monthly temperature data
+# Calculate active period in data (T > Tmin)
+T.sum <- 0 # sum of temperatures during active period
+length <- 0 # length of active period
+for(i in 1:nrow(data.f)) {if(data.f[i,"T_K"] > sp.data["Tmin"][[1]])
+  {T.sum <- T.sum + data.f[i,"T_K"]
+  length <- length + 1}
+}
+meanT.active <- T.sum/length
+meanT.active
 
-# Remove blank cells
-data <- data[rowSums(is.na(data)) == 0,]
-data <- as.data.frame(data)
 
-# Fit sinusoidal function to habitat temperature data
-fit <- nls(T_K ~ meanT + amplT*sin(2*pi*(day + shiftT)/365), data = data,
-           start = list(meanT = 293, amplT = 2, shiftT = 30))
-summary(fit)
+# Calculate active period in model (T(t) > Tmin)
+yr <- 360 # days in a year (using 360 for simplicity)
+# temperature function
+T <- function(t) (coef(fit.f)[1] + coef(fit.f)[2] * sin(2*pi*(t + coef(fit.f)[3])/yr))[[1]]
+tStart <- 0 # start of active period
+tEnd <- 0 # end of active period
+T.active <- 0 # sum of temperatures during active period
+for(i in 0:yr) {
+  if(T(i) > sp.data["Tmin"] & tStart == 0) {tStart <- i}
+  if(T(i) > sp.data["Tmin"]) {tEnd <- i
+    T.active <- T.active + T(i)}
+}
+meanT.active <- T.active/(tEnd-tStart)
+tStart
+tEnd
+meanT.active
+coef(fit.f)[1][[1]] # meanT during future period
 
-# Plot model data
-ggplot(data, aes(x=day, y=T_K)) + 
-  geom_point(size=5, color="#d1495b") +
-  geom_function(fun = function(t) coef(fit)[1] + coef(fit)[2]*sin(2*pi*(t + coef(fit)[3])/365),
-                size=0.8, linetype="longdash", color="#d1495b") +
-  labs(x="Time (days)", y="Mean Temperature (K)") +
-  scale_x_continuous(limits=c(0, 720)) +
-  scale_y_continuous(limits=c(coef(fit)[1] - coef(fit)[2] - 2, coef(fit)[1] + coef(fit)[2] + 3)) +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-        panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
-        axis.line = element_line(colour = "black"), legend.position = "none", 
-        axis.text = element_text(size=13), axis.title = element_text(size=20))
 

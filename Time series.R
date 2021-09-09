@@ -323,10 +323,7 @@ plot.compare
 #  draw_plot(model.I.CC, x = 0, y = 0.3, width = 1, height = 0.7)
 #plot.compare
 
-# Calculate activity period (T(t) > Tmin)
-for(i in 0:length) {
-  if(temp(i) > sp.data["Tmin"]) {print(i)
-    i <- length} }
+
 
 
 
@@ -367,10 +364,16 @@ if(min(data.model.CC[["A"]]) > 0) { min.A.CC <- round(min(data.model.CC[["A"]]),
 if(min.J != 0) { d.min.J <- (min.J.CC-min.J)/min.J } else {d.min.J <- 0}
 if(min.A != 0) { d.min.A <- (min.A.CC-min.A)/min.A } else {d.min.A <- 0}
 
+
 # temperature functions
 temp <- function(t) (sp.data$meanT + sp.data$delta_mean*(t+time.shift))  + (sp.data$amplT + sp.data$delta_ampl*(t+time.shift)) * sin(2*pi*((t+time.shift) + sp.data$shiftT)/yr)
 temp.CC <- function(t) (sp.data$meanT + sp.data$delta_mean*(t+time.shift.CC))  + (sp.data$amplT + sp.data$delta_ampl*(t+time.shift.CC)) * sin(2*pi*((t+time.shift.CC) + sp.data$shiftT)/yr)
 length <- 360 # length of time over which to compare models
+
+# calculate activity period (T(t) > Tmin)
+for(i in 0:length) {
+  if(temp(i) > sp.data["Tmin"]) {print(i)
+    i <- length} }
 
 # reproductive activity period (birth rate > 0.1 bTopt)
 b.period <- 0
