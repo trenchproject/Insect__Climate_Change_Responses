@@ -12,9 +12,11 @@ library(tidyverse)
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 
+
 # READ IN TEMPERATURE RESPONSE PARAMETERS
 # Temperature response parameters
 data <- as.data.frame(read_csv("Temperature response parameters.csv"))
+
 
 
 # EXTINCTION THRESHOLD (increase in meanT that leads to extinction in the model)
@@ -31,12 +33,12 @@ summary (tsm)
 
 # warming tolerance: significant
 wt <- lm(ext_meanT ~ WT, data=data)
-wt <- lm(ext_meanT ~ 0 + WT, data=data) # remove intercept
+#wt <- lm(ext_meanT ~ 0 + WT, data=data) # remove intercept
 summary (wt)
 
 # warming tolerance (active period): significant
 wt.active <- lm(ext_meanT ~ WT_active, data=data)
-wt.active <- lm(ext_meanT ~ 0 + WT_active, data=data) # remove intercept
+#wt.active <- lm(ext_meanT ~ 0 + WT_active, data=data) # remove intercept
 summary (wt.active)
 
 
@@ -65,35 +67,52 @@ R0.wt.active <- lm(ext_meanT ~ 0 + R0WT_active, data=data) # remove intercept
 summary (R0.wt.active)
 
 
+# Extinction risk across latitude
+lat <- lm(ext_meanT ~ Latitude, data=data)
+#lat <- lm(ext_meanT ~ 0 + Latitude, data=data) # remove intercept
+summary (lat)
+
 
 # PLOTS
-# Intrinsic growth rate (r)
+# Metrics based on intrinsic growth rate (r)
 # thermal safety margin: non significant
 Xmin <- 0
 Xmax <- 12
 Ymin <- 0
 Ymax <- 15
-#plot(data$TSM, data$ext_meanT, xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), main=expression("extinction threshold (meanT) vs. TSM"))
+plot(data[data$Habitat=="Tropical","TSM"], data[data$Habitat=="Tropical","ext_meanT"], pch=21, col="red", bg="red",
+     xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="Thermal safety margin", ylab="Extinction threshold (mean T)")
+points(data[data$Habitat=="Mediterranean","TSM"], data[data$Habitat=="Mediterranean","ext_meanT"], pch=21, col="purple", bg="purple")
+points(data[data$Habitat=="Temperate","TSM"], data[data$Habitat=="Temperate","ext_meanT"], pch=21, col="blue", bg="blue")
 #points(seq(Xmin,Xmax,1), coef(tsm)[1]*seq(Xmin,Xmax,1), type="l", col="blue")
-#abline(0, 1)
+points(seq(Xmin,Xmax,1), coef(tsm)[2]*seq(Xmin,Xmax,1)+coef(tsm)[1], type="l", col="black", lty="longdash")
+#abline(0, 1, col="black", lty="longdash")
 
 # warming tolerance: significant (slope = 0.81)
 Xmin <- 0
-Xmax <- 25
+Xmax <- 20
 Ymin <- 0
 Ymax <- 15
-plot(data$WT, data$ext_meanT, xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), main=expression("extinction threshold (meanT) vs. WT"))
-points(seq(Xmin,Xmax,1), coef(wt)[1]*seq(Xmin,Xmax,1), type="l", col="blue")
-abline(0, 1)
+plot(data[data$Habitat=="Tropical","WT"], data[data$Habitat=="Tropical","ext_meanT"], pch=21, col="red", bg="red",
+     xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="Warming tolerance", ylab="Extinction threshold (mean T)")
+points(data[data$Habitat=="Mediterranean","WT"], data[data$Habitat=="Mediterranean","ext_meanT"], pch=21, col="purple", bg="purple")
+points(data[data$Habitat=="Temperate","WT"], data[data$Habitat=="Temperate","ext_meanT"], pch=21, col="blue", bg="blue")
+#points(seq(Xmin,Xmax,1), coef(wt)[1]*seq(Xmin,Xmax,1), type="l", col="blue")
+points(seq(Xmin,Xmax,1), coef(wt)[2]*seq(Xmin,Xmax,1)+coef(wt)[1], type="l", col="black")
+abline(0, 1, col="black", lty="longdash")
 
 # warming tolerance (active period): significant (slope = 1.01)
 Xmin <- 0
 Xmax <- 20
 Ymin <- 0
 Ymax <- 15
-plot(data$WT_active, data$ext_meanT, xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), main=expression("extinction threshold (meanT) vs. WT (active)"))
-points(seq(Xmin,Xmax,1), coef(wt.active)[1]*seq(Xmin,Xmax,1), type="l", col="blue")
-abline(0, 1)
+plot(data[data$Habitat=="Tropical","WT_active"], data[data$Habitat=="Tropical","ext_meanT"], pch=21, col="red", bg="red",
+     xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="Warming tolerance (active period)", ylab="Extinction threshold (mean T)")
+points(data[data$Habitat=="Mediterranean","WT_active"], data[data$Habitat=="Mediterranean","ext_meanT"], pch=21, col="purple", bg="purple")
+points(data[data$Habitat=="Temperate","WT_active"], data[data$Habitat=="Temperate","ext_meanT"], pch=21, col="blue", bg="blue")
+#points(seq(Xmin,Xmax,1), coef(wt.active)[1]*seq(Xmin,Xmax,1), type="l", col="blue")
+points(seq(Xmin,Xmax,1), coef(wt.active)[2]*seq(Xmin,Xmax,1)+coef(wt.active)[1], type="l", col="black")
+abline(0, 1, col="black", lty="longdash")
 
 
 
@@ -125,6 +144,26 @@ plot(data$R0WT_active, data$ext_meanT, xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), mai
 points(seq(Xmin,Xmax,1), coef(R0.wt.active)[1]*seq(Xmin,Xmax,1), type="l", col="blue")
 abline(0, 1)
 
+
+
+# Extinction risk across latitude
+Xmin <- 0
+Xmax <- 45
+Ymin <- 0
+Ymax <- 15
+lat.plot <- ggplot(data, aes(Latitude, ext_meanT)) +
+  geom_point(size=3, aes(color=Habitat)) +
+  scale_colour_manual(values=c("purple", "blue", "red")) +
+  geom_function(fun = function(t) (coef(lat)[2]*t+coef(lat)[1]),
+                size=0.8, linetype="longdash", color="black") +
+  labs(x="", y="") + #labs(x="Absolute latitude", y="Extinction threshold (mean T)") +
+  scale_x_continuous(limits=c(Xmin, Xmax)) +
+  scale_y_continuous(limits=c(Ymin, Ymax)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
+        axis.line = element_line(colour = "black"), legend.position = "none", 
+        axis.text = element_text(size=13), axis.title = element_text(size=20))
+ggdraw()  + draw_plot(lat.plot, x = 0, y = 0, width = 1, height = 0.4)
 
 
 
