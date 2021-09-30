@@ -14,30 +14,33 @@ from pandas import read_csv
 from jitcxde_common import conditional
 
 
-# INPUT TEMPERATURE RESPONSE DATA
-tempData = read_csv("Temperature response parameters.csv")
+# INPUT TEMPERATURE RESPONSE PARAMETERS AND TEMPERATURE PARAMETERS
+data = read_csv("Temperature response parameters.csv")
+temp_data = read_csv("Temperature parameters.csv")
 
+# ENTER TIME PERIOD
+period = "Future"
 
 # SELECT INSECT SPECIES
-#spData = tempData[tempData["Species"] == "Clavigralla shadabi Benin"]
-#spData = tempData[tempData["Species"] == "Clavigralla tomentosicollis Benin"]   
-#spData = tempData[tempData["Species"] == "Clavigralla tomentosicollis Nigeria B"]
-#spData = tempData[tempData["Species"] == "Clavigralla tomentosicollis Burkina Faso"]
-#spData = tempData[tempData["Species"] == "Apolygus lucorum China Dafeng"]
-#spData = tempData[tempData["Species"] == "Adelphocoris suturalis China Dafeng"]
-#spData = tempData[tempData["Species"] == "Apolygus lucorum China Langfang"]
-#spData = tempData[tempData["Species"] == "Adelphocoris suturalis China Xinxiang"]
-#spData = tempData[tempData["Species"] == "Macrosiphum euphorbiae Brazil"]
-#spData = tempData[tempData["Species"] == "Aulacorthum solani Brazil"]
-#spData = tempData[tempData["Species"] == "Uroleucon ambrosiae Brazil"]
-#spData = tempData[tempData["Species"] == "Lygus lineolaris Mississippi"]
-#spData = tempData[tempData["Species"] == "Pilophorus typicus Japan"]
-#spData = tempData[tempData["Species"] == "Macrolophus pygmaeus on Myzus persicae Greece"]
-spData = tempData[tempData["Species"] == "Macrolophus pygmaeus on Trialeurodes vaporariorum Greece"]
+spData = data[data["Species"] == "Clavigralla shadabi Benin"]
+#spData = data[data["Species"] == "Clavigralla tomentosicollis Benin"]   
+#spData = data[data["Species"] == "Clavigralla tomentosicollis Nigeria B"]
+#spData = data[data["Species"] == "Clavigralla tomentosicollis Burkina Faso"]
+#spData = data[data["Species"] == "Apolygus lucorum China Dafeng"]
+#spData = data[data["Species"] == "Adelphocoris suturalis China Dafeng"]
+#spData = data[data["Species"] == "Apolygus lucorum China Langfang"]
+#spData = data[data["Species"] == "Adelphocoris suturalis China Xinxiang"]
+#spData = data[data["Species"] == "Macrosiphum euphorbiae Brazil"]
+#spData = data[data["Species"] == "Aulacorthum solani Brazil"]
+#spData = data[data["Species"] == "Uroleucon ambrosiae Brazil"]
+#spData = data[data["Species"] == "Lygus lineolaris Mississippi"]
+#spData = data[data["Species"] == "Pilophorus typicus Japan"]
+#spData = data[data["Species"] == "Macrolophus pygmaeus on Myzus persicae Greece"]
+#spData = data[data["Species"] == "Macrolophus pygmaeus on Trialeurodes vaporariorum Greece"]
 
 # DEFINE MODEL PARAMETERS
 # Time parameters
-yr = 360 # days in year
+yr = 365 # days in year
 init_years = 10 # how many years to use for model initiation
 max_years = init_years+100 # how long to run simulations
 tstep = 1 # time step = 1 day
@@ -48,13 +51,13 @@ initJ = 1.
 initA = 1.
 
 # Habitat temperature and climate change parameters
-meanT = spData["meanT"].values[0]
-amplT = spData["amplT"].values[0] 
-shiftT = spData["shiftT"].values[0]
+meanT = temp_data["f.meanT"].values[0]
+amplT = temp_data["f.amplT"].values[0] 
+shiftT = temp_data["f.shiftT"].values[0]
 #delta_mean = spData["delta_mean"].values[0]
 #delta_ampl = spData["delta_ampl"].values[0]
-delta_mean = 0./(100*yr)
-delta_ampl = 0./(100*yr)
+delta_mean = 0./(100*yr) # how quickly mean temperature increases with climate change
+delta_ampl = 0./(100*yr) # how quickly seasonal temperature variation increases with climate change
 
 # Life history and competitive traits
 # fecundity
@@ -83,21 +86,9 @@ sq = spData["sq"].values[0]
 #Aq = spData["Aq"].values[0]
 #Tmax = spData["Tmax"].values[0]
 #qTopt = qTR*exp(Aq*(1/TR - 1/Tmax))
-'''
-# Resource variation
-Res = spData["Res"].values[0] # Res = 1 (0) if there is (not) resource variation
-Rstart = spData["Rstart"].values[0] # start date of resource availablity
-Rend = spData["Rend"].values[0] # end of resource availability
-if Rend > Rstart:               # proportion of year when resource is available
-    Rlength = (Rend - Rstart)/yr
-else:
-     Rlength = (yr - Rstart + Rend)/yr
-Rshift = cos(pi*Rlength) # shift used to model resource availability via sine wave
-'''
 
 
 # FUNCTIONS
-
 # Seasonal temperature variation (K) over time
 def T(x):
     return conditional(x, 0, meanT, # during "pre-history" (t<0), habitat temperature is constant at its mean
@@ -111,37 +102,6 @@ yvals = vstack([(meanT + delta_mean*(i-init_years*yr)) + (amplT + delta_ampl*(i-
 plot(xvals,yvals)
 show()
 '''
-'''
-# Seasonal temperature variation (K) over time based on Fourier analysis of historical data
-def T(x):
-    return conditional(x, 0, meanT, # during "pre-history" (t<0), habitat temperature is constant at its mean
-                       conditional(x, init_years*yr, 299.08 + 1.84*cos(2*pi*30/(30*yr)*(x-15) - 1.86) + 1.51*cos(2*pi*60/(30*yr)*(x-15) - 3.09) + 0.359*cos(2*pi*90/(30*yr)*(x-15) - 2.57), # during model initiation, no change in mean temperature
-                                   conditional(x, CC_years*yr, 299.08 + 0*0.000127*x + delta_mean*(x-init_years*yr) + (1.84*cos(2*pi*30/(30*yr)*(x-init_years*yr-15) - 1.86) + 1.51*cos(2*pi*60/(30*yr)*(x-init_years*yr-15) - 3.09) + 0.359*cos(2*pi*90/(30*yr)*(x-init_years*yr-15) - 2.57)), # temperature regime during climate change
-                                               299.08 + 0.000127*CC_years*yr + delta_mean*CC_years*yr + 1.84*cos(2*pi*30/(30*yr)*(x-init_years*yr-15) - 1.86) + 1.51*cos(2*pi*60/(30*yr)*(x-init_years*yr-15) - 3.09) + 0.359*cos(2*pi*90/(30*yr)*(x-init_years*yr-15) - 2.57)))) # temperature regime after climate change "equilibriates"
-
-# Plot temperature function
-xvals = arange(0,1*yr,1)
-yvals = vstack([299.08 + (1.84*cos(2*pi*30/(30*yr)*(i-init_years*yr-15) - 1.86) + 1.51*cos(2*pi*60/(30*yr)*(i-init_years*yr-15) - 3.09) + 0.359*cos(2*pi*90/(30*yr)*(i-init_years*yr-15) - 2.57)) for i in xvals ])
-plot(xvals,yvals)
-show()
-'''
-'''
-# Seasonal variation in resource quality (Res = 1: resource available, Res = 0: resource unavailable)
-def R(x):
-    dummy = 1/(1-Rshift)*(-Rshift + sin(2*pi*(x-Rstart)/yr + asin(Rshift))) # 'dummy' sine wave describing resource availability
-    if Res == 1: # incorporate resource variation in model
-        return 0.5*(abs(dummy)/dummy + 1) # set negative phases of sine wave to zero and positive phases to 1
-        #return 0.5*(abs(dummy) + dummy) # set negative phases of sine wave to zero
-    else:
-        return 1 # do not incorporate resource variation in model
-
-# Plot resource function
-xvals = arange(0,2*yr,1)
-yvals = vstack([0.5*(abs(1/(1-Rshift)*(-Rshift + sin(2*pi*(i-Rstart)/yr + asin(Rshift)))) + 1/(1-Rshift)*(-Rshift + sin(2*pi*(i-Rstart)/yr + asin(Rshift)))) for i in xvals ])
-plot(xvals,yvals)
-show()
-'''
-
 
 # Life history functions
 # fecundity
@@ -207,10 +167,10 @@ DDE.adjust_diff()
 
 # Save data array containing time and state variables
 data = vstack([ hstack([time, DDE.integrate(time)]) for time in times ])
-filename = 'Time series ' + spData["Species"].values[0] + '.csv'  
+filename = period + ' time series ' + spData["Species"].values[0] + '.csv'  
 savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='') 
-print(DDE.integrate(max_years*yr-180)[:2])
-print(DDE.integrate(max_years*yr)[:2])
+#print(DDE.integrate(max_years*yr-180)[:2])
+#print(DDE.integrate(max_years*yr)[:2])
 
 
 # PLOT

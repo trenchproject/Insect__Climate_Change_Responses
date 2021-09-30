@@ -1,0 +1,13 @@
+﻿Species,Latitude,Habitat,subfamily,h.meanT,h.amplT,h.shiftT,f.meanT,f.amplT,f.shiftT,Notes
+Clavigralla shadabi Benin,6.45,Tropical,Heteroptera,300.7,1.42,26.6,303.1,1.05,23.4,
+Clavigralla tomentosicollis Benin,6.45,Tropical,Heteroptera,300.7,1.42,26.6,303.1,1.05,23.4,
+Clavigralla tomentosicollis Burkina Faso,12.38,Tropical,Heteroptera,,,,,,,
+Apolygus lucorum China Dafeng,33.33,Temperate,Heteroptera,,,,,,,
+Adelphocoris suturalis China Dafeng,33.33,Temperate,Heteroptera,,,,,,,
+Apolygus lucorum China Langfang,39.88,Temperate,Heteroptera,,,,,,,
+Adelphocoris suturalis China Xinxiang,35.53,Temperate,Heteroptera,,,,,,,
+Macrosiphum euphorbiae Brazil,21.23,Tropical,Sternorrhyncha,,,,,,,
+Aulacorthum solani Brazil,21.23,Tropical,Sternorrhyncha,,,,,,,
+Uroleucon ambrosiae Brazil,21.23,Tropical,Sternorrhyncha,,,,,,,
+Macrolophus pygmaeus on Myzus persicae Greece,38.38,Mediterranean,Heteroptera,,,,,,,
+Macrolophus pygmaeus on Trialeurodes vaporariorum Greece,38.38,Mediterranean,Heteroptera,,,,,,,

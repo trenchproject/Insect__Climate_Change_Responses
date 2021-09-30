@@ -1,6 +1,6 @@
 ﻿Species,Latitude,Habitat,subfamily,bTopt,Toptb,sb,mTR,TR,AmJ,skew,AL,TL,AH,TH,Tmin,dJTR,AdJ,dATR,AdA,qTopt,Toptq,sq,rMax,rTopt,rTmax,rs,Notes
-Clavigralla shadabi Benin,6.42,Tropical,Heteroptera,8.88,300.5,3.69,0.033,298,7185,1,-32190,286.5,277540,305.9,286.3,0.0063,31560,0.0025,37360,0.2,300.46,3.6893,0.134,301.7,306.8,3.23,
-Clavigralla tomentosicollis Benin,6.42,Tropical,Heteroptera,6.82,303.9,5.47,0.042,298,7600,1,-66162,288.3,235541,309.6,287.2,0.0032,64320,0.00069,45230,0.2,303.9,5.47,0.154,304.2,313.2,,
+Clavigralla shadabi Benin,6.45,Tropical,Heteroptera,8.88,300.5,3.69,0.033,298,7185,1,-32190,286.5,277540,305.9,286.3,0.0063,31560,0.0025,37360,0.2,300.46,3.6893,0.134,301.7,306.8,3.23,
+Clavigralla tomentosicollis Benin,6.45,Tropical,Heteroptera,6.82,303.9,5.47,0.042,298,7600,1,-66162,288.3,235541,309.6,287.2,0.0032,64320,0.00069,45230,0.2,303.9,5.47,0.154,304.2,313.2,,
 Clavigralla tomentosicollis Burkina Faso,12.38,Tropical,Heteroptera,5.14,302.64,5.35,0.11,308,6252,1,-79172,295.2,370764,314.2,290.6,0.002,85850,0.035,4198,0.2,302.64,5.35,0.232,303,321.5,,r calculated from temperature responses; Only 4 points for r
 Apolygus lucorum China Dafeng,33.33,Temperate,Heteroptera,2.72,298.82,8.1,0.037,293,2857,1,-40519,285.3,215829,309,283.1,0.02,12310,0.025,3876,0.2,298.82,8.1,0.129,303,308,,Tmin = 10 (temperature reported with zero development); r calculated from temperature responses
 Adelphocoris suturalis China Dafeng,33.33,Temperate,Heteroptera,2.83,300.99,8.91,0.027,293,6754,1,-62876,285.2,30065,308.1,281.1,0.016,10350,0.028,5165,0.2,300.99,8.9,0.106,300,310.1,,r calculated from temperature responses

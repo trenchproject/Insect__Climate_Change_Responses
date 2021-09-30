@@ -16,37 +16,71 @@ location <- "Benin"
 species <- "Clavigralla shadabi"
 
 
-################################## HISTORICAL CLIMATE DATA ###################################
+################################## TPC: HISTORICAL CLIMATE ###################################
 # Read in climate data and temperature response parameters for selected insect
 temp.h <- as.data.frame(read_csv(paste0("Historical climate data ",location,".csv")))
 data <- subset(as.data.frame(read_csv("Temperature response parameters.csv")),
                   Species == paste(species,location))
 
 # Integrate across r(T(t))
-r.h <- 0
-n.h <- nrow(temp.h)
+r.TPC.h <- 0
+n.TPC.h <- nrow(temp.h)
 for(i in 1:n) {
-  r.h <- r.h + ifelse(temp.h$T[i] <= data$rTopt, data$rMax*exp(-1*((temp.h$T[i]-data$rTopt)/(2*data$rs))^2),
+  r.TPC.h <- r.TPC.h + ifelse(temp.h$T[i] <= data$rTopt, data$rMax*exp(-1*((temp.h$T[i]-data$rTopt)/(2*data$rs))^2),
          data$rMax*(1 - ((temp.h$T[i]-data$rTopt)/(data$rTopt-data$rTmax))^2)) # from Deutsch et al. 2008
 }
-r.h <- r.h/n.h
-r.h
+r.TPC.h <- r.TPC.h/n.TPC.h
+r.TPC.h
 
 
-#################################### FUTURE CLIMATE DATA ####################################
+##################################### TPC: FUTURE CLIMATE ####################################
 # Read in climate data and temperature response parameters for selected insect
 temp.f <- as.data.frame(read_csv(paste0("Future climate data ",location,".csv")))
 data <- subset(as.data.frame(read_csv("Temperature response parameters.csv")),
                Species == paste(species,location))
 
 # Integrate across r(T(t))
-r.f <- 0
-n.f <- nrow(temp.f)
+r.TPC.f <- 0
+n.TPC.f <- nrow(temp.f)
 for(i in 1:n) {
-  r.f <- r.f + ifelse(temp.f$T[i] <= data$rTopt, data$rMax*exp(-1*((temp.f$T[i]-data$rTopt)/(2*data$rs))^2),
+  r.TPC.f <- r.TPC.f + ifelse(temp.f$T[i] <= data$rTopt, data$rMax*exp(-1*((temp.f$T[i]-data$rTopt)/(2*data$rs))^2),
                   data$rMax*(1 - ((temp.f$T[i]-data$rTopt)/(data$rTopt-data$rTmax))^2)) # from Deutsch et al. 2008
 }
-r.f <- r.f/n.f
-r.f
+r.TPC.f <- r.TPC.f/n.TPC.f
+r.TPC.f
 
+
+################################# MODEL: HISTORICAL CLIMATE ##################################
+# Read in climate data and temperature response parameters for selected insect
+TS.h <- as.data.frame(read_csv(paste0("Historical time series ",species," ",location,".csv")))
+
+# Integrate across ln(t+1)/ln(t)
+start <- 10*365 # skip first 10 years, which are used for model initialization
+r.model.h <- 0
+n.model.h <- nrow(TS.h)
+for(i in start:start+365) {
+  r.model.h <- r.model.h + log(TS.h$A[i+1]+1)/log(TS.h$A[i]+1)
+}
+r.model.h <- r.model.h/365 #n.model.h
+r.model.h
+
+
+################################### MODEL: FUTURE CLIMATE ####################################
+# Read in climate data and temperature response parameters for selected insect
+TS.f <- as.data.frame(read_csv(paste0("Future time series ",species," ",location,".csv")))
+
+# Integrate across ln(t+1)/ln(t)
+start <- 10*365 # skip first 10 years, which are used for model initialization
+r.model.f <- 0
+n.model.f <- nrow(TS.f)
+for(i in start:start+365) {
+  r.model.f <- r.model.f + log(TS.f$A[i+1]+1)/log(TS.f$A[i]+1)
+}
+r.model.f <- r.model.f/365 #n.model.f
+r.model.f
+
+r.TPC.h
+r.TPC.f
+r.model.h
+r.model.f
 
