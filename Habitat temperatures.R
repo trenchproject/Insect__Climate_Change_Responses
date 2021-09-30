@@ -21,31 +21,46 @@ data.f <- as.data.frame(read_csv(paste0("Future climate data ",location,".csv"))
 
 
 #################################### HISTORICAL CLIMATE #####################################
-# Fit sinusoidal function with  annual temperature variation to climate data
+# Fit sinusoidal function with annual temperature variation to climate data
 fit.h <- nls(T ~ meanT + amplT * sin(2*pi*(day + shiftT)/365), data = data.h,
              start = list(meanT = 300, amplT = 1, shiftT = 30))
 summary(fit.h)
+# Then estimate diurnal variation as average daily difference between Tmax and Tmin
+diurnal <- 0
+l <- nrow(data.h)-1
+for(i in 1:l){
+  if(round(data.h[i+1,"day"]-0.1,0) == round(data.h[i,"day"]-0.1,0)) { diurnal <- diurnal + data.h[i+1,"T"] - data.h[i,"T"] }}
+diurnal <- diurnal/(nrow(data.h)/2)
+
 
 # Fit sinusoidal function with  annual and diurnal temperature variation to climate data
-fit.h <- nls(T ~ meanT + amplT * sin(2*pi*(day + shiftT)/365) + amplD * sin(2*pi*(day + shiftD)),
-             data = data.h, start = list(meanT = 300, amplT = 1, shiftT = 30, amplD = 0.1, shiftD = 0))
-summary(fit.h)
+# estimating all parameters (under-estimates temperature variation)
+#fit.h2 <- nls(T ~ meanT + amplT*cos(2*pi*(day + shiftT)/365) + amplD*cos(2*pi*day),
+#             data = data.h, start = list(meanT = 300, amplT = 1, shiftT = 30, amplD = 5))
+#summary(fit.h2)
 
-# Plot
+# Plot (NOTE: plot does not have the resolution to show diurnal variation at large xmax)
 xmin <- 0
-xmax <- nrow(data.h)
-ggplot(data.h, aes(x=days, y=T_K)) + 
-  geom_point(size=3, color="black") +
+xmax <- 3650 #nrow(data.h)/2
+ymin <- round(min(data.h$T),0)
+ymax <- round(max(data.h$T),0)+1
+ggplot(data.h, aes(x=day, y=T)) + 
+  geom_point(size=0.8, color="red") +
   #geom_line(size=0.8) +
-  geom_function(fun = function(t){coef(fit.h)[1] + coef(fit.h)[2] * sin(2*pi*(t + coef(fit.h)[3])/360)},
-                size=0.8, color="#d1495b") +
-  labs(x="Time (days)", y="Mean Temperature (K)") +
+  geom_function(fun = function(t){coef(fit.h)[1] + coef(fit.h)[2]*sin(2*pi*(t + coef(fit.h)[3])/365)},
+                size=0.8, color="black") +
+  geom_function(fun = function(t){coef(fit.h)[1] + coef(fit.h)[2]*sin(2*pi*(t + coef(fit.h)[3])/365) - diurnal*cos(2*pi*t)},
+                size=0.8, color="black", linetype="longdash") +
+  #geom_function(fun = function(t){coef(fit.h2)[1] + coef(fit.h2)[2]*cos(2*pi*(t + coef(fit.h2)[3])/365) + coef(fit.h2)[4]*cos(2*pi*t)},
+  #              size=0.8, color="black", linetype="longdash") +
+  labs(x="Time (days)", y="Temperature (K)") +
   scale_x_continuous(limits=c(xmin, xmax)) +
-  scale_y_continuous(limits=c(coef(fit.h)[1] - abs(coef(fit.h)[2]) - 5, coef(fit.h)[1] + abs(coef(fit.h)[2]) + 5)) +
+  scale_y_continuous(limits=c(ymin, ymax)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
         axis.line = element_line(colour = "black"), legend.position = "none", 
         axis.text = element_text(size=13), axis.title = element_text(size=20))
+
 
 
 ###################################### FUTURE CLIMATE #######################################
