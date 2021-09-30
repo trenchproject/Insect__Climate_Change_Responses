@@ -14,7 +14,7 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 data <- as.data.frame(read_csv("Temperature response data.csv"))
 
 # Select an insect by removing # in front of name and placing # in front of other species
-#sp.data <- subset(data, Species == "Clavigralla shadabi")
+sp.data <- subset(data, Species == "Clavigralla shadabi")
 #sp.data <- subset(data, Species == "Clavigralla tomentosicollis Benin")
 #sp.data <- subset(data, Species == "Clavigralla tomentosicollis Nigeria")
 #sp.data <- subset(data, Species == "Clavigralla tomentosicollis Burkina Faso")
@@ -26,7 +26,7 @@ data <- as.data.frame(read_csv("Temperature response data.csv"))
 #sp.data <- subset(data, Species == "Lygus lineolaris")
 #sp.data <- subset(data, Species == "Pilophorus typicus")
 #sp.data <- subset(data, Species == "Macrolophus pygmaeus on Myzus persicae")
-sp.data <- subset(data, Species == "Macrolophus pygmaeus on Trialeurodes vaporariorum")
+#sp.data <- subset(data, Species == "Macrolophus pygmaeus on Trialeurodes vaporariorum")
 
 # Remove columns that do not contain temperature data
 sp.data <- sp.data[-c(1:8,12,14,16,18,20,22,24,26,27,29,31,32,34,35,37,39,40,42,44,46,48,50,51)]
@@ -225,8 +225,8 @@ r <- nls(r ~ ifelse(T_K <= Topt, rMax*exp(-1*((T_K-Topt)/(2*sr))^2),
 summary(r)
 # Plot model fits
 plot(sp.data$T_K, sp.data$r)
-points(seq(Tmin,Tmax,1), ifelse(seq(Tmin,Tmax,1) <= coef(r)[2], rMax*exp(-1*((seq(Tmin,Tmax,1)-coef(r)[2])/(2*coef(r)[1]))^2),
-                                rMax*(1 - ((seq(Tmin,Tmax,1)-coef(r)[2])/(coef(r)[2]-coef(r)[3]))^2)), type="l", col="blue")
+points(seq(Tmin,Tmax,1), ifelse(seq(Tmin,Tmax,1) <= coef(r)[2], coef(r)[4]*exp(-1*((seq(Tmin,Tmax,1)-coef(r)[2])/(2*coef(r)[1]))^2),
+                                coef(r)[4]*(1 - ((seq(Tmin,Tmax,1)-coef(r)[2])/(coef(r)[2]-coef(r)[3]))^2)), type="l", col="blue")
 
 # set Topt and rMax (NOTE: Topt cannot equal Tmax in nls)
 Topt <- 301
