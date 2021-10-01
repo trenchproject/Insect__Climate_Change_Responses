@@ -22,22 +22,28 @@ data.f <- as.data.frame(read_csv(paste0("Future climate data ",location,".csv"))
 
 #################################### HISTORICAL CLIMATE #####################################
 # Fit sinusoidal function with annual temperature variation to climate data
-fit.h <- nls(T ~ meanT + amplT * sin(2*pi*(day + shiftT)/365), data = data.h,
-             start = list(meanT = 300, amplT = 1, shiftT = 30))
-summary(fit.h)
+(fit.h <- summary(nls(T ~ (meanT + delta_mean*day) + (amplT + delta_ampl*day) * sin(2*pi*(day + shiftT)/365), data = data.h,
+                      start = list(meanT = 300, amplT = 1, shiftT = 30, delta_mean = 0.1, delta_ampl = 0.1))))
+
 # Then estimate diurnal variation as average daily difference between Tmax and Tmin
-diurnal <- 0
+diurnal.h <- 0
+count.h <- 0
 l <- nrow(data.h)-1
 for(i in 1:l){
-  if(round(data.h[i+1,"day"]-0.1,0) == round(data.h[i,"day"]-0.1,0)) { diurnal <- diurnal + data.h[i+1,"T"] - data.h[i,"T"] }}
-diurnal <- diurnal/(nrow(data.h)/2)
-
+  if(round(data.h[i+1,"day"]-0.1,0) == round(data.h[i,"day"]-0.1,0)) {
+    diurnal.h <- diurnal.h + data.h[i+1,"T"] - data.h[i,"T"]
+    count.h <- count.h + 1 }}
+(diurnal.h <- diurnal.h/count.h)
 
 # Fit sinusoidal function with  annual and diurnal temperature variation to climate data
 # estimating all parameters (under-estimates temperature variation)
 #fit.h2 <- nls(T ~ meanT + amplT*cos(2*pi*(day + shiftT)/365) + amplD*cos(2*pi*day),
 #             data = data.h, start = list(meanT = 300, amplT = 1, shiftT = 30, amplD = 5))
 #summary(fit.h2)
+
+# Assess whether delta_mean or delta_ampl are significant and if not set to zero
+if(fit.h[["coefficients"]][4,4] > 0.05) { fit.h[["coefficients"]][4,1] <- 0 } # delta_mean
+if(fit.h[["coefficients"]][5,4] > 0.05) { fit.h[["coefficients"]][5,1] <- 0 } # delta_ampl
 
 # Plot (NOTE: plot does not have the resolution to show diurnal variation at large xmax)
 xmin <- 0
@@ -47,10 +53,13 @@ ymax <- round(max(data.h$T),0)+1
 ggplot(data.h, aes(x=day, y=T)) + 
   geom_point(size=0.8, color="red") +
   #geom_line(size=0.8) +
-  geom_function(fun = function(t){coef(fit.h)[1] + coef(fit.h)[2]*sin(2*pi*(t + coef(fit.h)[3])/365)},
+  # function describing monthly temperature variation
+  geom_function(fun = function(t){(coef(fit.h)[1]+coef(fit.h)[4]*t) + (coef(fit.h)[2]+coef(fit.h)[5]*t)*sin(2*pi*(t + coef(fit.h)[3])/365)},
                 size=0.8, color="black") +
-  geom_function(fun = function(t){coef(fit.h)[1] + coef(fit.h)[2]*sin(2*pi*(t + coef(fit.h)[3])/365) - diurnal*cos(2*pi*t)},
+  # function describing monthly and diurnal temperature variation using diurnal.h
+  geom_function(fun = function(t){(coef(fit.h)[1]+coef(fit.h)[4]*t) + (coef(fit.h)[2]+coef(fit.h)[5]*t)*sin(2*pi*(t + coef(fit.h)[3])/365) - diurnal.h*cos(2*pi*t)},
                 size=0.8, color="black", linetype="longdash") +
+  # function describing monthly and diurnal temperature variation via nls fits
   #geom_function(fun = function(t){coef(fit.h2)[1] + coef(fit.h2)[2]*cos(2*pi*(t + coef(fit.h2)[3])/365) + coef(fit.h2)[4]*cos(2*pi*t)},
   #              size=0.8, color="black", linetype="longdash") +
   labs(x="Time (days)", y="Temperature (K)") +
@@ -64,27 +73,50 @@ ggplot(data.h, aes(x=day, y=T)) +
 
 
 ###################################### FUTURE CLIMATE #######################################
-# Fit sinusoidal function with  annual temperature variation to climate data
-fit.f <- nls(T ~ meanT + amplT * sin(2*pi*(day + shiftT)/365), data = data.f,
-             start = list(meanT = 300, amplT = 1, shiftT = 30))
-summary(fit.f)
+# Fit sinusoidal function with annual temperature variation to climate data
+(fit.f <- summary(nls(T ~ (meanT + delta_mean*day) + (amplT + delta_ampl*day) * sin(2*pi*(day + shiftT)/365), data = data.f,
+             start = list(meanT = 300, amplT = 1, shiftT = 30, delta_mean = 0.1, delta_ampl = 0.1))))
+
+# Then estimate diurnal variation as average daily difference between Tmax and Tmin
+diurnal.f <- 0
+count.f <- 0
+l <- nrow(data.f)-1
+for(i in 1:l){
+  if(round(data.f[i+1,"day"]-0.1,0) == round(data.f[i,"day"]-0.1,0)) {
+    diurnal.f <- diurnal.f + data.f[i+1,"T"] - data.f[i,"T"]
+    count.f <- count.f + 1}}
+(diurnal.f <- diurnal.f/count.f)
 
 # Fit sinusoidal function with  annual and diurnal temperature variation to climate data
-fit.f <- nls(T ~ meanT + amplT * sin(2*pi*(day + shiftT)/365) + amplD * sin(2*pi*(day + shiftD)),
-             data = data.f, start = list(meanT = 300, amplT = 1, shiftT = 30, amplD = 0.1, shiftD = 0))
-summary(fit.f)
+# estimating all parameters (under-estimates temperature variation)
+#fit.f2 <- nls(T ~ meanT + amplT*cos(2*pi*(day + shiftT)/365) + amplD*cos(2*pi*day),
+#             data = data.f, start = list(meanT = 300, amplT = 1, shiftT = 30, amplD = 5))
+#summary(fit.f2)
 
-# Plot
+# Assess whether delta_mean or delta_ampl are significant and if not set to zero
+if(fit.f[["coefficients"]][4,4] > 0.05) { fit.f[["coefficients"]][4,1] <- 0 } # delta_mean
+if(fit.f[["coefficients"]][5,4] > 0.05) { fit.f[["coefficients"]][5,1] <- 0 } # delta_ampl
+
+# Plot (NOTE: plot does not have the resolution to show diurnal variation at large xmax)
 xmin <- 0
-xmax <- nrow(data.h)
-ggplot(data.h, aes(x=days, y=T_K)) + 
-  geom_point(size=3, color="black") +
+xmax <- 3650 #nrow(data.f)/2
+ymin <- round(min(data.f$T),0)
+ymax <- round(max(data.f$T),0)+1
+ggplot(data.f, aes(x=day, y=T)) + 
+  geom_point(size=0.8, color="red") +
   #geom_line(size=0.8) +
-  geom_function(fun = function(t){coef(fit.h)[1] + coef(fit.h)[2] * sin(2*pi*(t + coef(fit.h)[3])/360)},
-                size=0.8, color="#d1495b") +
-  labs(x="Time (days)", y="Mean Temperature (K)") +
+  # function describing monthly temperature variation
+  geom_function(fun = function(t){(coef(fit.f)[1]+coef(fit.f)[4]*t) + (coef(fit.f)[2]+coef(fit.f)[5]*t)*sin(2*pi*(t + coef(fit.f)[3])/365)},
+                size=0.8, color="black") +
+  # function describing monthly and diurnal temperature variation using diurnal.f
+  geom_function(fun = function(t){(coef(fit.f)[1]+coef(fit.f)[4]*t) + (coef(fit.f)[2]+coef(fit.f)[5]*t)*sin(2*pi*(t + coef(fit.f)[3])/365) - diurnal.f*cos(2*pi*t)},
+                size=0.8, color="black", linetype="longdash") +
+  # function describing monthly and diurnal temperature variation via nls fits
+  #geom_function(fun = function(t){coef(fit.f2)[1] + coef(fit.f2)[2]*cos(2*pi*(t + coef(fit.f2)[3])/365) + coef(fit.f2)[4]*cos(2*pi*t)},
+  #              size=0.8, color="black", linetype="longdash") +
+  labs(x="Time (days)", y="Temperature (K)") +
   scale_x_continuous(limits=c(xmin, xmax)) +
-  scale_y_continuous(limits=c(coef(fit.h)[1] - abs(coef(fit.h)[2]) - 5, coef(fit.h)[1] + abs(coef(fit.h)[2]) + 5)) +
+  scale_y_continuous(limits=c(ymin, ymax)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
         axis.line = element_line(colour = "black"), legend.position = "none", 
