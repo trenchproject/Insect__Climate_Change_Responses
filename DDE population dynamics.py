@@ -19,7 +19,10 @@ data = read_csv("Temperature response parameters.csv")
 temp_data = read_csv("Temperature parameters.csv")
 
 # ENTER TIME PERIOD
+period = "Historical"
 period = "Future"
+# USER: consider only low density population growth (False for population dynamics; True for estimating r)
+LDG = True
 
 # SELECT INSECT SPECIES
 spData = data[data["Species"] == "Clavigralla shadabi Benin"]
@@ -41,8 +44,12 @@ spData = data[data["Species"] == "Clavigralla shadabi Benin"]
 # DEFINE MODEL PARAMETERS
 # Time parameters
 yr = 365 # days in year
-init_years = 10 # how many years to use for model initiation
-max_years = init_years+100 # how long to run simulations
+if LDG == False:
+    init_years = 10 # how many years to use for model initiation
+    max_years = init_years+80 # how long to run simulations
+else:
+    init_years = 0 # no model initiation
+    max_years = init_years+10 # only run model 10 years to estimate low density population growth rate
 tstep = 1 # time step = 1 day
 CC_years = max_years # how long before climate change "equilibrates"
 
@@ -50,14 +57,21 @@ CC_years = max_years # how long before climate change "equilibrates"
 initJ = 1.
 initA = 1.
 
-# Habitat temperature and climate change parameters
-meanT = temp_data["f.meanT"].values[0]
-amplT = temp_data["f.amplT"].values[0] 
-shiftT = temp_data["f.shiftT"].values[0]
-#delta_mean = spData["delta_mean"].values[0]
-#delta_ampl = spData["delta_ampl"].values[0]
-delta_mean = 0./(100*yr) # how quickly mean temperature increases with climate change
-delta_ampl = 0./(100*yr) # how quickly seasonal temperature variation increases with climate change
+# Temperature parameters
+if period=="Historical":
+    meanT = temp_data["meanT.h"].values[0]
+    amplT = temp_data["amplT.h"].values[0] 
+    shiftT = temp_data["shiftT.h"].values[0]
+    delta_mean = temp_data["delta_mean.h"].values[0]
+    delta_ampl = temp_data["delta_ampl.h"].values[0]
+    amplD = temp_data["amplD.h"].values[0]
+else:
+    meanT = temp_data["meanT.f"].values[0]
+    amplT = temp_data["amplT.f"].values[0] 
+    shiftT = temp_data["shiftT.f"].values[0]
+    delta_mean = temp_data["delta_mean.f"].values[0]
+    delta_ampl = temp_data["delta_ampl.f"].values[0]
+    amplD = temp_data["amplD.f"].values[0]
 
 # Life history and competitive traits
 # fecundity
@@ -90,15 +104,22 @@ sq = spData["sq"].values[0]
 
 # FUNCTIONS
 # Seasonal temperature variation (K) over time
-def T(x):
-    return conditional(x, 0, meanT, # during "pre-history" (t<0), habitat temperature is constant at its mean
-                       conditional(x, init_years*yr, meanT + amplT * sin(2*pi*(x + shiftT)/yr), # during model initiation, delta_mean = 0 and delta_ampl = 0
-                                   conditional(x, CC_years*yr, (meanT + delta_mean*(x-init_years*yr)) + (amplT + delta_ampl*(x-init_years*yr)) * sin(2*pi*((x-init_years*yr) + shiftT)/yr), # temperature regime during climate change
-                                               (meanT + delta_mean*CC_years*yr) + (amplT + delta_ampl*CC_years*yr) * sin(2*pi*((x-init_years*yr) + shiftT)/yr)))) # temperature regime after climate change "equilibriates"
+if LDG == False:
+    def T(x):
+        return conditional(x, 0, meanT, # during "pre-history" (t<0), habitat temperature is constant at its mean
+                       conditional(x, init_years*yr, meanT + amplT * sin(2*pi*(x + shiftT)/yr) - amplD * cos(2*pi*x), # during model initiation, delta_mean = 0 and delta_ampl = 0
+                                   conditional(x, CC_years*yr, (meanT + delta_mean*(x-init_years*yr)) + (amplT + delta_ampl*(x-init_years*yr)) * sin(2*pi*((x-init_years*yr) + shiftT)/yr)  - amplD * cos(2*pi*(x-init_years*yr)), # temperature regime during climate change
+                                               (meanT + delta_mean*CC_years*yr) + (amplT + delta_ampl*CC_years*yr) * sin(2*pi*((x-init_years*yr) + shiftT)/yr)  - amplD * cos(2*pi*(x-init_years*yr))))) # temperature regime after climate change "equilibriates"
+else:
+    start = 70*yr # start 70 years into future; i.e., 2090
+    def T(x):
+        return conditional(x, 0, meanT, # during "pre-history" (t<0), habitat temperature is constant at its mean
+                           (meanT + delta_mean*(x+start)) + (amplT + delta_ampl*(x+start)) * sin(2*pi*((x+start) + shiftT)/yr)  - amplD * cos(2*pi*(x+start))) # temperature regime during climate change
+
 '''
 # Plot temperature function
-xvals = arange(0,10*yr,1)
-yvals = vstack([(meanT + delta_mean*(i-init_years*yr)) + (amplT + delta_ampl*(i-init_years*yr)) * sin(2*pi*(i-init_years*yr + shiftT)/yr) for i in xvals ])
+xvals = arange(0,1*yr,0.1)
+yvals = vstack([(meanT + delta_mean*i) + (amplT + delta_ampl*i) * sin(2*pi*(i + shiftT)/yr)  - amplD * cos(2*pi*i) for i in xvals ])
 plot(xvals,yvals)
 show()
 '''
@@ -124,6 +145,8 @@ def dA(x):
 def q(x):
     return qTopt * exp(-(T(x)-Toptq)**2/2/sq**2)
 
+
+# Other functions    
 # Allee effect
 A_thr = 0.00*qTopt # Allee threshold
 def Allee(x):
@@ -132,6 +155,7 @@ def Allee(x):
 # Minimum developmental temperature
 def M(x):
     return conditional(T(x), Tmin, 0, 1) # if temperature < developmental min, Tmin, then development M = 0; otherwise, M = 1
+
 
 
 # DDE MODEL
@@ -167,7 +191,10 @@ DDE.adjust_diff()
 
 # Save data array containing time and state variables
 data = vstack([ hstack([time, DDE.integrate(time)]) for time in times ])
-filename = period + ' time series ' + spData["Species"].values[0] + '.csv'  
+if LDG == False:
+    filename = period + ' time series ' + spData["Species"].values[0] + '.csv'
+else:
+    filename = period + ' time series LDG ' + spData["Species"].values[0] + '.csv'
 savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='') 
 #print(DDE.integrate(max_years*yr-180)[:2])
 #print(DDE.integrate(max_years*yr)[:2])

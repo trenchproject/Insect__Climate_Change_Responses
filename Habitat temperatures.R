@@ -21,13 +21,9 @@ data.f <- as.data.frame(read_csv(paste0("Future climate data ",location,".csv"))
 
 
 #################################### HISTORICAL CLIMATE #####################################
-# Fit sinusoidal function with annual temperature variation to climate data
-(fit.h <- summary(nls(T ~ meanT + amplT*sin(2*pi*(day + shiftT)/365), data = data.h,
-                      start = list(meanT = 300, amplT = 1, shiftT = 30))))
-
 # Fit sinusoidal function with annual temperature variation to climate data (delta_mean and delta_ampl)
-#(fit.h <- summary(nls(T ~ (meanT + delta_mean*day) + (amplT + delta_ampl*day)*sin(2*pi*(day + shiftT)/365), data = data.h,
-#                      start = list(meanT = 300, amplT = 1, shiftT = 30, delta_mean = 0.1, delta_ampl = 0.1))))
+(fit.h <- summary(nls(T ~ (meanT + delta_mean*day) + (amplT + delta_ampl*day)*sin(2*pi*(day + shiftT)/365), data = data.h,
+                      start = list(meanT = 300, amplT = 1, shiftT = 30, delta_mean = 0.1, delta_ampl = 0.1))))
 
 # Then estimate diurnal variation as average daily difference between Tmax and Tmin
 diurnal.h <- 0
@@ -41,17 +37,17 @@ for(i in 1:l){
 
 # Fit sinusoidal function with  annual and diurnal temperature variation to climate data
 # estimating all parameters (under-estimates temperature variation)
-#fit.h2 <- nls(T ~ meanT + amplT*cos(2*pi*(day + shiftT)/365) + amplD*cos(2*pi*day),
-#             data = data.h, start = list(meanT = 300, amplT = 1, shiftT = 30, amplD = 5))
-#summary(fit.h2)
+fit.h2 <- nls(T ~ meanT + amplT*cos(2*pi*(day + shiftT)/365) + amplD*cos(2*pi*day),
+             data = data.h, start = list(meanT = 300, amplT = 1, shiftT = 30, amplD = 5))
+summary(fit.h2)
 
 # Assess whether delta_mean or delta_ampl are significant and if not set to zero
-#if(fit.h[["coefficients"]][4,4] > 0.05) { fit.h[["coefficients"]][4,1] <- 0 } # delta_mean
-#if(fit.h[["coefficients"]][5,4] > 0.05) { fit.h[["coefficients"]][5,1] <- 0 } # delta_ampl
+if(fit.h[["coefficients"]][4,4] > 0.05) { fit.h[["coefficients"]][4,1] <- 0 } # delta_mean
+if(fit.h[["coefficients"]][5,4] > 0.05) { fit.h[["coefficients"]][5,1] <- 0 } # delta_ampl
 
 # Plot (NOTE: plot does not have the resolution to show diurnal variation at large xmax)
 xmin <- 0
-xmax <- 3650 #nrow(data.h)/2
+xmax <- 3650
 ymin <- round(min(data.h$T),0)
 ymax <- round(max(data.h$T),0)+1
 ggplot(data.h, aes(x=day, y=T)) + 
@@ -106,7 +102,7 @@ if(fit.f[["coefficients"]][5,4] > 0.05) { fit.f[["coefficients"]][5,1] <- 0 } # 
 
 # Plot (NOTE: plot does not have the resolution to show diurnal variation at large xmax)
 xmin <- 0
-xmax <- 3650 #nrow(data.f)/2
+xmax <- 3650
 ymin <- round(min(data.f$T),0)
 ymax <- round(max(data.f$T),0)+1
 ggplot(data.f, aes(x=day, y=T)) + 
