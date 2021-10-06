@@ -238,7 +238,7 @@ model.I.CC = ggplot(data.model.CC, aes(x=Time, y=J+A)) +
 # PLOT HABITAT TEMPERATURE FUNCTION
 # Historical time period
 plot.temp <- ggplot() +
-  geom_function(fun = function(t) (sp.data$meanT + sp.data$delta_mean*(t+time.shift))  + (sp.data$amplT + sp.data$delta_ampl*(t+time.shift)) * sin(2*pi*((t+time.shift) + sp.data$shiftT)/yr),
+  geom_function(fun = function(t) (sp.data$meanT + sp.data$delta_mean*(t+time.shift))  - (sp.data$amplT + sp.data$delta_ampl*(t+time.shift)) * cos(2*pi*((t+time.shift) + sp.data$shiftT)/yr),
                 size=0.8, color="red") +
   #geom_function(fun = function(t) (299.08 + 0.000127*(t+time.shift) + 1.84*cos(2*pi*30/(30*yr)*((t+time.shift)-15) - 1.86) + 1.51*cos(2*pi*60/(30*yr)*((t+time.shift)-15) - 3.09) + 0.359*cos(2*pi*90/(30*yr)*((t+time.shift)-15) - 2.57)),
   #              size=0.8, color="red") +
@@ -253,10 +253,8 @@ plot.temp <- ggplot() +
 
 # climate change time period
 plot.temp.CC <- ggplot() +
-  geom_function(fun = function(t) (sp.data$meanT + sp.data$delta_mean*(t+time.shift.CC))  + (sp.data$amplT + sp.data$delta_ampl*(t+time.shift.CC)) * sin(2*pi*((t+time.shift.CC) + sp.data$shiftT)/yr),
+  geom_function(fun = function(t) (sp.data$meanT + sp.data$delta_mean*(t+time.shift.CC))  - (sp.data$amplT + sp.data$delta_ampl*(t+time.shift.CC)) * cos(2*pi*((t+time.shift.CC) + sp.data$shiftT)/yr),
                 size=0.8, linetype="longdash", color="red") +
-  #geom_function(fun = function(t) (299.08 + 0.000127*(t+time.shift.CC) + 1.84*cos(2*pi*30/(30*yr)*((t+time.shift.CC)-15) - 1.86) + 1.51*cos(2*pi*60/(30*yr)*((t+time.shift.CC)-15) - 3.09) + 0.359*cos(2*pi*90/(30*yr)*((t+time.shift.CC)-15) - 2.57)),
-  #              size=0.8, linetype="longdash", color="red") +
   geom_function(fun = function(t) (sp.data$Tmin), size=0.8, color="black") +
   labs(x="Time", y="T (K)") +
   scale_x_continuous(limits=c(xmin, xmax)) +
@@ -366,8 +364,8 @@ if(min.A != 0) { d.min.A <- (min.A.CC-min.A)/min.A } else {d.min.A <- 0}
 
 
 # temperature functions
-temp <- function(t) (sp.data$meanT + sp.data$delta_mean*(t+time.shift))  + (sp.data$amplT + sp.data$delta_ampl*(t+time.shift)) * sin(2*pi*((t+time.shift) + sp.data$shiftT)/yr)
-temp.CC <- function(t) (sp.data$meanT + sp.data$delta_mean*(t+time.shift.CC))  + (sp.data$amplT + sp.data$delta_ampl*(t+time.shift.CC)) * sin(2*pi*((t+time.shift.CC) + sp.data$shiftT)/yr)
+temp <- function(t) (sp.data$meanT + sp.data$delta_mean*(t+time.shift))  - (sp.data$amplT + sp.data$delta_ampl*(t+time.shift)) * cos(2*pi*((t+time.shift) + sp.data$shiftT)/yr)
+temp.CC <- function(t) (sp.data$meanT + sp.data$delta_mean*(t+time.shift.CC))  - (sp.data$amplT + sp.data$delta_ampl*(t+time.shift.CC)) * cos(2*pi*((t+time.shift.CC) + sp.data$shiftT)/yr)
 length <- 360 # length of time over which to compare models
 
 # calculate activity period (T(t) > Tmin)

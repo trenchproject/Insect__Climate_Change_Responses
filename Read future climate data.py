@@ -70,9 +70,8 @@ df.to_csv(file_name + ".csv")
 
 # Delete Climate Store data files
 os.rename("tasmax_day_CESM2_ssp370_r4i1p1f1_gn_20150101-21010101_v20200528.nc", file_name + ".nc")
-os.remove("tasmax_day_CESM2_ssp370_r4i1p1f1_gn_20150101-21010101_v20200528.nc")
-os.remove("adaptor.esgf_wps.retrieve-1632876778.2203593-19762-16-63dfaacc-2e6c-4f07-87b5-975b6152e747_provenance.json")
-os.remove("adaptor.esgf_wps.retrieve-1632876778.2203593-19762-16-63dfaacc-2e6c-4f07-87b5-975b6152e747_provenance.png")
+#os.remove("adaptor.esgf_wps.retrieve-1632876778.2203593-19762-16-63dfaacc-2e6c-4f07-87b5-975b6152e747_provenance.json")
+#os.remove("adaptor.esgf_wps.retrieve-1632876778.2203593-19762-16-63dfaacc-2e6c-4f07-87b5-975b6152e747_provenance.png")
 
 
 
@@ -126,9 +125,8 @@ df.to_csv(file_name2 + ".csv")
 
 # Delete Climate Store data files
 os.rename("tasmin_day_CESM2_ssp370_r4i1p1f1_gn_20150101-21010101_v20200528.nc", file_name2 + ".nc")
-os.remove("tasmin_day_CESM2_ssp370_r4i1p1f1_gn_20150101-21010101_v20200528.nc")
-os.remove("adaptor.esgf_wps.retrieve-1633011791.616639-15237-12-8103cbb3-333e-44f0-84ff-0e5a6f994590_provenance.json")
-os.remove("adaptor.esgf_wps.retrieve-1633011791.616639-15237-12-8103cbb3-333e-44f0-84ff-0e5a6f994590_provenance.png")
+#os.remove("adaptor.esgf_wps.retrieve-1633011791.616639-15237-12-8103cbb3-333e-44f0-84ff-0e5a6f994590_provenance.json")
+#os.remove("adaptor.esgf_wps.retrieve-1633011791.616639-15237-12-8103cbb3-333e-44f0-84ff-0e5a6f994590_provenance.png")
 
 
 

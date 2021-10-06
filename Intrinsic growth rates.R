@@ -34,7 +34,7 @@ t.param <- subset(as.data.frame(read_csv("Temperature parameters.csv")), Species
 # (r.TPC.h <- r.TPC.h/n.TPC.h)
 
 # Integrate across r(T(t))
-T.h <- function(t) { (t.param$meanT.h+t.param$delta_mean.h*t) + (t.param$amplT.h+t.param$delta_ampl.h*t)*sin(2*pi*(t + t.param$shiftT.h)/365) - t.param$amplD.h*cos(2*pi*t) }
+T.h <- function(t) { (t.param$meanT.h+t.param$delta_mean.h*t) - (t.param$amplT.h+t.param$delta_ampl.h*t)*cos(2*pi*(t + t.param$shiftT.h)/365) - t.param$amplD.h*cos(2*pi*t) }
 r.h <- function(t) {
   ifelse(T.h(t) <= param$rTopt, param$rMax*exp(-1*((T.h(t)-param$rTopt)/(2*param$rs))^2),
                                  param$rMax*(1 - ((T.h(t)-param$rTopt)/(param$rTopt-param$rTmax))^2)) # from Deutsch et al. 2008
@@ -65,7 +65,7 @@ t.param <- subset(as.data.frame(read_csv("Temperature parameters.csv")), Species
 # r.TPC.f
 
 # Integrate across r(T(t))
-T.f <- function(t) { (t.param$meanT.f+t.param$delta_mean.f*t) + (t.param$amplT.f+t.param$delta_ampl.f*t)*sin(2*pi*(t + t.param$shiftT.f)/365) - t.param$amplD.f*cos(2*pi*t) }
+T.f <- function(t) { (t.param$meanT.f+t.param$delta_mean.f*t) - (t.param$amplT.f+t.param$delta_ampl.f*t)*cos(2*pi*(t + t.param$shiftT.f)/365) - t.param$amplD.f*cos(2*pi*t) }
 r.f <- function(t) {
   ifelse(T.f(t) <= param$rTopt, param$rMax*exp(-1*((T.f(t)-param$rTopt)/(2*param$rs))^2),
          param$rMax*(1 - ((T.f(t)-param$rTopt)/(param$rTopt-param$rTmax))^2)) # from Deutsch et al. 2008

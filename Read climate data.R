@@ -56,8 +56,8 @@ nc_close(nc.min)
 
 #################################### FUTURE CLIMATE DATA ####################################
 # Get variables and data from CSV files created by climate data.py
-data.max <- as.data.frame(read_csv(paste0("Future Tmax ",location,".csv")))
-data.min <- as.data.frame(read_csv(paste0("Future Tmin ",location,".csv")))
+data.max <- as.data.frame(read_csv(paste0("Future Tmax ",name,".csv")))
+data.min <- as.data.frame(read_csv(paste0("Future Tmin ",name,".csv")))
 names(data.max) <- c("day", "time", "latitude", "longitude", "T")
 names(data.min) <- c("day", "time", "latitude", "longitude", "T")
 data.max$day <- data.max$day + 0.5  # offset Tmax 0.5 days from Tmin
@@ -75,8 +75,8 @@ data <- na.omit(data)
 write.csv(data, paste0("Future climate data ",name,".csv"), row.names = FALSE)
 
 # Remove Tmax and Tmin CSV files
-file.remove(paste0("Future Tmax ",location,".csv"))
-file.remove(paste0("Future Tmin ",location,".csv"))
+file.remove(paste0("Future Tmax ",name,".csv"))
+file.remove(paste0("Future Tmin ",name,".csv"))
 
 
 

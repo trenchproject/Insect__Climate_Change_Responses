@@ -1,33 +1,39 @@
-# Delay differential equation model for predicting insect population dynamics
-# under seasonal temperature variation and climate change
+# Delay differential equation model for predicting insect population dynamics under seasonal temperature variation and climate change
 # NOTE: If code yields error: "Restarting kernel...", try increasing max_delay in the DDE solver section
 # NOTE: If code yields error: "Unsuccessful Integration: Could not integrate with the given tolerance parameters",
 #       one of the life history traits is below the minimum tolerance (1e-10)
 
 # IMPORT PACKAGES
 from numpy import arange, hstack, vstack, savetxt
-from sympy import N
+#from sympy import N
 from jitcdde import jitcdde, y, t
-from symengine import exp, pi, sin, cos, asin
+from symengine import exp, pi, cos
 from matplotlib.pyplot import subplots, xlabel, ylabel, xlim, ylim, yscale, plot, show
 from pandas import read_csv
 from jitcxde_common import conditional
+import os
 
+# SET WORKING DIRECTORY TO SAME AS THE PYTHON CODE
+cwd = os.getcwd()
+if cwd != '/Users/johnson/Documents/Christopher/GitHub/Johnson_Insect_Responses':
+    os.chdir('/Users/johnson/Documents/Christopher/GitHub/Johnson_Insect_Responses')
 
 # INPUT TEMPERATURE RESPONSE PARAMETERS AND TEMPERATURE PARAMETERS
 data = read_csv("Temperature response parameters.csv")
 temp_data = read_csv("Temperature parameters.csv")
 
-# ENTER TIME PERIOD
+
+# ENTER SPECIES, LOCATION, AND TIME PERIOD
+species = "Clavigralla tomentosicollis"
+location = "Nigeria"
 period = "Historical"
-period = "Future"
+#period = "Future"
 # USER: consider only low density population growth (False for population dynamics; True for estimating r)
 LDG = True
-
+species + " " + location
 # SELECT INSECT SPECIES
-spData = data[data["Species"] == "Clavigralla shadabi Benin"]
-#spData = data[data["Species"] == "Clavigralla tomentosicollis Benin"]   
-#spData = data[data["Species"] == "Clavigralla tomentosicollis Nigeria B"]
+spData = data[data["Species"] == species + " " + "Benin"] #location]
+#spData = data[data["Species"] == "Clavigralla shadabi Benin"]
 #spData = data[data["Species"] == "Clavigralla tomentosicollis Burkina Faso"]
 #spData = data[data["Species"] == "Apolygus lucorum China Dafeng"]
 #spData = data[data["Species"] == "Adelphocoris suturalis China Dafeng"]
@@ -40,6 +46,9 @@ spData = data[data["Species"] == "Clavigralla shadabi Benin"]
 #spData = data[data["Species"] == "Pilophorus typicus Japan"]
 #spData = data[data["Species"] == "Macrolophus pygmaeus on Myzus persicae Greece"]
 #spData = data[data["Species"] == "Macrolophus pygmaeus on Trialeurodes vaporariorum Greece"]
+
+# SELECT LOCATION
+temp_data = temp_data[temp_data["Species"] == species + " " + location]
 
 # DEFINE MODEL PARAMETERS
 # Time parameters
@@ -107,19 +116,19 @@ sq = spData["sq"].values[0]
 if LDG == False:
     def T(x):
         return conditional(x, 0, meanT, # during "pre-history" (t<0), habitat temperature is constant at its mean
-                       conditional(x, init_years*yr, meanT + amplT * sin(2*pi*(x + shiftT)/yr) - amplD * cos(2*pi*x), # during model initiation, delta_mean = 0 and delta_ampl = 0
-                                   conditional(x, CC_years*yr, (meanT + delta_mean*(x-init_years*yr)) + (amplT + delta_ampl*(x-init_years*yr)) * sin(2*pi*((x-init_years*yr) + shiftT)/yr)  - amplD * cos(2*pi*(x-init_years*yr)), # temperature regime during climate change
-                                               (meanT + delta_mean*CC_years*yr) + (amplT + delta_ampl*CC_years*yr) * sin(2*pi*((x-init_years*yr) + shiftT)/yr)  - amplD * cos(2*pi*(x-init_years*yr))))) # temperature regime after climate change "equilibriates"
+                       conditional(x, init_years*yr, meanT - amplT * cos(2*pi*(x + shiftT)/yr) - amplD * cos(2*pi*x), # during model initiation, delta_mean = 0 and delta_ampl = 0
+                                   conditional(x, CC_years*yr, (meanT + delta_mean*(x-init_years*yr)) - (amplT + delta_ampl*(x-init_years*yr)) * cos(2*pi*((x-init_years*yr) + shiftT)/yr)  - amplD * cos(2*pi*(x-init_years*yr)), # temperature regime during climate change
+                                               (meanT + delta_mean*CC_years*yr) - (amplT + delta_ampl*CC_years*yr) * cos(2*pi*((x-init_years*yr) + shiftT)/yr)  - amplD * cos(2*pi*(x-init_years*yr))))) # temperature regime after climate change "equilibriates"
 else:
     start = 70*yr # start 70 years into future; i.e., 2090
     def T(x):
         return conditional(x, 0, meanT, # during "pre-history" (t<0), habitat temperature is constant at its mean
-                           (meanT + delta_mean*(x+start)) + (amplT + delta_ampl*(x+start)) * sin(2*pi*((x+start) + shiftT)/yr)  - amplD * cos(2*pi*(x+start))) # temperature regime during climate change
+                           (meanT + delta_mean*(x+start)) - (amplT + delta_ampl*(x+start)) * cos(2*pi*((x+start) + shiftT)/yr)  - amplD * cos(2*pi*(x+start))) # temperature regime during climate change
 
 '''
 # Plot temperature function
 xvals = arange(0,1*yr,0.1)
-yvals = vstack([(meanT + delta_mean*i) + (amplT + delta_ampl*i) * sin(2*pi*(i + shiftT)/yr)  - amplD * cos(2*pi*i) for i in xvals ])
+yvals = vstack([(meanT + delta_mean*i) - (amplT + delta_ampl*i) * cos(2*pi*(i + shiftT)/yr)  - amplD * cos(2*pi*i) for i in xvals ])
 plot(xvals,yvals)
 show()
 '''
