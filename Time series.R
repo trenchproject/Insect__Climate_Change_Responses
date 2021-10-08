@@ -15,14 +15,16 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 # READ IN TEMPERATURE RESPONSE PARAMETERS AND TIME-SERIES DATA
 # Temperature response parameters
 data <- as.data.frame(read_csv("Temperature response parameters.csv"))
+# Temperature parameters
+temp.data <- as.data.frame(read_csv("Temperature parameters.csv"))
 
 # Time-series data
 # Select an file by removing # in front of name and placing # in front of other files
-#data.density <- read_csv("Population data Nigeria.csv")
+data.density <- read_csv("Population data Nigeria.csv")
 #data.density <- read_csv("Population data China.csv")
 
 # Select time-series data
-#data.TS <- subset(data.density, Plot=="B") # select plot A, B, or C
+data.TS <- subset(data.density, Plot=="B") # select plot A, B, or C
 #data.TS <- subset(data.density, location=="Dafeng" & species=="Apolygus_lucorum") # select location and species
 #data.TS <- subset(data.density, location=="Dafeng" & species=="Adelphocoris_suturalis") # select location and species
 #data.TS <- subset(data.density, location=="Langfang" & species=="Apolygus_lucorum") # select location and species
@@ -42,13 +44,14 @@ data <- as.data.frame(read_csv("Temperature response parameters.csv"))
 #data.model <- as.data.frame(read_csv("Time Series Clavigralla shadabi Benin.csv"))
 #sp.data <- subset(data, Species == "Clavigralla shadabi Benin")
 #data.model <- as.data.frame(read_csv("Time Series Clavigralla tomentosicollis Benin.csv"))
-#sp.data <- subset(data, Species == "Clavigralla tomentosicollis Benin")
-#data.model <- as.data.frame(read_csv("Time Series Clavigralla tomentosicollis Nigeria B.csv"))
-#sp.data <- subset(data, Species == "Clavigralla tomentosicollis Nigeria B")
+sp.data <- subset(data, Species == "Clavigralla tomentosicollis Benin")
+data.model <- as.data.frame(read_csv("Historical Time Series Clavigralla tomentosicollis Nigeria.csv"))
+data.model.CC <- as.data.frame(read_csv("Future Time Series Clavigralla tomentosicollis Nigeria.csv"))
+temp.data <- subset(temp.data, Species == "Clavigralla tomentosicollis Nigeria")
 #data.model <- as.data.frame(read_csv("Time Series Clavigralla tomentosicollis Burkina Faso.csv"))
 #sp.data <- subset(data, Species == "Clavigralla tomentosicollis Burkina Faso")
-data.model <- as.data.frame(read_csv("Time Series Apolygus lucorum China Dafeng.csv"))
-sp.data <- subset(data, Species == "Apolygus lucorum China Dafeng")
+#data.model <- as.data.frame(read_csv("Time Series Apolygus lucorum China Dafeng.csv"))
+#sp.data <- subset(data, Species == "Apolygus lucorum China Dafeng")
 #data.model <- as.data.frame(read_csv("Time Series Adelphocoris suturalis China Dafeng.csv"))
 #sp.data <- subset(data, Species == "Adelphocoris suturalis China Dafeng")
 #data.model <- as.data.frame(read_csv("Time Series Apolygus lucorum China Langfang.csv"))
@@ -71,9 +74,6 @@ sp.data <- subset(data, Species == "Apolygus lucorum China Dafeng")
 #sp.data <- subset(data, Species == "Macrolophus pygmaeus on Trialeurodes vaporariorum Greece")
 
 
-# Population dynamics with climate change
-data.model.CC <- data.model
-
 
 # SET PLOT OPTIONS
 # Default: plot last 2 year of model
@@ -81,16 +81,16 @@ data.model.CC <- data.model
 xmin <- 0
 xmax <- 720
 ymin <- 0
-ymax <- 1200
+ymax <- 5
 # for climate change time period
 xmin.CC <- 0
 xmax.CC <- 720
 ymin.CC <- 0
-ymax.CC <- 1200
+ymax.CC <- 5
 # for temperature function
-temp.min <- 275
-temp.max <- 310
-yr <- 360 # days in a year (using 360 for simplicity)
+temp.min <- 290
+temp.max <- 315
+yr <- 365 # days in a year
 init_yrs <- 10 # number of years to initiate the model (from Python DDE model)
 TS.length <- xmax - xmin # length of time-series data
 end <- nrow(data.model)
@@ -99,11 +99,11 @@ end <- nrow(data.model)
 # FORMAT MODEL OUTPUT TO ALIGN WITH TIME-SERIES DATA
 # Remove all rows before time-series data starts
 # for Clavigralla tomentosicollis in Nigeria
-#data.model <- data.model[c(-1:-((1972-1961+init_yrs)*yr + xmin)), ]
+data.model <- data.model[c(-1:-((1972-1961+init_yrs)*yr + xmin)), ]
 # for Apolygus lucorum in China
 #data.model <- data.model[c(-1:-((2005-1961+init_yrs)*yr + xmin)), ]
 # for other species
-data.model <- data.model[c(-1:-((2020-1961+init_yrs)*yr + xmin)), ]
+#data.model <- data.model[c(-1:-((2020-1961+init_yrs)*yr + xmin)), ]
 
 # Remove all rows after xmax days
 data.model <- data.model[c(-(xmax+1):-end), ]
@@ -121,10 +121,10 @@ data.model.CC <- sweep(data.model.CC, 2, c(time.shift.CC,0,0,0,0))
 
 # Data transformation (if needed)
 # Convert from linear to log scale
-#data.model$J <- log(data.model$J, 10)
-#data.model$A <- log(data.model$A, 10)
-#data.model.CC$J <- log(data.model.CC$J, 10)
-#data.model.CC$A <- log(data.model.CC$A, 10)
+data.model$J <- log(data.model$J, 10)
+data.model$A <- log(data.model$A, 10)
+data.model.CC$J <- log(data.model.CC$J, 10)
+data.model.CC$A <- log(data.model.CC$A, 10)
 
 
 
@@ -238,10 +238,15 @@ model.I.CC = ggplot(data.model.CC, aes(x=Time, y=J+A)) +
 # PLOT HABITAT TEMPERATURE FUNCTION
 # Historical time period
 plot.temp <- ggplot() +
-  geom_function(fun = function(t) (sp.data$meanT + sp.data$delta_mean*(t+time.shift))  - (sp.data$amplT + sp.data$delta_ampl*(t+time.shift)) * cos(2*pi*((t+time.shift) + sp.data$shiftT)/yr),
-                size=0.8, color="red") +
-  #geom_function(fun = function(t) (299.08 + 0.000127*(t+time.shift) + 1.84*cos(2*pi*30/(30*yr)*((t+time.shift)-15) - 1.86) + 1.51*cos(2*pi*60/(30*yr)*((t+time.shift)-15) - 3.09) + 0.359*cos(2*pi*90/(30*yr)*((t+time.shift)-15) - 2.57)),
-  #              size=0.8, color="red") +
+  # Daily average temperature
+  geom_function(fun = function(t) (temp.data$meanT.h + temp.data$delta_mean.h*(t+time.shift))  - (temp.data$amplT.h + temp.data$delta_ampl.h*(t+time.shift)) * cos(2*pi*((t+time.shift) + temp.data$shiftT.h)/yr),
+                size=0.8, color="blue") +
+  # Daily minimum temperature
+  geom_function(fun = function(t) (temp.data$meanT.h + temp.data$delta_mean.h*(t+time.shift))  - (temp.data$amplT.h + temp.data$delta_ampl.h*(t+time.shift)) * cos(2*pi*((t+time.shift) + temp.data$shiftT.h)/yr) - temp.data$amplD.h,
+                size=0.8, linetype="longdash", color="blue") +
+  # Daily maximum temperature
+  geom_function(fun = function(t) (temp.data$meanT.h + temp.data$delta_mean.h*(t+time.shift))  - (temp.data$amplT.h + temp.data$delta_ampl.h*(t+time.shift)) * cos(2*pi*((t+time.shift) + temp.data$shiftT.h)/yr) + temp.data$amplD.h,
+                size=0.8, linetype="longdash", color="blue") +
   geom_function(fun = function(t) (sp.data$Tmin), size=0.8, color="black") +
   labs(x="Time", y="T (K)") +
   scale_x_continuous(limits=c(xmin, xmax)) +
@@ -253,7 +258,14 @@ plot.temp <- ggplot() +
 
 # climate change time period
 plot.temp.CC <- ggplot() +
-  geom_function(fun = function(t) (sp.data$meanT + sp.data$delta_mean*(t+time.shift.CC))  - (sp.data$amplT + sp.data$delta_ampl*(t+time.shift.CC)) * cos(2*pi*((t+time.shift.CC) + sp.data$shiftT)/yr),
+  # Daily average temperature
+  geom_function(fun = function(t) (temp.data$meanT.f + temp.data$delta_mean.f*(t+time.shift.CC))  - (temp.data$amplT.f + temp.data$delta_ampl.f*(t+time.shift.CC)) * cos(2*pi*((t+time.shift.CC) + temp.data$shiftT.f)/yr),
+                size=0.8, color="red") +
+  # Daily minimum temperature
+  geom_function(fun = function(t) (temp.data$meanT.f + temp.data$delta_mean.f*(t+time.shift.CC))  - (temp.data$amplT.f + temp.data$delta_ampl.f*(t+time.shift.CC)) * cos(2*pi*((t+time.shift.CC) + temp.data$shiftT.f)/yr) - temp.data$amplD.f,
+                size=0.8, linetype="longdash", color="red") +
+  # Daily maximum temperature
+  geom_function(fun = function(t) (temp.data$meanT.f + temp.data$delta_mean.f*(t+time.shift.CC))  - (temp.data$amplT.f + temp.data$delta_ampl.f*(t+time.shift.CC)) * cos(2*pi*((t+time.shift.CC) + temp.data$shiftT.f)/yr) + temp.data$amplD.f,
                 size=0.8, linetype="longdash", color="red") +
   geom_function(fun = function(t) (sp.data$Tmin), size=0.8, color="black") +
   labs(x="Time", y="T (K)") +
@@ -364,8 +376,8 @@ if(min.A != 0) { d.min.A <- (min.A.CC-min.A)/min.A } else {d.min.A <- 0}
 
 
 # temperature functions
-temp <- function(t) (sp.data$meanT + sp.data$delta_mean*(t+time.shift))  - (sp.data$amplT + sp.data$delta_ampl*(t+time.shift)) * cos(2*pi*((t+time.shift) + sp.data$shiftT)/yr)
-temp.CC <- function(t) (sp.data$meanT + sp.data$delta_mean*(t+time.shift.CC))  - (sp.data$amplT + sp.data$delta_ampl*(t+time.shift.CC)) * cos(2*pi*((t+time.shift.CC) + sp.data$shiftT)/yr)
+temp <- function(t) (temp.data$meanT + temp.data$delta_mean*(t+time.shift))  - (temp.data$amplT + temp.data$delta_ampl*(t+time.shift)) * cos(2*pi*((t+time.shift) + temp.data$shiftT)/yr)
+temp.CC <- function(t) (temp.data$meanT + temp.data$delta_mean*(t+time.shift.CC))  - (temp.data$amplT + temp.data$delta_ampl*(t+time.shift.CC)) * cos(2*pi*((t+time.shift.CC) + temp.data$shiftT)/yr)
 length <- 360 # length of time over which to compare models
 
 # calculate activity period (T(t) > Tmin)
