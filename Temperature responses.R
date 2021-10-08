@@ -35,7 +35,7 @@ sp.data <- sp.data[-c(1:8,12,14,16,18,20,22,24,26,27,29,31,32,34,35,37,39,40,42,
 # Set some option for nls and plots
 Tmin <- 285
 Tmax <- 315
-TR <- 293
+TR <- 298
 
 
 
@@ -162,7 +162,7 @@ mort.J <- nls(Juv_Mortality ~ xTR*exp(A*(1/TR-1/T_K)), data=sp.data,
               start=list(xTR=0.01, A=10000))
 summary(mort.J)
 # Plot model fits
-plot(sp.data$T_K, sp.data$Juv_Mortality, ylim=c(0,1))
+plot(sp.data$T_K, sp.data$Juv_Mortality, ylim=c(0,0.2))
 points(seq(Tmin,Tmax,1), coef(mort.J)[1]*exp(coef(mort.J)[2]*(1/TR-1/seq(Tmin,Tmax,1))), type="l", col="blue")
 
 
@@ -171,7 +171,7 @@ mort.A <- nls(Adult_Mortality ~ xTR*exp(A*(1/TR-1/T_K)), data=sp.data,
               start=list(xTR=0.01, A=10000))
 summary(mort.A)
 # Plot model fits
-plot(sp.data$T_K, sp.data$Adult_Mortality, ylim=c(0,1))
+plot(sp.data$T_K, sp.data$Adult_Mortality, ylim=c(0,0.2))
 points(seq(Tmin,Tmax,1), coef(mort.A)[1]*exp(coef(mort.A)[2]*(1/TR-1/seq(Tmin,Tmax,1))), type="l", col="blue")
 
 
@@ -221,15 +221,16 @@ R0Tmax
 # estimate all parameters
 r <- nls(r ~ ifelse(T_K <= Topt, rMax*exp(-1*((T_K-Topt)/(2*sr))^2),
                     rMax*(1 - ((T_K-Topt)/(Topt-Tmax))^2)),
-                    data=sp.data, start=list(sr=5, Topt=301, Tmax=304, rMax=0.1))
+                    data=sp.data, start=list(sr=5, Topt=303, Tmax=320, rMax=0.1))
 summary(r)
 # Plot model fits
 plot(sp.data$T_K, sp.data$r)
 points(seq(Tmin,Tmax,1), ifelse(seq(Tmin,Tmax,1) <= coef(r)[2], coef(r)[4]*exp(-1*((seq(Tmin,Tmax,1)-coef(r)[2])/(2*coef(r)[1]))^2),
                                 coef(r)[4]*(1 - ((seq(Tmin,Tmax,1)-coef(r)[2])/(coef(r)[2]-coef(r)[3]))^2)), type="l", col="blue")
 
+
 # set Topt and rMax (NOTE: Topt cannot equal Tmax in nls)
-Topt <- 301
+Topt <- 303
 rMax <- sp.data[sp.data$T_K==Topt,"r"]
 # estimate all parameters
 r <- nls(r ~ ifelse(T_K <= Topt, rMax*exp(-1*((T_K-Topt)/(2*sr))^2),

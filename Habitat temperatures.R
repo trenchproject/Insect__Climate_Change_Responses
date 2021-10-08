@@ -21,6 +21,10 @@ data.f <- as.data.frame(read_csv(paste0("Future climate data ",location,".csv"))
 
 
 #################################### HISTORICAL CLIMATE #####################################
+# Fit sinusoidal function with annual temperature variation to climate data
+#(fit.h <- summary(nls(T ~ meanT - amplT*cos(2*pi*(day + shiftT)/365), data = data.h,
+#                      start = list(meanT = 300, amplT = 1, shiftT = 30))))
+
 # Fit sinusoidal function with annual temperature variation to climate data (delta_mean and delta_ampl)
 (fit.h <- summary(nls(T ~ (meanT + delta_mean*day) - (amplT + delta_ampl*day)*cos(2*pi*(day + shiftT)/365), data = data.h,
                       start = list(meanT = 300, amplT = 1, shiftT = 30, delta_mean = 0.1, delta_ampl = 0.1))))
@@ -77,6 +81,10 @@ ggplot(data.h, aes(x=day, y=T)) +
 
 ###################################### FUTURE CLIMATE #######################################
 # Fit sinusoidal function with annual temperature variation to climate data
+#(fit.f <- summary(nls(T ~ meanT - amplT*cos(2*pi*(day + shiftT)/365), data = data.f,
+#                      start = list(meanT = 300, amplT = 1, shiftT = 30))))
+
+# Fit sinusoidal function with annual temperature variation to climate data (delta_mean and delta_ampl)
 (fit.f <- summary(nls(T ~ (meanT + delta_mean*day) - (amplT + delta_ampl*day) * cos(2*pi*(day + shiftT)/365), data = data.f,
              start = list(meanT = 300, amplT = 1, shiftT = 30, delta_mean = 0.1, delta_ampl = 0.1))))
 

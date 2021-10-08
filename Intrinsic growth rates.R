@@ -12,8 +12,8 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 
 # USER: enter location, time period, and insect species
-location <- "Benin"
-species <- "Clavigralla shadabi"
+location <- "Nigeria"
+species <- "Clavigralla tomentosicollis"
 
 
 ################################## TPC: HISTORICAL CLIMATE ###################################
@@ -39,11 +39,9 @@ r.h <- function(t) {
   ifelse(T.h(t) <= param$rTopt, param$rMax*exp(-1*((T.h(t)-param$rTopt)/(2*param$rs))^2),
                                  param$rMax*(1 - ((T.h(t)-param$rTopt)/(param$rTopt-param$rTmax))^2)) # from Deutsch et al. 2008
 }
-start <- 0 # start 1940
-end <- 365*80 # end 2020
+start <- 0
+end <- 365*10
 (r.TPC.h <- cubintegrate(r.h, lower = start, upper = end, method = "pcubature")$integral/(end-start))
-#n.TPC.h <- 3650 # integrate over 10 years
-#(r.TPC.h <- cubintegrate(r.h, lower = 0, upper = n.TPC.h, method = "pcubature")$integral/n.TPC.h)
 
 
 ##################################### TPC: FUTURE CLIMATE ####################################
@@ -75,10 +73,9 @@ end <- 365*80 # end 2100
 (r.TPC.f <- cubintegrate(r.f, lower = start, upper = end, method = "pcubature")$integral/(end-start))
 
 
-
 # PLOT
-Tmin <- 285
-Tmax <- 315
+Tmin <- round(min(temp.h$T,temp.f$T),0)-1
+Tmax <- round(max(temp.h$T,temp.f$T),0)+1
 ymin <- 0
 ymax <- 0.2
 hist(temp.h$T, xlim=c(Tmin,Tmax), ylim=c(ymin,ymax), breaks=seq(from=Tmin, to=Tmax, by=1), ylab="r", col=rgb(0,0,255, max = 255, alpha = 80), border=rgb(0,0,255, max = 255, alpha = 80), freq=FALSE, main = NULL)
@@ -87,6 +84,9 @@ points(seq(Tmin,Tmax,1), ifelse(seq(Tmin,Tmax,1) <= param$rTopt, param$rMax*exp(
                                 param$rMax*(1 - ((seq(Tmin,Tmax,1)-param$rTopt)/(param$rTopt-param$rTmax))^2)), type="l", lwd=4, col="black")
 abline(v = mean(temp.h$T), col="blue", lwd=3, lty=2)
 abline(v = mean(temp.f$T), col="red", lwd=3, lty=2)
+r.TPC.h
+r.TPC.f
+
 
 
 ################################# MODEL: HISTORICAL CLIMATE ##################################

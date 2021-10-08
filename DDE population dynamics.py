@@ -13,10 +13,12 @@ from pandas import read_csv
 from jitcxde_common import conditional
 import os
 
+
 # SET WORKING DIRECTORY TO SAME AS THE PYTHON CODE
 cwd = os.getcwd()
 if cwd != '/Users/johnson/Documents/Christopher/GitHub/Johnson_Insect_Responses':
     os.chdir('/Users/johnson/Documents/Christopher/GitHub/Johnson_Insect_Responses')
+
 
 # INPUT TEMPERATURE RESPONSE PARAMETERS AND TEMPERATURE PARAMETERS
 data = read_csv("Temperature response parameters.csv")
@@ -25,15 +27,18 @@ temp_data = read_csv("Temperature parameters.csv")
 
 # ENTER SPECIES, LOCATION, AND TIME PERIOD
 species = "Clavigralla tomentosicollis"
-location = "Nigeria"
+location = "Benin"
 period = "Historical"
-#period = "Future"
-# USER: consider only low density population growth (False for population dynamics; True for estimating r)
+
+
+# USER: Consider only low density population growth? (False for population dynamics; True for estimating r)
 LDG = True
-species + " " + location
+# USER: Save data to CSV file?
+save_data = True
+
+
 # SELECT INSECT SPECIES
-spData = data[data["Species"] == species + " " + "Benin"] #location]
-#spData = data[data["Species"] == "Clavigralla shadabi Benin"]
+spData = data[data["Species"] == species + " " + location]
 #spData = data[data["Species"] == "Clavigralla tomentosicollis Burkina Faso"]
 #spData = data[data["Species"] == "Apolygus lucorum China Dafeng"]
 #spData = data[data["Species"] == "Adelphocoris suturalis China Dafeng"]
@@ -47,8 +52,10 @@ spData = data[data["Species"] == species + " " + "Benin"] #location]
 #spData = data[data["Species"] == "Macrolophus pygmaeus on Myzus persicae Greece"]
 #spData = data[data["Species"] == "Macrolophus pygmaeus on Trialeurodes vaporariorum Greece"]
 
+
 # SELECT LOCATION
 temp_data = temp_data[temp_data["Species"] == species + " " + location]
+
 
 # DEFINE MODEL PARAMETERS
 # Time parameters
@@ -58,7 +65,7 @@ if LDG == False:
     max_years = init_years+80 # how long to run simulations
 else:
     init_years = 0 # no model initiation
-    max_years = init_years+10 # only run model 10 years to estimate low density population growth rate
+    max_years = init_years+2 # only run model for the last 2 years to estimate low density population growth rate
 tstep = 1 # time step = 1 day
 CC_years = max_years # how long before climate change "equilibrates"
 
@@ -120,7 +127,7 @@ if LDG == False:
                                    conditional(x, CC_years*yr, (meanT + delta_mean*(x-init_years*yr)) - (amplT + delta_ampl*(x-init_years*yr)) * cos(2*pi*((x-init_years*yr) + shiftT)/yr)  - amplD * cos(2*pi*(x-init_years*yr)), # temperature regime during climate change
                                                (meanT + delta_mean*CC_years*yr) - (amplT + delta_ampl*CC_years*yr) * cos(2*pi*((x-init_years*yr) + shiftT)/yr)  - amplD * cos(2*pi*(x-init_years*yr))))) # temperature regime after climate change "equilibriates"
 else:
-    start = 70*yr # start 70 years into future; i.e., 2090
+    start = (80-max_years)*yr # start 70 years into sequence; i.e., 2010 or 2090
     def T(x):
         return conditional(x, 0, meanT, # during "pre-history" (t<0), habitat temperature is constant at its mean
                            (meanT + delta_mean*(x+start)) - (amplT + delta_ampl*(x+start)) * cos(2*pi*((x+start) + shiftT)/yr)  - amplD * cos(2*pi*(x+start))) # temperature regime during climate change
@@ -198,15 +205,20 @@ DDE.compile_C(simplify=False, do_cse=False, verbose=True)
 DDE.adjust_diff()
 
 
-# Save data array containing time and state variables
+# SAVE DATA
+# array containing time and state variables
 data = vstack([ hstack([time, DDE.integrate(time)]) for time in times ])
-if LDG == False:
-    filename = period + ' time series ' + spData["Species"].values[0] + '.csv'
-else:
-    filename = period + ' time series LDG ' + spData["Species"].values[0] + '.csv'
-savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='') 
-#print(DDE.integrate(max_years*yr-180)[:2])
-#print(DDE.integrate(max_years*yr)[:2])
+
+
+# OUTPUT DATA
+if save_data == True:
+    if LDG == False:
+        filename = period + ' time series ' + spData["Species"].values[0] + '.csv'
+    else:
+        filename = period + ' time series LDG ' + spData["Species"].values[0] + '.csv'
+    savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='') 
+    #print(DDE.integrate(max_years*yr-180)[:2])
+    #print(DDE.integrate(max_years*yr)[:2])
 
 
 # PLOT
@@ -220,4 +232,4 @@ xlabel("time (days)")
 ylabel("population density")
 yscale("linear")
 xlim((max_years-max_years)*yr,max_years*yr)
-ylim(0,500)
+ylim(0,100)

@@ -8,21 +8,23 @@ library(ggplot2)
 library(dplyr)
 library(tidyverse)
 library(ncdf4)
+library(lubridate)
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
-# USER: enter place used in http://climexp.knmi.nl/start.cgi (use GHCN-D) and insect species
-name <- "Nigeria"
+# USER: enter location, species, and start date YYYY-MM-DD (see "Climate station data.xlxs")
+loc <- "Nigeria"
 species <- "Clavigralla tomentosicollis"
+date <- yday("1998-10-05")
 
 
 ################################## HISTORICAL CLIMATE DATA ##################################
 # Open netCDF files
-nc.max <- nc_open(paste0("Historical Tmax ",name,".nc"))
-nc.min <- nc_open(paste0("Historical Tmin ",name,".nc"))
+nc.max <- nc_open(paste0("Historical Tmax ",loc,".nc"))
+nc.min <- nc_open(paste0("Historical Tmin ",loc,".nc"))
 
 # Save metadata
 #{
-#  sink(paste0("Historical data ",name,".txt"))
+#  sink(paste0("Historical data ",loc,".txt"))
 #  print(nc_data)
 #  sink()
 #}
@@ -47,7 +49,7 @@ data <- data[order(data$day),]
 data <- na.omit(data)
 
 # Save data in CSV file
-write.csv(data, paste0("Historical climate data ",name,".csv"), row.names = FALSE)
+write.csv(data, paste0("Historical climate data ",loc,".csv"), row.names = FALSE)
 
 # Close netCDF files
 nc_close(nc.max)
@@ -56,8 +58,8 @@ nc_close(nc.min)
 
 #################################### FUTURE CLIMATE DATA ####################################
 # Get variables and data from CSV files created by climate data.py
-data.max <- as.data.frame(read_csv(paste0("Future Tmax ",name,".csv")))
-data.min <- as.data.frame(read_csv(paste0("Future Tmin ",name,".csv")))
+data.max <- as.data.frame(read_csv(paste0("Future Tmax ",loc,".csv")))
+data.min <- as.data.frame(read_csv(paste0("Future Tmin ",loc,".csv")))
 names(data.max) <- c("day", "time", "latitude", "longitude", "T")
 names(data.min) <- c("day", "time", "latitude", "longitude", "T")
 data.max$day <- data.max$day + 0.5  # offset Tmax 0.5 days from Tmin
@@ -72,17 +74,17 @@ data <- data[order(data$day),]
 data <- na.omit(data)
 
 # Save data in CSV file
-write.csv(data, paste0("Future climate data ",name,".csv"), row.names = FALSE)
+write.csv(data, paste0("Future climate data ",loc,".csv"), row.names = FALSE)
 
 # Remove Tmax and Tmin CSV files
-file.remove(paste0("Future Tmax ",name,".csv"))
-file.remove(paste0("Future Tmin ",name,".csv"))
+file.remove(paste0("Future Tmax ",loc,".csv"))
+file.remove(paste0("Future Tmin ",loc,".csv"))
 
 
 
 # SUPPLEMENTARY CODES
 # Get data
-data <- as.data.frame(read_csv(paste0("Historical climate data ",name,".csv")))
+data <- as.data.frame(read_csv(paste0("Historical climate data ",loc,".csv")))
 
 # Visualize data
 hist(data$T)
