@@ -12,7 +12,7 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 
 # USER: enter location, time period, and insect species
-location <- "Nigeria"
+location <- "Benin"
 species <- "Clavigralla tomentosicollis"
 
 
@@ -40,7 +40,7 @@ r.h <- function(t) {
                                  param$rMax*(1 - ((T.h(t)-param$rTopt)/(param$rTopt-param$rTmax))^2)) # from Deutsch et al. 2008
 }
 start <- 0
-end <- 365*10
+end <- 365*80
 (r.TPC.h <- cubintegrate(r.h, lower = start, upper = end, method = "pcubature")$integral/(end-start))
 
 
