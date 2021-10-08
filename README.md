@@ -3,6 +3,8 @@ This is a repo for data and codes for my (Chris Johnson) research on the tempera
 
 See "Project overview.docx" for more up-to-date information, I will update this README at a later date
 
+[Computational pipeline](trenchproject.github.com/Johnson_Insect_Responses/Computational pipeline.png)
+
 Files (needs to be updated):
 * DDE population dynamics.py (Python code for modeling dynamics using delay differential equations)
 * Habitat temperatures.R (R code for fitting habitat temperature function)
