@@ -28,11 +28,8 @@ temp_data = read_csv("Temperature parameters.csv")
 # ENTER SPECIES, LOCATION, AND TIME PERIOD
 species = "Clavigralla tomentosicollis"
 location = "Benin"
-period = "Historical"
+period = "Future"
 
-
-# USER: Consider only low density population growth? (False for population dynamics; True for estimating r)
-LDG = True
 # USER: Save data to CSV file?
 save_data = True
 
@@ -60,18 +57,15 @@ temp_data = temp_data[temp_data["Species"] == species + " " + location]
 # DEFINE MODEL PARAMETERS
 # Time parameters
 yr = 365 # days in year
-if LDG == False:
-    init_years = 10 # how many years to use for model initiation
-    max_years = init_years+80 # how long to run simulations
-else:
-    init_years = 0 # no model initiation
-    max_years = init_years+2 # only run model for the last 2 years to estimate low density population growth rate
+init_years = 10 # how many years to use for model initiation
+max_years = init_years+80 # how long to run simulations
 tstep = 1 # time step = 1 day
 CC_years = max_years # how long before climate change "equilibrates"
 
 # Initial abundances
 initJ = 1.
 initA = 1.
+A0 = 0.01 # initial adult density for calculating per capita population growth rate
 
 # Temperature parameters
 if period=="Historical":
@@ -120,18 +114,11 @@ sq = spData["sq"].values[0]
 
 # FUNCTIONS
 # Seasonal temperature variation (K) over time
-if LDG == False:
-    def T(x):
+def T(x):
         return conditional(x, 0, meanT, # during "pre-history" (t<0), habitat temperature is constant at its mean
                        conditional(x, init_years*yr, meanT - amplT * cos(2*pi*(x + shiftT)/yr) - amplD * cos(2*pi*x), # during model initiation, delta_mean = 0 and delta_ampl = 0
                                    conditional(x, CC_years*yr, (meanT + delta_mean*(x-init_years*yr)) - (amplT + delta_ampl*(x-init_years*yr)) * cos(2*pi*((x-init_years*yr) + shiftT)/yr)  - amplD * cos(2*pi*(x-init_years*yr)), # temperature regime during climate change
                                                (meanT + delta_mean*CC_years*yr) - (amplT + delta_ampl*CC_years*yr) * cos(2*pi*((x-init_years*yr) + shiftT)/yr)  - amplD * cos(2*pi*(x-init_years*yr))))) # temperature regime after climate change "equilibriates"
-else:
-    start = (80-max_years)*yr # start 70 years into sequence; i.e., 2010 or 2090
-    def T(x):
-        return conditional(x, 0, meanT, # during "pre-history" (t<0), habitat temperature is constant at its mean
-                           (meanT + delta_mean*(x+start)) - (amplT + delta_ampl*(x+start)) * cos(2*pi*((x+start) + shiftT)/yr)  - amplD * cos(2*pi*(x+start))) # temperature regime during climate change
-
 '''
 # Plot temperature function
 xvals = arange(0,1*yr,0.1)
@@ -176,25 +163,27 @@ def M(x):
 
 # DDE MODEL
 # Define state variables
-J,A,S,τ = [y(i) for i in range(4)]
+J,A,S,τ,r = [y(i) for i in range(5)]
 
 
 # MODEL
 f = {
-    J: M(t)*b(t)*A*Allee(A)*exp(-q(t)*A) - M(t)*b(t-τ)*y(1,t-τ)*Allee(y(1,t-τ))*exp(-q(t-τ)*y(1,t-τ))*mJ(t)/mJ(t-τ)*S - dJ(t)*J, # juvenile density
+    J: M(t)*b(t)*A*Allee(A)*exp(-q(t)*A) - M(t)*b(t-τ)*y(1,t-τ)*Allee(y(1,t-τ))*exp(-q(t-τ)*y(1,t-τ))*mJ(t)/mJ(t-τ)*S - dJ(t)*J, # juveniles
     
-    A: M(t)*b(t-τ)*y(1,t-τ)*Allee(y(1,t-τ))*exp(-q(t-τ)*y(1,t-τ))*mJ(t)/mJ(t-τ)*S - dA(t)*A, # Adult density
+    A: M(t)*b(t-τ)*y(1,t-τ)*Allee(y(1,t-τ))*exp(-q(t-τ)*y(1,t-τ))*mJ(t)/mJ(t-τ)*S - dA(t)*A, # Adults
     
     S: S*(mJ(t)/mJ(t-τ)*dJ(t-τ) - dJ(t)), # Through-stage survivorship
     
-    τ: 1 - mJ(t)/mJ(t-τ) # Developmental time-delay
+    τ: 1 - mJ(t)/mJ(t-τ), # Developmental time-delay
+    
+    r: M(t)*b(t-τ)*A0*Allee(A0)*exp(-q(t-τ)*A0)*mJ(t)/mJ(t-τ)*S - dA(t)*A0 # Low density population growth rate
     }
 
 
 # RUN DDE SOLVER
 # Time and initial conditions
 times = arange(0, max_years*yr, tstep)
-init = [ initJ, initA, exp(-dJ(-1e-3)/mTR), 1./mTR ]
+init = [ initJ, initA, exp(-dJ(-1e-3)/mTR), 1./mTR, 0 ]
 
 
 # DDE solver
@@ -205,18 +194,15 @@ DDE.compile_C(simplify=False, do_cse=False, verbose=True)
 DDE.adjust_diff()
 
 
-# SAVE DATA
 # array containing time and state variables
 data = vstack([ hstack([time, DDE.integrate(time)]) for time in times ])
+data[:,5] = data[:,5]/data[:,0] # r column from DDE.integrate is actually r*t, so divide by t
+data[0,5] = 0 # reset initial r to 0
 
-
-# OUTPUT DATA
+# SAVE DATA
 if save_data == True:
-    if LDG == False:
-        filename = period + ' time series ' + spData["Species"].values[0] + '.csv'
-    else:
-        filename = period + ' time series LDG ' + spData["Species"].values[0] + '.csv'
-    savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='') 
+    filename = period + ' time series ' + spData["Species"].values[0] + '.csv'
+    savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau,r", comments='')
     #print(DDE.integrate(max_years*yr-180)[:2])
     #print(DDE.integrate(max_years*yr)[:2])
 
