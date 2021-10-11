@@ -91,33 +91,46 @@ r.TPC.f
 
 ################################# MODEL: HISTORICAL CLIMATE ##################################
 # Read in climate data and temperature response parameters for selected insect
-TS.h <- as.data.frame(read_csv(paste0("Historical time series LDG ",species," ",location,".csv")))
+TS.h <- as.data.frame(read_csv(paste0("Historical time series ",species," ",location,".csv")))
 
-# Integrate across ln(t+1)/ln(t)
+# Integrate model time-series across ln(t/(t-1))
+# r.model.h <- 0
+# count.h <- 0
+# for(i in 3:nrow(TS.h)) {
+#   if(TS.h$A[i] >= 0 && TS.h$A[i-1] >= 0 && is.na(TS.h$A[i]) == FALSE && is.na(TS.h$A[i-1]) == FALSE) {
+#     r.model.h <- r.model.h + log(TS.h$A[i]/TS.h$A[i-1])
+#     count.h <- count.h + 1
+# }}
+# (r.model.h <- r.model.h/count.h)
+
+# Integrate low density per capita population growth rate across ln(t/(t-1))
 r.model.h <- 0
-count.h <- 0
-for(i in 3:nrow(TS.h)) {
-  if(TS.h$A[i] >= 0 && TS.h$A[i-1] >= 0 && is.na(TS.h$A[i]) == FALSE && is.na(TS.h$A[i-1]) == FALSE) {
-    r.model.h <- r.model.h + log(TS.h$A[i]/TS.h$A[i-1])
-    count.h <- count.h + 1
-}}
-(r.model.h <- r.model.h/count.h)
+start <- nrow(TS.h) - 365*10 # integrate over last 10 years of time-series
+end <- nrow(TS.h)
+for(i in start:end) { r.model.h <- r.model.h + TS.h$r[i] }
+(r.model.h <- r.model.h/(end-start))
 
 
 ################################### MODEL: FUTURE CLIMATE ####################################
 # Read in climate data and temperature response parameters for selected insect
-TS.f <- as.data.frame(read_csv(paste0("Future time series LDG ",species," ",location,".csv")))
+TS.f <- as.data.frame(read_csv(paste0("Future time series ",species," ",location,".csv")))
 
-# Integrate across ln(t+1)/ln(t)
+# Integrate across ln(t+1/t)
+# r.model.f <- 0
+# count.f <- 0
+# for(i in 3:nrow(TS.f)) {
+#   if(TS.f$A[i] >= 0 && TS.f$A[i-1] >= 0 && is.na(TS.f$A[i]) == FALSE && is.na(TS.f$A[i-1]) == FALSE) {
+#     r.model.f <- r.model.f + log(TS.f$A[i]/TS.f$A[i-1])
+#     count.f <- count.f + 1
+#   }}
+# (r.model.f <- r.model.f/count.f)
+
+# Integrate low density per capita population growth rate across ln(t/(t-1))
 r.model.f <- 0
-count.f <- 0
-for(i in 3:nrow(TS.f)) {
-  if(TS.f$A[i] >= 0 && TS.f$A[i-1] >= 0 && is.na(TS.f$A[i]) == FALSE && is.na(TS.f$A[i-1]) == FALSE) {
-    r.model.f <- r.model.f + log(TS.f$A[i]/TS.f$A[i-1])
-    count.f <- count.f + 1
-  }}
-(r.model.f <- r.model.f/count.f)
-
+start <- nrow(TS.f) - 365*10 # integrate over last 10 years of time-series
+end <- nrow(TS.f)
+for(i in start:end) { r.model.f <- r.model.f + TS.f$r[i] }
+(r.model.f <- r.model.f/(end-start))
 
 
 r.TPC.h
