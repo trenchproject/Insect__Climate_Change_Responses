@@ -27,8 +27,8 @@ temp_data = read_csv("Temperature parameters.csv")
 
 # ENTER SPECIES, LOCATION, AND TIME PERIOD
 species = "Clavigralla tomentosicollis"
-location = "Benin"
-period = "Future"
+location = "Burkina faso"
+period = "Historical"
 
 # USER: Save data to CSV file?
 save_data = True
@@ -51,7 +51,8 @@ spData = data[data["Species"] == species + " " + location]
 
 
 # SELECT LOCATION
-temp_data = temp_data[temp_data["Species"] == species + " " + location]
+#temp_data = temp_data[temp_data["Species"] == species + " " + location]
+temp_data = temp_data[temp_data["Species"] == species + " Nigeria"]
 
 
 # DEFINE MODEL PARAMETERS

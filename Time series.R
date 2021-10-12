@@ -237,16 +237,24 @@ model.I.CC = ggplot(data.model.CC, aes(x=Time, y=J+A)) +
 
 # PLOT HABITAT TEMPERATURE FUNCTION
 # Historical time period
-plot.temp <- ggplot() +
+# data table from Tmin and Tmax functions
+temp.fun.h <- data.frame(t=c(0:720))
+temp.fun.h <- data.frame(t=c(0:720),
+                       fun.min = sapply(temp.fun.h$t, FUN = function(t) (temp.data$meanT.h + temp.data$delta_mean.h*(t+time.shift))  - (temp.data$amplT.h + temp.data$delta_ampl.h*(t+time.shift)) * cos(2*pi*((t+time.shift) + temp.data$shiftT.h)/yr) - temp.data$amplD.h),
+                       fun.max = sapply(temp.fun.h$t, FUN = function(t) (temp.data$meanT.h + temp.data$delta_mean.h*(t+time.shift))  - (temp.data$amplT.h + temp.data$delta_ampl.h*(t+time.shift)) * cos(2*pi*((t+time.shift) + temp.data$shiftT.h)/yr) + temp.data$amplD.h))
+# plot
+plot.temp <- ggplot(temp.fun.h, aes(x=t, y=fun.max)) +
   # Daily average temperature
   geom_function(fun = function(t) (temp.data$meanT.h + temp.data$delta_mean.h*(t+time.shift))  - (temp.data$amplT.h + temp.data$delta_ampl.h*(t+time.shift)) * cos(2*pi*((t+time.shift) + temp.data$shiftT.h)/yr),
                 size=0.8, color="blue") +
   # Daily minimum temperature
-  geom_function(fun = function(t) (temp.data$meanT.h + temp.data$delta_mean.h*(t+time.shift))  - (temp.data$amplT.h + temp.data$delta_ampl.h*(t+time.shift)) * cos(2*pi*((t+time.shift) + temp.data$shiftT.h)/yr) - temp.data$amplD.h,
-                size=0.8, linetype="longdash", color="blue") +
+  #geom_function(fun = function(t) (temp.data$meanT.h + temp.data$delta_mean.h*(t+time.shift))  - (temp.data$amplT.h + temp.data$delta_ampl.h*(t+time.shift)) * cos(2*pi*((t+time.shift) + temp.data$shiftT.h)/yr) - temp.data$amplD.h,
+  #              size=0.8, linetype="longdash", color="blue") +
   # Daily maximum temperature
-  geom_function(fun = function(t) (temp.data$meanT.h + temp.data$delta_mean.h*(t+time.shift))  - (temp.data$amplT.h + temp.data$delta_ampl.h*(t+time.shift)) * cos(2*pi*((t+time.shift) + temp.data$shiftT.h)/yr) + temp.data$amplD.h,
-                size=0.8, linetype="longdash", color="blue") +
+  #geom_function(fun = function(t) (temp.data$meanT.h + temp.data$delta_mean.h*(t+time.shift))  - (temp.data$amplT.h + temp.data$delta_ampl.h*(t+time.shift)) * cos(2*pi*((t+time.shift) + temp.data$shiftT.h)/yr) + temp.data$amplD.h,
+  #              size=0.8, linetype="longdash", color="blue") +
+  geom_ribbon(aes(ymin = fun.min, ymax = fun.max), fill = "blue", alpha = 0.2) +
+  # Minimum developmental temperature
   geom_function(fun = function(t) (sp.data$Tmin), size=0.8, color="black") +
   labs(x="Time", y="T (K)") +
   scale_x_continuous(limits=c(xmin, xmax)) +
@@ -256,17 +264,26 @@ plot.temp <- ggplot() +
         axis.line = element_line(colour = "black"), legend.position = "none", 
         axis.text = element_text(size=13), axis.title = element_text(size=20))
 
-# climate change time period
-plot.temp.CC <- ggplot() +
+
+# Climate change time period
+# data table from Tmin and Tmax functions
+temp.fun.f <- data.frame(t=c(0:720))
+temp.fun.f <- data.frame(t=c(0:720),
+                       fun.min = sapply(temp.fun.f$t, FUN = function(t) (temp.data$meanT.f + temp.data$delta_mean.f*(t+time.shift))  - (temp.data$amplT.f + temp.data$delta_ampl.f*(t+time.shift)) * cos(2*pi*((t+time.shift) + temp.data$shiftT.f)/yr) - temp.data$amplD.f),
+                       fun.max = sapply(temp.fun.f$t, FUN = function(t) (temp.data$meanT.f + temp.data$delta_mean.f*(t+time.shift))  - (temp.data$amplT.f + temp.data$delta_ampl.f*(t+time.shift)) * cos(2*pi*((t+time.shift) + temp.data$shiftT.f)/yr) + temp.data$amplD.f))
+# plot
+plot.temp.CC <- ggplot(temp.fun.f, aes(x=t, y=fun.max)) +
   # Daily average temperature
   geom_function(fun = function(t) (temp.data$meanT.f + temp.data$delta_mean.f*(t+time.shift.CC))  - (temp.data$amplT.f + temp.data$delta_ampl.f*(t+time.shift.CC)) * cos(2*pi*((t+time.shift.CC) + temp.data$shiftT.f)/yr),
                 size=0.8, color="red") +
   # Daily minimum temperature
-  geom_function(fun = function(t) (temp.data$meanT.f + temp.data$delta_mean.f*(t+time.shift.CC))  - (temp.data$amplT.f + temp.data$delta_ampl.f*(t+time.shift.CC)) * cos(2*pi*((t+time.shift.CC) + temp.data$shiftT.f)/yr) - temp.data$amplD.f,
-                size=0.8, linetype="longdash", color="red") +
+  #geom_function(fun = function(t) (temp.data$meanT.f + temp.data$delta_mean.f*(t+time.shift.CC))  - (temp.data$amplT.f + temp.data$delta_ampl.f*(t+time.shift.CC)) * cos(2*pi*((t+time.shift.CC) + temp.data$shiftT.f)/yr) - temp.data$amplD.f,
+  #              size=0.8, linetype="longdash", color="red") +
   # Daily maximum temperature
-  geom_function(fun = function(t) (temp.data$meanT.f + temp.data$delta_mean.f*(t+time.shift.CC))  - (temp.data$amplT.f + temp.data$delta_ampl.f*(t+time.shift.CC)) * cos(2*pi*((t+time.shift.CC) + temp.data$shiftT.f)/yr) + temp.data$amplD.f,
-                size=0.8, linetype="longdash", color="red") +
+  #geom_function(fun = function(t) (temp.data$meanT.f + temp.data$delta_mean.f*(t+time.shift.CC))  - (temp.data$amplT.f + temp.data$delta_ampl.f*(t+time.shift.CC)) * cos(2*pi*((t+time.shift.CC) + temp.data$shiftT.f)/yr) + temp.data$amplD.f,
+  #              size=0.8, linetype="longdash", color="red") +
+  geom_ribbon(aes(ymin = fun.min, ymax = fun.max), fill = "red", alpha = 0.2) +
+  # Minimum developmental temperature
   geom_function(fun = function(t) (sp.data$Tmin), size=0.8, color="black") +
   labs(x="Time", y="T (K)") +
   scale_x_continuous(limits=c(xmin, xmax)) +
@@ -278,13 +295,19 @@ plot.temp.CC <- ggplot() +
 
 
 # DRAW FINAL PLOTS
+# Temperature plots
+plot.climate <- ggdraw()  +
+  draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.4) +
+  draw_plot(plot.temp.CC, x = 0, y = 0, width = 1, height = 0.4)
+plot.climate
+
 # Historical time period
 # Juveniles and adults
 plot <- ggdraw()  +
   draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
-  #draw_plot(plot.J, x = 0, y = 0.3, width = 1, height = 0.7) +
+  draw_plot(plot.J, x = 0, y = 0.3, width = 1, height = 0.7) +
   draw_plot(plot.A, x = 0, y = 0.3, width = 1, height = 0.7) +
-  #draw_plot(model.J, x = 0, y = 0.3, width = 1, height = 0.7) +
+  draw_plot(model.J, x = 0, y = 0.3, width = 1, height = 0.7) +
   draw_plot(model.A, x = 0, y = 0.3, width = 1, height = 0.7)
 plot
 
