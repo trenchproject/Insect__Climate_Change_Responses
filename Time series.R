@@ -41,15 +41,17 @@ data.TS <- subset(data.density, Plot=="B") # select plot A, B, or C
 # READ IN MODEL OUTPUT
 # From DDE population dynamics.py 
 # Select an insect by removing # in front of name and placing # in front of other species
-#data.model <- as.data.frame(read_csv("Time Series Clavigralla shadabi Benin.csv"))
+#data.model <- as.data.frame(read_csv("Time series data/Time Series Clavigralla shadabi Benin.csv"))
 #sp.data <- subset(data, Species == "Clavigralla shadabi Benin")
 #data.model <- as.data.frame(read_csv("Time Series Clavigralla tomentosicollis Benin.csv"))
 sp.data <- subset(data, Species == "Clavigralla tomentosicollis Benin")
-data.model <- as.data.frame(read_csv("Historical Time Series Clavigralla tomentosicollis Nigeria.csv"))
-data.model.CC <- as.data.frame(read_csv("Future Time Series Clavigralla tomentosicollis Nigeria.csv"))
+data.model <- as.data.frame(read_csv("Time series data/Historical Time Series Clavigralla tomentosicollis Nigeria.csv"))
+data.model.CC <- as.data.frame(read_csv("Time series data/Future Time Series Clavigralla tomentosicollis Nigeria.csv"))
 temp.data <- subset(temp.data, Species == "Clavigralla tomentosicollis Nigeria")
-#data.model <- as.data.frame(read_csv("Time Series Clavigralla tomentosicollis Burkina Faso.csv"))
 #sp.data <- subset(data, Species == "Clavigralla tomentosicollis Burkina Faso")
+#data.model <- as.data.frame(read_csv("Time series data/Historical Time Series Clavigralla tomentosicollis Burkina Faso.csv"))
+#data.model.CC <- as.data.frame(read_csv("Future Time Series Clavigralla tomentosicollis Burkina Faso.csv"))
+#temp.data <- subset(temp.data, Species == "Clavigralla tomentosicollis Burkina Faso")
 #data.model <- as.data.frame(read_csv("Time Series Apolygus lucorum China Dafeng.csv"))
 #sp.data <- subset(data, Species == "Apolygus lucorum China Dafeng")
 #data.model <- as.data.frame(read_csv("Time Series Adelphocoris suturalis China Dafeng.csv"))
@@ -299,7 +301,7 @@ plot.temp.CC <- ggplot(temp.fun.f, aes(x=t, y=fun.max)) +
 plot.climate <- ggdraw()  +
   draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.4) +
   draw_plot(plot.temp.CC, x = 0, y = 0, width = 1, height = 0.4)
-plot.climate
+#plot.climate
 
 # Historical time period
 # Juveniles and adults

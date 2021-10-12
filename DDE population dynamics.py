@@ -27,12 +27,14 @@ temp_data = read_csv("Temperature parameters.csv")
 
 # ENTER SPECIES, LOCATION, AND TIME PERIOD
 species = "Clavigralla tomentosicollis"
-location = "Burkina faso"
+location = "Benin (Egg)"
 period = "Historical"
 
 # USER: Save data to CSV file?
 save_data = True
 
+# USER: Model egg stage separately from juvenile stage?
+egg = True
 
 # SELECT INSECT SPECIES
 spData = data[data["Species"] == species + " " + location]

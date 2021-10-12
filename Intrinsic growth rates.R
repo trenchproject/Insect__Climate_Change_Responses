@@ -18,7 +18,7 @@ species <- "Clavigralla tomentosicollis"
 
 ################################## TPC: HISTORICAL CLIMATE ###################################
 # Read in climate data
-temp.h <- as.data.frame(read_csv(paste0("Historical climate data ",location,".csv")))
+temp.h <- as.data.frame(read_csv(paste0("Climate data/Historical climate data ",location,".csv")))
 # Read in temperature response and temperature parameters, and temperature response data for selected insect
 param <- subset(as.data.frame(read_csv("Temperature response parameters.csv")), Species == paste(species,location))
 # Read in temperature parameters
@@ -46,7 +46,7 @@ end <- 365*80
 
 ##################################### TPC: FUTURE CLIMATE ####################################
 # Read in climate data
-temp.f <- as.data.frame(read_csv(paste0("Future climate data ",location,".csv")))
+temp.f <- as.data.frame(read_csv(paste0("Climate data/Future climate data ",location,".csv")))
 # Read in temperature response and temperature parameters, and temperature response data for selected insect
 param <- subset(as.data.frame(read_csv("Temperature response parameters.csv")), Species == paste(species,location))
 # Read in temperature parameters
@@ -91,7 +91,7 @@ r.TPC.f
 
 ################################# MODEL: HISTORICAL CLIMATE ##################################
 # Read in climate data and temperature response parameters for selected insect
-TS.h <- as.data.frame(read_csv(paste0("Historical time series ",species," ",location,".csv")))
+TS.h <- as.data.frame(read_csv(paste0("Time series data/Historical time series ",species," ",location,".csv")))
 
 # Integrate model time-series across ln(t/(t-1))
 # r.model.h <- 0
@@ -113,7 +113,7 @@ for(i in start:end) { r.model.h <- r.model.h + TS.h$r[i] }
 
 ################################### MODEL: FUTURE CLIMATE ####################################
 # Read in climate data and temperature response parameters for selected insect
-TS.f <- as.data.frame(read_csv(paste0("Future time series ",species," ",location,".csv")))
+TS.f <- as.data.frame(read_csv(paste0("Time series data/Future time series ",species," ",location,".csv")))
 
 # Integrate across ln(t+1/t)
 # r.model.f <- 0

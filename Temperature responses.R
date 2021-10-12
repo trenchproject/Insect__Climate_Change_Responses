@@ -14,8 +14,8 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 data <- as.data.frame(read_csv("Temperature response data.csv"))
 
 # Select an insect by removing # in front of name and placing # in front of other species
-sp.data <- subset(data, Species == "Clavigralla shadabi")
-#sp.data <- subset(data, Species == "Clavigralla tomentosicollis Benin")
+#sp.data <- subset(data, Species == "Clavigralla shadabi")
+sp.data <- subset(data, Species == "Clavigralla tomentosicollis Benin")
 #sp.data <- subset(data, Species == "Clavigralla tomentosicollis Nigeria")
 #sp.data <- subset(data, Species == "Clavigralla tomentosicollis Burkina Faso")
 #sp.data <- subset(data, Species == "Apolygus lucorum")
@@ -39,7 +39,7 @@ TR <- 298
 
 
 
-################################ FECUNDITY #####################################
+####################################### FECUNDITY ###########################################
 # NLS
 fec <- nls(Birth_Rate ~ bTopt*exp(-((T_K-Toptb)^2)/(2*sb^2)), data=sp.data,
            start=list(bTopt=5, Toptb=TR+2, sb=3))
@@ -49,30 +49,70 @@ plot(sp.data$T_K, sp.data$Birth_Rate)
 points(seq(Tmin,Tmax,1),coef(fec)[1]*exp(-((seq(Tmin,Tmax,1)-coef(fec)[2])^2)/(2*coef(fec)[3]^2)), type="l", col="blue")
 
 
-
-############################### DEVELOPMENT ####################################
-# Monotonic response
-dev.mon <- nls(Development ~ xTR*T_K/TR*exp(A*(1/TR-1/T_K)), data=sp.data,
-               start=list(xTR=0.01, A=5000))
+##################################### EGG DEVELOPMENT ########################################
+# estimate xTR and A
+# NOTE: removed data beyond max development
+dev.mon <- nls(Egg_Dev ~ xTR*T_K/TR*exp(A*(1/TR-1/T_K)), data=sp.data[-c((nrow(sp.data)-0):nrow(sp.data)),],
+               start=list(xTR=0.1, A=1000))
 summary(dev.mon)
 # Plot model fits
-plot(sp.data$T_K, sp.data$Development)
+plot(sp.data$T_K, sp.data$Egg_Dev)
 points(seq(Tmin,Tmax,1), coef(dev.mon)[1]*(seq(Tmin,Tmax,1)/TR)*exp(coef(dev.mon)[2]*(1/TR-1/seq(Tmin,Tmax,1))), type="l", col="blue")
+
+# estimate AL and AH separately from TL and TH if needed
+kTL <- 290
+kTH <- 308
+dev.A <- nls(Egg_Dev ~ coef(dev.mon)[1]*(T_K/TR)*exp(coef(dev.mon)[2]*(1/TR-1/T_K))/(1+exp(AL*(1/kTL-1/T_K))+exp(AH*(1/kTH-1/T_K))),
+             data=sp.data, start=list(AL=-50000, AH=50000))
+summary(dev.A)
+dev.T <- nls(Egg_Dev ~ coef(dev.mon)[1]*(T_K/TR)*exp(coef(dev.mon)[2]*(1/TR-1/T_K))/(1+exp(coef(dev.A)[1]*(1/TL-1/T_K))+exp(coef(dev.A)[2]*(1/TH-1/T_K))),
+             data=sp.data, start=list(TL=kTL, TH=kTH))
+summary(dev.T)
+# Plot model fits
+plot(sp.data$T_K, sp.data$Egg_Dev, xlim=c(Tmin,Tmax), ylim=c(0,0.4))
+points(seq(Tmin,Tmax,1), coef(dev.mon)[1]*(seq(Tmin,Tmax,1)/TR)*exp(coef(dev.mon)[2]*(1/TR-1/seq(Tmin,Tmax,1)))/
+         (1+(exp(coef(dev.A)[1]*(1/coef(dev.T)[1]-1/seq(Tmin,Tmax,1)))+exp(coef(dev.A)[2]*(1/coef(dev.T)[2]-1/seq(Tmin,Tmax,1))))), type="l", col="blue")
+
+# estimate TH and AH separately from TL and AL if needed
+kAL <- -100000
+dev.H <- nls(Egg_Dev ~ coef(dev.mon)[1]*(T_K/TR)*exp(coef(dev.mon)[2]*(1/TR-1/T_K))/(1+exp(kAL*(1/kTL-1/T_K))+exp(AH*(1/TH-1/T_K))),
+             data=sp.data, start=list(TH=kTH, AH=50000))
+summary(dev.H)
+dev.AL <- nls(Egg_Dev ~ coef(dev.mon)[1]*(T_K/TR)*exp(coef(dev.mon)[2]*(1/TR-1/T_K))/(1+exp(AL*(1/kTL-1/T_K))+exp(coef(dev.H)[2]*(1/coef(dev.H)[1]-1/T_K))),
+              data=sp.data, start=list(AL=-100000))
+summary(dev.AL)
+dev.TL <- nls(Egg_Dev ~ coef(dev.mon)[1]*(T_K/TR)*exp(coef(dev.mon)[2]*(1/TR-1/T_K))/(1+exp(coef(dev.AL)[1]*(1/TL-1/T_K))+exp(coef(dev.H)[2]*(1/coef(dev.H)[1]-1/T_K))),
+              data=sp.data, start=list(TL=kTL))
+summary(dev.TL)
+# Plot model fits
+plot(sp.data$T_K, sp.data$Egg_Dev)
+points(seq(Tmin,Tmax,1), coef(dev.mon)[1]*(seq(Tmin,Tmax,1)/TR)*exp(coef(dev.mon)[2]*(1/TR-1/seq(Tmin,Tmax,1)))/
+         (1+(exp(coef(dev.AL)[1]*(1/coef(dev.TL)[1]-1/seq(Tmin,Tmax,1)))+exp(coef(dev.H)[2]*(1/coef(dev.H)[1]-1/seq(Tmin,Tmax,1))))), type="l", col="blue")
+
+
+###################################### DEVELOPMENT ##########################################
+# Monotonic response
+# dev.mon <- nls(Development ~ xTR*T_K/TR*exp(A*(1/TR-1/T_K)), data=sp.data,
+#                start=list(xTR=0.01, A=5000))
+# summary(dev.mon)
+# Plot model fits
+# plot(sp.data$T_K, sp.data$Development)
+# points(seq(Tmin,Tmax,1), coef(dev.mon)[1]*(seq(Tmin,Tmax,1)/TR)*exp(coef(dev.mon)[2]*(1/TR-1/seq(Tmin,Tmax,1))), type="l", col="blue")
 
 
 # Sharpe-Schoolfield response
 # estimate all parameters
-dev <- nls(Development ~ xTR*(T_K/TR)*exp(A*(1/TR-1/T_K))/(1+exp(AL*(1/TL-1/T_K))+exp(AH*(1/TH-1/T_K))),
-              data=sp.data, start=list(xTR=0.03, A=7000, AL=-30000, AH=270000, TL=286, TH=306))
-summary(dev)
+# dev <- nls(Development ~ xTR*(T_K/TR)*exp(A*(1/TR-1/T_K))/(1+exp(AL*(1/TL-1/T_K))+exp(AH*(1/TH-1/T_K))),
+#               data=sp.data, start=list(xTR=0.03, A=7000, AL=-30000, AH=270000, TL=286, TH=306))
+# summary(dev)
 # Plot model fits
-plot(sp.data$T_K, sp.data$Development)
-points(seq(Tmin,Tmax,1), coef(dev)[1]*(seq(Tmin,Tmax,1)/TR)*exp(coef(dev)[2]*(1/TR-1/seq(Tmin,Tmax,1)))/
-         (1+(exp(coef(dev)[3]*(1/coef(dev)[5]-1/seq(Tmin,Tmax,1)))+exp(coef(dev)[4]*(1/coef(dev)[6]-1/seq(Tmin,Tmax,1))))), type="l", col="blue")
+# plot(sp.data$T_K, sp.data$Development)
+# points(seq(Tmin,Tmax,1), coef(dev)[1]*(seq(Tmin,Tmax,1)/TR)*exp(coef(dev)[2]*(1/TR-1/seq(Tmin,Tmax,1)))/
+#          (1+(exp(coef(dev)[3]*(1/coef(dev)[5]-1/seq(Tmin,Tmax,1)))+exp(coef(dev)[4]*(1/coef(dev)[6]-1/seq(Tmin,Tmax,1))))), type="l", col="blue")
 
 # estimate xTR and A
 # NOTE: removed data beyond max development
-dev.mon <- nls(Development ~ xTR*T_K/TR*exp(A*(1/TR-1/T_K)), data=sp.data[-c((nrow(sp.data)-1):nrow(sp.data)),],
+dev.mon <- nls(Development ~ xTR*T_K/TR*exp(A*(1/TR-1/T_K)), data=sp.data[-c((nrow(sp.data)-0):nrow(sp.data)),],
                start=list(xTR=0.1, A=1000))
 summary(dev.mon)
 # Plot model fits
@@ -81,13 +121,13 @@ points(seq(Tmin,Tmax,1), coef(dev.mon)[1]*(seq(Tmin,Tmax,1)/TR)*exp(coef(dev.mon
 
 # estimate AL, AH, TL, and TH
 # NOTE: if needed, set AH based on NLS below and run code iteratively until AL and AH do not appreciably change)
-dev.SS <- nls(Development ~ coef(dev.mon)[1]*(T_K/TR)*exp(coef(dev.mon)[2]*(1/TR-1/T_K))/(1+exp(AL*(1/TL-1/T_K))+exp(AH*(1/TH-1/T_K))),
-              data=sp.data, start=list(AL=-66000, AH=235000, TL=288, TH=309.6))
-summary(dev.SS)
+# dev.SS <- nls(Development ~ coef(dev.mon)[1]*(T_K/TR)*exp(coef(dev.mon)[2]*(1/TR-1/T_K))/(1+exp(AL*(1/TL-1/T_K))+exp(AH*(1/TH-1/T_K))),
+#               data=sp.data, start=list(AL=-66000, AH=235000, TL=288, TH=309.6))
+# summary(dev.SS)
 # Plot model fits
-plot(sp.data$T_K, sp.data$Development)
-points(seq(Tmin,Tmax,1), coef(dev.mon)[1]*(seq(Tmin,Tmax,1)/TR)*exp(coef(dev.mon)[2]*(1/TR-1/seq(Tmin,Tmax,1)))/
-         (1+(exp(coef(dev.SS)[1]*(1/coef(dev.SS)[3]-1/seq(Tmin,Tmax,1)))+exp(coef(dev.SS)[2]*(1/coef(dev.SS)[4]-1/seq(Tmin,Tmax,1))))), type="l", col="blue")
+# plot(sp.data$T_K, sp.data$Development)
+# points(seq(Tmin,Tmax,1), coef(dev.mon)[1]*(seq(Tmin,Tmax,1)/TR)*exp(coef(dev.mon)[2]*(1/TR-1/seq(Tmin,Tmax,1)))/
+#          (1+(exp(coef(dev.SS)[1]*(1/coef(dev.SS)[3]-1/seq(Tmin,Tmax,1)))+exp(coef(dev.SS)[2]*(1/coef(dev.SS)[4]-1/seq(Tmin,Tmax,1))))), type="l", col="blue")
 
 # estimate AL and AH separately from TL and TH if needed
 kTL <- 285

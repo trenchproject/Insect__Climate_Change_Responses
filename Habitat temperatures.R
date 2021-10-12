@@ -16,8 +16,8 @@ location <- "Nigeria"
 
 # INPUT DATA
 # Select a location by removing # in front of name and placing # in front of other locations
-data.h <- as.data.frame(read_csv(paste0("Historical climate data ",location,".csv")))
-data.f <- as.data.frame(read_csv(paste0("Future climate data ",location,".csv")))
+data.h <- as.data.frame(read_csv(paste0("Climate data/Historical climate data ",location,".csv")))
+data.f <- as.data.frame(read_csv(paste0("Climate data/Future climate data ",location,".csv")))
 
 
 #################################### HISTORICAL CLIMATE #####################################
