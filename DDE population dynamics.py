@@ -66,6 +66,7 @@ tstep = 1 # time step = 1 day
 CC_years = max_years # how long before climate change "equilibrates"
 
 # Initial abundances
+initE = 1.
 initJ = 1.
 initA = 1.
 A0 = 0.01 # initial adult density for calculating per capita population growth rate
@@ -91,6 +92,14 @@ else:
 bTopt = spData["bTopt"].values[0]
 Toptb = spData["Toptb"].values[0]
 sb = spData["sb"].values[0]
+# egg maturation
+if egg == True:
+    mETR = spData["mETR"].values[0]
+    AmE = spData["AmE"].values[0]
+    ALE = spData["ALE"].values[0]
+    TLE = spData["TLE"].values[0]
+    AHE = spData["AHE"].values[0]
+    THE = spData["THE"].values[0]
 # maturation
 mTR = spData["mTR"].values[0]
 TR = spData["TR"].values[0]
@@ -102,6 +111,9 @@ AH = spData["AH"].values[0]
 TH = spData["TH"].values[0]
 Tmin = spData["Tmin"].values[0] # minimum developmental temperature
 # mortality
+if egg == True:
+    dETR = spData["dETR"].values[0]
+    AdE = spData["AdE"].values[0]
 dJTR = spData["dJTR"].values[0]
 AdJ = spData["AdJ"].values[0]
 dATR = spData["dATR"].values[0]
@@ -136,12 +148,21 @@ def b(x):
     #return R(x) * bTopt * exp(-(T(x)-Toptb)**2/2/sb**2)
     return bTopt * exp(-(T(x)-Toptb)**2/2/sb**2)
 
+# egg maturation rates
+if egg == True:
+    def mE(x):
+        return conditional(mETR * T(x)/TR * exp(AmE * (1/TR - 1/T(x))) / (1 + skew * (exp(ALE*(1/TLE-1/T(x)))+exp(AHE*(1/THE-1/T(x))))), 1e-5,
+                           1e-5, mETR * T(x)/TR * exp(AmE * (1/TR - 1/T(x))) / (1 + skew * (exp(ALE*(1/TLE-1/T(x)))+exp(AHE*(1/THE-1/T(x)))))) # If mJ(T) < jitcdde min tolerance, then mJ(T) = 0
+
 # maturation rates
 def mJ(x):
     return conditional(mTR * T(x)/TR * exp(AmJ * (1/TR - 1/T(x))) / (1 + skew * (exp(AL*(1/TL-1/T(x)))+exp(AH*(1/TH-1/T(x))))), 1e-5,
                        1e-5, mTR * T(x)/TR * exp(AmJ * (1/TR - 1/T(x))) / (1 + skew * (exp(AL*(1/TL-1/T(x)))+exp(AH*(1/TH-1/T(x)))))) # If mJ(T) < jitcdde min tolerance, then mJ(T) = 0
 
 # mortality rates
+if egg == True:
+    def dE(x):
+        return dETR * exp(AdE * (1/TR - 1/T(x)))
 def dJ(x):
     return dJTR * exp(AdJ * (1/TR - 1/T(x)))
 def dA(x):
@@ -171,9 +192,9 @@ J,A,S,τ,r = [y(i) for i in range(5)]
 
 # MODEL
 f = {
-    J: M(t)*b(t)*A*Allee(A)*exp(-q(t)*A) - M(t)*b(t-τ)*y(1,t-τ)*Allee(y(1,t-τ))*exp(-q(t-τ)*y(1,t-τ))*mJ(t)/mJ(t-τ)*S - dJ(t)*J, # juveniles
+    J: M(t)*b(t)*A*Allee(A)*exp(-q(t)*A) - M(t)*M(t-τ)*b(t-τ)*y(1,t-τ)*Allee(y(1,t-τ))*exp(-q(t-τ)*y(1,t-τ))*mJ(t)/mJ(t-τ)*S - dJ(t)*J, # juveniles
     
-    A: M(t)*b(t-τ)*y(1,t-τ)*Allee(y(1,t-τ))*exp(-q(t-τ)*y(1,t-τ))*mJ(t)/mJ(t-τ)*S - dA(t)*A, # Adults
+    A:  M(t)*M(t-τ)*b(t-τ)*y(1,t-τ)*Allee(y(1,t-τ))*exp(-q(t-τ)*y(1,t-τ))*mJ(t)/mJ(t-τ)*S - dA(t)*A, # Adults
     
     S: S*(mJ(t)/mJ(t-τ)*dJ(t-τ) - dJ(t)), # Through-stage survivorship
     
@@ -183,11 +204,34 @@ f = {
     }
 
 
+# MODEL WITH EGG STAGE
+if egg == True:
+    E,J,A,SE,SJ,τE,τJ,r = [y(i) for i in range(8)]
+    f = {
+        E: M(t)*b(t)*A*Allee(A)*exp(-q(t)*A) - M(t)*M(t-τE)*b(t-τE)*y(2,t-τE)*Allee(y(2,t-τE))*exp(-q(t-τE)*y(2,t-τE))*mE(t)/mE(t-τE)*SE - dE(t)*E, # juveniles
+
+        J: M(t)*M(t-τE)*b(t-τE)*y(2,t-τE)*Allee(y(2,t-τE))*exp(-q(t-τE)*y(2,t-τE))*mE(t)/mE(t-τ)*SE - M(t)*M(t-y(5,t-τJ)-τJ)*b(t-y(5,t-τJ)-τJ)*y(2,t-y(5,t-τJ)-τJ)*Allee(y(2,t-y(5,t-τJ)-τJ))*exp(-q(t-y(5,t-τJ)-τJ)*y(2,t-y(5,t-τJ)-τJ))*mE(t-τJ)/mE(t-y(5,t-τJ)-τJ)*mJ(t)/mJ(t-τJ)*y(3,t-τJ)*SJ - dJ(t)*J, # juveniles
+    
+        A: M(t)*M(t-y(5,t-τJ)-τJ)*b(t-y(5,t-τJ)-τJ)*y(2,t-y(5,t-τJ)-τJ)*Allee(y(2,t-y(5,t-τJ)-τJ))*exp(-q(t-y(5,t-τJ)-τJ)*y(2,t-y(5,t-τJ)-τJ))*mE(t-τJ)/mE(t-y(5,t-τJ)-τJ)*mJ(t)/mJ(t-τJ)*y(3,t-τJ)*SJ - dA(t)*A, # Adults
+    
+        SE: SE*(mE(t)/mE(t-τE)*dE(t-τE) - dE(t)), # Through-egg stage survivorship
+    
+        SJ: SJ*(mJ(t)/mJ(t-τJ)*dJ(t-τJ) - dJ(t)), # Through-egg stage survivorship
+        
+        τE: 1 - mE(t)/mE(t-τE), # Developmental time-delay
+        
+        τJ: 1 - mJ(t)/mJ(t-τJ), # Developmental time-delay
+    
+        r: M(t)*b(t-τ)*A0*Allee(A0)*exp(-q(t-τ)*A0)*mJ(t)/mJ(t-τ)*S - dA(t)*A0 # Low density population growth rate
+        }
+
+
 # RUN DDE SOLVER
 # Time and initial conditions
 times = arange(0, max_years*yr, tstep)
 init = [ initJ, initA, exp(-dJ(-1e-3)/mTR), 1./mTR, 0 ]
-
+if egg == True:
+    init = [ initE, initJ, initA, exp(-dE(-1e-3)/mETR), exp(-dJ(-1e-3)/mTR), 1./mETR, 1./mTR, 0 ]
 
 # DDE solver
 DDE = jitcdde(f, max_delay=1e5, verbose=False)
@@ -199,23 +243,35 @@ DDE.adjust_diff()
 
 # array containing time and state variables
 data = vstack([ hstack([time, DDE.integrate(time)]) for time in times ])
-data[:,5] = data[:,5]/data[:,0] # r column from DDE.integrate is actually r*t, so divide by t
-data[0,5] = 0 # reset initial r to 0
-
+if egg == False:
+    data[:,5] = data[:,5]/data[:,0] # r column from DDE.integrate is actually r*t, so divide by t
+    data[0,5] = 0 # reset initial r to 0
+else:
+    data[:,8] = data[:,8]/data[:,0] # r column from DDE.integrate is actually r*t, so divide by t
+    data[0,8] = 0 # reset initial r to 0
+    
 # SAVE DATA
 if save_data == True:
-    filename = period + ' time series ' + spData["Species"].values[0] + '.csv'
-    savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau,r", comments='')
-    #print(DDE.integrate(max_years*yr-180)[:2])
-    #print(DDE.integrate(max_years*yr)[:2])
+    if egg == False:
+        filename = period + ' time series ' + spData["Species"].values[0] + '.csv'
+        savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau,r", comments='')
+    else:
+        filename = period + ' time series ' + spData["Species"].values[0] + '(Egg).csv'
+        savetxt(filename, data, fmt='%s', delimiter=",", header="Time,E,J,A,SE,SJ,tauE,tauJ,r", comments='')
+
 
 
 # PLOT
 fig,ax = subplots()
-ax.plot(data[:,0], data[:,1], label='J')
-ax.plot(data[:,0], data[:,2], label='A')
-#ax.plot(data[:,0], data[:,3], label='S')
-#ax.plot(data[:,0], data[:,4], label='τ')
+if egg == False:
+    ax.plot(data[:,0], data[:,1], label='J')
+    ax.plot(data[:,0], data[:,2], label='A')
+    #ax.plot(data[:,0], data[:,3], label='S')
+    #ax.plot(data[:,0], data[:,4], label='τ')
+else:
+    ax.plot(data[:,0], data[:,1], label='E')
+    ax.plot(data[:,0], data[:,2], label='J')
+    ax.plot(data[:,0], data[:,3], label='A')
 ax.legend(loc='best')
 xlabel("time (days)")
 ylabel("population density")
