@@ -11,7 +11,7 @@ library(tidyverse)
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 
-# USER: enter location, time period, and insect species
+# USER: enter location
 location <- "Nigeria"
 
 # INPUT DATA

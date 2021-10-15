@@ -27,7 +27,7 @@ temp_data = read_csv("Temperature parameters.csv")
 
 # ENTER SPECIES, LOCATION, AND TIME PERIOD
 species = "Clavigralla tomentosicollis"
-location = "Benin (Egg)"
+location = "Benin (egg)"
 period = "Historical"
 
 # USER: Save data to CSV file?
@@ -119,7 +119,7 @@ AdJ = spData["AdJ"].values[0]
 dATR = spData["dATR"].values[0]
 AdA = spData["AdA"].values[0]
 # competition
-qTopt = spData["qTopt"].values[0]
+qTopt = 0.1*spData["qTopt"].values[0]
 Toptq = spData["Toptq"].values[0]
 sq = spData["sq"].values[0]
 #Aq = spData["Aq"].values[0]
@@ -222,7 +222,7 @@ if egg == True:
         
         τJ: 1 - mJ(t)/mJ(t-τJ), # Developmental time-delay
     
-        r: M(t)*b(t-τ)*A0*Allee(A0)*exp(-q(t-τ)*A0)*mJ(t)/mJ(t-τ)*S - dA(t)*A0 # Low density population growth rate
+        r: M(t)*M(t-y(5,t-τJ)-τJ)*b(t-y(5,t-τJ)-τJ)*A0*Allee(A0)*exp(-q(t-y(5,t-τJ)-τJ)*A0)*mE(t-τJ)/mE(t-y(5,t-τJ)-τJ)*mJ(t)/mJ(t-τJ)*y(3,t-τJ)*SJ - dA(t)*A0 # Low density population growth rate
         }
 
 
@@ -253,10 +253,11 @@ else:
 # SAVE DATA
 if save_data == True:
     if egg == False:
-        filename = period + ' time series ' + spData["Species"].values[0] + '.csv'
+        filename = 'Time series data/' + period + ' time series ' + spData["Species"].values[0] + '.csv'
         savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau,r", comments='')
     else:
-        filename = period + ' time series ' + spData["Species"].values[0] + '(Egg).csv'
+        #filename = 'Time series data/' + period + ' time series ' + spData["Species"].values[0] + '.csv'
+        filename = 'Time series data/' + period + ' time series ' + species + ' Nigeria (egg).csv'
         savetxt(filename, data, fmt='%s', delimiter=",", header="Time,E,J,A,SE,SJ,tauE,tauJ,r", comments='')
 
 
@@ -277,4 +278,4 @@ xlabel("time (days)")
 ylabel("population density")
 yscale("linear")
 xlim((max_years-max_years)*yr,max_years*yr)
-ylim(0,100)
+ylim(0,1000)

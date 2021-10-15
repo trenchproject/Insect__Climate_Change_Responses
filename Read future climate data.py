@@ -8,11 +8,13 @@ import os
 import pandas as pd
 from zipfile import ZipFile
 
+
 # USER: enter desired latitude and longitude and name of location
 lat = 7.45
 lon = 3.9
-loc = "Nigeria"
-# USER: must also update line 49 after netCDF file downloaded
+loc = "Burkina Faso"
+# USER: must also update lines 49 after netCDF file downloaded
+
 
 # Set working directory to the same as the python code
 cwd = os.getcwd()
@@ -44,9 +46,15 @@ with ZipFile(file_name + '.zip', 'r') as zip:
     zip.extractall()
 os.remove(file_name + '.zip')
 
+
+# USER: enter netcdf file name:
+nc_max = "tasmax_day_CESM2_ssp370_r4i1p1f1_gn_20150101-21010101_v20200528.nc"
+nc_min = nc_max.replace("tasmax","tasmin")
+
+
 # Open netCDF4 file (USER: must update file name)
 # Naming convention: <variable_id>_<table_id>_<source_id>_<experiment_id>_<variant_label>_<grid_label>_<time_range>_<version updata>.nc
-f = netCDF4.Dataset('tasmax_day_CESM2_ssp370_r4i1p1f1_gn_20150101-21010101_v20200528.nc')
+f = netCDF4.Dataset(nc_max)
 
 # Extract variable
 var = f.variables['tasmax']
@@ -69,7 +77,7 @@ df = pd.DataFrame({
 df.to_csv(file_name + ".csv")
 
 # Delete Climate Store data files
-os.rename("tasmax_day_CESM2_ssp370_r4i1p1f1_gn_20150101-21010101_v20200528.nc", file_name + ".nc")
+os.rename(nc_max, file_name + ".nc")
 #os.remove("adaptor.esgf_wps.retrieve-1632876778.2203593-19762-16-63dfaacc-2e6c-4f07-87b5-975b6152e747_provenance.json")
 #os.remove("adaptor.esgf_wps.retrieve-1632876778.2203593-19762-16-63dfaacc-2e6c-4f07-87b5-975b6152e747_provenance.png")
 
@@ -101,7 +109,7 @@ os.remove(file_name2 + '.zip')
 
 # Open netCDF4 file (USER: must update file name)
 # Naming convention: <variable_id>_<table_id>_<source_id>_<experiment_id>_<variant_label>_<grid_label>_<time_range>_<version updata>.nc
-f = netCDF4.Dataset('tasmin_day_CESM2_ssp370_r4i1p1f1_gn_20150101-21010101_v20200528.nc')
+f = netCDF4.Dataset(nc_min)
 
 # Extract variable
 var = f.variables['tasmin']
@@ -124,7 +132,7 @@ df = pd.DataFrame({
 df.to_csv(file_name2 + ".csv")
 
 # Delete Climate Store data files
-os.rename("tasmin_day_CESM2_ssp370_r4i1p1f1_gn_20150101-21010101_v20200528.nc", file_name2 + ".nc")
+os.rename(nc_min, file_name2 + ".nc")
 #os.remove("adaptor.esgf_wps.retrieve-1633011791.616639-15237-12-8103cbb3-333e-44f0-84ff-0e5a6f994590_provenance.json")
 #os.remove("adaptor.esgf_wps.retrieve-1633011791.616639-15237-12-8103cbb3-333e-44f0-84ff-0e5a6f994590_provenance.png")
 

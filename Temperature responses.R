@@ -52,7 +52,7 @@ points(seq(Tmin,Tmax,1),coef(fec)[1]*exp(-((seq(Tmin,Tmax,1)-coef(fec)[2])^2)/(2
 ##################################### EGG DEVELOPMENT ########################################
 # estimate xTR and A
 # NOTE: removed data beyond max development
-dev.mon <- nls(Egg_Dev ~ xTR*T_K/TR*exp(A*(1/TR-1/T_K)), data=sp.data[-c((nrow(sp.data)-0):nrow(sp.data)),],
+dev.mon <- nls(Egg_Dev ~ xTR*T_K/TR*exp(A*(1/TR-1/T_K)), data=sp.data[-c((nrow(sp.data)-1):nrow(sp.data)),],
                start=list(xTR=0.1, A=1000))
 summary(dev.mon)
 # Plot model fits
@@ -130,7 +130,7 @@ points(seq(Tmin,Tmax,1), coef(dev.mon)[1]*(seq(Tmin,Tmax,1)/TR)*exp(coef(dev.mon
 #          (1+(exp(coef(dev.SS)[1]*(1/coef(dev.SS)[3]-1/seq(Tmin,Tmax,1)))+exp(coef(dev.SS)[2]*(1/coef(dev.SS)[4]-1/seq(Tmin,Tmax,1))))), type="l", col="blue")
 
 # estimate AL and AH separately from TL and TH if needed
-kTL <- 285
+kTL <- 290
 kTH <- 309
 dev.A <- nls(Development ~ coef(dev.mon)[1]*(T_K/TR)*exp(coef(dev.mon)[2]*(1/TR-1/T_K))/(1+exp(AL*(1/kTL-1/T_K))+exp(AH*(1/kTH-1/T_K))),
               data=sp.data, start=list(AL=-50000, AH=50000))
@@ -139,7 +139,7 @@ dev.T <- nls(Development ~ coef(dev.mon)[1]*(T_K/TR)*exp(coef(dev.mon)[2]*(1/TR-
              data=sp.data, start=list(TL=kTL, TH=kTH))
 summary(dev.T)
 # Plot model fits
-plot(sp.data$T_K, sp.data$Development, xlim=c(Tmin,Tmax), ylim=c(0,0.08))
+plot(sp.data$T_K, sp.data$Development, xlim=c(Tmin,Tmax), ylim=c(0,0.15))
 points(seq(Tmin,Tmax,1), coef(dev.mon)[1]*(seq(Tmin,Tmax,1)/TR)*exp(coef(dev.mon)[2]*(1/TR-1/seq(Tmin,Tmax,1)))/
          (1+(exp(coef(dev.A)[1]*(1/coef(dev.T)[1]-1/seq(Tmin,Tmax,1)))+exp(coef(dev.A)[2]*(1/coef(dev.T)[2]-1/seq(Tmin,Tmax,1))))), type="l", col="blue")
 
@@ -197,6 +197,15 @@ Tmin
 
 #################################### MORTALITY ######################################
 # Mortality estimated using fit at reference temperature
+# NLS for egg mortality
+mort.J <- nls(Egg_Mortality ~ xTR*exp(A*(1/TR-1/T_K)), data=sp.data,
+              start=list(xTR=0.01, A=10000))
+summary(mort.J)
+# Plot model fits
+plot(sp.data$T_K, sp.data$Egg_Mortality, ylim=c(0,0.2))
+points(seq(Tmin,Tmax,1), coef(mort.J)[1]*exp(coef(mort.J)[2]*(1/TR-1/seq(Tmin,Tmax,1))), type="l", col="blue")
+
+
 # NLS for juvenile mortality
 mort.J <- nls(Juv_Mortality ~ xTR*exp(A*(1/TR-1/T_K)), data=sp.data,
               start=list(xTR=0.01, A=10000))

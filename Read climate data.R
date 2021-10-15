@@ -82,65 +82,64 @@ file.remove(paste0("Future Tmin ",loc,".csv"))
 
 
 
-# SUPPLEMENTARY CODES
-# Get data
-data <- as.data.frame(read_csv(paste0("Historical climate data ",loc,".csv")))
-
-# Visualize data
-hist(data$T)
-shapiro.test(data[1:5000,]$T) # Is distribution significantly different from normal?
-
-
-# Interpolated function of data (not working)
-T <- approxfun(data[1:730,], rule = 2) # rule = 2 sets any extrapolated point to the closest data extreme
-
-# Plot data and interpolated function
-xmin <- 0
-xmax <- 730
-ymin <- round(min(data$T),0)
-ymax <- round(max(data$T),0)+1
-ggplot(data, aes(x=day, y=T)) +
-   geom_point(size=0.8, color="red") +
-   geom_function(fun = T, size=0.8, color="black") +
-   labs(x="Time (days)", y="Temperature") +
-   scale_x_continuous(limits=c(xmin, xmax)) +
-   scale_y_continuous(limits=c(ymin, ymax)) +
-   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-         panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
-         axis.line = element_line(colour = "black"), legend.position = "none",
-         axis.text = element_text(size=13), axis.title = element_text(size=20))
-
-
-# Fourier transformation (under-estimating amplitude b/c there are so many Fourier terms)
-s <- data$T # temperature series
-n <- length(s)
-
-# de-trend series
-s.mean <- mean(s)
-s.dt <- s - s.mean
-
-# Fourier transform
-f <- fft(s.dt)
-amp <- 2*abs(f)/n
-phase <- Arg(f)
-plot(amp, xlim=c(0,400)) # dominant frequencies at 2 and 66
-
-# build function
-T <- function(t) { s.mean + amp[2]*cos(2*pi*t+phase[2]) + amp[65]*cos(2*pi*t/365+phase[66]) }
-
-# Plot data and Fourier function
-xmin <- 0
-xmax <- 730
-ymin <- round(min(data$T),0)
-ymax <- round(max(data$T),0)+1
-ggplot(data, aes(x=day, y=T)) +
-  geom_point(size=0.8, color="red") +
-  geom_function(fun = T, size=0.8, color="black") +
-  labs(x="Time (days)", y="Temperature") +
-  scale_x_continuous(limits=c(xmin, xmax)) +
-  scale_y_continuous(limits=c(ymin, ymax)) +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-        panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
-        axis.line = element_line(colour = "black"), legend.position = "none",
-        axis.text = element_text(size=13), axis.title = element_text(size=20))
-
+# # SUPPLEMENTARY CODES
+# # Get data
+# data <- as.data.frame(read_csv(paste0("Historical climate data ",loc,".csv")))
+# 
+# # Visualize data
+# hist(data$T)
+# shapiro.test(data[1:5000,]$T) # Is distribution significantly different from normal?
+# 
+# 
+# # Interpolated function of data (not working)
+# T <- approxfun(data[1:730,], rule = 2) # rule = 2 sets any extrapolated point to the closest data extreme
+# 
+# # Plot data and interpolated function
+# xmin <- 0
+# xmax <- 730
+# ymin <- round(min(data$T),0)
+# ymax <- round(max(data$T),0)+1
+# ggplot(data, aes(x=day, y=T)) +
+#    geom_point(size=0.8, color="red") +
+#    geom_function(fun = T, size=0.8, color="black") +
+#    labs(x="Time (days)", y="Temperature") +
+#    scale_x_continuous(limits=c(xmin, xmax)) +
+#    scale_y_continuous(limits=c(ymin, ymax)) +
+#    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+#          panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
+#          axis.line = element_line(colour = "black"), legend.position = "none",
+#          axis.text = element_text(size=13), axis.title = element_text(size=20))
+# 
+# 
+# # Fourier transformation (under-estimating amplitude b/c there are so many Fourier terms)
+# s <- data$T # temperature series
+# n <- length(s)
+# 
+# # de-trend series
+# s.mean <- mean(s)
+# s.dt <- s - s.mean
+# 
+# # Fourier transform
+# f <- fft(s.dt)
+# amp <- 2*abs(f)/n
+# phase <- Arg(f)
+# plot(amp, xlim=c(0,400)) # dominant frequencies at 2 and 66
+# 
+# # build function
+# T <- function(t) { s.mean + amp[2]*cos(2*pi*t+phase[2]) + amp[65]*cos(2*pi*t/365+phase[66]) }
+# 
+# # Plot data and Fourier function
+# xmin <- 0
+# xmax <- 730
+# ymin <- round(min(data$T),0)
+# ymax <- round(max(data$T),0)+1
+# ggplot(data, aes(x=day, y=T)) +
+#   geom_point(size=0.8, color="red") +
+#   geom_function(fun = T, size=0.8, color="black") +
+#   labs(x="Time (days)", y="Temperature") +
+#   scale_x_continuous(limits=c(xmin, xmax)) +
+#   scale_y_continuous(limits=c(ymin, ymax)) +
+#   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+#         panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
+#         axis.line = element_line(colour = "black"), legend.position = "none",
+#         axis.text = element_text(size=13), axis.title = element_text(size=20))
