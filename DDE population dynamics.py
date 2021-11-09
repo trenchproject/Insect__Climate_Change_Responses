@@ -36,6 +36,10 @@ save_data = True
 # USER: Model egg stage separately from juvenile stage?
 egg = True
 
+# USER: Incorporate resource variation due to precipitation?
+res = True
+
+
 # SELECT INSECT SPECIES
 spData = data[data["Species"] == species + " " + location]
 #spData = data[data["Species"] == "Clavigralla tomentosicollis Burkina Faso"]
@@ -61,7 +65,7 @@ temp_data = temp_data[temp_data["Species"] == species + " Nigeria"]
 # Time parameters
 yr = 365 # days in year
 init_years = 10 # how many years to use for model initiation
-max_years = init_years+80 # how long to run simulations
+max_years = init_years+10 # how long to run simulations
 tstep = 1 # time step = 1 day
 CC_years = max_years # how long before climate change "equilibrates"
 
@@ -72,7 +76,7 @@ initA = 1.
 A0 = 0.01 # initial adult density for calculating per capita population growth rate
 
 # Temperature parameters
-if period=="Historical":
+if period == "Historical":
     meanT = temp_data["meanT.h"].values[0]
     amplT = temp_data["amplT.h"].values[0] 
     shiftT = temp_data["shiftT.h"].values[0]
@@ -86,6 +90,18 @@ else:
     delta_mean = temp_data["delta_mean.f"].values[0]
     delta_ampl = temp_data["delta_ampl.f"].values[0]
     amplD = temp_data["amplD.f"].values[0]
+
+# Resource parameters
+if period == "Historical":
+    if res == True:
+        meanP = temp_data["meanP.h"].values[0]
+        amplP = temp_data["amplP.h"].values[0] 
+        shiftP = temp_data["shiftP.h"].values[0]
+else:
+    if res == True:
+        meanP = temp_data["meanP.f"].values[0]
+        amplP = temp_data["amplP.f"].values[0] 
+        shiftP = temp_data["shiftP.f"].values[0]
 
 # Life history and competitive traits
 # fecundity
@@ -142,11 +158,27 @@ plot(xvals,yvals)
 show()
 '''
 
+# Seasonal resource variation (R) due to precipitation
+def R(x):
+        return conditional(x, init_years*yr, 1, # no resource variation during model initiation
+                                   conditional(x, CC_years*yr, # temperature regime during climate change
+                                               conditional(meanP - amplP * cos(2*pi*((x-init_years*yr) + shiftP)/yr), 0, 0, 1), 1)) # wet season if monthly precipitation > 0 (orinigally used 6 as defined by Köppen climate classification system)
+'''
+# Plot resource function
+xvals = arange(0,1*yr,1)
+#yvals = vstack([meanP - amplP * cos(2*pi*(i + shiftP)/yr) for i in xvals ])
+yvals = vstack([conditional(meanP - amplP * cos(2*pi*(i + shiftP)/yr), 0, 0, 1) for i in xvals ])
+plot(xvals,yvals)
+show()
+'''
+
 # Life history functions
 # fecundity
 def b(x):
-    #return R(x) * bTopt * exp(-(T(x)-Toptb)**2/2/sb**2)
-    return bTopt * exp(-(T(x)-Toptb)**2/2/sb**2)
+    if res==True:
+        return R(x) * bTopt * exp(-(T(x)-Toptb)**2/2/sb**2)
+    else:
+        return bTopt * exp(-(T(x)-Toptb)**2/2/sb**2)
 
 # egg maturation rates
 if egg == True:
@@ -218,7 +250,7 @@ if egg == True:
         return M(t)*M(t-y(6,t-τJ)-τJ)*b(t-y(6,t-τJ)-τJ)*y(2,t-y(6,t-τJ)-τJ)*Allee(y(2,t-y(6,t-τJ)-τJ))*exp(-q(t-y(6,t-τJ)-τJ)*y(2,t-y(6,t-τJ)-τJ))*mE(t-τJ)/mE(t-y(6,t-τJ)-τJ)*mJ(t)/mJ(t-τJ)*y(3,t-τJ)*SJ
     # adult senescence
     def gA(t):
-        return M(t)*M(t-y(6,t-y(7,t-τA)-τA)-y(7,t-τA)-τA) * b(t-y(6,t-y(7,t-τA)-τA)-y(7,t-τA)-τA) * y(2,t-y(6,t-y(7,t-τA)-τA)-y(7,t-τA)-τA) * Allee(y(2,t-y(6,t-y(7,t-τA)-τA)-y(7,t-τA)-τA)) * exp(-q(t-y(6,t-y(7,t-τA)-τA)-y(7,t-τA)-τA) * y(2,t-y(6,t-y(7,t-τA)-τA)-y(7,t-τA)-τA)) * mE(t-y(7,t-τA)-τA)/mE(t-y(6,t-y(7,t-τA)-τA)-y(7,t-τA)-τA) * mJ(t-τA)/mJ(t-y(7,t-τA)-τA) * dA(t)/dA(t-τA) * y(3,t-y(7,t-τA)-τA) * y(4,t-τA) * SA
+        return 0*M(t)*M(t-y(6,t-y(7,t-τA)-τA)-y(7,t-τA)-τA) * b(t-y(6,t-y(7,t-τA)-τA)-y(7,t-τA)-τA) * y(2,t-y(6,t-y(7,t-τA)-τA)-y(7,t-τA)-τA) * Allee(y(2,t-y(6,t-y(7,t-τA)-τA)-y(7,t-τA)-τA)) * exp(-q(t-y(6,t-y(7,t-τA)-τA)-y(7,t-τA)-τA) * y(2,t-y(6,t-y(7,t-τA)-τA)-y(7,t-τA)-τA)) * mE(t-y(7,t-τA)-τA)/mE(t-y(6,t-y(7,t-τA)-τA)-y(7,t-τA)-τA) * mJ(t-τA)/mJ(t-y(7,t-τA)-τA) * dA(t)/dA(t-τA) * y(3,t-y(7,t-τA)-τA) * y(4,t-τA) * SA
 
     # DDE model
     f = {
@@ -295,5 +327,5 @@ ax.legend(loc='best')
 xlabel("time (days)")
 ylabel("population density")
 yscale("linear")
-xlim((max_years-2)*yr,max_years*yr)
+xlim((max_years-10)*yr,max_years*yr)
 ylim(0,1000)
