@@ -24,7 +24,7 @@ data <- as.data.frame(read_csv("Temperature response parameters.csv"))
 # Temperature parameters
 temp.data <- as.data.frame(read_csv("Temperature parameters.csv"))
 
-# Time-series data
+# Time-series field data
 # Select an file by removing # in front of name and placing # in front of other files
 data.density <- read_csv("Population data Nigeria (egg).csv")
 #data.density <- read_csv("Population data China.csv")
@@ -82,12 +82,15 @@ end <- nrow(data.model)
 
 # FORMAT MODEL OUTPUT TO ALIGN WITH TIME-SERIES DATA
 # Remove all rows before time-series data starts
+data.model <- data.model[c(-1:-(init_yrs*yr + xmin)), ]
+
+# NOTE: use this section only if historical meanT changes over time (delta_meanT.h != 0)
 # for Clavigralla tomentosicollis in Nigeria
-data.model <- data.model[c(-1:-((1972-1961+init_yrs)*yr + xmin)), ]
+#data.model <- data.model[c(-1:-((1972-1961)*yr + xmin)), ]
 # for Apolygus lucorum in China
-#data.model <- data.model[c(-1:-((2005-1961+init_yrs)*yr + xmin)), ]
+#data.model <- data.model[c(-1:-((2005-1961)*yr + xmin)), ]
 # for other species
-#data.model <- data.model[c(-1:-((2020-1961+init_yrs)*yr + xmin)), ]
+#data.model <- data.model[c(-1:-((2020-1961)*yr + xmin)), ]
 
 # Remove all rows after xmax days
 data.model <- data.model[c(-(xmax+1):-end), ]
