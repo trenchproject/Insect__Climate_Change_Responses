@@ -5,7 +5,7 @@
 
 # IMPORT PACKAGES
 from numpy import arange, hstack, vstack, savetxt
-#from sympy import N
+from sympy import N
 from jitcdde import jitcdde, y, t
 from symengine import exp, pi, cos
 from matplotlib.pyplot import subplots, xlabel, ylabel, xlim, ylim, yscale, plot, show
@@ -172,7 +172,6 @@ def dA(x):
 def q(x):
     return qTopt * exp(-(T(x)-Toptq)**2/2/sq**2)
 
-
 # Other functions    
 # Allee effect
 A_thr = 0.00*qTopt # Allee threshold
@@ -184,58 +183,77 @@ def M(x):
     return conditional(T(x), Tmin, 0, 1) # if temperature < developmental min, Tmin, then development M = 0; otherwise, M = 1
 
 
-
 # DDE MODEL
 # Define state variables
 J,A,S,τ,r = [y(i) for i in range(5)]
 
-
-# MODEL
+# DDE model
 f = {
-    J: M(t)*b(t)*A*Allee(A)*exp(-q(t)*A) - M(t)*M(t-τ)*b(t-τ)*y(1,t-τ)*Allee(y(1,t-τ))*exp(-q(t-τ)*y(1,t-τ))*mJ(t)/mJ(t-τ)*S - dJ(t)*J, # juveniles
+    J:  M(t)*b(t)*A*Allee(A)*exp(-q(t)*A) - M(t)*M(t-τ)*b(t-τ)*y(1,t-τ)*Allee(y(1,t-τ))*exp(-q(t-τ)*y(1,t-τ))*mJ(t)/mJ(t-τ)*S - dJ(t)*J, # juveniles: y(0)
     
-    A:  M(t)*M(t-τ)*b(t-τ)*y(1,t-τ)*Allee(y(1,t-τ))*exp(-q(t-τ)*y(1,t-τ))*mJ(t)/mJ(t-τ)*S - dA(t)*A, # Adults
+    A:  M(t)*M(t-τ)*b(t-τ)*y(1,t-τ)*Allee(y(1,t-τ))*exp(-q(t-τ)*y(1,t-τ))*mJ(t)/mJ(t-τ)*S - dA(t)*A, # Adults: y(1)
     
-    S: S*(mJ(t)/mJ(t-τ)*dJ(t-τ) - dJ(t)), # Through-stage survivorship
+    S: S*(mJ(t)/mJ(t-τ)*dJ(t-τ) - dJ(t)), # Through-stage survivorship: y(2)
     
-    τ: 1 - mJ(t)/mJ(t-τ), # Developmental time-delay
+    τ: 1 - mJ(t)/mJ(t-τ), # Developmental time-delay: y(3)
     
-    r: M(t)*b(t-τ)*A0*Allee(A0)*exp(-q(t-τ)*A0)*mJ(t)/mJ(t-τ)*S - dA(t)*A0 # Low density population growth rate
+    r: M(t)*b(t-τ)*A0*Allee(A0)*exp(-q(t-τ)*A0)*mJ(t)/mJ(t-τ)*S - dA(t)*A0 # Low density population growth rate: y(4)
     }
 
 
 # MODEL WITH EGG STAGE
 if egg == True:
-    E,J,A,SE,SJ,τE,τJ,r = [y(i) for i in range(8)]
-    f = {
-        E: M(t)*b(t)*A*Allee(A)*exp(-q(t)*A) - M(t)*M(t-τE)*b(t-τE)*y(2,t-τE)*Allee(y(2,t-τE))*exp(-q(t-τE)*y(2,t-τE))*mE(t)/mE(t-τE)*SE - dE(t)*E, # juveniles
+    # Define state variables
+    E,J,A,SE,SJ,SA,τE,τJ,τA,r = [y(i) for i in range(10)]
+    
+    # Define functions used in DDE model
+    # adult fecundity
+    def fA(t):
+        return M(t)*b(t)*A*Allee(A)*exp(-q(t)*A)
+    # egg development                   
+    def gE(t):
+        return M(t)*M(t-τE)*b(t-τE)*y(2,t-τE)*Allee(y(2,t-τE))*exp(-q(t-τE)*y(2,t-τE))*mE(t)/mE(t-τE)*SE
+    # juvenile development
+    def gJ(t):
+        return M(t)*M(t-y(6,t-τJ)-τJ)*b(t-y(6,t-τJ)-τJ)*y(2,t-y(6,t-τJ)-τJ)*Allee(y(2,t-y(6,t-τJ)-τJ))*exp(-q(t-y(6,t-τJ)-τJ)*y(2,t-y(6,t-τJ)-τJ))*mE(t-τJ)/mE(t-y(6,t-τJ)-τJ)*mJ(t)/mJ(t-τJ)*y(3,t-τJ)*SJ
+    # adult senescence
+    def gA(t):
+        return M(t)*M(t-y(6,t-y(7,t-τA)-τA)-y(7,t-τA)-τA) * b(t-y(6,t-y(7,t-τA)-τA)-y(7,t-τA)-τA) * y(2,t-y(6,t-y(7,t-τA)-τA)-y(7,t-τA)-τA) * Allee(y(2,t-y(6,t-y(7,t-τA)-τA)-y(7,t-τA)-τA)) * exp(-q(t-y(6,t-y(7,t-τA)-τA)-y(7,t-τA)-τA) * y(2,t-y(6,t-y(7,t-τA)-τA)-y(7,t-τA)-τA)) * mE(t-y(7,t-τA)-τA)/mE(t-y(6,t-y(7,t-τA)-τA)-y(7,t-τA)-τA) * mJ(t-τA)/mJ(t-y(7,t-τA)-τA) * dA(t)/dA(t-τA) * y(3,t-y(7,t-τA)-τA) * y(4,t-τA) * SA
 
-        J: M(t)*M(t-τE)*b(t-τE)*y(2,t-τE)*Allee(y(2,t-τE))*exp(-q(t-τE)*y(2,t-τE))*mE(t)/mE(t-τ)*SE - M(t)*M(t-y(5,t-τJ)-τJ)*b(t-y(5,t-τJ)-τJ)*y(2,t-y(5,t-τJ)-τJ)*Allee(y(2,t-y(5,t-τJ)-τJ))*exp(-q(t-y(5,t-τJ)-τJ)*y(2,t-y(5,t-τJ)-τJ))*mE(t-τJ)/mE(t-y(5,t-τJ)-τJ)*mJ(t)/mJ(t-τJ)*y(3,t-τJ)*SJ - dJ(t)*J, # juveniles
+    # DDE model
+    f = {
+        E: fA(t) - gE(t) - dE(t)*E, # eggs: y(0)
+
+        J: gE(t) - gJ(t) - dJ(t)*J, # juveniles: y(1)
     
-        A: M(t)*M(t-y(5,t-τJ)-τJ)*b(t-y(5,t-τJ)-τJ)*y(2,t-y(5,t-τJ)-τJ)*Allee(y(2,t-y(5,t-τJ)-τJ))*exp(-q(t-y(5,t-τJ)-τJ)*y(2,t-y(5,t-τJ)-τJ))*mE(t-τJ)/mE(t-y(5,t-τJ)-τJ)*mJ(t)/mJ(t-τJ)*y(3,t-τJ)*SJ - dA(t)*A, # Adults
+        A: gJ(t) - gA(t) - dA(t)*A, # Adults: y(2)
     
-        SE: SE*(mE(t)/mE(t-τE)*dE(t-τE) - dE(t)), # Through-egg stage survivorship
+        SE: SE*(mE(t)/mE(t-τE)*dE(t-τE) - dE(t)), # Through-egg stage survivorship: y(3)
     
-        SJ: SJ*(mJ(t)/mJ(t-τJ)*dJ(t-τJ) - dJ(t)), # Through-egg stage survivorship
+        SJ: SJ*(mJ(t)/mJ(t-τJ)*dJ(t-τJ) - dJ(t)), # Through-juvenile stage survivorship: y(4)
         
-        τE: 1 - mE(t)/mE(t-τE), # Developmental time-delay
+        SA: SA*(dA(t)/dA(t-τA)*dA(t-τA) - dA(t)), # Through-adult stage survivorship: y(5)
         
-        τJ: 1 - mJ(t)/mJ(t-τJ), # Developmental time-delay
-    
-        r: M(t)*M(t-y(5,t-τJ)-τJ)*b(t-y(5,t-τJ)-τJ)*A0*Allee(A0)*exp(-q(t-y(5,t-τJ)-τJ)*A0)*mE(t-τJ)/mE(t-y(5,t-τJ)-τJ)*mJ(t)/mJ(t-τJ)*y(3,t-τJ)*SJ - dA(t)*A0 # Low density population growth rate
+        τE: 1 - mE(t)/mE(t-τE), # Egg developmental time-delay: y(6)
+        
+        τJ: 1 - mJ(t)/mJ(t-τJ), # Juvenile developmental time-delay: y(7)
+        
+        τA: 1 - dA(t)/dA(t-τA), # Adult longevity time-delay: y(8)
+        
+        # Low density population growth rate: y(9)
+        r: M(t)*M(t-y(6,t-τJ)-τJ)*b(t-y(6,t-τJ)-τJ)*A0*Allee(A0)*exp(-q(t-y(6,t-τJ)-τJ)*A0)*mE(t-τJ)/mE(t-y(6,t-τJ)-τJ)*mJ(t)/mJ(t-τJ)*y(3,t-τJ)*SJ - dA(t)*A0  -  M(t)*M(t-y(6,t-y(7,t-τA)-τA)-y(7,t-τA)-τA) * b(t-y(6,t-y(7,t-τA)-τA)-y(7,t-τA)-τA) * A0 * Allee(A0) * exp(-q(t-y(6,t-y(7,t-τA)-τA)-y(7,t-τA)-τA) * A0) * mE(t-y(7,t-τA)-τA)/mE(t-y(6,t-y(7,t-τA)-τA)-y(7,t-τA)-τA) * mJ(t-τA)/mJ(t-y(7,t-τA)-τA) * dA(t)/dA(t-τA) * y(3,t-y(7,t-τA)-τA) * y(4,t-τA) * SA
         }
 
 
 # RUN DDE SOLVER
 # Time and initial conditions
 times = arange(0, max_years*yr, tstep)
-init = [ initJ, initA, exp(-dJ(-1e-3)/mTR), 1./mTR, 0 ]
+init = [ initJ, initA, exp(-dJ(-1e-3)/mTR), 1./mTR, 0. ]
 if egg == True:
-    init = [ initE, initJ, initA, exp(-dE(-1e-3)/mETR), exp(-dJ(-1e-3)/mTR), 1./mETR, 1./mTR, 0 ]
+    init = [ initE, initJ, initA, exp(-dE(0)/mE(0)), exp(-dJ(0)/mJ(0)), exp(-1), 1./mE(0), 1./mJ(0), 1./dA(0), 0. ]
 
-# DDE solver
+# Run DDE solver
 DDE = jitcdde(f, max_delay=1e5, verbose=False)
-
 DDE.constant_past(init)
 DDE.compile_C(simplify=False, do_cse=False, verbose=True)
 DDE.adjust_diff()
@@ -277,5 +295,5 @@ ax.legend(loc='best')
 xlabel("time (days)")
 ylabel("population density")
 yscale("linear")
-xlim((max_years-max_years)*yr,max_years*yr)
+xlim((max_years-2)*yr,max_years*yr)
 ylim(0,1000)

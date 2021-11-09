@@ -10,10 +10,10 @@ from zipfile import ZipFile
 
 
 # USER: enter desired latitude and longitude and name of location
-lat = 7.45
-lon = 3.9
-loc = "Burkina Faso"
-# USER: must also update lines 49 after netCDF file downloaded
+lat = 6.45
+lon = 2.35
+loc = "Benin"
+# USER: must also update line 51 after netCDF file downloaded
 
 
 # Set working directory to the same as the python code
@@ -75,6 +75,7 @@ df = pd.DataFrame({
     'longitude': longitudes_grid,
     'Tmax': var[:].flatten()})
 df.to_csv(file_name + ".csv")
+f.close()
 
 # Delete Climate Store data files
 os.rename(nc_max, file_name + ".nc")
@@ -130,6 +131,7 @@ df = pd.DataFrame({
     'longitude': longitudes_grid,
     'Tmin': var[:].flatten()})
 df.to_csv(file_name2 + ".csv")
+f.close()
 
 # Delete Climate Store data files
 os.rename(nc_min, file_name2 + ".nc")

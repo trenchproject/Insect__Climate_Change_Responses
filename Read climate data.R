@@ -11,10 +11,9 @@ library(ncdf4)
 library(lubridate)
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
-# USER: enter location, species, and start date YYYY-MM-DD (see "Climate station data.xlxs")
-loc <- "Nigeria"
-species <- "Clavigralla tomentosicollis"
-date <- yday("1998-10-05")
+# USER: enter location and start date YYYY-MM-DD (see "Climate station data.xlxs")
+loc <- "Benin"
+date <- yday("1941-01-02")
 
 
 ################################## HISTORICAL CLIMATE DATA ##################################
@@ -34,8 +33,8 @@ t.max <- ncvar_get(nc.max, "time") # time in Tmax data frame
 t.min <- ncvar_get(nc.min, "time") # time in Tmin data frame
 Tmax <- ncvar_get(nc.max, "TMAX")
 Tmin <- ncvar_get(nc.min, "TMIN")
-data.max <- data.frame(t.max + 0.5,  273.15 + Tmax) # offset Tmax 0.5 days from Tmin
-data.min <- data.frame(t.min,  273.15 + Tmin)
+data.max <- data.frame(date + t.max + 0.5,  273.15 + Tmax) # offset Tmax 0.5 days from Tmin
+data.min <- data.frame(date + t.min,  273.15 + Tmin)
 names(data.max) <- c("day", "T")
 names(data.min) <- c("day", "T")
 

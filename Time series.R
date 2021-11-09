@@ -38,17 +38,24 @@ data.TS <- subset(data.density, Plot=="B") # select plot A, B, or C
 
 # Data transformation (if needed)
 # Convert from log to linear scale
-#data.TS$J <- (10^data.TS$J) - 1
-#data.TS$J_SE <- sqrt(data.TS$J)
-#data.TS$A <- (10^data.TS$A) - 1
-#data.TS$A_SE <- sqrt(data.TS$A)
+if(egg == TRUE) {
+  data.TS$E <- (10^data.TS$E) - 1
+  data.TS$E_SE_L <- (10^data.TS$E_SE_L) - 1
+  data.TS$E_SE_H <- (10^data.TS$E_SE_H) - 1
+}
+data.TS$J <- (10^data.TS$J) - 1
+data.TS$J_SE_L <- (10^data.TS$J_SE_L) - 1
+data.TS$J_SE_H <- (10^data.TS$J_SE_H) - 1
+data.TS$A <- (10^data.TS$A) - 1
+data.TS$A_SE_L <- (10^data.TS$A_SE_L) - 1
+data.TS$A_SE_H <- (10^data.TS$A_SE_H) - 1
 
 
 # READ IN TEMPERATURE RESPONSE PARAMETERS, DDE MODEL DYNAMICS, AND TEMPERATURE PARAMETERS
 #sp.data <- subset(data, Species == paste(species,location,"(egg)"))
 sp.data <- subset(data, Species == paste(species,"Benin (egg)"))
 data.model <- as.data.frame(read_csv(paste("Time series data/Historical Time Series",species,location,"(egg).csv")))
-#data.model.CC <- as.data.frame(read_csv(paste("Time series data/Future Time Series",species,location,"(egg).csv")))
+data.model.CC <- as.data.frame(read_csv(paste("Time series data/Future Time Series",species,location,"(egg).csv")))
 temp.data <- subset(temp.data, Species == paste(species,location))
 
 
@@ -56,9 +63,9 @@ temp.data <- subset(temp.data, Species == paste(species,location))
 # Default: plot last 2 year of model
 # for historical time period
 xmin <- 0
-xmax <- 720
+xmax <- 730
 ymin <- 0
-ymax <- 5
+ymax <- 1000
 # for climate change time period
 xmin.CC <- xmin
 xmax.CC <- xmax
@@ -91,27 +98,27 @@ data.model.CC <- data.model.CC[c(-1:-(end-2*yr + xmin.CC)), ]
 # Re-scale time to start at xmin
 # historical period
 time.shift <- data.model[[1,1]]-xmin
-ifelse(egg == FALSE, data.model <- sweep(data.model, 2, c(time.shift,0,0,0,0)), data.model <- sweep(data.model, 2, c(time.shift,0,0,0,0,0,0,0,0)))
+ifelse(egg == FALSE, data.model <- sweep(data.model, 2, c(time.shift,0,0,0,0,0)), data.model <- sweep(data.model, 2, c(time.shift,0,0,0,0,0,0,0,0)))
 # climate change period
 time.shift.CC <- data.model.CC[[1,1]] + xmin.CC
-ifelse(egg == FALSE, data.model.CC <- sweep(data.model.CC, 2, c(time.shift.CC,0,0,0,0)), data.model.CC <- sweep(data.model.CC, 2, c(time.shift.CC,0,0,0,0,0,0,0,0)))
+ifelse(egg == FALSE, data.model.CC <- sweep(data.model.CC, 2, c(time.shift.CC,0,0,0,0,0)), data.model.CC <- sweep(data.model.CC, 2, c(time.shift.CC,0,0,0,0,0,0,0,0)))
 
 # Data transformation (if needed)
 # Convert from linear to log scale
-if (egg == TRUE) { data.model$E <- log(data.model$E, 10) }
-data.model$J <- log(data.model$J, 10)
-data.model$A <- log(data.model$A, 10)
-if (egg == TRUE) { data.model.CC$E <- log(data.model.CC$E, 10) }
-data.model.CC$J <- log(data.model.CC$J, 10)
-data.model.CC$A <- log(data.model.CC$A, 10)
+# if(egg == TRUE) { data.model$E <- log(data.model$E + 1, 10) }
+# data.model$J <- log(data.model$J + 1, 10)
+# data.model$A <- log(data.model$A + 1, 10)
+# if(egg == TRUE) { data.model.CC$E <- log(data.model.CC$E + 1, 10) }
+# data.model.CC$J <- log(data.model.CC$J + 1, 10)
+# data.model.CC$A <- log(data.model.CC$A + 1, 10)
 
 
 
 # PLOT TIME-SERIES DATA
 # Egg density
 if (egg == TRUE) {
-plot.E = ggplot(data.TS, aes(x=time, y=E, ymin=E-E_SE, ymax=E+E_SE)) + 
-  geom_pointrange(size=0.8, color="black") +
+plot.E = ggplot(data.TS, aes(x=time, y=E, ymin=E_SE_L, ymax=E_SE_H)) + 
+  geom_pointrange(size=0.5, color="black") +
   labs(x="Time", y="Density") +
   scale_x_continuous(limits=c(xmin, xmax)) +
   scale_y_continuous(limits=c(ymin, ymax)) +
@@ -122,8 +129,8 @@ plot.E = ggplot(data.TS, aes(x=time, y=E, ymin=E-E_SE, ymax=E+E_SE)) +
         axis.text = element_text(size=13), axis.title = element_text(size=20))}
 
 # Juvenile density
-plot.J = ggplot(data.TS, aes(x=time, y=J, ymin=J-J_SE, ymax=J+J_SE)) + 
-  geom_pointrange(size=0.8, color="#d1495b") + # red color
+plot.J = ggplot(data.TS, aes(x=time, y=J, ymin=J_SE_L, ymax=J_SE_H)) + 
+  geom_pointrange(size=0.5, color="#d1495b") + # red color
   labs(x="Time", y="Density") +
   scale_x_continuous(limits=c(xmin, xmax)) +
   scale_y_continuous(limits=c(ymin, ymax)) +
@@ -134,8 +141,8 @@ plot.J = ggplot(data.TS, aes(x=time, y=J, ymin=J-J_SE, ymax=J+J_SE)) +
         axis.text = element_text(size=13), axis.title = element_text(size=20))
 
 # Adult density
-plot.A = ggplot(data.TS, aes(x=time, y=A, ymin=A-A_SE, ymax=A+A_SE)) + 
-  geom_pointrange(size=0.8, color="#30638e") + # blue color
+plot.A = ggplot(data.TS, aes(x=time, y=A, ymin=A_SE_L, ymax=A_SE_H)) + 
+  geom_pointrange(size=0.5, color="#30638e") + # blue color
   labs(x="Time", y="Density") +
   scale_x_continuous(limits=c(xmin, xmax)) +
   scale_y_continuous(limits=c(ymin, ymax)) +
@@ -363,14 +370,14 @@ plot
 
 # Compare historical and climate change periods
 # by life stages
-plot.compare <- ggdraw()  +
-  draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
-  draw_plot(plot.temp.CC, x = 0, y = 0, width = 1, height = 0.3) +
-  draw_plot(model.J, x = 0, y = 0.3, width = 1, height = 0.7) +
-  draw_plot(model.A, x = 0, y = 0.3, width = 1, height = 0.7) +
-  draw_plot(model.J.CC, x = 0, y = 0.3, width = 1, height = 0.7) +
-  draw_plot(model.A.CC, x = 0, y = 0.3, width = 1, height = 0.7)
-plot.compare
+# plot.compare <- ggdraw()  +
+#   draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
+#   draw_plot(plot.temp.CC, x = 0, y = 0, width = 1, height = 0.3) +
+#   draw_plot(model.J, x = 0, y = 0.3, width = 1, height = 0.7) +
+#   draw_plot(model.A, x = 0, y = 0.3, width = 1, height = 0.7) +
+#   draw_plot(model.J.CC, x = 0, y = 0.3, width = 1, height = 0.7) +
+#   draw_plot(model.A.CC, x = 0, y = 0.3, width = 1, height = 0.7)
+# plot.compare
 
 
 # total insects
