@@ -27,17 +27,17 @@ temp_data = read_csv("Temperature parameters.csv")
 
 # ENTER SPECIES, LOCATION, AND TIME PERIOD
 species = "Clavigralla tomentosicollis"
-location = "Benin (egg)"
+location = "Burkina Faso"
 period = "Historical"
 
 # USER: Save data to CSV file?
 save_data = True
 
 # USER: Model egg stage separately from juvenile stage?
-egg = True
+egg = False
 
 # USER: Incorporate resource variation due to precipitation?
-res = True
+res = False
 
 
 # SELECT INSECT SPECIES
@@ -57,15 +57,15 @@ spData = data[data["Species"] == species + " " + location]
 
 
 # SELECT LOCATION
-#temp_data = temp_data[temp_data["Species"] == species + " " + location]
-temp_data = temp_data[temp_data["Species"] == species + " Nigeria"]
+temp_data = temp_data[temp_data["Species"] == species + " " + location]
+#temp_data = temp_data[temp_data["Species"] == species + " Nigeria"]
 
 
 # DEFINE MODEL PARAMETERS
 # Time parameters
 yr = 365 # days in year
 init_years = 10 # how many years to use for model initiation
-max_years = init_years+10 # how long to run simulations
+max_years = init_years+80 # how long to run simulations
 tstep = 1 # time step = 1 day
 CC_years = max_years # how long before climate change "equilibrates"
 

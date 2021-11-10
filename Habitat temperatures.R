@@ -12,7 +12,7 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 
 # USER: enter location
-location <- "Nigeria"
+location <- "Benin"
 
 # INPUT DATA
 # Select a location by removing # in front of name and placing # in front of other locations
@@ -22,12 +22,12 @@ data.f <- as.data.frame(read_csv(paste0("Climate data/Future climate data ",loca
 
 #################################### HISTORICAL CLIMATE #####################################
 # Fit sinusoidal function with annual temperature variation to climate data
-#(fit.h <- summary(nls(T ~ meanT - amplT*cos(2*pi*(day + shiftT)/365), data = data.h,
-#                      start = list(meanT = 300, amplT = 1, shiftT = 30))))
+(fit.h <- summary(nls(T ~ meanT - amplT*cos(2*pi*(day + shiftT)/365), data = data.h,
+                      start = list(meanT = 300, amplT = 1, shiftT = 30))))
 
 # Fit sinusoidal function with annual temperature variation to climate data (delta_mean and delta_ampl)
-(fit.h <- summary(nls(T ~ (meanT + delta_mean*day) - (amplT + delta_ampl*day)*cos(2*pi*(day + shiftT)/365), data = data.h,
-                      start = list(meanT = 300, amplT = 1, shiftT = 30, delta_mean = 0.1, delta_ampl = 0.1))))
+#(fit.h <- summary(nls(T ~ (meanT + delta_mean*day) - (amplT + delta_ampl*day)*cos(2*pi*(day + shiftT)/365), data = data.h,
+#                      start = list(meanT = 300, amplT = 1, shiftT = 30, delta_mean = 0.1, delta_ampl = 0.1))))
 
 # Then estimate diurnal variation as average daily difference between Tmax and Tmin
 diurnal.h <- 0
