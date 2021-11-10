@@ -15,7 +15,7 @@ data <- as.data.frame(read_csv("Temperature response data.csv"))
 
 # Select an insect by removing # in front of name and placing # in front of other species
 #sp.data <- subset(data, Species == "Clavigralla shadabi")
-#sp.data <- subset(data, Species == "Clavigralla tomentosicollis Benin")
+sp.data <- subset(data, Species == "Clavigralla tomentosicollis Benin")
 #sp.data <- subset(data, Species == "Clavigralla tomentosicollis Nigeria")
 #sp.data <- subset(data, Species == "Clavigralla tomentosicollis Burkina Faso")
 #sp.data <- subset(data, Species == "Apolygus lucorum")
@@ -29,15 +29,15 @@ data <- as.data.frame(read_csv("Temperature response data.csv"))
 #sp.data <- subset(data, Species == "Macrolophus pygmaeus on Trialeurodes vaporariorum")
 #sp.data <- subset(data, Species == "Toxoptera citricidus on C. unshiu")
 #sp.data <- subset(data, Species == "Toxoptera citricidus on C. aurantium")
-sp.data <- subset(data, Species == "Aphis citricola")
+#sp.data <- subset(data, Species == "Aphis citricola")
 #sp.data <- subset(data, Species == "Aphis gossypii Japan")
 
 # Remove columns that do not contain temperature data
 sp.data <- sp.data[-c(1:8,12,14,16,18,20,22,24,26,27,29,31,32,34,35,37,39,40,42,44,46,48,50,51)]
 
 # Set some option for nls and plots
-Tmin <- 285
-Tmax <- 305
+Tmin <- 280
+Tmax <- 310
 TR <- 293
 
 
@@ -99,7 +99,7 @@ points(seq(Tmin,Tmax,1), coef(dev.mon)[1]*(seq(Tmin,Tmax,1)/TR)*exp(coef(dev.mon
 
 # Minimum developmental temperature
 # NOTE: removed data beyond max development
-dev.min <- nls(Development ~ m*T_K+b, data=sp.data[-c((nrow(sp.data)-0):nrow(sp.data)),],
+dev.min <- nls(Development ~ m*T_K+b, data=sp.data[-c((nrow(sp.data)-1):nrow(sp.data)),],
                start=list(m=0.01, b=0))
 summary(dev.min)
 # Plot model fits
@@ -136,7 +136,7 @@ points(seq(Tmin,Tmax,1), coef(mort.A)[1]*exp(coef(mort.A)[2]*(1/TR-1/seq(Tmin,Tm
 # estimate all parameters
 r <- nls(r ~ ifelse(T_K <= Topt, rMax*exp(-1*((T_K-Topt)/(2*sr))^2),
                     rMax*(1 - ((T_K-Topt)/(Topt-Tmax))^2)),
-                    data=sp.data, start=list(sr=5, Topt=298, Tmax=303.8, rMax=0.4))
+                    data=sp.data, start=list(sr=5, Topt=303, Tmax=308, rMax=0.1))
 summary(r)
 # Plot model fits
 plot(sp.data$T_K, sp.data$r)
@@ -145,7 +145,7 @@ points(seq(Tmin,Tmax,1), ifelse(seq(Tmin,Tmax,1) <= coef(r)[2], coef(r)[4]*exp(-
 
 
 # set Topt and rMax (NOTE: Topt cannot equal Tmax in nls)
-Topt <- 300.3
+Topt <- sp.data[nrow(sp.data)-1,"T_K"]
 rMax <- sp.data[sp.data$T_K==Topt,"r"]
 # estimate all other parameters
 r <- nls(r ~ ifelse(T_K <= Topt, rMax*exp(-1*((T_K-Topt)/(2*sr))^2),

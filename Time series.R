@@ -65,7 +65,7 @@ temp.data <- subset(temp.data, Species == paste(species,location))
 xmin <- 0
 xmax <- 730
 ymin <- 0
-ymax <- 1000
+ymax <- 500
 # for climate change time period
 xmin.CC <- xmin
 xmax.CC <- xmax
@@ -332,10 +332,10 @@ plot.climate <- ggdraw()  +
 ifelse(egg == TRUE,
 plot <- ggdraw()  +
   draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
-  draw_plot(plot.E, x = 0, y = 0.3, width = 1, height = 0.7) +
+  #draw_plot(plot.E, x = 0, y = 0.3, width = 1, height = 0.7) +
   draw_plot(plot.J, x = 0, y = 0.3, width = 1, height = 0.7) +
   draw_plot(plot.A, x = 0, y = 0.3, width = 1, height = 0.7) +
-  draw_plot(model.E, x = 0, y = 0.3, width = 1, height = 0.7) +
+  #draw_plot(model.E, x = 0, y = 0.3, width = 1, height = 0.7) +
   draw_plot(model.J, x = 0, y = 0.3, width = 1, height = 0.7) +
   draw_plot(model.A, x = 0, y = 0.3, width = 1, height = 0.7),
 plot <- ggdraw()  +
