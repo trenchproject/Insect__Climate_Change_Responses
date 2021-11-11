@@ -65,7 +65,7 @@ temp.data <- subset(temp.data, Species == paste(species,location))
 xmin <- 0
 xmax <- 730
 ymin <- 0
-ymax <- 500
+ymax <- 1000
 # for climate change time period
 xmin.CC <- xmin
 xmax.CC <- xmax

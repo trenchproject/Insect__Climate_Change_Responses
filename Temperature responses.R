@@ -14,8 +14,8 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 data <- as.data.frame(read_csv("Temperature response data.csv"))
 
 # Select an insect by removing # in front of name and placing # in front of other species
-#sp.data <- subset(data, Species == "Clavigralla shadabi")
-sp.data <- subset(data, Species == "Clavigralla tomentosicollis Benin")
+sp.data <- subset(data, Species == "Clavigralla shadabi")
+#sp.data <- subset(data, Species == "Clavigralla tomentosicollis Benin")
 #sp.data <- subset(data, Species == "Clavigralla tomentosicollis Nigeria")
 #sp.data <- subset(data, Species == "Clavigralla tomentosicollis Burkina Faso")
 #sp.data <- subset(data, Species == "Apolygus lucorum")
@@ -38,14 +38,14 @@ sp.data <- sp.data[-c(1:8,12,14,16,18,20,22,24,26,27,29,31,32,34,35,37,39,40,42,
 # Set some option for nls and plots
 Tmin <- 280
 Tmax <- 310
-TR <- 293
+TR <- 298
 
 
 
 ####################################### FECUNDITY ###########################################
 # NLS
 fec <- nls(Birth_Rate ~ bTopt*exp(-((T_K-Toptb)^2)/(2*sb^2)), data=sp.data,
-           start=list(bTopt=5, Toptb=TR+2, sb=3))
+           start=list(bTopt=5, Toptb=TR, sb=3))
 summary(fec)
 # Plot model fits
 plot(sp.data$T_K, sp.data$Birth_Rate)
@@ -55,7 +55,7 @@ points(seq(Tmin,Tmax,1),coef(fec)[1]*exp(-((seq(Tmin,Tmax,1)-coef(fec)[2])^2)/(2
 ###################################### DEVELOPMENT ##########################################
 # estimate xTR and A
 # NOTE: removed data beyond max development
-dev.mon <- nls(Development ~ xTR*T_K/TR*exp(A*(1/TR-1/T_K)), data=sp.data[-c((nrow(sp.data)-1):nrow(sp.data)),],
+dev.mon <- nls(Development ~ xTR*T_K/TR*exp(A*(1/TR-1/T_K)), data=sp.data[-c((nrow(sp.data)-0):nrow(sp.data)),],
                start=list(xTR=0.1, A=1000))
 summary(dev.mon)
 # Plot model fits
@@ -65,8 +65,8 @@ points(seq(Tmin,Tmax,1), coef(dev.mon)[1]*(seq(Tmin,Tmax,1)/TR)*exp(coef(dev.mon
 # estimate AL and AH separately from TL and TH if needed
 xTR <- coef(dev.mon)[1]
 A <- coef(dev.mon)[2]
-kTL <- 290
-kTH <- 303
+kTL <- 293
+kTH <- 309
 dev.A <- nls(Development ~ xTR*(T_K/TR)*exp(A*(1/TR-1/T_K))/(1+exp(AL*(1/kTL-1/T_K))+exp(AH*(1/kTH-1/T_K))),
               data=sp.data, start=list(AL=-50000, AH=50000))
 summary(dev.A)
@@ -81,9 +81,9 @@ points(seq(Tmin,Tmax,1), xTR*(seq(Tmin,Tmax,1)/TR)*exp(A*(1/TR-1/seq(Tmin,Tmax,1
          (1+(exp(AL*(1/coef(dev.T)[1]-1/seq(Tmin,Tmax,1)))+exp(AH*(1/coef(dev.T)[2]-1/seq(Tmin,Tmax,1))))), type="l", col="blue")
 
 # estimate TH and AH separately from TL and AL if needed
-kAL <- -100000
+kAL <- -50000
 dev.H <- nls(Development ~ coef(dev.mon)[1]*(T_K/TR)*exp(coef(dev.mon)[2]*(1/TR-1/T_K))/(1+exp(kAL*(1/kTL-1/T_K))+exp(AH*(1/TH-1/T_K))),
-             data=sp.data, start=list(TH=kTH, AH=50000))
+             data=sp.data, start=list(TH=kTH, AH=10000))
 summary(dev.H)
 dev.AL <- nls(Development ~ coef(dev.mon)[1]*(T_K/TR)*exp(coef(dev.mon)[2]*(1/TR-1/T_K))/(1+exp(AL*(1/kTL-1/T_K))+exp(coef(dev.H)[2]*(1/coef(dev.H)[1]-1/T_K))),
              data=sp.data, start=list(AL=-100000))
@@ -165,7 +165,7 @@ coef(r)[2]
 ##################################### EGG DEVELOPMENT ########################################
 # estimate xTR and A
 # NOTE: removed data beyond max development
-dev.mon <- nls(Egg_Dev ~ xTR*T_K/TR*exp(A*(1/TR-1/T_K)), data=sp.data[-c((nrow(sp.data)-1):nrow(sp.data)),],
+dev.mon <- nls(Egg_Dev ~ xTR*T_K/TR*exp(A*(1/TR-1/T_K)), data=sp.data[-c((nrow(sp.data)-2):nrow(sp.data)),],
                start=list(xTR=0.1, A=1000))
 summary(dev.mon)
 # Plot model fits
@@ -173,8 +173,8 @@ plot(sp.data$T_K, sp.data$Egg_Dev)
 points(seq(Tmin,Tmax,1), coef(dev.mon)[1]*(seq(Tmin,Tmax,1)/TR)*exp(coef(dev.mon)[2]*(1/TR-1/seq(Tmin,Tmax,1))), type="l", col="blue")
 
 # estimate AL and AH separately from TL and TH if needed
-kTL <- 290
-kTH <- 308
+kTL <- 297
+kTH <- 311
 dev.A <- nls(Egg_Dev ~ coef(dev.mon)[1]*(T_K/TR)*exp(coef(dev.mon)[2]*(1/TR-1/T_K))/(1+exp(AL*(1/kTL-1/T_K))+exp(AH*(1/kTH-1/T_K))),
              data=sp.data, start=list(AL=-50000, AH=50000))
 summary(dev.A)

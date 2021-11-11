@@ -27,17 +27,20 @@ temp_data = read_csv("Temperature parameters.csv")
 
 # ENTER SPECIES, LOCATION, AND TIME PERIOD
 species = "Clavigralla tomentosicollis"
-location = "Burkina Faso"
+location = "Benin (egg)"
 period = "Historical"
 
 # USER: Save data to CSV file?
 save_data = True
 
 # USER: Model egg stage separately from juvenile stage?
-egg = False
+egg = True
 
 # USER: Incorporate resource variation due to precipitation?
-res = False
+res = True
+
+# USER: Incorporate diurnal temperature fluctuations?
+daily = False
 
 
 # SELECT INSECT SPECIES
@@ -57,8 +60,8 @@ spData = data[data["Species"] == species + " " + location]
 
 
 # SELECT LOCATION
-temp_data = temp_data[temp_data["Species"] == species + " " + location]
-#temp_data = temp_data[temp_data["Species"] == species + " Nigeria"]
+#temp_data = temp_data[temp_data["Species"] == species + " " + location]
+temp_data = temp_data[temp_data["Species"] == species + " Nigeria"]
 
 
 # DEFINE MODEL PARAMETERS
@@ -90,6 +93,8 @@ else:
     delta_mean = temp_data["delta_mean.f"].values[0]
     delta_ampl = temp_data["delta_ampl.f"].values[0]
     amplD = temp_data["amplD.f"].values[0]
+if daily == False:
+    amplD = 0
 
 # Resource parameters
 if period == "Historical":
@@ -176,9 +181,9 @@ show()
 # fecundity
 def b(x):
     if res==True:
-        return R(x) * bTopt * exp(-(T(x)-Toptb)**2/2/sb**2)
+        return conditional(R(x) * bTopt * exp(-(T(x)-Toptb)**2/2/sb**2), 1e-5, 1e-5, R(x) * bTopt * exp(-(T(x)-Toptb)**2/2/sb**2)) # If b(T) < jitcdde min tolerance, then b(T) = 0
     else:
-        return bTopt * exp(-(T(x)-Toptb)**2/2/sb**2)
+        return conditional(bTopt * exp(-(T(x)-Toptb)**2/2/sb**2), 1e-5, 1e-5, bTopt * exp(-(T(x)-Toptb)**2/2/sb**2)) # If b(T) < jitcdde min tolerance, then b(T) = 0
 
 # egg maturation rates
 if egg == True:
@@ -327,5 +332,5 @@ ax.legend(loc='best')
 xlabel("time (days)")
 ylabel("population density")
 yscale("linear")
-xlim((max_years-10)*yr,max_years*yr)
+xlim((max_years-1)*yr,(max_years-0)*yr)
 ylim(0,1000)
