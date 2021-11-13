@@ -2,6 +2,7 @@
 # NOTE: If code yields error: "Restarting kernel...", try increasing max_delay in the DDE solver section
 # NOTE: If code yields error: "Unsuccessful Integration: Could not integrate with the given tolerance parameters",
 #       one of the life history traits is below the minimum tolerance (1e-10)
+# NOTE: if code yields error: "CompileError: command 'gcc' failed with exit status 1", one of the parameters is not assigned a value
 
 # IMPORT PACKAGES
 from numpy import arange, hstack, vstack, savetxt
@@ -27,17 +28,17 @@ temp_data = read_csv("Temperature parameters.csv")
 
 # ENTER SPECIES, LOCATION, AND TIME PERIOD
 species = "Clavigralla tomentosicollis"
-location = "Benin (egg)"
+location = "Nigeria"
 period = "Historical"
 
 # USER: Save data to CSV file?
-save_data = True
+save_data = False
 
 # USER: Model egg stage separately from juvenile stage?
-egg = True
+egg = False
 
 # USER: Incorporate resource variation due to precipitation?
-res = True
+res = False
 
 # USER: Incorporate diurnal temperature fluctuations?
 daily = False

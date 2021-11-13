@@ -11,13 +11,13 @@ library(tidyverse)
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 # Read data
-data <- as.data.frame(read_csv("Temperature response data.csv"))
+data <- as.data.frame(read_csv("Temperature response data New.csv"))
 
 # Select an insect by removing # in front of name and placing # in front of other species
-sp.data <- subset(data, Species == "Clavigralla shadabi")
+#sp.data <- subset(data, Species == "Clavigralla shadabi")
 #sp.data <- subset(data, Species == "Clavigralla tomentosicollis Benin")
 #sp.data <- subset(data, Species == "Clavigralla tomentosicollis Nigeria")
-#sp.data <- subset(data, Species == "Clavigralla tomentosicollis Burkina Faso")
+sp.data <- subset(data, Species == "Clavigralla tomentosicollis Burkina Faso")
 #sp.data <- subset(data, Species == "Apolygus lucorum")
 #sp.data <- subset(data, Species == "Adelphocoris suturalis")
 #sp.data <- subset(data, Species == "Macrosiphum euphorbiae Brazil")
@@ -36,9 +36,9 @@ sp.data <- subset(data, Species == "Clavigralla shadabi")
 sp.data <- sp.data[-c(1:8,12,14,16,18,20,22,24,26,27,29,31,32,34,35,37,39,40,42,44,46,48,50,51)]
 
 # Set some option for nls and plots
-Tmin <- 280
-Tmax <- 310
-TR <- 298
+Tmin <- 290
+Tmax <- 320
+TR <- 308
 
 
 
@@ -55,7 +55,7 @@ points(seq(Tmin,Tmax,1),coef(fec)[1]*exp(-((seq(Tmin,Tmax,1)-coef(fec)[2])^2)/(2
 ###################################### DEVELOPMENT ##########################################
 # estimate xTR and A
 # NOTE: removed data beyond max development
-dev.mon <- nls(Development ~ xTR*T_K/TR*exp(A*(1/TR-1/T_K)), data=sp.data[-c((nrow(sp.data)-0):nrow(sp.data)),],
+dev.mon <- nls(Development ~ xTR*T_K/TR*exp(A*(1/TR-1/T_K)), data=sp.data[-c((nrow(sp.data)-2):nrow(sp.data)),],
                start=list(xTR=0.1, A=1000))
 summary(dev.mon)
 # Plot model fits
@@ -65,8 +65,8 @@ points(seq(Tmin,Tmax,1), coef(dev.mon)[1]*(seq(Tmin,Tmax,1)/TR)*exp(coef(dev.mon
 # estimate AL and AH separately from TL and TH if needed
 xTR <- coef(dev.mon)[1]
 A <- coef(dev.mon)[2]
-kTL <- 293
-kTH <- 309
+kTL <- 295
+kTH <- 311
 dev.A <- nls(Development ~ xTR*(T_K/TR)*exp(A*(1/TR-1/T_K))/(1+exp(AL*(1/kTL-1/T_K))+exp(AH*(1/kTH-1/T_K))),
               data=sp.data, start=list(AL=-50000, AH=50000))
 summary(dev.A)
@@ -99,7 +99,7 @@ points(seq(Tmin,Tmax,1), coef(dev.mon)[1]*(seq(Tmin,Tmax,1)/TR)*exp(coef(dev.mon
 
 # Minimum developmental temperature
 # NOTE: removed data beyond max development
-dev.min <- nls(Development ~ m*T_K+b, data=sp.data[-c((nrow(sp.data)-1):nrow(sp.data)),],
+dev.min <- nls(Development ~ m*T_K+b, data=sp.data[-c((nrow(sp.data)-2):nrow(sp.data)),],
                start=list(m=0.01, b=0))
 summary(dev.min)
 # Plot model fits
@@ -118,7 +118,7 @@ mort.J <- nls(Juv_Mortality ~ xTR*exp(A*(1/TR-1/T_K)), data=sp.data,
               start=list(xTR=0.01, A=10000))
 summary(mort.J)
 # Plot model fits
-plot(sp.data$T_K, sp.data$Juv_Mortality, ylim=c(0,0.2))
+plot(sp.data$T_K, sp.data$Juv_Mortality) #, ylim=c(0,0.2))
 points(seq(Tmin,Tmax,1), coef(mort.J)[1]*exp(coef(mort.J)[2]*(1/TR-1/seq(Tmin,Tmax,1))), type="l", col="blue")
 
 
@@ -165,7 +165,7 @@ coef(r)[2]
 ##################################### EGG DEVELOPMENT ########################################
 # estimate xTR and A
 # NOTE: removed data beyond max development
-dev.mon <- nls(Egg_Dev ~ xTR*T_K/TR*exp(A*(1/TR-1/T_K)), data=sp.data[-c((nrow(sp.data)-2):nrow(sp.data)),],
+dev.mon <- nls(Egg_Dev ~ xTR*T_K/TR*exp(A*(1/TR-1/T_K)), data=sp.data[-c((nrow(sp.data)-0):nrow(sp.data)),],
                start=list(xTR=0.1, A=1000))
 summary(dev.mon)
 # Plot model fits
@@ -278,7 +278,7 @@ mort.J <- nls(Juv_Mortality ~ dJTR*exp(A*(1/TR-1/T_K)), data=sp.data,
               start=list(A=1000))
 summary(mort.J)
 # Plot model fits
-plot(sp.data$T_K, sp.data$Juv_Mortality, ylim=c(0,0.2))
+plot(sp.data$T_K, sp.data$Juv_Mortality) #, ylim=c(0,0.2))
 points(seq(Tmin,Tmax,1), dJTR*exp(coef(mort.J)[1]*(1/TR-1/seq(Tmin,Tmax,1))), type="l", col="blue")
 
 

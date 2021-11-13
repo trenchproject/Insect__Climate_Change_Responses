@@ -12,7 +12,7 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 
 # USER: enter location
-location <- "Brazil"
+location <- "China Dafeng"
 
 # INPUT DATA
 # Select a location by removing # in front of name and placing # in front of other locations
@@ -22,28 +22,28 @@ data.f <- as.data.frame(read_csv(paste0("Climate data/Future climate data ",loca
 
 #################################### HISTORICAL CLIMATE #####################################
 # Fit sinusoidal function with annual temperature variation to climate data
-(fit.h <- summary(nls(T ~ meanT - amplT*cos(2*pi*(day + shiftT)/365), data = data.h,
-                      start = list(meanT = 300, amplT = 1, shiftT = 30))))
+#(fit.h <- summary(nls(T ~ meanT - amplT*cos(2*pi*(day + shiftT)/365), data = data.h,
+#                      start = list(meanT = 300, amplT = 1, shiftT = 30))))
 
 # Fit sinusoidal function with annual temperature variation to climate data (delta_mean and delta_ampl)
 #(fit.h <- summary(nls(T ~ (meanT + delta_mean*day) - (amplT + delta_ampl*day)*cos(2*pi*(day + shiftT)/365), data = data.h,
 #                      start = list(meanT = 300, amplT = 1, shiftT = 30, delta_mean = 0.1, delta_ampl = 0.1))))
 
 # Then estimate diurnal variation as average daily difference between Tmax and Tmin
-diurnal.h <- 0
-count.h <- 0
-l <- nrow(data.h)-1
-for(i in 1:l){
-  if(round(data.h[i+1,"day"]-0.1,0) == round(data.h[i,"day"]-0.1,0)) {
-    diurnal.h <- diurnal.h + data.h[i+1,"T"] - data.h[i,"T"]
-    count.h <- count.h + 1 }}
-(diurnal.h <- diurnal.h/count.h)
+# diurnal.h <- 0
+# count.h <- 0
+# l <- nrow(data.h)-1
+# for(i in 1:l){
+#   if(round(data.h[i+1,"day"]-0.1,0) == round(data.h[i,"day"]-0.1,0)) {
+#     diurnal.h <- diurnal.h + data.h[i+1,"T"] - data.h[i,"T"]
+#     count.h <- count.h + 1 }}
+#(diurnal.h <- diurnal.h/count.h)
 
 # Fit sinusoidal function with  annual and diurnal temperature variation to climate data
 # estimating all parameters (under-estimates temperature variation)
-#fit.h2 <- nls(T ~ meanT + amplT*cos(2*pi*(day + shiftT)/365) + amplD*cos(2*pi*day),
-#             data = data.h, start = list(meanT = 300, amplT = 1, shiftT = 30, amplD = 5))
-#summary(fit.h2)
+fit.h2 <- nls(T ~ meanT + amplT*cos(2*pi*(day + shiftT)/365) + amplD*cos(2*pi*day),
+             data = data.h, start = list(meanT = 300, amplT = 1, shiftT = 30, amplD = 5))
+summary(fit.h2)
 
 # Assess whether delta_mean or delta_ampl are significant and if not set to zero
 if(fit.h[["coefficients"]][4,4] > 0.05) { fit.h[["coefficients"]][4,1] <- 0 } # delta_mean
@@ -85,24 +85,24 @@ ggplot(data.h, aes(x=day, y=T)) +
 #                      start = list(meanT = 300, amplT = 1, shiftT = 30))))
 
 # Fit sinusoidal function with annual temperature variation to climate data (delta_mean and delta_ampl)
-(fit.f <- summary(nls(T ~ (meanT + delta_mean*day) - (amplT + delta_ampl*day) * cos(2*pi*(day + shiftT)/365), data = data.f,
-             start = list(meanT = 300, amplT = 1, shiftT = 30, delta_mean = 0.1, delta_ampl = 0.1))))
+#(fit.f <- summary(nls(T ~ (meanT + delta_mean*day) - (amplT + delta_ampl*day) * cos(2*pi*(day + shiftT)/365), data = data.f,
+#             start = list(meanT = 300, amplT = 1, shiftT = 30, delta_mean = 0.1, delta_ampl = 0.1))))
 
 # Then estimate diurnal variation as average daily difference between Tmax and Tmin
-diurnal.f <- 0
-count.f <- 0
-l <- nrow(data.f)-1
-for(i in 1:l){
-  if(round(data.f[i+1,"day"]-0.1,0) == round(data.f[i,"day"]-0.1,0)) {
-    diurnal.f <- diurnal.f + data.f[i+1,"T"] - data.f[i,"T"]
-    count.f <- count.f + 1}}
-(diurnal.f <- diurnal.f/count.f)
+# diurnal.f <- 0
+# count.f <- 0
+# l <- nrow(data.f)-1
+# for(i in 1:l){
+#   if(round(data.f[i+1,"day"]-0.1,0) == round(data.f[i,"day"]-0.1,0)) {
+#     diurnal.f <- diurnal.f + data.f[i+1,"T"] - data.f[i,"T"]
+#     count.f <- count.f + 1}}
+#(diurnal.f <- diurnal.f/count.f)
 
 # Fit sinusoidal function with  annual and diurnal temperature variation to climate data
 # estimating all parameters (under-estimates temperature variation)
-#fit.f2 <- nls(T ~ meanT - amplT*cos(2*pi*(day + shiftT)/365) - amplD*cos(2*pi*day),
-#             data = data.f, start = list(meanT = 300, amplT = 1, shiftT = 30, amplD = 5))
-#summary(fit.f2)
+fit.f2 <- nls(T ~ (meanT + delta_mean*day) - (amplT + delta_ampl*day)*cos(2*pi*(day + shiftT)/365) - amplD*cos(2*pi*day),
+             data = data.f, start = list(meanT = 300, amplT = 1, shiftT = 30, amplD = 5, delta_mean = 0.1, delta_ampl = 0.1))
+summary(fit.f2)
 
 # Assess whether delta_mean or delta_ampl are significant and if not set to zero
 if(fit.f[["coefficients"]][4,4] > 0.05) { fit.f[["coefficients"]][4,1] <- 0 } # delta_mean

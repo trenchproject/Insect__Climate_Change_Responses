@@ -12,10 +12,10 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 
 # USER: enter species and location
-species <- "Clavigralla tomentosicollis"
-location <- "Nigeria"
-species <- "Uroleucon ambrosiae"
-location <- "Brazil"
+#species <- "Clavigralla tomentosicollis"
+#location <- "Nigeria"
+species <- "Apolygus lucorum"
+location <- "China Dafeng"
 
 ################################## TPC: HISTORICAL CLIMATE ###################################
 # Read in climate data
@@ -35,7 +35,7 @@ t.param <- subset(as.data.frame(read_csv("Temperature parameters.csv")), Species
 # (r.TPC.h <- r.TPC.h/n.TPC.h)
 
 # Integrate across r(T(t))
-T.h <- function(t) { (t.param$meanT.h+t.param$delta_mean.h*t) - (t.param$amplT.h+t.param$delta_ampl.h*t)*cos(2*pi*(t + t.param$shiftT.h)/365) - 0*t.param$amplD.h*cos(2*pi*t) }
+T.h <- function(t) { (t.param$meanT.h+t.param$delta_mean.h*t) - (t.param$amplT.h+t.param$delta_ampl.h*t)*cos(2*pi*(t + t.param$shiftT.h)/365) - t.param$amplD.h*cos(2*pi*t) }
 r.h <- function(t) {
   ifelse(T.h(t) <= param$rTopt, param$rMax*exp(-1*((T.h(t)-param$rTopt)/(2*param$rs))^2),
                                  param$rMax*(1 - ((T.h(t)-param$rTopt)/(param$rTopt-param$rTmax))^2)) # from Deutsch et al. 2008
@@ -64,7 +64,7 @@ t.param <- subset(as.data.frame(read_csv("Temperature parameters.csv")), Species
 # r.TPC.f
 
 # Integrate across r(T(t))
-T.f <- function(t) { (t.param$meanT.f+t.param$delta_mean.f*t) - (t.param$amplT.f+t.param$delta_ampl.f*t)*cos(2*pi*(t + t.param$shiftT.f)/365) - 0*t.param$amplD.f*cos(2*pi*t) }
+T.f <- function(t) { (t.param$meanT.f+t.param$delta_mean.f*t) - (t.param$amplT.f+t.param$delta_ampl.f*t)*cos(2*pi*(t + t.param$shiftT.f)/365) - t.param$amplD.f*cos(2*pi*t) }
 r.f <- function(t) {
   ifelse(T.f(t) <= param$rTopt, param$rMax*exp(-1*((T.f(t)-param$rTopt)/(2*param$rs))^2),
          param$rMax*(1 - ((T.f(t)-param$rTopt)/(param$rTopt-param$rTmax))^2)) # from Deutsch et al. 2008
@@ -75,16 +75,22 @@ end <- 365*80 # end 2100
 
 
 # PLOT
-Tmin <- round(min(temp.h$T,temp.f$T),0) - 1
+Tmin <- round(min(temp.h$T,temp.f$T),0) - 3
 Tmax <- round(max(temp.h$T,temp.f$T),0) + 1
 ymin <- 0
-ymax <- round(param$rMax,1) + 0.05
+ymax <- 0.2 #round(param$rMax,1) + 0.1
 hist(temp.h$T, xlim=c(Tmin,Tmax), ylim=c(ymin,ymax), breaks=seq(from=Tmin, to=Tmax, by=1), ylab="r", col=rgb(0,0,255, max = 255, alpha = 80), border=rgb(0,0,255, max = 255, alpha = 80), freq=FALSE, main = NULL)
-hist(temp.f$T, xlim=c(Tmin,Tmax), ylim=c(ymin,ymax), breaks=seq(from=Tmin, to=Tmax, by=1), ylab="r", col=rgb(255,0,0, max = 255, alpha = 80), border=rgb(255,0,0, max = 255, alpha = 80), freq=FALSE, main = NULL, add=TRUE)
+hist(temp.f[temp.f$day>365*70,"T"], xlim=c(Tmin,Tmax), ylim=c(ymin,ymax), breaks=seq(from=Tmin, to=Tmax, by=1), ylab="r", col=rgb(255,0,0, max = 255, alpha = 80), border=rgb(255,0,0, max = 255, alpha = 80), freq=FALSE, main = NULL, add=TRUE)
+#abline(v = mean(param$rTopt), col="gray", lwd=3, lty=1)
+#abline(v = mean(param$rTmax), col="gray", lwd=3, lty=2)
 points(seq(Tmin,Tmax,1), ifelse(seq(Tmin,Tmax,1) <= param$rTopt, param$rMax*exp(-1*((seq(Tmin,Tmax,1)-param$rTopt)/(2*param$rs))^2),
                                 param$rMax*(1 - ((seq(Tmin,Tmax,1)-param$rTopt)/(param$rTopt-param$rTmax))^2)), type="l", lwd=4, col="black")
-abline(v = mean(temp.h$T), col="blue", lwd=3, lty=2)
-abline(v = mean(temp.f$T), col="red", lwd=3, lty=2)
+abline(v = t.param$meanT.h, col="blue", lwd=3, lty=1)
+abline(v = t.param$meanT.h + t.param$amplT.h, col="blue", lwd=3, lty=2)
+abline(v = t.param$meanT.h - t.param$amplT.h, col="blue", lwd=3, lty=2)
+abline(v = t.param$meanT.f + t.param$delta_mean.f*365*80 , col="red", lwd=3, lty=1)
+abline(v = t.param$meanT.f + t.param$delta_mean.f*365*80 + t.param$amplT.f + t.param$delta_ampl.f*365*80, col="red", lwd=3, lty=2)
+abline(v = t.param$meanT.f + t.param$delta_mean.f*365*80 - t.param$amplT.f + t.param$delta_ampl.f*365*80, col="red", lwd=3, lty=2)
 r.TPC.h
 r.TPC.f
 

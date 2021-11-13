@@ -15,7 +15,7 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 # USER: enter location, insect species, and whether the egg stage is modeled
 location <- "Nigeria"
 species <- "Clavigralla tomentosicollis"
-egg <- TRUE
+egg <- FALSE
 
 
 # READ IN TEMPERATURE RESPONSE PARAMETERS AND TIME-SERIES DATA
@@ -38,24 +38,24 @@ data.TS <- subset(data.density, Plot=="B") # select plot A, B, or C
 
 # Data transformation (if needed)
 # Convert from log to linear scale
-if(egg == TRUE) {
-  data.TS$E <- (10^data.TS$E) - 1
-  data.TS$E_SE_L <- (10^data.TS$E_SE_L) - 1
-  data.TS$E_SE_H <- (10^data.TS$E_SE_H) - 1
-}
-data.TS$J <- (10^data.TS$J) - 1
-data.TS$J_SE_L <- (10^data.TS$J_SE_L) - 1
-data.TS$J_SE_H <- (10^data.TS$J_SE_H) - 1
-data.TS$A <- (10^data.TS$A) - 1
-data.TS$A_SE_L <- (10^data.TS$A_SE_L) - 1
-data.TS$A_SE_H <- (10^data.TS$A_SE_H) - 1
+# if(egg == TRUE) {
+#   data.TS$E <- (10^data.TS$E) - 1
+#   data.TS$E_SE_L <- (10^data.TS$E_SE_L) - 1
+#   data.TS$E_SE_H <- (10^data.TS$E_SE_H) - 1
+# }
+# data.TS$J <- (10^data.TS$J) - 1
+# data.TS$J_SE_L <- (10^data.TS$J_SE_L) - 1
+# data.TS$J_SE_H <- (10^data.TS$J_SE_H) - 1
+# data.TS$A <- (10^data.TS$A) - 1
+# data.TS$A_SE_L <- (10^data.TS$A_SE_L) - 1
+# data.TS$A_SE_H <- (10^data.TS$A_SE_H) - 1
 
 
 # READ IN TEMPERATURE RESPONSE PARAMETERS, DDE MODEL DYNAMICS, AND TEMPERATURE PARAMETERS
-#sp.data <- subset(data, Species == paste(species,location,"(egg)"))
-sp.data <- subset(data, Species == paste(species,"Benin (egg)"))
-data.model <- as.data.frame(read_csv(paste("Time series data/Historical Time Series",species,location,"(egg).csv")))
-data.model.CC <- as.data.frame(read_csv(paste("Time series data/Future Time Series",species,location,"(egg).csv")))
+sp.data <- subset(data, Species == paste(species,location))
+#sp.data <- subset(data, Species == paste(species,"Benin (egg)"))
+data.model <- as.data.frame(read_csv(paste0("Time series data/Historical Time Series ",species," ",location,".csv")))
+data.model.CC <- as.data.frame(read_csv(paste0("Time series data/Future Time Series ",species," ",location,".csv")))
 temp.data <- subset(temp.data, Species == paste(species,location))
 
 
@@ -65,7 +65,7 @@ temp.data <- subset(temp.data, Species == paste(species,location))
 xmin <- 0
 xmax <- 730
 ymin <- 0
-ymax <- 1000
+ymax <- 5
 # for climate change time period
 xmin.CC <- xmin
 xmax.CC <- xmax
@@ -108,12 +108,12 @@ ifelse(egg == FALSE, data.model.CC <- sweep(data.model.CC, 2, c(time.shift.CC,0,
 
 # Data transformation (if needed)
 # Convert from linear to log scale
-# if(egg == TRUE) { data.model$E <- log(data.model$E + 1, 10) }
-# data.model$J <- log(data.model$J + 1, 10)
-# data.model$A <- log(data.model$A + 1, 10)
-# if(egg == TRUE) { data.model.CC$E <- log(data.model.CC$E + 1, 10) }
-# data.model.CC$J <- log(data.model.CC$J + 1, 10)
-# data.model.CC$A <- log(data.model.CC$A + 1, 10)
+if(egg == TRUE) { data.model$E <- log(data.model$E + 1, 10) }
+data.model$J <- log(data.model$J + 1, 10)
+data.model$A <- log(data.model$A + 1, 10)
+if(egg == TRUE) { data.model.CC$E <- log(data.model.CC$E + 1, 10) }
+data.model.CC$J <- log(data.model.CC$J + 1, 10)
+data.model.CC$A <- log(data.model.CC$A + 1, 10)
 
 
 
