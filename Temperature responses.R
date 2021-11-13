@@ -17,12 +17,12 @@ data <- as.data.frame(read_csv("Temperature response data New.csv"))
 #sp.data <- subset(data, Species == "Clavigralla shadabi")
 #sp.data <- subset(data, Species == "Clavigralla tomentosicollis Benin")
 #sp.data <- subset(data, Species == "Clavigralla tomentosicollis Nigeria")
-sp.data <- subset(data, Species == "Clavigralla tomentosicollis Burkina Faso")
+#sp.data <- subset(data, Species == "Clavigralla tomentosicollis Burkina Faso")
 #sp.data <- subset(data, Species == "Apolygus lucorum")
 #sp.data <- subset(data, Species == "Adelphocoris suturalis")
 #sp.data <- subset(data, Species == "Macrosiphum euphorbiae Brazil")
 #sp.data <- subset(data, Species == "Aulacorthum solani Brazil")
-#sp.data <- subset(data, Species == "Uroleucon ambrosiae")
+sp.data <- subset(data, Species == "Uroleucon ambrosiae")
 #sp.data <- subset(data, Species == "Lygus lineolaris")
 #sp.data <- subset(data, Species == "Pilophorus typicus")
 #sp.data <- subset(data, Species == "Macrolophus pygmaeus on Myzus persicae")
@@ -36,9 +36,9 @@ sp.data <- subset(data, Species == "Clavigralla tomentosicollis Burkina Faso")
 sp.data <- sp.data[-c(1:8,12,14,16,18,20,22,24,26,27,29,31,32,34,35,37,39,40,42,44,46,48,50,51)]
 
 # Set some option for nls and plots
-Tmin <- 290
-Tmax <- 320
-TR <- 308
+Tmin <- 280
+Tmax <- 310
+TR <- 293
 
 
 
@@ -136,7 +136,7 @@ points(seq(Tmin,Tmax,1), coef(mort.A)[1]*exp(coef(mort.A)[2]*(1/TR-1/seq(Tmin,Tm
 # estimate all parameters
 r <- nls(r ~ ifelse(T_K <= Topt, rMax*exp(-1*((T_K-Topt)/(2*sr))^2),
                     rMax*(1 - ((T_K-Topt)/(Topt-Tmax))^2)),
-                    data=sp.data, start=list(sr=5, Topt=303, Tmax=308, rMax=0.1))
+                    data=sp.data, start=list(sr=5, Topt=295, Tmax=298, rMax=0.1))
 summary(r)
 # Plot model fits
 plot(sp.data$T_K, sp.data$r)

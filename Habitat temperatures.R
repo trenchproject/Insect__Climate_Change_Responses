@@ -12,7 +12,7 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 
 # USER: enter location
-location <- "China Dafeng"
+location <- "Brazil"
 
 # INPUT DATA
 # Select a location by removing # in front of name and placing # in front of other locations
