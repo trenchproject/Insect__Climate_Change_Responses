@@ -13,9 +13,12 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 # USER: enter species and location
 species <- "Clavigralla tomentosicollis"
-location <- "Burkina Faso"
-species <- "Macrolophus pygmaeus on Trialeurodes vaporariorum"
-location <- "Greece"
+location <- "Nigeria"
+species <- "Uroleucon ambrosiae"
+location <- "Brazil"
+
+# USER: include overwintering? (i.e., do not integrate over temperatures below Tmin)
+overw <- FALSE
 
 ################################## TPC: HISTORICAL CLIMATE ###################################
 # Read in climate data
@@ -25,24 +28,30 @@ param <- subset(as.data.frame(read_csv("Temperature response parameters.csv")), 
 # Read in temperature parameters
 t.param <- subset(as.data.frame(read_csv("Temperature parameters.csv")), Species == paste(species,location))
 
-# # Brute force method: average r(T) for all climate data T
-# r.TPC.h <- 0
-# n.TPC.h <- nrow(temp.h)
-# for(i in 1:n.TPC.h) {
-#   r.TPC.h <- r.TPC.h + ifelse(temp.h$T[i] <= param$rTopt, param$rMax*exp(-1*((temp.h$T[i]-param$rTopt)/(2*param$rs))^2),
-#          param$rMax*(1 - ((temp.h$T[i]-param$rTopt)/(param$rTopt-param$rTmax))^2)) # from Deutsch et al. 2008
-# }
-# (r.TPC.h <- r.TPC.h/n.TPC.h)
-
 # Integrate across r(T(t))
 T.h <- function(t) { (t.param$meanT.h+t.param$delta_mean.h*t) - (t.param$amplT.h+t.param$delta_ampl.h*t)*cos(2*pi*(t + t.param$shiftT.h)/365) - t.param$amplD.h*cos(2*pi*t) }
-r.h <- function(t) {
-  ifelse(T.h(t) <= param$rTopt, param$rMax*exp(-1*((T.h(t)-param$rTopt)/(2*param$rs))^2),
-                                 param$rMax*(1 - ((T.h(t)-param$rTopt)/(param$rTopt-param$rTmax))^2)) # from Deutsch et al. 2008
-}
 start <- 0
-end <- 365*80
-(r.TPC.h <- cubintegrate(r.h, lower = start, upper = end, method = "pcubature")$integral/(end-start))
+end <- 10*3650
+
+if(overw == FALSE) {
+  r.h <- function(t) {
+           ifelse(T.h(t) <= param$rTopt, param$rMax*exp(-1*((T.h(t)-param$rTopt)/(2*param$rs))^2),
+                  param$rMax*(1 - ((T.h(t)-param$rTopt)/(param$rTopt-param$rTmax))^2)) # from Deutsch et al. 2008
+  }
+  (r.TPC.h <- cubintegrate(r.h, lower = start, upper = end, method = "pcubature")$integral/(end-start)) # pcubature is faster but cannot be used with overwintering
+}
+if(overw == TRUE) {
+  # r during active season
+  r.h <- function(t) {
+    ifelse(T.h(t) <= param$Tmin, 0,
+           ifelse(T.h(t) <= param$rTopt, param$rMax*exp(-1*((T.h(t)-param$rTopt)/(2*param$rs))^2),
+                  param$rMax*(1 - ((T.h(t)-param$rTopt)/(param$rTopt-param$rTmax))^2))) # from Deutsch et al. 2008
+  }
+  # integrate across active season
+  season.h <- 365
+  for(t in seq(0,365,0.5)) { if(T.h(t) <= param$Tmin) {season.h <- season.h - 0.5 }} # number of days when T(t) > Tmin
+  (r.TPC.h <- cubintegrate(r.h, lower = 0, upper = 365, method = "hcubature")$integral/season.h)
+}
 
 
 ##################################### TPC: FUTURE CLIMATE ####################################
@@ -53,26 +62,30 @@ param <- subset(as.data.frame(read_csv("Temperature response parameters.csv")), 
 # Read in temperature parameters
 t.param <- subset(as.data.frame(read_csv("Temperature parameters.csv")), Species == paste(species,location))
 
-# # Brute force method: average r(T) for all climate data T
-# r.TPC.f <- 0
-# n.TPC.f <- nrow(temp.f)
-# for(i in 1:n.TPC.f) {
-#   r.TPC.f <- r.TPC.f + ifelse(temp.f$T[i] <= param$rTopt, param$rMax*exp(-1*((temp.f$T[i]-param$rTopt)/(2*param$rs))^2),
-#                   param$rMax*(1 - ((temp.f$T[i]-param$rTopt)/(param$rTopt-param$rTmax))^2)) # from Deutsch et al. 2008
-# }
-# r.TPC.f <- r.TPC.f/n.TPC.f
-# r.TPC.f
-
 # Integrate across r(T(t))
 T.f <- function(t) { (t.param$meanT.f+t.param$delta_mean.f*t) - (t.param$amplT.f+t.param$delta_ampl.f*t)*cos(2*pi*(t + t.param$shiftT.f)/365) - t.param$amplD.f*cos(2*pi*t) }
-r.f <- function(t) {
-  ifelse(T.f(t) <= param$rTopt, param$rMax*exp(-1*((T.f(t)-param$rTopt)/(2*param$rs))^2),
-         param$rMax*(1 - ((T.f(t)-param$rTopt)/(param$rTopt-param$rTmax))^2)) # from Deutsch et al. 2008
-}
 start <- 365*70 # start 2090
 end <- 365*80 # end 2100
-(r.TPC.f <- cubintegrate(r.f, lower = start, upper = end, method = "pcubature")$integral/(end-start))
 
+if(overw == FALSE) {
+  r.f <- function(t) {
+           ifelse(T.f(t) <= param$rTopt, param$rMax*exp(-1*((T.f(t)-param$rTopt)/(2*param$rs))^2),
+                  param$rMax*(1 - ((T.f(t)-param$rTopt)/(param$rTopt-param$rTmax))^2)) # from Deutsch et al. 2008
+  }
+  (r.TPC.f <- cubintegrate(r.f, lower = start, upper = end, method = "pcubature")$integral/(end-start)) # pcubature is faster but cannot be used with overwintering
+}
+if(overw == TRUE) {
+  # r during active season
+  r.f <- function(t) {
+    ifelse(T.f(t) <= param$Tmin, 0,
+           ifelse(T.f(t) <= param$rTopt, param$rMax*exp(-1*((T.f(t)-param$rTopt)/(2*param$rs))^2),
+                  param$rMax*(1 - ((T.f(t)-param$rTopt)/(param$rTopt-param$rTmax))^2))) # from Deutsch et al. 2008
+  }
+  # integrate across active season
+  season.f <- end - start
+  for(t in seq(start,end,0.5)) { if(T.f(t) <= param$Tmin) {season.f <- season.f - 0.5 }} # number of days when T(t) > Tmin
+  (r.TPC.f <- cubintegrate(r.f, lower = start, upper = end, method = "hcubature")$integral/season.f)
+}
 
 # PLOT
 Tmin <- round(min(temp.h$T,temp.f$T),0) - 3
@@ -91,6 +104,7 @@ abline(v = t.param$meanT.h - t.param$amplT.h - abs(t.param$amplD.h), col="blue",
 abline(v = t.param$meanT.f + t.param$delta_mean.f*365*80 , col="red", lwd=3, lty=1)
 abline(v = t.param$meanT.f + t.param$delta_mean.f*365*80 + abs(t.param$amplT.f) + t.param$delta_ampl.f*365*80 + t.param$amplD.f, col="red", lwd=3, lty=2)
 abline(v = t.param$meanT.f + t.param$delta_mean.f*365*80 - abs(t.param$amplT.f) - t.param$delta_ampl.f*365*80 - t.param$amplD.f, col="red", lwd=3, lty=2)
+if(overw == TRUE) { abline(v = param$Tmin, col="black", lwd=3, lty=2) }
 r.TPC.h
 r.TPC.f
 
@@ -147,4 +161,5 @@ r.model.f
 r.TPC.f/r.TPC.h
 r.model.f/r.model.h
 
-
+# PLOT CHANGES IN r
+barplot(c((r.TPC.f-r.TPC.h)/r.TPC.h, (r.model.f-r.model.h)/r.model.h), col=c("Darkgreen","Orange"), ylim=c(-0.4,0.6), main=expression("Proportional change in r"))

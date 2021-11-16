@@ -11,7 +11,7 @@ library(tidyverse)
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 # Read data
-data <- as.data.frame(read_csv("Temperature response data New.csv"))
+data <- as.data.frame(read_csv("Temperature response data.csv"))
 
 # Select an insect by removing # in front of name and placing # in front of other species
 #sp.data <- subset(data, Species == "Clavigralla shadabi")
@@ -33,7 +33,7 @@ sp.data <- subset(data, Species == "Uroleucon ambrosiae")
 #sp.data <- subset(data, Species == "Aphis gossypii Japan")
 
 # Remove columns that do not contain temperature data
-sp.data <- sp.data[-c(1:8,12,14,16,18,20,22,24,26,27,29,31,32,34,35,37,39,40,42,44,46,48,50,51)]
+sp.data <- sp.data[-c(1:8,12,14,16,18,20,21,23,24,26,27,29,31,32,34,36,37)]
 
 # Set some option for nls and plots
 Tmin <- 280

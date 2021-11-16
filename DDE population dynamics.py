@@ -3,7 +3,8 @@
 # NOTE: If code yields error: "Unsuccessful Integration: Could not integrate with the given tolerance parameters",
 #       one of the life history traits is below the minimum tolerance (1e-10)
 # NOTE: if code yields error: "CompileError: command 'gcc' failed with exit status 1", one of the parameters is not assigned a value
-
+# NOTE: if code yields error: "IndexError: index 0 is out of bounds for axis 0 with size 0", the location is likely wrong
+    
 # IMPORT PACKAGES
 from numpy import arange, hstack, vstack, savetxt
 from sympy import N
@@ -27,12 +28,12 @@ temp_data = read_csv("Temperature parameters.csv")
 
 
 # ENTER SPECIES, LOCATION, AND TIME PERIOD
-species = "Clavigralla tomentosicollis"
-location = "Nigeria"
+species = "Uroleucon ambrosiae"
+location = "Brazil"
 period = "Historical"
 
 # USER: Save data to CSV file?
-save_data = False
+save_data = True
 
 # USER: Model egg stage separately from juvenile stage?
 egg = False
@@ -40,8 +41,11 @@ egg = False
 # USER: Incorporate resource variation due to precipitation?
 res = False
 
+# USER: Use minimum temperature threshold?
+minT = True
+
 # USER: Incorporate diurnal temperature fluctuations?
-daily = False
+daily = True
 
 
 # SELECT INSECT SPECIES
@@ -61,8 +65,8 @@ spData = data[data["Species"] == species + " " + location]
 
 
 # SELECT LOCATION
-#temp_data = temp_data[temp_data["Species"] == species + " " + location]
-temp_data = temp_data[temp_data["Species"] == species + " Nigeria"]
+temp_data = temp_data[temp_data["Species"] == species + " " + location]
+#temp_data = temp_data[temp_data["Species"] == species + " Nigeria"]
 
 
 # DEFINE MODEL PARAMETERS
@@ -217,9 +221,12 @@ def Allee(x):
     return conditional(x, A_thr, 0, 1) # if A < A_thr then Allee = 0; otherwise, Allee = 1 
 
 # Minimum developmental temperature
-def M(x):
-    return conditional(T(x), Tmin, 0, 1) # if temperature < developmental min, Tmin, then development M = 0; otherwise, M = 1
-
+if minT == True:
+    def M(x):
+        return conditional(T(x), Tmin, 0, 1) # if temperature < developmental min, Tmin, then development M = 0; otherwise, M = 1
+else:
+    def M(x):
+        return 1
 
 # DDE MODEL
 # Define state variables

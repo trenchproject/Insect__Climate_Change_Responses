@@ -65,14 +65,14 @@ temp.data <- subset(temp.data, Species == paste(species,location))
 xmin <- 0
 xmax <- 730
 ymin <- 0
-ymax <- 5
+ymax <- 800
 # for climate change time period
 xmin.CC <- xmin
 xmax.CC <- xmax
 ymin.CC <- ymin
 ymax.CC <- ymax
 # for temperature function
-temp.min <- 290
+temp.min <- 295
 temp.max <- 315
 yr <- 365 # days in a year
 init_yrs <- 10 # number of years to initiate the model (from Python DDE model)
@@ -108,12 +108,12 @@ ifelse(egg == FALSE, data.model.CC <- sweep(data.model.CC, 2, c(time.shift.CC,0,
 
 # Data transformation (if needed)
 # Convert from linear to log scale
-if(egg == TRUE) { data.model$E <- log(data.model$E + 1, 10) }
-data.model$J <- log(data.model$J + 1, 10)
-data.model$A <- log(data.model$A + 1, 10)
-if(egg == TRUE) { data.model.CC$E <- log(data.model.CC$E + 1, 10) }
-data.model.CC$J <- log(data.model.CC$J + 1, 10)
-data.model.CC$A <- log(data.model.CC$A + 1, 10)
+# if(egg == TRUE) { data.model$E <- log(data.model$E + 1, 10) }
+# data.model$J <- log(data.model$J + 1, 10)
+# data.model$A <- log(data.model$A + 1, 10)
+# if(egg == TRUE) { data.model.CC$E <- log(data.model.CC$E + 1, 10) }
+# data.model.CC$J <- log(data.model.CC$J + 1, 10)
+# data.model.CC$A <- log(data.model.CC$A + 1, 10)
 
 
 
@@ -266,8 +266,8 @@ model.I.CC = ggplot(data.model.CC, aes(x=Time, y=J+A)) +
 # data table from Tmin and Tmax functions
 temp.fun.h <- data.frame(t=c(0:720))
 temp.fun.h <- data.frame(t=c(0:720),
-                       fun.min = sapply(temp.fun.h$t, FUN = function(t) (temp.data$meanT.h + temp.data$delta_mean.h*(t+time.shift))  - (temp.data$amplT.h + temp.data$delta_ampl.h*(t+time.shift)) * cos(2*pi*((t+time.shift) + temp.data$shiftT.h)/yr) - temp.data$amplD.h),
-                       fun.max = sapply(temp.fun.h$t, FUN = function(t) (temp.data$meanT.h + temp.data$delta_mean.h*(t+time.shift))  - (temp.data$amplT.h + temp.data$delta_ampl.h*(t+time.shift)) * cos(2*pi*((t+time.shift) + temp.data$shiftT.h)/yr) + temp.data$amplD.h))
+                       fun.min = sapply(temp.fun.h$t, FUN = function(t) (temp.data$meanT.h + temp.data$delta_mean.h*(t+time.shift))  - (temp.data$amplT.h + temp.data$delta_ampl.h*(t+time.shift)) * cos(2*pi*((t+time.shift) + temp.data$shiftT.h)/yr) - abs(temp.data$amplD.h)),
+                       fun.max = sapply(temp.fun.h$t, FUN = function(t) (temp.data$meanT.h + temp.data$delta_mean.h*(t+time.shift))  - (temp.data$amplT.h + temp.data$delta_ampl.h*(t+time.shift)) * cos(2*pi*((t+time.shift) + temp.data$shiftT.h)/yr) + abs(temp.data$amplD.h)))
 # plot
 plot.temp <- ggplot(temp.fun.h, aes(x=t, y=fun.max)) +
   # Daily average temperature
@@ -295,8 +295,8 @@ plot.temp <- ggplot(temp.fun.h, aes(x=t, y=fun.max)) +
 # data table from Tmin and Tmax functions
 temp.fun.f <- data.frame(t=c(0:720))
 temp.fun.f <- data.frame(t=c(0:720),
-                       fun.min = sapply(temp.fun.f$t, FUN = function(t) (temp.data$meanT.f + temp.data$delta_mean.f*(t+time.shift))  - (temp.data$amplT.f + temp.data$delta_ampl.f*(t+time.shift)) * cos(2*pi*((t+time.shift) + temp.data$shiftT.f)/yr) - temp.data$amplD.f),
-                       fun.max = sapply(temp.fun.f$t, FUN = function(t) (temp.data$meanT.f + temp.data$delta_mean.f*(t+time.shift))  - (temp.data$amplT.f + temp.data$delta_ampl.f*(t+time.shift)) * cos(2*pi*((t+time.shift) + temp.data$shiftT.f)/yr) + temp.data$amplD.f))
+                       fun.min = sapply(temp.fun.f$t, FUN = function(t) (temp.data$meanT.f + temp.data$delta_mean.f*(t+time.shift.CC))  - (temp.data$amplT.f + temp.data$delta_ampl.f*(t+time.shift.CC)) * cos(2*pi*((t+time.shift.CC) + temp.data$shiftT.f)/yr) - abs(temp.data$amplD.f)),
+                       fun.max = sapply(temp.fun.f$t, FUN = function(t) (temp.data$meanT.f + temp.data$delta_mean.f*(t+time.shift.CC))  - (temp.data$amplT.f + temp.data$delta_ampl.f*(t+time.shift.CC)) * cos(2*pi*((t+time.shift.CC) + temp.data$shiftT.f)/yr) + abs(temp.data$amplD.f)))
 # plot
 plot.temp.CC <- ggplot(temp.fun.f, aes(x=t, y=fun.max)) +
   # Daily average temperature
@@ -323,9 +323,9 @@ plot.temp.CC <- ggplot(temp.fun.f, aes(x=t, y=fun.max)) +
 # DRAW FINAL PLOTS
 # Temperature plots
 plot.climate <- ggdraw()  +
-  draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.4) +
-  draw_plot(plot.temp.CC, x = 0, y = 0, width = 1, height = 0.4)
-#plot.climate
+  draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
+  draw_plot(plot.temp.CC, x = 0, y = 0, width = 1, height = 0.3)
+plot.climate
 
 # Historical time period
 # by life stages
@@ -373,14 +373,14 @@ plot
 
 # Compare historical and climate change periods
 # by life stages
-# plot.compare <- ggdraw()  +
-#   draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
-#   draw_plot(plot.temp.CC, x = 0, y = 0, width = 1, height = 0.3) +
+plot.compare <- ggdraw()  +
+   draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
+   draw_plot(plot.temp.CC, x = 0, y = 0, width = 1, height = 0.3) +
 #   draw_plot(model.J, x = 0, y = 0.3, width = 1, height = 0.7) +
-#   draw_plot(model.A, x = 0, y = 0.3, width = 1, height = 0.7) +
+   draw_plot(model.A, x = 0, y = 0.3, width = 1, height = 0.7) +
 #   draw_plot(model.J.CC, x = 0, y = 0.3, width = 1, height = 0.7) +
-#   draw_plot(model.A.CC, x = 0, y = 0.3, width = 1, height = 0.7)
-# plot.compare
+   draw_plot(model.A.CC, x = 0, y = 0.3, width = 1, height = 0.7)
+plot.compare
 
 
 # total insects
