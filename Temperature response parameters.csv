@@ -21,4 +21,11 @@ Rhopalosiphum rufiabdominalis USA,26.14,Subtropical,Sternorrhyncha,4.26,295.9,7.
 Aphis nasturtii USA,26.14,Subtropical,Sternorrhyncha,2.87,297.5,7.31,0.122,293,5811,1,-29807,281.8,38128,308.7,279.5,0.035,8128,0.055,5445,0.2,0.306,300.6,307.8,6.05,Development fits from Figure 1 of Wang et al. 1997
 Diaphorina citri USA,26.24,Subtropical,Sternorrhyncha,19.3,298.6,4.31,0.032,293,9105,1,-13480000,285,145500,303.4,283.2,0.012,3012,0.018,4647,0.2,0.199,301,304.4,4.62,r calculated using Topt from temperature responses
 Eriosoma lanigerum Australia,30.9,Subtropical,Sternorrhyncha,4.92,294,5.73,0.05,293,5066,1,-65912,282.3,131069,305.2,277.5,0.009,19109,0.04,7862,0.2,0.204,301,305,7.9,
-Macrosiphum euphorbiae Canada,42.81,Temperate,Sternorrhyncha,532,289.4,6.7,0.18,293,5906,1,-34923,278.2,123493,299.8,275.5,0.005,44786,0.025,10520,0.2,1.49,293.4,303,6.39,
+Macrosiphum euphorbiae Canada,42.81,Temperate,Sternorrhyncha,532,289.4,6.7,0.18,293,5906,1,-34923,278.2,123493,299.8,275.5,0.005,44786,0.025,10520,0.2,1.49,293.4,303,6.39,Used dJTR from data
+Myzus persicae Canada,42.81,Temperate,Sternorrhyncha,4016,289.1,2.53,0.1,293,5024,1,-59160,277.2,726500,298.4,272.7,0.035,17090,0.191,10700,0.2,3.42,295.9,303,5.94,
+Hyperomyzus lactucae Australia,35.27,Subtropical,Sternorrhyncha,2.59,293,3.81,0.117,293,5844,1,-33123,280.2,107322,298.9,277.9,0.005,3567,0.038,6866,0.2,0.332,297,300.7,7.11,Used dJTR from data; r calculated using Topt from temperature responses
+Aphis gossypii China,36.07,Temperate,Sternorrhyncha,2.5,298.5,6.6,0.106,293,6092,1,-43779,280.7,29702,307.9,279.7,0.05,6577,0.062,7313,0.2,0.397,300.4,309.1,5.83,
+Aulacorthum solani USA,42.42,Temperate,Sternorrhyncha,1.63,292.1,6.7,0.111,293,5078,1,-47322,280.5,90315,303.1,275.3,0.007,26765,0.021,12400,0.2,0.464,296.2,303.8,5.67,Used dJTR from data
+Brevicoryne brassicae USA,38.93,Temperate,Sternorrhyncha,0.94,289.2,4.91,0.069,293,6787,1,-51548,280,82660,303.4,277.3,0.04,13110,0.055,-3565,0.2,0.139,295.4,300.2,5.57,AL at TL = 285; dA declines with T
+Myzus persicae USA,38.93,Temperate,Sternorrhyncha,3.41,290.7,5.93,0.097,293,6229,1,-43706,278.1,80886,303.2,275.9,0.019,17350,0.069,-4666,0.2,0.299,296.5,302,5.54,dA fit excluding data at T = 278; dA declines with T
+Hyadaphis pseudobrassicae USA,38.93,Temperate,Sternorrhyncha,6.27,292.8,4.82,0.099,293,7318,1,-36505,277.4,90844,303.2,277.1,0.038,5817,0.092,-1634,0.2,0.357,296,307.9,4.47,dA fit excluding data at T = 278; dA declines with T
