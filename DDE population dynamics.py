@@ -146,8 +146,8 @@ dATR = spData["dATR"].values[0]
 AdA = spData["AdA"].values[0]
 # competition
 qTopt = 0.1*spData["qTopt"].values[0]
-Toptq = spData["Toptq"].values[0]
-sq = spData["sq"].values[0]
+Toptq = Toptb #spData["Toptq"].values[0]
+sq = sb #spData["sq"].values[0]
 #Aq = spData["Aq"].values[0]
 #Tmax = spData["Tmax"].values[0]
 #qTopt = qTR*exp(Aq*(1/TR - 1/Tmax))
