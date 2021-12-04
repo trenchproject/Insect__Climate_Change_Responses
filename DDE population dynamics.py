@@ -28,9 +28,10 @@ temp_data = read_csv("Temperature parameters.csv")
 
 
 # ENTER SPECIES, LOCATION, AND TIME PERIOD
-species = "Toxoptera citricidus on C. unshiu"
-location = "Japan"
+species = "Hyadaphis pseudobrassicae"
+location = "US Columbia"
 period = "Historical"
+period = "Future"
 
 # USER: Save data to CSV file?
 save_data = True
