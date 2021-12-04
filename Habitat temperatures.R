@@ -12,7 +12,7 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 
 # USER: enter location
-location <- "China Dafeng"
+location <- "US Ithaca"
 
 # INPUT DATA
 # Select a location by removing # in front of name and placing # in front of other locations
@@ -46,8 +46,8 @@ fit.h2 <- nls(T ~ meanT - amplT*cos(2*pi*(day + shiftT)/365) - amplD*cos(2*pi*da
 summary(fit.h2)
 
 # Assess whether delta_mean or delta_ampl are significant and if not set to zero
-if(fit.h[["coefficients"]][4,4] > 0.05) { fit.h[["coefficients"]][4,1] <- 0 } # delta_mean
-if(fit.h[["coefficients"]][5,4] > 0.05) { fit.h[["coefficients"]][5,1] <- 0 } # delta_ampl
+#if(fit.h[["coefficients"]][4,4] > 0.05) { fit.h[["coefficients"]][4,1] <- 0 } # delta_mean
+#if(fit.h[["coefficients"]][5,4] > 0.05) { fit.h[["coefficients"]][5,1] <- 0 } # delta_ampl
 
 # Plot (NOTE: plot does not have the resolution to show diurnal variation at large xmax)
 xmin <- 0
@@ -60,9 +60,15 @@ ggplot(data.h, aes(x=day, y=T)) +
   # function describing monthly temperature variation
   geom_function(fun = function(t){coef(fit.h2)[1] - coef(fit.h2)[2]*cos(2*pi*(t + coef(fit.h2)[3])/365)},
                 size=0.8, color="black") +
-  # function describing monthly and diurnal temperature variation using diurnal.h
-  geom_function(fun = function(t){coef(fit.h2)[1] - coef(fit.h2)[2]*cos(2*pi*(t + coef(fit.h2)[3])/365) - coef(fit.h2)[4]*cos(2*pi*t)},
+  #  daily maximum
+  geom_function(fun = function(t){coef(fit.h2)[1] - coef(fit.h2)[2]*cos(2*pi*(t + coef(fit.h2)[3])/365) + coef(fit.h2)[4]},
                 size=0.8, color="black", linetype="longdash") +
+  #  daily minimum
+  geom_function(fun = function(t){coef(fit.h2)[1] - coef(fit.h2)[2]*cos(2*pi*(t + coef(fit.h2)[3])/365) - coef(fit.h2)[4]},
+                size=0.8, color="black", linetype="longdash") +
+  # function describing monthly and diurnal temperature variation using diurnal.h
+  #geom_function(fun = function(t){coef(fit.h2)[1] - coef(fit.h2)[2]*cos(2*pi*(t + coef(fit.h2)[3])/365) - coef(fit.h2)[4]*cos(2*pi*t)},
+  #              size=0.8, color="black", linetype="longdash") +
   # function describing monthly and diurnal temperature variation using diurnal.h (delta_mean and delta_ampl)
   #geom_function(fun = function(t){(coef(fit.h)[1]+coef(fit.h)[4]*t) - (coef(fit.h)[2]+coef(fit.h)[5]*t)*cos(2*pi*(t + coef(fit.h)[3])/365) - diurnal.h*cos(2*pi*t)},
   #              size=0.8, color="black", linetype="longdash") +
@@ -101,12 +107,12 @@ ggplot(data.h, aes(x=day, y=T)) +
 # Fit sinusoidal function with  annual and diurnal temperature variation to climate data
 # estimating all parameters (under-estimates temperature variation)
 fit.f2 <- nls(T ~ (meanT + delta_mean*day) - (amplT + delta_ampl*day)*cos(2*pi*(day + shiftT)/365) - amplD*cos(2*pi*day),
-             data = data.f, start = list(meanT = 300, amplT = 1, shiftT = 30, amplD = 5, delta_mean = 0.1, delta_ampl = 0.1))
+             data = data.f, start = list(meanT = 300, amplT = 5, shiftT = 30, amplD = 5, delta_mean = 0.1, delta_ampl = 0.1))
 summary(fit.f2)
 
 # Assess whether delta_mean or delta_ampl are significant and if not set to zero
-if(fit.f[["coefficients"]][4,4] > 0.05) { fit.f[["coefficients"]][4,1] <- 0 } # delta_mean
-if(fit.f[["coefficients"]][5,4] > 0.05) { fit.f[["coefficients"]][5,1] <- 0 } # delta_ampl
+#if(fit.f[["coefficients"]][4,4] > 0.05) { fit.f[["coefficients"]][4,1] <- 0 } # delta_mean
+#if(fit.f[["coefficients"]][5,4] > 0.05) { fit.f[["coefficients"]][5,1] <- 0 } # delta_ampl
 
 # Plot (NOTE: plot does not have the resolution to show diurnal variation at large xmax)
 xmin <- 0
@@ -119,9 +125,15 @@ ggplot(data.f, aes(x=day, y=T)) +
   # function describing monthly temperature variation
   geom_function(fun = function(t){(coef(fit.f2)[1]+coef(fit.f2)[5]*t) - (coef(fit.f2)[2]+coef(fit.f2)[6]*t)*cos(2*pi*(t + coef(fit.f2)[3])/365)},
                 size=0.8, color="black") +
-  # function describing monthly and diurnal temperature variation using diurnal.f
-  geom_function(fun = function(t){(coef(fit.f2)[1]+coef(fit.f2)[5]*t) - (coef(fit.f2)[2]+coef(fit.f2)[6]*t)*cos(2*pi*(t + coef(fit.f2)[3])/365) - coef(fit.f2)[4]*cos(2*pi*t)},
+  #  daily maximum
+  geom_function(fun = function(t){(coef(fit.f2)[1]+coef(fit.f2)[5]*t) - (coef(fit.f2)[2]+coef(fit.f2)[6]*t)*cos(2*pi*(t + coef(fit.f2)[3])/365) + coef(fit.f2)[4]},
                 size=0.8, color="black", linetype="longdash") +
+  #  daily minimum
+  geom_function(fun = function(t){(coef(fit.f2)[1]+coef(fit.f2)[5]*t) - (coef(fit.f2)[2]+coef(fit.f2)[6]*t)*cos(2*pi*(t + coef(fit.f2)[3])/365) - coef(fit.f2)[4]},
+                size=0.8, color="black", linetype="longdash") +
+  # function describing monthly and diurnal temperature variation using diurnal.f
+  #geom_function(fun = function(t){(coef(fit.f2)[1]+coef(fit.f2)[5]*t) - (coef(fit.f2)[2]+coef(fit.f2)[6]*t)*cos(2*pi*(t + coef(fit.f2)[3])/365) - coef(fit.f2)[4]*cos(2*pi*t)},
+  #              size=0.8, color="black", linetype="longdash") +
   # function describing monthly and diurnal temperature variation via nls fits
   #geom_function(fun = function(t){coef(fit.f2)[1] - coef(fit.f2)[2]*cos(2*pi*(t + coef(fit.f2)[3])/365) - coef(fit.f2)[4]*cos(2*pi*t)},
   #              size=0.8, color="black", linetype="longdash") +

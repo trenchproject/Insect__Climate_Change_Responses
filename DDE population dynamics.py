@@ -28,8 +28,8 @@ temp_data = read_csv("Temperature parameters.csv")
 
 
 # ENTER SPECIES, LOCATION, AND TIME PERIOD
-species = "Uroleucon ambrosiae"
-location = "Brazil"
+species = "Toxoptera citricidus on C. unshiu"
+location = "Japan"
 period = "Historical"
 
 # USER: Save data to CSV file?
@@ -48,23 +48,10 @@ minT = True
 daily = True
 
 
-# SELECT INSECT SPECIES
+# INSECT SPECIES
 spData = data[data["Species"] == species + " " + location]
-#spData = data[data["Species"] == "Clavigralla tomentosicollis Burkina Faso"]
-#spData = data[data["Species"] == "Apolygus lucorum China Dafeng"]
-#spData = data[data["Species"] == "Adelphocoris suturalis China Dafeng"]
-#spData = data[data["Species"] == "Apolygus lucorum China Langfang"]
-#spData = data[data["Species"] == "Adelphocoris suturalis China Xinxiang"]
-#spData = data[data["Species"] == "Macrosiphum euphorbiae Brazil"]
-#spData = data[data["Species"] == "Aulacorthum solani Brazil"]
-#spData = data[data["Species"] == "Uroleucon ambrosiae Brazil"]
-#spData = data[data["Species"] == "Lygus lineolaris Mississippi"]
-#spData = data[data["Species"] == "Pilophorus typicus Japan"]
-#spData = data[data["Species"] == "Macrolophus pygmaeus on Myzus persicae Greece"]
-#spData = data[data["Species"] == "Macrolophus pygmaeus on Trialeurodes vaporariorum Greece"]
 
-
-# SELECT LOCATION
+# LOCATION
 temp_data = temp_data[temp_data["Species"] == species + " " + location]
 #temp_data = temp_data[temp_data["Species"] == species + " Nigeria"]
 
