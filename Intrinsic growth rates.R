@@ -12,13 +12,11 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 
 # USER: enter species and location
-species <- "Clavigralla tomentosicollis"
-location <- "Nigeria"
-species <- "Uroleucon ambrosiae"
-location <- "Brazil"
+species <- "Hyadaphis pseudobrassicae"
+location <- "US Columbia"
 
 # USER: include overwintering? (i.e., do not integrate over temperatures below Tmin)
-overw <- FALSE
+overw <- TRUE
 
 ################################## TPC: HISTORICAL CLIMATE ###################################
 # Read in climate data
@@ -99,8 +97,8 @@ hist(temp.f[temp.f$day>365*70,"T"], xlim=c(Tmin,Tmax), ylim=c(ymin,ymax), breaks
 points(seq(Tmin,Tmax,1), ifelse(seq(Tmin,Tmax,1) <= param$rTopt, param$rMax*exp(-1*((seq(Tmin,Tmax,1)-param$rTopt)/(2*param$rs))^2),
                                 param$rMax*(1 - ((seq(Tmin,Tmax,1)-param$rTopt)/(param$rTopt-param$rTmax))^2)), type="l", lwd=4, col="black")
 abline(v = t.param$meanT.h, col="blue", lwd=3, lty=1)
-abline(v = t.param$meanT.h + t.param$amplT.h + abs(t.param$amplD.h), col="blue", lwd=3, lty=2)
-abline(v = t.param$meanT.h - t.param$amplT.h - abs(t.param$amplD.h), col="blue", lwd=3, lty=2)
+abline(v = t.param$meanT.h + abs(t.param$amplT.h) + abs(t.param$amplD.h), col="blue", lwd=3, lty=2)
+abline(v = t.param$meanT.h - abs(t.param$amplT.h) - abs(t.param$amplD.h), col="blue", lwd=3, lty=2)
 abline(v = t.param$meanT.f + t.param$delta_mean.f*365*80 , col="red", lwd=3, lty=1)
 abline(v = t.param$meanT.f + t.param$delta_mean.f*365*80 + abs(t.param$amplT.f) + t.param$delta_ampl.f*365*80 + t.param$amplD.f, col="red", lwd=3, lty=2)
 abline(v = t.param$meanT.f + t.param$delta_mean.f*365*80 - abs(t.param$amplT.f) - t.param$delta_ampl.f*365*80 - t.param$amplD.f, col="red", lwd=3, lty=2)
@@ -158,8 +156,8 @@ r.TPC.h
 r.TPC.f
 r.model.h
 r.model.f
-r.TPC.f/r.TPC.h
-r.model.f/r.model.h
+#r.TPC.f/r.TPC.h
+#r.model.f/r.model.h
 
 # PLOT CHANGES IN r
-barplot(c((r.TPC.f-r.TPC.h)/r.TPC.h, (r.model.f-r.model.h)/r.model.h), col=c("Darkgreen","Orange"), ylim=c(-0.4,0.6), main=expression("Proportional change in r"))
+#barplot(c((r.TPC.f-r.TPC.h)/r.TPC.h, (r.model.f-r.model.h)/r.model.h), col=c("Darkgreen","Orange"), ylim=c(-0.4,0.6), main=expression("Proportional change in r"))

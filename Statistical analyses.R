@@ -18,11 +18,11 @@ r.data <- as.data.frame(read_csv("Model results.csv"))
 
 
 # STATISTICS
-# proportional change in r vs latitude
-TPC <- lm(delta.TPC ~ Latitude, data=r.data) # non-significant
+# TPC: proportional change in r vs latitude
+TPC <- lm(delta.TPC ~ Latitude, data=r.data) # significant
 summary(TPC)
 
-# proportional change in r vs latitude
+# Model: proportional change in r vs latitude
 model <- lm(delta.model ~ Latitude, data=r.data) # non-significant
 summary(model)
 
@@ -33,33 +33,36 @@ summary(d)
 # PLOTS
 # proportional change in r (TPC) vs latitude
 Xmin <- 0
-Xmax <- 40
-Ymin <- -1.5
-Ymax <- 1.5
+Xmax <- 60
+Ymin <- -1
+Ymax <- 2
 plot(r.data[r.data$Habitat=="Tropical","Latitude"], r.data[r.data$Habitat=="Tropical","delta.TPC"], pch=21, col="red", bg="red",
      xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="Latitude", ylab="change in r")
+points(r.data[r.data$Habitat=="Subtropical","Latitude"], r.data[r.data$Habitat=="Subtropical","delta.TPC"], pch=21, col="orange", bg="orange")
 points(r.data[r.data$Habitat=="Mediterranean","Latitude"], r.data[r.data$Habitat=="Mediterranean","delta.TPC"], pch=21, col="purple", bg="purple")
 points(r.data[r.data$Habitat=="Temperate","Latitude"], r.data[r.data$Habitat=="Temperate","delta.TPC"], pch=21, col="blue", bg="blue")
 abline(0, 0, col="black", lty="longdash")
 
 # proportional change in r (model) vs latitude
 Xmin <- 0
-Xmax <- 40
-Ymin <- -1.5
-Ymax <- 1.5
+Xmax <- 60
+Ymin <- -1
+Ymax <- 1
 plot(r.data[r.data$Habitat=="Tropical","Latitude"], r.data[r.data$Habitat=="Tropical","delta.model"], pch=21, col="red", bg="red",
      xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="Latitude", ylab="change in r")
+points(r.data[r.data$Habitat=="Subtropical","Latitude"], r.data[r.data$Habitat=="Subtropical","delta.model"], pch=21, col="orange", bg="orange")
 points(r.data[r.data$Habitat=="Mediterranean","Latitude"], r.data[r.data$Habitat=="Mediterranean","delta.model"], pch=21, col="purple", bg="purple")
 points(r.data[r.data$Habitat=="Temperate","Latitude"], r.data[r.data$Habitat=="Temperate","delta.model"], pch=21, col="blue", bg="blue")
 abline(0, 0, col="black", lty="longdash")
 
 # proportional change in r (model vs TPCs)
-Xmin <- -1.5
-Xmax <- 1.5
-Ymin <- -1.5
-Ymax <- 1.5
+Xmin <- -1
+Xmax <- 2
+Ymin <- -1
+Ymax <- 1
 plot(r.data[r.data$Habitat=="Tropical","delta.TPC"], r.data[r.data$Habitat=="Tropical","delta.model"], pch=21, col="red", bg="red",
      xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="TPC", ylab="Model")
+points(r.data[r.data$Habitat=="Subtropical","delta.TPC"], r.data[r.data$Habitat=="Subtropical","delta.model"], pch=21, col="orange", bg="orange")
 points(r.data[r.data$Habitat=="Mediterranean","delta.TPC"], r.data[r.data$Habitat=="Mediterranean","delta.model"], pch=21, col="purple", bg="purple")
 points(r.data[r.data$Habitat=="Temperate","delta.TPC"], r.data[r.data$Habitat=="Temperate","delta.model"], pch=21, col="blue", bg="blue")
 #points(seq(Xmin,Xmax,1), coef(d)[1]*seq(Xmin,Xmax,1), type="l", col="blue")
