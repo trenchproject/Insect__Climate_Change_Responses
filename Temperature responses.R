@@ -14,7 +14,7 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 data <- as.data.frame(read_csv("Temperature response data.csv"))
 
 # USER: enter species name (used in temperature response data.csv)
-name <- "Hyadaphis pseudobrassicae"
+name <- "Aulacorthum solani Brazil"
 
 # Assign species
 sp.data <- data[data$Species == name,]
@@ -36,7 +36,7 @@ fec <- nls(Birth_Rate ~ bTopt*exp(-((T_K-Toptb)^2)/(2*sb^2)), data=sp.data,
            start=list(bTopt=5, Toptb=TR, sb=3))
 summary(fec)
 # Plot model fits
-plot(sp.data$T_K, sp.data$Birth_Rate)
+plot(sp.data$T_K, sp.data$Birth_Rate, xlim = c(Tmin,Tmax), ylim = c(0,max(sp.data$Birth_Rate)))
 points(seq(Tmin,Tmax,1),coef(fec)[1]*exp(-((seq(Tmin,Tmax,1)-coef(fec)[2])^2)/(2*coef(fec)[3]^2)), type="l", col="blue")
 
 
@@ -53,8 +53,8 @@ points(seq(Tmin,Tmax,1), coef(dev.mon)[1]*(seq(Tmin,Tmax,1)/TR)*exp(coef(dev.mon
 # estimate AL and AH separately from TL and TH if needed
 xTR <- coef(dev.mon)[1]
 A <- coef(dev.mon)[2]
-kTL <- 280
-kTH <- 303
+kTL <- 290
+kTH <- 298
 dev.A <- nls(Development ~ xTR*(T_K/TR)*exp(A*(1/TR-1/T_K))/(1+exp(AL*(1/kTL-1/T_K))+exp(AH*(1/kTH-1/T_K))),
               data=sp.data, start=list(AL=-50000, AH=100000))
 summary(dev.A)

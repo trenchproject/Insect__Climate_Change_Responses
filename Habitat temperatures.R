@@ -12,12 +12,16 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 
 # USER: enter location
-location <- "US Ithaca"
+location <- "Brazil"
 
 # INPUT DATA
 # Select a location by removing # in front of name and placing # in front of other locations
 data.h <- as.data.frame(read_csv(paste0("Climate data/Historical climate data ",location,".csv")))
 data.f <- as.data.frame(read_csv(paste0("Climate data/Future climate data ",location,".csv")))
+
+fit.f2 <- nls(T ~ meanT - amplT*cos(2*pi*(day + shiftT)/365) - amplD*cos(2*pi*day),
+              data = data.f, start = list(meanT = 300, amplT = 5, shiftT = 30, amplD = 5))
+summary(fit.f2)
 
 
 #################################### HISTORICAL CLIMATE #####################################
@@ -39,8 +43,13 @@ data.f <- as.data.frame(read_csv(paste0("Climate data/Future climate data ",loca
 #     count.h <- count.h + 1 }}
 #(diurnal.h <- diurnal.h/count.h)
 
-# Fit sinusoidal function with  annual and diurnal temperature variation to climate data
-# estimating all parameters (under-estimates temperature variation)
+# Fit sinusoidal function with annual and diurnal temperature variation to climate data
+# estimating all parameters (underestimates temperature variation)
+# fit.h2 <- nls(T ~ (meanT + delta_mean*day) - (amplT + delta_ampl*day)*cos(2*pi*(day + shiftT)/365) - amplD*cos(2*pi*day),
+#              data = data.h, start = list(meanT = 300, amplT = 5, shiftT = 30, amplD = 5, delta_mean = 0.1, delta_ampl = 0.1))
+# summary(fit.h2)
+
+# Fit sinusoidal function with annual and diurnal temperature variation (no delta parameters)
 fit.h2 <- nls(T ~ meanT - amplT*cos(2*pi*(day + shiftT)/365) - amplD*cos(2*pi*day),
              data = data.h, start = list(meanT = 300, amplT = 1, shiftT = 30, amplD = 5))
 summary(fit.h2)
@@ -104,10 +113,15 @@ ggplot(data.h, aes(x=day, y=T)) +
 #     count.f <- count.f + 1}}
 #(diurnal.f <- diurnal.f/count.f)
 
-# Fit sinusoidal function with  annual and diurnal temperature variation to climate data
-# estimating all parameters (under-estimates temperature variation)
-fit.f2 <- nls(T ~ (meanT + delta_mean*day) - (amplT + delta_ampl*day)*cos(2*pi*(day + shiftT)/365) - amplD*cos(2*pi*day),
-             data = data.f, start = list(meanT = 300, amplT = 5, shiftT = 30, amplD = 5, delta_mean = 0.1, delta_ampl = 0.1))
+# Fit sinusoidal function with annual and diurnal temperature variation to climate data
+# estimating all parameters (underestimates temperature variation)
+# fit.f2 <- nls(T ~ (meanT + delta_mean*day) - (amplT + delta_ampl*day)*cos(2*pi*(day + shiftT)/365) - amplD*cos(2*pi*day),
+#              data = data.f, start = list(meanT = 300, amplT = 5, shiftT = 30, amplD = 5, delta_mean = 0.1, delta_ampl = 0.1))
+# summary(fit.f2)
+
+# Fit sinusoidal function with annual and diurnal temperature variation (no delta parameters)
+fit.f2 <- nls(T ~ meanT - amplT*cos(2*pi*(day + shiftT)/365) - amplD*cos(2*pi*day),
+              data = data.f, start = list(meanT = 300, amplT = 5, shiftT = 30, amplD = 5))
 summary(fit.f2)
 
 # Assess whether delta_mean or delta_ampl are significant and if not set to zero

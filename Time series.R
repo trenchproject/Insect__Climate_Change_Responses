@@ -12,11 +12,11 @@ library(tidyverse)
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 
-# USER: enter location, insect species, and whether the egg stage is modeled
-location <- "Nigeria"
+# USER: enter species, location, if the egg stage is modeled, and if the model is fit to data 
 species <- "Clavigralla tomentosicollis"
+location <- "Nigeria"
 egg <- FALSE
-
+pop.dyn <- FALSE
 
 # READ IN TEMPERATURE RESPONSE PARAMETERS AND TIME-SERIES DATA
 # Temperature response parameters
@@ -30,7 +30,7 @@ data.density <- read_csv("Population data Nigeria (egg).csv")
 #data.density <- read_csv("Population data China.csv")
 
 # USER: Select time-series data
-data.TS <- subset(data.density, Plot=="B") # select plot A, B, or C
+data.TS <- subset(data.density, Plot=="C") # select plot A, B, or C
 #data.TS <- subset(data.density, location=="Dafeng" & species=="Apolygus_lucorum") # select location and species
 #data.TS <- subset(data.density, location=="Dafeng" & species=="Adelphocoris_suturalis") # select location and species
 #data.TS <- subset(data.density, location=="Langfang" & species=="Apolygus_lucorum") # select location and species
@@ -38,22 +38,22 @@ data.TS <- subset(data.density, Plot=="B") # select plot A, B, or C
 
 # Data transformation (if needed)
 # Convert from log to linear scale
-# if(egg == TRUE) {
-#   data.TS$E <- (10^data.TS$E) - 1
-#   data.TS$E_SE_L <- (10^data.TS$E_SE_L) - 1
-#   data.TS$E_SE_H <- (10^data.TS$E_SE_H) - 1
-# }
-# data.TS$J <- (10^data.TS$J) - 1
-# data.TS$J_SE_L <- (10^data.TS$J_SE_L) - 1
-# data.TS$J_SE_H <- (10^data.TS$J_SE_H) - 1
-# data.TS$A <- (10^data.TS$A) - 1
-# data.TS$A_SE_L <- (10^data.TS$A_SE_L) - 1
-# data.TS$A_SE_H <- (10^data.TS$A_SE_H) - 1
-
+if(location == "Nigeria") {
+if(egg == TRUE) {
+  data.TS$E <- (10^data.TS$E) - 1
+  data.TS$E_SE_L <- (10^data.TS$E_SE_L) - 1
+  data.TS$E_SE_H <- (10^data.TS$E_SE_H) - 1
+  }
+  data.TS$J <- (10^data.TS$J) - 1
+  data.TS$J_SE_L <- (10^data.TS$J_SE_L) - 1
+  data.TS$J_SE_H <- (10^data.TS$J_SE_H) - 1
+  data.TS$A <- (10^data.TS$A) - 1
+  data.TS$A_SE_L <- (10^data.TS$A_SE_L) - 1
+  data.TS$A_SE_H <- (10^data.TS$A_SE_H) - 1
+}
 
 # READ IN TEMPERATURE RESPONSE PARAMETERS, DDE MODEL DYNAMICS, AND TEMPERATURE PARAMETERS
 sp.data <- subset(data, Species == paste(species,location))
-#sp.data <- subset(data, Species == paste(species,"Benin (egg)"))
 data.model <- as.data.frame(read_csv(paste0("Time series data/Historical Time Series ",species," ",location,".csv")))
 data.model.CC <- as.data.frame(read_csv(paste0("Time series data/Future Time Series ",species," ",location,".csv")))
 temp.data <- subset(temp.data, Species == paste(species,location))
@@ -65,32 +65,24 @@ temp.data <- subset(temp.data, Species == paste(species,location))
 xmin <- 0
 xmax <- 730
 ymin <- 0
-ymax <- 800
+ymax <- 50
 # for climate change time period
 xmin.CC <- xmin
 xmax.CC <- xmax
 ymin.CC <- ymin
 ymax.CC <- ymax
 # for temperature function
-temp.min <- 295
-temp.max <- 315
+temp.min <- 295 #270
+temp.max <- 315 #320
 yr <- 365 # days in a year
-init_yrs <- 10 # number of years to initiate the model (from Python DDE model)
+init_yrs <- 0 # number of years to initiate the model (from Python DDE model)
 TS.length <- xmax - xmin # length of time-series data
 end <- nrow(data.model)
 
 
 # FORMAT MODEL OUTPUT TO ALIGN WITH TIME-SERIES DATA
 # Remove all rows before time-series data starts
-data.model <- data.model[c(-1:-(init_yrs*yr + xmin)), ]
-
-# NOTE: use this section only if historical meanT changes over time (delta_meanT.h != 0)
-# for Clavigralla tomentosicollis in Nigeria
-#data.model <- data.model[c(-1:-((1972-1961)*yr + xmin)), ]
-# for Apolygus lucorum in China
-#data.model <- data.model[c(-1:-((2005-1961)*yr + xmin)), ]
-# for other species
-#data.model <- data.model[c(-1:-((2020-1961)*yr + xmin)), ]
+if(xmin != 0) { data.model <- data.model[c(-1:-(init_yrs*yr + xmin)), ] }
 
 # Remove all rows after xmax days
 data.model <- data.model[c(-(xmax+1):-end), ]
@@ -100,7 +92,7 @@ data.model.CC <- data.model.CC[c(-1:-(end-2*yr + xmin.CC)), ]
 
 # Re-scale time to start at xmin
 # historical period
-time.shift <- data.model[[1,1]]-xmin
+time.shift <- data.model[[1,1]] - xmin
 ifelse(egg == FALSE, data.model <- sweep(data.model, 2, c(time.shift,0,0,0,0,0)), data.model <- sweep(data.model, 2, c(time.shift,0,0,0,0,0,0,0,0)))
 # climate change period
 time.shift.CC <- data.model.CC[[1,1]] + xmin.CC
@@ -146,6 +138,18 @@ plot.J = ggplot(data.TS, aes(x=time, y=J, ymin=J_SE_L, ymax=J_SE_H)) +
 # Adult density
 plot.A = ggplot(data.TS, aes(x=time, y=A, ymin=A_SE_L, ymax=A_SE_H)) + 
   geom_pointrange(size=0.5, color="#30638e") + # blue color
+  labs(x="Time", y="Density") +
+  scale_x_continuous(limits=c(xmin, xmax)) +
+  scale_y_continuous(limits=c(ymin, ymax)) +
+  #scale_y_log10(limits=c(ymin, ymax)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
+        axis.line = element_line(colour = "black"), legend.position = "none", 
+        axis.text = element_text(size=13), axis.title = element_text(size=20)) 
+
+# Insect density (Juveniles + Adults)
+plot.I = ggplot(data.TS, aes(x=time, y=A, ymin=A_SE_L, ymax=A_SE_H)) + # NOTE: data under column "A", but are for all insect stages
+  geom_pointrange(size=0.5, color="black") +
   labs(x="Time", y="Density") +
   scale_x_continuous(limits=c(xmin, xmax)) +
   scale_y_continuous(limits=c(ymin, ymax)) +
@@ -237,7 +241,8 @@ model.J.CC = ggplot(data.model.CC, aes(x=Time, y=J)) +
 
 # Adult density
 model.A.CC = ggplot(data.model.CC, aes(x=Time, y=A)) + 
-  geom_line(size=0.8, color="#30638e", linetype="longdash") + # blue color
+  #geom_line(size=0.8, color="#30638e", linetype="longdash") + # blue color
+  geom_line(size=0.8, color="red") +
   labs(x="Time", y="Density") +
   scale_x_continuous(limits=c(xmin.CC, xmax.CC)) +
   scale_y_continuous(limits=c(ymin.CC, ymax.CC)) +
@@ -264,8 +269,8 @@ model.I.CC = ggplot(data.model.CC, aes(x=Time, y=J+A)) +
 # PLOT HABITAT TEMPERATURE FUNCTION
 # Historical time period
 # data table from Tmin and Tmax functions
-temp.fun.h <- data.frame(t=c(0:720))
-temp.fun.h <- data.frame(t=c(0:720),
+temp.fun.h <- data.frame(t=c(xmin:xmax))
+temp.fun.h <- data.frame(t=c(xmin:xmax),
                        fun.min = sapply(temp.fun.h$t, FUN = function(t) (temp.data$meanT.h + temp.data$delta_mean.h*(t+time.shift))  - (temp.data$amplT.h + temp.data$delta_ampl.h*(t+time.shift)) * cos(2*pi*((t+time.shift) + temp.data$shiftT.h)/yr) - abs(temp.data$amplD.h)),
                        fun.max = sapply(temp.fun.h$t, FUN = function(t) (temp.data$meanT.h + temp.data$delta_mean.h*(t+time.shift))  - (temp.data$amplT.h + temp.data$delta_ampl.h*(t+time.shift)) * cos(2*pi*((t+time.shift) + temp.data$shiftT.h)/yr) + abs(temp.data$amplD.h)))
 # plot
@@ -281,8 +286,8 @@ plot.temp <- ggplot(temp.fun.h, aes(x=t, y=fun.max)) +
   #              size=0.8, linetype="longdash", color="blue") +
   geom_ribbon(aes(ymin = fun.min, ymax = fun.max), fill = "blue", alpha = 0.2) +
   # Minimum developmental temperature
-  geom_function(fun = function(t) (sp.data$Tmin), size=0.8, color="black") +
-  labs(x="Time", y="T (K)") +
+  #geom_function(fun = function(t) (sp.data$Tmin + 2*abs(temp.data$amplD.h)), size=0.8, color="black") +
+  labs(x="Time", y="T(K)") +
   scale_x_continuous(limits=c(xmin, xmax)) +
   scale_y_continuous(limits=c(temp.min, temp.max)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
@@ -293,8 +298,8 @@ plot.temp <- ggplot(temp.fun.h, aes(x=t, y=fun.max)) +
 
 # Climate change time period
 # data table from Tmin and Tmax functions
-temp.fun.f <- data.frame(t=c(0:720))
-temp.fun.f <- data.frame(t=c(0:720),
+temp.fun.f <- data.frame(t=c(xmin.CC:xmax.CC))
+temp.fun.f <- data.frame(t=c(xmin.CC:xmax.CC),
                        fun.min = sapply(temp.fun.f$t, FUN = function(t) (temp.data$meanT.f + temp.data$delta_mean.f*(t+time.shift.CC))  - (temp.data$amplT.f + temp.data$delta_ampl.f*(t+time.shift.CC)) * cos(2*pi*((t+time.shift.CC) + temp.data$shiftT.f)/yr) - abs(temp.data$amplD.f)),
                        fun.max = sapply(temp.fun.f$t, FUN = function(t) (temp.data$meanT.f + temp.data$delta_mean.f*(t+time.shift.CC))  - (temp.data$amplT.f + temp.data$delta_ampl.f*(t+time.shift.CC)) * cos(2*pi*((t+time.shift.CC) + temp.data$shiftT.f)/yr) + abs(temp.data$amplD.f)))
 # plot
@@ -310,8 +315,8 @@ plot.temp.CC <- ggplot(temp.fun.f, aes(x=t, y=fun.max)) +
   #              size=0.8, linetype="longdash", color="red") +
   geom_ribbon(aes(ymin = fun.min, ymax = fun.max), fill = "red", alpha = 0.2) +
   # Minimum developmental temperature
-  geom_function(fun = function(t) (sp.data$Tmin), size=0.8, color="black") +
-  labs(x="Time", y="T (K)") +
+  #geom_function(fun = function(t) (sp.data$Tmin + 2*abs(temp.data$amplD.f)), size=0.8, color="black") +
+  labs(x="Time", y="T(K)") +
   scale_x_continuous(limits=c(xmin, xmax)) +
   scale_y_continuous(limits=c(temp.min, temp.max)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
@@ -320,40 +325,41 @@ plot.temp.CC <- ggplot(temp.fun.f, aes(x=t, y=fun.max)) +
         axis.text = element_text(size=13), axis.title = element_text(size=20))
 
 
+
 # DRAW FINAL PLOTS
 # Temperature plots
 plot.climate <- ggdraw()  +
   draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
   draw_plot(plot.temp.CC, x = 0, y = 0, width = 1, height = 0.3)
-plot.climate
+#plot.climate
 
 # Historical time period
 # by life stages
 ifelse(egg == TRUE,
 plot <- ggdraw()  +
   draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
-  #draw_plot(plot.E, x = 0, y = 0.3, width = 1, height = 0.7) +
+  draw_plot(plot.E, x = 0, y = 0.3, width = 1, height = 0.7) +
   draw_plot(plot.J, x = 0, y = 0.3, width = 1, height = 0.7) +
   draw_plot(plot.A, x = 0, y = 0.3, width = 1, height = 0.7) +
-  #draw_plot(model.E, x = 0, y = 0.3, width = 1, height = 0.7) +
+  draw_plot(model.E, x = 0, y = 0.3, width = 1, height = 0.7) +
   draw_plot(model.J, x = 0, y = 0.3, width = 1, height = 0.7) +
   draw_plot(model.A, x = 0, y = 0.3, width = 1, height = 0.7),
 plot <- ggdraw()  +
    draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
-   draw_plot(plot.J, x = 0, y = 0.3, width = 1, height = 0.7) +
+   #draw_plot(plot.J, x = 0, y = 0.3, width = 1, height = 0.7) +
    draw_plot(plot.A, x = 0, y = 0.3, width = 1, height = 0.7) +
-   draw_plot(model.J, x = 0, y = 0.3, width = 1, height = 0.7) +
+   #draw_plot(model.J, x = 0, y = 0.3, width = 1, height = 0.7) +
    draw_plot(model.A, x = 0, y = 0.3, width = 1, height = 0.7))
 plot
 
 # total insects
-#plot <- ggdraw()  +
+# plot <- ggdraw()  +
 #  draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
-#  draw_plot(plot.A, x = 0, y = 0.3, width = 1, height = 0.7) +
-#  draw_plot(model.J, x = 0, y = 0.3, width = 1, height = 0.7) +
-#  draw_plot(model.A, x = 0, y = 0.3, width = 1, height = 0.7) +
+#  draw_plot(plot.I, x = 0, y = 0.3, width = 1, height = 0.7) +
+#  #draw_plot(model.J, x = 0, y = 0.3, width = 1, height = 0.7) +
+#  #draw_plot(model.A, x = 0, y = 0.3, width = 1, height = 0.7) +
 #  draw_plot(model.I, x = 0, y = 0.3, width = 1, height = 0.7)
-#plot
+# plot
 
 # Climate change time period
 # by life stages
@@ -381,7 +387,7 @@ plot.compare <- ggdraw()  +
 #   draw_plot(model.J.CC, x = 0, y = 0.3, width = 1, height = 0.7) +
    draw_plot(model.A.CC, x = 0, y = 0.3, width = 1, height = 0.7)
 plot.compare
-
+plot.compare
 
 # total insects
 #plot.compare <- ggdraw()  +

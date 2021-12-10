@@ -1,7 +1,7 @@
 ﻿Species,Latitude,Habitat,subfamily,meanT.h,amplT.h,shiftT.h,delta_mean.h,delta_ampl.h,amplD.h,meanT.f,amplT.f,shiftT.f,delta_mean.f,delta_ampl.f,amplD.f,meanP.h,amplP.h,shiftP.h,meanP.f,amplP.f,shiftP.f,Notes
 Clavigralla shadabi Benin,6.45,Tropical,Heteroptera,300.6,1.44,119.3,0,0,3,301.5,1.03,116.8,0.000124,0.000002,1.17,,,,,,,
 Clavigralla tomentosicollis Benin,6.45,Tropical,Heteroptera,300.6,1.44,119.3,0,0,3,301.5,1.03,116.8,0.000124,0.000002,1.17,,,,,,,
-Clavigralla tomentosicollis Nigeria,7.45,Tropical,Heteroptera,301,1.79,129.3,0,0,3.94,301.3,1.17,109.3,0.000151,0,3.62,13.73,15.45,77.1,,,,
+Clavigralla tomentosicollis Nigeria,7.45,Tropical,Heteroptera,301,1.79,129.3,0,0,3.94,301.3,1.17,109.3,0.000151,0,3.62,13.86,15.55,68.6,,,,
 Clavigralla tomentosicollis Burkina Faso,12.38,Tropical,Heteroptera,301.9,2.48,50.3,0,0,6.6,303.1,3.42,5.2,0.000177,-0.000023,5.24,,,,,,,
 Apolygus lucorum China Dafeng,33.33,Temperate,Heteroptera,288.5,-12.6,-213.6,0,0,4.29,291.4,12.8,-20.8,0.000125,0.00002,4.1,,,,,,,
 Adelphocoris suturalis China Dafeng,33.33,Temperate,Heteroptera,288.5,-12.6,-213.6,0,0,4.29,291.4,12.8,-20.8,0.000125,0.00002,4.1,,,,,,,

@@ -8,23 +8,29 @@ library(ggplot2)
 library(dplyr)
 library(tidyverse)
 library(cubature)
+library(lamW)
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 
 # USER: enter species and location
-species <- "Hyadaphis pseudobrassicae"
-location <- "US Columbia"
+species <- "Macrosiphum euphorbiae"
+location <- "Canada"
 
 # USER: include overwintering? (i.e., do not integrate over temperatures below Tmin)
-overw <- TRUE
+overw <- FALSE
 
-################################## TPC: HISTORICAL CLIMATE ###################################
-# Read in climate data
-temp.h <- as.data.frame(read_csv(paste0("Climate data/Historical climate data ",location,".csv")))
+# USER: include resource variation due to precipitation?
+res <- FALSE
+
 # Read in temperature response and temperature parameters, and temperature response data for selected insect
 param <- subset(as.data.frame(read_csv("Temperature response parameters.csv")), Species == paste(species,location))
 # Read in temperature parameters
 t.param <- subset(as.data.frame(read_csv("Temperature parameters.csv")), Species == paste(species,location))
+
+
+################################## TPC: HISTORICAL CLIMATE ###################################
+# Read in climate data
+temp.h <- as.data.frame(read_csv(paste0("Climate data/Historical climate data ",location,".csv")))
 
 # Integrate across r(T(t))
 T.h <- function(t) { (t.param$meanT.h+t.param$delta_mean.h*t) - (t.param$amplT.h+t.param$delta_ampl.h*t)*cos(2*pi*(t + t.param$shiftT.h)/365) - t.param$amplD.h*cos(2*pi*t) }
@@ -55,10 +61,6 @@ if(overw == TRUE) {
 ##################################### TPC: FUTURE CLIMATE ####################################
 # Read in climate data
 temp.f <- as.data.frame(read_csv(paste0("Climate data/Future climate data ",location,".csv")))
-# Read in temperature response and temperature parameters, and temperature response data for selected insect
-param <- subset(as.data.frame(read_csv("Temperature response parameters.csv")), Species == paste(species,location))
-# Read in temperature parameters
-t.param <- subset(as.data.frame(read_csv("Temperature parameters.csv")), Species == paste(species,location))
 
 # Integrate across r(T(t))
 T.f <- function(t) { (t.param$meanT.f+t.param$delta_mean.f*t) - (t.param$amplT.f+t.param$delta_ampl.f*t)*cos(2*pi*(t + t.param$shiftT.f)/365) - t.param$amplD.f*cos(2*pi*t) }
@@ -112,6 +114,25 @@ r.TPC.f
 # Read in climate data and temperature response parameters for selected insect
 TS.h <- as.data.frame(read_csv(paste0("Time series data/Historical time series ",species," ",location,".csv")))
 
+# Calculate r at each time-step in model
+init_years <- 0 # from Python DDE model
+T <- function(t) { (t.param$meanT.h + t.param$delta_mean.h*t) - (t.param$amplT.h + t.param$delta_ampl.h*t)*cos(2*pi*(t + t.param$shiftT.h)/365) - t.param$amplD.h*cos(2*pi*t) }
+ifelse(res == FALSE, R <- function(t) {1}, R <- function(t) { ifelse(t.param$meanP.h - t.param$amplP.h * cos(2*pi*((t-init_years*365) + shiftP.h)/365) < 0, 0, t.param$meanP.h - t.param$amplP.h * cos(2*pi*((t-init_years*365) + shiftP.h)/365) )})
+ifelse(overw == FALSE, M <- function(t) {1}, M <- function(t) { ifelse(T(t) < param$Tmin + 2*abs(t.param$amplD.h), 0, 1) })
+b <- function(t) { param$bTopt*exp(-((T(t)-param$Toptb)^2)/(2*param$sb^2)) }
+mJ <- function(t) { param$mTR*(T(t)/param$TR)*exp(param$AmJ*(1/param$TR-1/T(t)))/(1+exp(param$AL*(1/param$TL-1/T(t)))+exp(param$AH*(1/param$TH-1/T(t)))) }
+dJ <- function(t) {  param$dJTR*exp(param$JdA*(1/param$TR-1/T(t))) }
+dA <- function(t) {  param$dATR*exp(param$AdA*(1/param$TR-1/T(t))) }
+TS.h$r <- (lambertW0(R(S.h$Time)*M(TS.h$Time-TS.h$tau)*b(TS.h$Time-TS.h$tau) * mJ(TS.h$Time)/mJ(TS.h$Time-TS.h$tau)*TS.h$S * TS.h$tau * exp(dA(TS.h$Time)*TS.h$tau)) - dA(TS.h$Time) * TS.h$tau) / TS.h$tau
+
+# Integrate across daily per capita population growth rate from DDE model
+r.model.h <- 0
+start <- nrow(TS.h) - 365*10 + 1 # integrate over last 10 years of time-series
+end <- nrow(TS.h)
+for(i in start:end) { r.model.h <- r.model.h + TS.h$r[i] }
+(r.model.h <- r.model.h/(end-start))
+
+
 # Integrate model time-series across ln(t/(t-1))
 # r.model.h <- 0
 # count.h <- 0
@@ -122,19 +143,32 @@ TS.h <- as.data.frame(read_csv(paste0("Time series data/Historical time series "
 # }}
 # (r.model.h <- r.model.h/count.h)
 
-# Integrate low density per capita population growth rate across ln(t/(t-1))
-r.model.h <- 0
-start <- nrow(TS.h) - 365*10 # integrate over last 10 years of time-series
-end <- nrow(TS.h)
-for(i in start:end) { r.model.h <- r.model.h + TS.h$r[i] }
-(r.model.h <- r.model.h/(end-start))
-
 
 ################################### MODEL: FUTURE CLIMATE ####################################
 # Read in climate data and temperature response parameters for selected insect
 TS.f <- as.data.frame(read_csv(paste0("Time series data/Future time series ",species," ",location,".csv")))
 
-# Integrate across ln(t+1/t)
+# Calculate r at each time-step in model
+init_years <- 0 # from Python DDE model
+T <- function(t) { (t.param$meanT.f + t.param$delta_mean.f*t) - (t.param$amplT.f + t.param$delta_ampl.f*t)*cos(2*pi*(t + t.param$shiftT.f)/365) - t.param$amplD.f*cos(2*pi*t) }
+ifelse(res == FALSE, R <- function(t) {1}, R <- function(t) { ifelse(t.param$meanP.f - t.param$amplP.f * cos(2*pi*((t-init_years*365) + shiftP.f)/365) < 0, 0, t.param$meanP.f - t.param$amplP.f * cos(2*pi*((t-init_years*365) + shiftP.f)/365) )})
+ifelse(overw == FALSE, M <- function(t) {1}, M <- function(t) { ifelse(T(t) < param$Tmin + 2*abs(t.param$amplD.f), 0, 1) })
+b <- function(t) { param$bTopt*exp(-((T(t)-param$Toptb)^2)/(2*param$sb^2)) }
+mJ <- function(t) { param$mTR*(T(t)/param$TR)*exp(param$AmJ*(1/param$TR-1/T(t)))/(1+exp(param$AL*(1/param$TL-1/T(t)))+exp(param$AH*(1/param$TH-1/T(t)))) }
+dJ <- function(t) {  param$dJTR*exp(param$AdJ*(1/param$TR-1/T(t))) }
+dA <- function(t) {  param$dATR*exp(param$AdA*(1/param$TR-1/T(t))) }
+TS.f$r <- (lambertW0(R(S.f$Time)*M(TS.f$Time-TS.f$tau)*b(TS.f$Time-TS.f$tau) * mJ(TS.f$Time)/mJ(TS.f$Time-TS.f$tau)*TS.f$S * TS.f$tau * exp(dA(TS.f$Time)*TS.f$tau)) - dA(TS.f$Time) * TS.f$tau) / TS.f$tau
+
+# Integrate across daily per capita population growth rate from DDE model
+r.model.f <- 0
+start <- nrow(TS.f) - 365*5 + 1 # integrate over last 5 years of time-series
+end <- nrow(TS.f)
+for(i in start:end) { r.model.f <- r.model.f + TS.f$r[i] }
+(r.model.f <- r.model.f/(end-start))
+
+plot(TS.f[-c(1:start),"Time"],TS.f[-c(1:start),"r"], col="blue")
+#plot(TS.f$Time,TS.f$r, col="blue")
+# Integrate across ln(t/(t-1))
 # r.model.f <- 0
 # count.f <- 0
 # for(i in 3:nrow(TS.f)) {
@@ -144,14 +178,8 @@ TS.f <- as.data.frame(read_csv(paste0("Time series data/Future time series ",spe
 #   }}
 # (r.model.f <- r.model.f/count.f)
 
-# Integrate low density per capita population growth rate across ln(t/(t-1))
-r.model.f <- 0
-start <- nrow(TS.f) - 365*10 # integrate over last 10 years of time-series
-end <- nrow(TS.f)
-for(i in start:end) { r.model.f <- r.model.f + TS.f$r[i] }
-(r.model.f <- r.model.f/(end-start))
 
-
+# SUMMARIZE RESULTS
 r.TPC.h
 r.TPC.f
 r.model.h
