@@ -28,8 +28,8 @@ temp_data = read_csv("Temperature parameters.csv")
 
 
 # ENTER SPECIES, LOCATION, AND TIME PERIOD
-species = "Macrosiphum euphorbiae"
-location = "Canada"
+species = "Clavigralla tomentosicollis"
+location = "Nigeria"
 period = "Historical"
 #period = "Future"
 
@@ -43,10 +43,10 @@ egg = False
 res = False
 
 # USER: Use minimum temperature threshold?
-minT = True
+minT = False
 
 # USER: Use growing season?
-growing = False
+#growing = False
 
 # USER: Incorporate diurnal temperature fluctuations?
 daily = True
@@ -70,8 +70,8 @@ CC_years = max_years # how long before climate change "equilibrates"
 
 # Initial abundances
 initE = 100.
-initJ = 1.
-initA = 1.
+initJ = 100.
+initA = 100.
 A0 = 0.01 # initial adult density for calculating per capita population growth rate
 
 # Temperature parameters
@@ -213,20 +213,20 @@ def Allee(x):
     return conditional(x, A_thr, 0, 1) # if A < A_thr then Allee = 0; otherwise, Allee = 1 
 
 # Growing season
-if growing == True:
-    start = temp_data["start"].values[0]
-    end = temp_data["end"].values[0]
-    def M(x):
-        return conditional(1/(1-cos(pi*(end-start)/yr))*(-cos(pi*(end-start)/yr) + sin(2*pi*(x-start)/yr+asin(cos(pi*(end-start)/yr)))), 0, 0, 1) # if function < 0, M = 0
+#if growing == True:
+#    start = temp_data["start"].values[0]
+#    end = temp_data["end"].values[0]
+#    def M(x):
+#        return conditional(1/(1-cos(pi*(end-start)/yr))*(-cos(pi*(end-start)/yr) + sin(2*pi*(x-start)/yr+asin(cos(pi*(end-start)/yr)))), 0, 0, 1) # if function < 0, M = 0
 
 # Minimum developmental temperature
+#else:
+if minT == True:
+    def M(x):
+        return conditional(T(x), Tmin, 0, 1) # if temperature < developmental min, Tmin, then development M = 0; otherwise, M = 1
 else:
-    if minT == True:
-        def M(x):
-            return conditional(T(x), Tmin, 0, 1) # if temperature < developmental min, Tmin, then development M = 0; otherwise, M = 1
-    else:
-        def M(x):
-            return 1
+    def M(x):
+        return 1
         
 '''
 # Plot growing season function

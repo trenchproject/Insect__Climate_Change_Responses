@@ -63,11 +63,11 @@ Ymax <- 1
 plot(r.data[r.data$Habitat=="Tropical","Latitude"], r.data[r.data$Habitat=="Tropical","delta.model"], pch=21, col="red", bg="red",
      xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="Latitude", ylab="change in r")
 points(r.data[r.data$Habitat=="Subtropical","Latitude"], r.data[r.data$Habitat=="Subtropical","delta.model"], pch=21, col="orange", bg="orange")
-points(r.data[r.data$Habitat=="Mediterranean","Latitude"], r.data[r.data$Habitat=="Mediterranean","delta.model"], pch=21, col="purple", bg="purple")
+points(r.data[r.data$Habitat=="Mediterranean","Latitude"], r.data[r.data$Habitat=="Mediterranean","delta.model"], pch=21, col="orange", bg="orange")
 points(r.data[r.data$Habitat=="Temperate","Latitude"], r.data[r.data$Habitat=="Temperate","delta.model"], pch=21, col="blue", bg="blue")
 points(seq(Xmin,Xmax,1), coef(model)[2]*seq(Xmin,Xmax,1) + coef(model)[1], type="l", col="black")
-points(seq(Xmin,Xmax,1), coef(model2)[1] + coef(model2)[2]*seq(Xmin,Xmax,1) + coef(model2)[3]*seq(Xmin,Xmax,1)^2, type="l", col="black")
-abline(0, 0, col="black", lty="longdash")
+#points(seq(Xmin,Xmax,1), coef(model2)[1] + coef(model2)[2]*seq(Xmin,Xmax,1) + coef(model2)[3]*seq(Xmin,Xmax,1)^2, type="l", col="black")
+abline(0, 0, col="gray")
 
 
 # proportional change in r (model vs TPCs)
@@ -75,15 +75,14 @@ Xmin <- -1
 Xmax <- 2
 Ymin <- -1
 Ymax <- 1
-abline(0, 0, col="gray")
-abline(v = 0, col="gray")
-points(r.data[r.data$Habitat=="Tropical","delta.TPC"], r.data[r.data$Habitat=="Tropical","delta.model"], pch=21, col="red", bg="red",
+plot(r.data[r.data$Habitat=="Tropical","delta.TPC"], r.data[r.data$Habitat=="Tropical","delta.model"], pch=21, col="red", bg="red",
      xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="TPC", ylab="Model")
 points(r.data[r.data$Habitat=="Subtropical","delta.TPC"], r.data[r.data$Habitat=="Subtropical","delta.model"], pch=21, col="orange", bg="orange")
-points(r.data[r.data$Habitat=="Mediterranean","delta.TPC"], r.data[r.data$Habitat=="Mediterranean","delta.model"], pch=21, col="purple", bg="purple")
+points(r.data[r.data$Habitat=="Mediterranean","delta.TPC"], r.data[r.data$Habitat=="Mediterranean","delta.model"], pch=21, col="orange", bg="orange")
 points(r.data[r.data$Habitat=="Temperate","delta.TPC"], r.data[r.data$Habitat=="Temperate","delta.model"], pch=21, col="blue", bg="blue")
 points(seq(Xmin,Xmax,1), coef(d)[2]*seq(Xmin,Xmax,1)+coef(d)[1], type="l", col="black", lty="longdash")
-
+abline(0, 0, col="gray")
+abline(v = 0, col="gray")
 
 
 

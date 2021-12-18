@@ -13,8 +13,8 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 
 # USER: enter species, location, if the egg stage is modeled, and if the model is fit to data 
-species <- "Clavigralla tomentosicollis"
-location <- "Nigeria"
+species <- "Apolygus lucorum"
+location <- "China Dafeng"
 egg <- FALSE
 pop.dyn <- FALSE
 
@@ -26,12 +26,12 @@ temp.data <- as.data.frame(read_csv("Temperature parameters.csv"))
 
 # Time-series field data
 # Select an file by removing # in front of name and placing # in front of other files
-data.density <- read_csv("Population data Nigeria (egg).csv")
-#data.density <- read_csv("Population data China.csv")
+#data.density <- read_csv("Population data Nigeria (egg).csv")
+data.density <- read_csv("Population data China.csv")
 
 # USER: Select time-series data
-data.TS <- subset(data.density, Plot=="C") # select plot A, B, or C
-#data.TS <- subset(data.density, location=="Dafeng" & species=="Apolygus_lucorum") # select location and species
+#data.TS <- subset(data.density, Plot=="C") # select plot A, B, or C
+data.TS <- subset(data.density, location=="Dafeng" & species=="Apolygus_lucorum") # select location and species
 #data.TS <- subset(data.density, location=="Dafeng" & species=="Adelphocoris_suturalis") # select location and species
 #data.TS <- subset(data.density, location=="Langfang" & species=="Apolygus_lucorum") # select location and species
 #data.TS <- subset(data.density, location=="Xinxiang" & species=="Adelphocoris_suturalis") # select location and species
@@ -63,9 +63,9 @@ temp.data <- subset(temp.data, Species == paste(species,location))
 # Default: plot last 2 year of model
 # for historical time period
 xmin <- 0
-xmax <- 730
+xmax <- 365
 ymin <- 0
-ymax <- 50
+ymax <- 100
 # for climate change time period
 xmin.CC <- xmin
 xmax.CC <- xmax
@@ -75,28 +75,28 @@ ymax.CC <- ymax
 temp.min <- 295 #270
 temp.max <- 315 #320
 yr <- 365 # days in a year
-init_yrs <- 0 # number of years to initiate the model (from Python DDE model)
+init_yrs <- 1 # number of years to initiate the model (from Python DDE model)
 TS.length <- xmax - xmin # length of time-series data
 end <- nrow(data.model)
-
+end.CC <- nrow(data.model.CC)
 
 # FORMAT MODEL OUTPUT TO ALIGN WITH TIME-SERIES DATA
 # Remove all rows before time-series data starts
-if(xmin != 0) { data.model <- data.model[c(-1:-(init_yrs*yr + xmin)), ] }
+data.model <- data.model[c(-1:-(init_yrs*yr + xmin)), ]
 
 # Remove all rows after xmax days
-data.model <- data.model[c(-(xmax+1):-end), ]
+data.model <- data.model[c(-xmax+1:-end), ]
 
 # climate change period (remove all but last 2 years of data)
-data.model.CC <- data.model.CC[c(-1:-(end-2*yr + xmin.CC)), ]
+data.model.CC <- data.model.CC[c(-1:-(end.CC-1*yr + xmin.CC)), ]
 
 # Re-scale time to start at xmin
 # historical period
 time.shift <- data.model[[1,1]] - xmin
-ifelse(egg == FALSE, data.model <- sweep(data.model, 2, c(time.shift,0,0,0,0,0)), data.model <- sweep(data.model, 2, c(time.shift,0,0,0,0,0,0,0,0)))
+ifelse(egg == FALSE, data.model <- sweep(data.model, 2, c(time.shift,0,0,0,0)), data.model <- sweep(data.model, 2, c(time.shift,0,0,0,0,0,0,0,0)))
 # climate change period
 time.shift.CC <- data.model.CC[[1,1]] + xmin.CC
-ifelse(egg == FALSE, data.model.CC <- sweep(data.model.CC, 2, c(time.shift.CC,0,0,0,0,0)), data.model.CC <- sweep(data.model.CC, 2, c(time.shift.CC,0,0,0,0,0,0,0,0)))
+ifelse(egg == FALSE, data.model.CC <- sweep(data.model.CC, 2, c(time.shift.CC,0,0,0,0)), data.model.CC <- sweep(data.model.CC, 2, c(time.shift.CC,0,0,0,0,0,0,0,0)))
 
 # Data transformation (if needed)
 # Convert from linear to log scale
@@ -137,7 +137,7 @@ plot.J = ggplot(data.TS, aes(x=time, y=J, ymin=J_SE_L, ymax=J_SE_H)) +
 
 # Adult density
 plot.A = ggplot(data.TS, aes(x=time, y=A, ymin=A_SE_L, ymax=A_SE_H)) + 
-  geom_pointrange(size=0.5, color="#30638e") + # blue color
+  geom_pointrange(size=0.5, color="black") + # blue color
   labs(x="Time", y="Density") +
   scale_x_continuous(limits=c(xmin, xmax)) +
   scale_y_continuous(limits=c(ymin, ymax)) +
@@ -166,7 +166,7 @@ plot.I = ggplot(data.TS, aes(x=time, y=A, ymin=A_SE_L, ymax=A_SE_H)) + # NOTE: d
 # Egg density
 if (egg == TRUE) {
 model.E = ggplot(data.model, aes(x=Time, y=E)) + 
-  geom_line(size=0.8, color="black") +
+  geom_line(size=0.8, color="#30638e") +
   labs(x="Time", y="Density") +
   scale_x_continuous(limits=c(xmin, xmax)) +
   scale_y_continuous(limits=c(ymin, ymax)) +
@@ -350,14 +350,14 @@ plot <- ggdraw()  +
    draw_plot(plot.A, x = 0, y = 0.3, width = 1, height = 0.7) +
    #draw_plot(model.J, x = 0, y = 0.3, width = 1, height = 0.7) +
    draw_plot(model.A, x = 0, y = 0.3, width = 1, height = 0.7))
-plot
+#plot
 
 # total insects
 # plot <- ggdraw()  +
 #  draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
 #  draw_plot(plot.I, x = 0, y = 0.3, width = 1, height = 0.7) +
-#  #draw_plot(model.J, x = 0, y = 0.3, width = 1, height = 0.7) +
-#  #draw_plot(model.A, x = 0, y = 0.3, width = 1, height = 0.7) +
+#  draw_plot(model.J, x = 0, y = 0.3, width = 1, height = 0.7) +
+#  draw_plot(model.A, x = 0, y = 0.3, width = 1, height = 0.7) +
 #  draw_plot(model.I, x = 0, y = 0.3, width = 1, height = 0.7)
 # plot
 
@@ -370,7 +370,7 @@ plot
 #plot.CC
 
 # total insects
-#plot.CC <- ggdraw()  +
+# plot.CC <- ggdraw()  +
 #  draw_plot(plot.temp.CC, x = 0, y = 0, width = 1, height = 0.3) +
 #  draw_plot(model.J.CC, x = 0, y = 0.3, width = 1, height = 0.7) +
 #  draw_plot(model.A.CC, x = 0, y = 0.3, width = 1, height = 0.7) +
@@ -387,16 +387,16 @@ plot.compare <- ggdraw()  +
 #   draw_plot(model.J.CC, x = 0, y = 0.3, width = 1, height = 0.7) +
    draw_plot(model.A.CC, x = 0, y = 0.3, width = 1, height = 0.7)
 plot.compare
-plot.compare
+#plot.compare
 
 # total insects
-#plot.compare <- ggdraw()  +
+# plot.compare <- ggdraw()  +
 #  draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
 #  draw_plot(plot.temp.CC, x = 0, y = 0, width = 1, height = 0.3) +
 #  draw_plot(model.I, x = 0, y = 0.3, width = 1, height = 0.7) +
 #  draw_plot(model.I.CC, x = 0, y = 0.3, width = 1, height = 0.7)
-#plot.compare
-
+# plot.compare
+# plot.compare
 
 
 
