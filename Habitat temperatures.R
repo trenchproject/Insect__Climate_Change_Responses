@@ -2,7 +2,6 @@
 #### This R script fits sinusoidal functions to habitat temperature data ####
 #############################################################################
 
-
 # Load packages and set working directory
 library(tidyr)
 library(ggplot2)
@@ -12,22 +11,22 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 
 # USER: enter location
-location <- "Brazil"
+location <- "US Columbia"
 
 # INPUT DATA
 # Select a location by removing # in front of name and placing # in front of other locations
 data.h <- as.data.frame(read_csv(paste0("Climate data/Historical climate data ",location,".csv")))
 data.f <- as.data.frame(read_csv(paste0("Climate data/Future climate data ",location,".csv")))
 
-fit.f2 <- nls(T ~ meanT - amplT*cos(2*pi*(day + shiftT)/365) - amplD*cos(2*pi*day),
-              data = data.f, start = list(meanT = 300, amplT = 5, shiftT = 30, amplD = 5))
-summary(fit.f2)
+# REMOVE DAILY MINIMUM TEMPERATURES
+data.h <- data.h[data.h$day %% 1 != 0,]
+data.f <- data.f[data.f$day %% 1 != 0,]
 
 
 #################################### HISTORICAL CLIMATE #####################################
 # Fit sinusoidal function with annual temperature variation to climate data
-#(fit.h <- summary(nls(T ~ meanT - amplT*cos(2*pi*(day + shiftT)/365), data = data.h,
-#                      start = list(meanT = 300, amplT = 1, shiftT = 30))))
+(fit.h <- summary(nls(T ~ meanT - amplT*cos(2*pi*(day + shiftT)/365), data = data.h,
+                      start = list(meanT = 300, amplT = 1, shiftT = 30))))
 
 # Fit sinusoidal function with annual temperature variation to climate data (delta_mean and delta_ampl)
 #(fit.h <- summary(nls(T ~ (meanT + delta_mean*day) - (amplT + delta_ampl*day)*cos(2*pi*(day + shiftT)/365), data = data.h,
@@ -100,8 +99,8 @@ ggplot(data.h, aes(x=day, y=T)) +
 #                      start = list(meanT = 300, amplT = 1, shiftT = 30))))
 
 # Fit sinusoidal function with annual temperature variation to climate data (delta_mean and delta_ampl)
-#(fit.f <- summary(nls(T ~ (meanT + delta_mean*day) - (amplT + delta_ampl*day) * cos(2*pi*(day + shiftT)/365), data = data.f,
-#             start = list(meanT = 300, amplT = 1, shiftT = 30, delta_mean = 0.1, delta_ampl = 0.1))))
+(fit.f <- summary(nls(T ~ (meanT + delta_mean*day) - (amplT + delta_ampl*day) * cos(2*pi*(day + shiftT)/365), data = data.f,
+             start = list(meanT = 300, amplT = 1, shiftT = 30, delta_mean = 0.1, delta_ampl = 0.1))))
 
 # Then estimate diurnal variation as average daily difference between Tmax and Tmin
 # diurnal.f <- 0
@@ -120,9 +119,9 @@ ggplot(data.h, aes(x=day, y=T)) +
 # summary(fit.f2)
 
 # Fit sinusoidal function with annual and diurnal temperature variation (no delta parameters)
-fit.f2 <- nls(T ~ meanT - amplT*cos(2*pi*(day + shiftT)/365) - amplD*cos(2*pi*day),
-              data = data.f, start = list(meanT = 300, amplT = 5, shiftT = 30, amplD = 5))
-summary(fit.f2)
+# fit.f2 <- nls(T ~ meanT - amplT*cos(2*pi*(day + shiftT)/365) - amplD*cos(2*pi*day),
+#               data = data.f, start = list(meanT = 300, amplT = 5, shiftT = 30, amplD = 5))
+# summary(fit.f2)
 
 # Assess whether delta_mean or delta_ampl are significant and if not set to zero
 #if(fit.f[["coefficients"]][4,4] > 0.05) { fit.f[["coefficients"]][4,1] <- 0 } # delta_mean
