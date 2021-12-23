@@ -17,7 +17,7 @@ Toxoptera citricidus on C. aurantium Japan Chiba,35.38,Subtropical,Sternorrhynch
 Aphis citricola Japan Chiba,35.38,Subtropical,Sternorrhyncha,2.86,295.9,4.2,0.108,293,6581,1,-43489,282.8,88048,303.7,281.5,0.013,74085,0.035,8714,0.2,0.34,292.8,306.6,2.69,Used dJTR from data
 Acyrthosiphon pisum UK Sand Hutton,54.02,Temperate,Sternorrhyncha,4.36,291.5,7.7,0.099,293,4369,1,-199975,284,125898,301,272.8,0.213,17600,0.127,11240,0.2,0.286,296.2,307,6.67,On cv. Scout
 Bemisia argentifollii US Homestead,25.47,Subtropical,Sternorrhyncha,10.2,297.3,5.26,0.032,293,7807,1,-37956,286.8,32349,307.6,285.3,0.011,9480,0.03,7337,0.2,0.194,298.8,310.5,3.75,Development fits are not great; different suborder of Hempitera
-Rhopalosiphum rufiabdominalis US Naples,26.14,Subtropical,Sternorrhyncha,4.26,295.9,7.32,0.135,293,5015,1,-42080,281.7,520700,303.4,277.8,0.026,15510,0.057,5363,0.2,0.443,300,307.2,7.05,
+Rhopalosiphum rufiabdominalis US Weston,26.14,Subtropical,Sternorrhyncha,4.26,295.9,7.32,0.135,293,5015,1,-42080,281.7,520700,303.4,277.8,0.026,15510,0.057,5363,0.2,0.443,300,307.2,7.05,
 Aphis nasturtii US Weston,26.14,Subtropical,Sternorrhyncha,2.87,297.5,7.31,0.122,293,5811,1,-29807,281.8,38128,308.7,279.5,0.035,8128,0.055,5445,0.2,0.306,300.6,307.8,6.05,Development fits from Figure 1 of Wang et al. 1997
 Diaphorina citri US Weston,26.24,Subtropical,Sternorrhyncha,19.3,298.6,4.31,0.032,293,9105,1,-13480000,285,145500,303.4,283.2,0.012,3012,0.018,4647,0.2,0.199,301,304.4,4.62,r calculated using Topt from temperature responses
 Eriosoma lanigerum Australia Yathroo,30.9,Subtropical,Sternorrhyncha,4.92,294,5.73,0.05,293,5066,1,-65912,282.3,131069,305.2,277.5,0.009,19109,0.04,7862,0.2,0.204,301,305,7.9,

@@ -23,8 +23,8 @@ if cwd != '/Users/johnson/Documents/Christopher/GitHub/Johnson_Insect_Responses'
 
 
 # USER: Enter species, location, and time period
-species = "Toxoptera citricidus on C. unshiu"
-location = "Japan Chiba"
+species = "Hyadaphis pseudobrassicae"
+location = "US Columbia"
 period = "Historical"
 #period = "Future"
 
@@ -368,5 +368,5 @@ ax.legend(loc='best')
 xlabel("time (days)")
 ylabel("population density")
 yscale("linear")
-xlim((max_years-10)*yr,(max_years-0)*yr)
+xlim((max_years-75)*yr,(max_years-0)*yr)
 ylim(0,200)
