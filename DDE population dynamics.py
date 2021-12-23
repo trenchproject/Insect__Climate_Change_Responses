@@ -22,14 +22,9 @@ if cwd != '/Users/johnson/Documents/Christopher/GitHub/Johnson_Insect_Responses'
     os.chdir('/Users/johnson/Documents/Christopher/GitHub/Johnson_Insect_Responses')
 
 
-# INPUT TEMPERATURE RESPONSE PARAMETERS AND TEMPERATURE PARAMETERS
-data = read_csv("Temperature response parameters.csv")
-temp_data = read_csv("Temperature parameters.csv")
-
-
-# ENTER SPECIES, LOCATION, AND TIME PERIOD
-species = "Clavigralla tomentosicollis"
-location = "Nigeria"
+# USER: Enter species, location, and time period
+species = "Toxoptera citricidus on C. unshiu"
+location = "Japan Chiba"
 period = "Historical"
 #period = "Future"
 
@@ -43,28 +38,42 @@ egg = False
 res = False
 
 # USER: Use minimum temperature threshold?
-minT = False
+minT = True
 
 # USER: Use growing season?
 #growing = False
 
 # USER: Incorporate diurnal temperature fluctuations?
-daily = True
+daily = False
+
+# USER: Is model fit to census data
+census = False
 
 
-# INSECT SPECIES
+# INPUT TEMPERATURE RESPONSE PARAMETERS AND TEMPERATURE PARAMETERS
+data = read_csv("Temperature response parameters.csv")
+temp_data = read_csv("Temperature parameters.csv")
+
+# INSECT LIFE HISTORY TRAIT TEMPERATURE RESPONSES
 spData = data[data["Species"] == species + " " + location]
 
-# LOCATION
+# HABITAT TEMPERATURE PARAMETERS
 temp_data = temp_data[temp_data["Species"] == species + " " + location]
-
+# diurnal variation (for Tmin)
+if period == "Historical":
+    diurnal = temp_data["amplD.h"].values[0]
+else:
+    diurnal = temp_data["amplD.f"].values[0]
+if daily == False:
+    temp_data = read_csv("Temperature parameters Tmax.csv")
+    temp_data = temp_data[temp_data["Species"] == species + " " + location]
 
 # DEFINE MODEL PARAMETERS
 # Time parameters
 yr = 365 # days in year
 init_years = 0 # how many years to use for model initiation
 start_date = 0 # date on which to start model
-max_years = init_years+80 # how long to run simulations
+max_years = init_years+75 # how long to run simulations
 tstep = 1 # time step = 1 day
 CC_years = max_years # how long before climate change "equilibrates"
 
@@ -126,7 +135,9 @@ AL = spData["AL"].values[0]
 TL = spData["TL"].values[0]
 AH = spData["AH"].values[0]
 TH = spData["TH"].values[0]
-Tmin = spData["Tmin"].values[0] + 2*abs(amplD) # minimum developmental temperature
+Tmin = spData["Tmin"].values[0] #+ 2*abs(diurnal) # minimum developmental temperature
+if census == True: # if model is fit to census data, use temperature at start of experiment as Tmin
+    Tmin = temp_data["Tstart"].values[0]
 # mortality
 if egg == True:
     dETR = spData["dETR"].values[0]
@@ -332,6 +343,9 @@ else:
 if save_data == True:
     if egg == False:
         filename = 'Time series data/' + period + ' time series ' + spData["Species"].values[0] + '.csv'
+        savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
+    if daily == False:
+        filename = 'Time series data Tmax/' + period + ' time series ' + spData["Species"].values[0] + '.csv'
         savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
     else:
         filename = 'Time series data/' + period + ' time series ' + spData["Species"].values[0] + ' (egg).csv'

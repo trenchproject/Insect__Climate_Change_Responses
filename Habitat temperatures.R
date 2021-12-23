@@ -11,7 +11,7 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 
 # USER: enter location
-location <- "US Columbia"
+location <- "Greece"
 
 # INPUT DATA
 # Select a location by removing # in front of name and placing # in front of other locations
@@ -49,9 +49,13 @@ data.f <- data.f[data.f$day %% 1 != 0,]
 # summary(fit.h2)
 
 # Fit sinusoidal function with annual and diurnal temperature variation (no delta parameters)
-fit.h2 <- nls(T ~ meanT - amplT*cos(2*pi*(day + shiftT)/365) - amplD*cos(2*pi*day),
-             data = data.h, start = list(meanT = 300, amplT = 1, shiftT = 30, amplD = 5))
-summary(fit.h2)
+#fit.h2 <- nls(T ~ meanT - amplT*cos(2*pi*(day + shiftT)/365) - amplD*cos(2*pi*day),
+#             data = data.h, start = list(meanT = 300, amplT = 1, shiftT = 30, amplD = 5))
+#summary(fit.h2)
+
+# Calculate temperature at start of experiment for census data
+start <- 120 # mid-May for Apolygus lucorum (Lu et al. 2008)
+coef(fit.h)[1] - coef(fit.h)[2]*cos(2*pi*(start + coef(fit.h)[3])/365)
 
 # Assess whether delta_mean or delta_ampl are significant and if not set to zero
 #if(fit.h[["coefficients"]][4,4] > 0.05) { fit.h[["coefficients"]][4,1] <- 0 } # delta_mean
