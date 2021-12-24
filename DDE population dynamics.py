@@ -23,13 +23,13 @@ if cwd != '/Users/johnson/Documents/Christopher/GitHub/Johnson_Insect_Responses'
 
 
 # USER: Enter species, location, and time period
-species = "Uroleucon ambrosiae"
-location = "Brazil"
+species = "Eriosoma lanigerum"
+location = "Australia Yathroo"
 period = "Historical"
 period = "Future"
 
 # USER: Save data to CSV file?
-save_data = True
+save_data = False
 
 # USER: Model egg stage?
 egg = False
@@ -339,7 +339,7 @@ else:
     data[:,8] = data[:,8]/data[:,0] # r column from DDE.integrate is actually r*t, so divide by t
     data[0,8] = 0 # reset initial r to 0
 '''
-# set values below 1e-5 or NAN to 0
+# set values below 1e-8 or NAN to 0
 data[data < 1e-5] = 0
 data[isnan(data)] = 0
 
@@ -351,10 +351,10 @@ if save_data == True:
     if egg == False and daily == False:
         filename = 'Time series data Tmax/' + period + ' time series ' + spData["Species"].values[0] + '.csv'
         savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
-    if egg == False and daily == True:
+    if egg == True and daily == True:
         filename = 'Time series data/' + period + ' time series ' + spData["Species"].values[0] + ' (egg).csv'
         savetxt(filename, data, fmt='%s', delimiter=",", header="Time,E,J,A,SE,SJ,tauE,tauJ", comments='')
-    if egg == False and daily == False:
+    if egg == True and daily == False:
         filename = 'Time series data/' + period + ' time series ' + spData["Species"].values[0] + ' (egg).csv'
         savetxt(filename, data, fmt='%s', delimiter=",", header="Time,E,J,A,SE,SJ,tauE,tauJ", comments='')
 
@@ -374,7 +374,7 @@ ax.legend(loc='best')
 xlabel("time (days)")
 ylabel("population density")
 yscale("linear")
-xlim((max_years-10)*yr,(max_years-0)*yr)
+xlim((max_years-75)*yr,(max_years-0)*yr)
 ylim(0,200)
 
 

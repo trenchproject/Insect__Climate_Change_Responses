@@ -13,11 +13,11 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 
 # USER: enter species and location
-species <- "Uroleucon ambrosiae"
-location <- "Brazil"
+species <- "Apolygus lucorum"
+location <- "China Dafeng"
 
 # USER: include overwintering? (i.e., do not integrate over temperatures below Tmin)
-overw <- FALSE
+overw <- TRUE
 
 # USER: include diurnal variation?
 daily <- FALSE
@@ -199,7 +199,7 @@ r.model.f <- 0
 start <- nrow(TS.f) - 365*5 + 1 # integrate over last 5 years of time-series
 end <- nrow(TS.f)
 count <- end - start
-for(i in start:end) { r.model.f <- r.model.f + TS.f$r[i]
+for(i in start:end) { r.model.f <- r.model.f + TS.f$r[i] #- dA(i)
   if(T(i) < param$Tmin + 2*abs(t.param$amplD.f)) { count <- count - 1 } # number of days when T(t) > Tmin
 }
 (r.model.f <- r.model.f/count)
