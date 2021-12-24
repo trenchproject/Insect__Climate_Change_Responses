@@ -13,11 +13,14 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 
 # USER: enter species and location
-species <- "Macrosiphum euphorbiae"
-location <- "Canada"
+species <- "Uroleucon ambrosiae"
+location <- "Brazil"
 
 # USER: include overwintering? (i.e., do not integrate over temperatures below Tmin)
 overw <- FALSE
+
+# USER: include diurnal variation?
+daily <- FALSE
 
 # USER: include resource variation due to precipitation?
 res <- FALSE
@@ -25,17 +28,21 @@ res <- FALSE
 # Read in temperature response and temperature parameters, and temperature response data for selected insect
 param <- subset(as.data.frame(read_csv("Temperature response parameters.csv")), Species == paste(species,location))
 # Read in temperature parameters
-t.param <- subset(as.data.frame(read_csv("Temperature parameters.csv")), Species == paste(species,location))
+ifelse(daily == TRUE, t.param <- subset(as.data.frame(read_csv("Temperature parameters.csv")), Species == paste(species,location)),
+       t.param <- subset(as.data.frame(read_csv("Temperature parameters Tmax.csv")), Species == paste(species,location)))
 
 
 ################################## TPC: HISTORICAL CLIMATE ###################################
 # Read in climate data
 temp.h <- as.data.frame(read_csv(paste0("Climate data/Historical climate data ",location,".csv")))
 
+# Remove daily minimum temperatures (if daily == FALSE)
+if(daily == FALSE) { temp.h <- temp.h[temp.h$day %% 1 != 0,] }
+
 # Integrate across r(T(t))
 T.h <- function(t) { (t.param$meanT.h+t.param$delta_mean.h*t) - (t.param$amplT.h+t.param$delta_ampl.h*t)*cos(2*pi*(t + t.param$shiftT.h)/365) - t.param$amplD.h*cos(2*pi*t) }
 start <- 0
-end <- 10*3650
+end <- 5*365
 
 if(overw == FALSE) {
   r.h <- function(t) {
@@ -47,14 +54,15 @@ if(overw == FALSE) {
 if(overw == TRUE) {
   # r during active season
   r.h <- function(t) {
-    ifelse(T.h(t) <= param$Tmin, 0,
+    ifelse(T.h(t) <= param$Tmin + 2*abs(t.param$amplD.h), 0,
            ifelse(T.h(t) <= param$rTopt, param$rMax*exp(-1*((T.h(t)-param$rTopt)/(2*param$rs))^2),
                   param$rMax*(1 - ((T.h(t)-param$rTopt)/(param$rTopt-param$rTmax))^2))) # from Deutsch et al. 2008
   }
   # integrate across active season
-  season.h <- 365
-  for(t in seq(0,365,0.5)) { if(T.h(t) <= param$Tmin) {season.h <- season.h - 0.5 }} # number of days when T(t) > Tmin
-  (r.TPC.h <- cubintegrate(r.h, lower = 0, upper = 365, method = "hcubature")$integral/season.h)
+  season <- end # season length
+  ifelse(daily == TRUE, length <- 0.5, length <- 1)
+  for(t in seq(0,end,length)) { if(T.h(t) <= param$Tmin + 2*abs(t.param$amplD.h)) {season <- season - length }} # number of days when T(t) > Tmin
+  (r.TPC.h <- cubintegrate(r.h, lower = start, upper = end, method = "hcubature")$integral/season)
 }
 
 
@@ -62,10 +70,13 @@ if(overw == TRUE) {
 # Read in climate data
 temp.f <- as.data.frame(read_csv(paste0("Climate data/Future climate data ",location,".csv")))
 
+# Remove daily minimum temperatures (if daily == FALSE)
+if(daily == FALSE) { temp.f <- temp.f[temp.f$day %% 1 != 0,] }
+
 # Integrate across r(T(t))
 T.f <- function(t) { (t.param$meanT.f+t.param$delta_mean.f*t) - (t.param$amplT.f+t.param$delta_ampl.f*t)*cos(2*pi*(t + t.param$shiftT.f)/365) - t.param$amplD.f*cos(2*pi*t) }
 start <- 365*70 # start 2090
-end <- 365*80 # end 2100
+end <- 365*75 # end 2100
 
 if(overw == FALSE) {
   r.f <- function(t) {
@@ -77,15 +88,18 @@ if(overw == FALSE) {
 if(overw == TRUE) {
   # r during active season
   r.f <- function(t) {
-    ifelse(T.f(t) <= param$Tmin, 0,
+    ifelse(T.f(t) <= param$Tmin  + 2*abs(t.param$amplD.f), 0,
            ifelse(T.f(t) <= param$rTopt, param$rMax*exp(-1*((T.f(t)-param$rTopt)/(2*param$rs))^2),
                   param$rMax*(1 - ((T.f(t)-param$rTopt)/(param$rTopt-param$rTmax))^2))) # from Deutsch et al. 2008
   }
   # integrate across active season
-  season.f <- end - start
-  for(t in seq(start,end,0.5)) { if(T.f(t) <= param$Tmin) {season.f <- season.f - 0.5 }} # number of days when T(t) > Tmin
-  (r.TPC.f <- cubintegrate(r.f, lower = start, upper = end, method = "hcubature")$integral/season.f)
+  season <- end - start # season length
+  ifelse(daily == TRUE, length <- 0.5, length <- 1)
+  for(t in seq(start,end,length)) { if(T.f(t) <= param$Tmin  + 2*abs(t.param$amplD.f)) {season <- season - length }} # number of days when T(t) > Tmin
+  (r.TPC.f <- cubintegrate(r.f, lower = start, upper = end, method = "hcubature")$integral/season)
 }
+
+
 
 # PLOT
 Tmin <- round(min(temp.h$T,temp.f$T),0) - 3
@@ -93,7 +107,7 @@ Tmax <- round(max(temp.h$T,temp.f$T),0) + 1
 ymin <- 0
 ymax <- 0.2 #round(param$rMax,1) + 0.1
 hist(temp.h$T, xlim=c(Tmin,Tmax), ylim=c(ymin,ymax), breaks=seq(from=Tmin, to=Tmax, by=1), ylab="r", col=rgb(0,0,255, max = 255, alpha = 80), border=rgb(0,0,255, max = 255, alpha = 80), freq=FALSE, main = NULL)
-hist(temp.f[temp.f$day>365*70,"T"], xlim=c(Tmin,Tmax), ylim=c(ymin,ymax), breaks=seq(from=Tmin, to=Tmax, by=1), ylab="r", col=rgb(255,0,0, max = 255, alpha = 80), border=rgb(255,0,0, max = 255, alpha = 80), freq=FALSE, main = NULL, add=TRUE)
+hist(temp.f[temp.f$day>365*65,"T"], xlim=c(Tmin,Tmax), ylim=c(ymin,ymax), breaks=seq(from=Tmin, to=Tmax, by=1), ylab="r", col=rgb(255,0,0, max = 255, alpha = 80), border=rgb(255,0,0, max = 255, alpha = 80), freq=FALSE, main = NULL, add=TRUE)
 #abline(v = mean(param$rTopt), col="gray", lwd=3, lty=1)
 #abline(v = mean(param$rTmax), col="gray", lwd=3, lty=2)
 points(seq(Tmin,Tmax,1), ifelse(seq(Tmin,Tmax,1) <= param$rTopt, param$rMax*exp(-1*((seq(Tmin,Tmax,1)-param$rTopt)/(2*param$rs))^2),
@@ -101,10 +115,10 @@ points(seq(Tmin,Tmax,1), ifelse(seq(Tmin,Tmax,1) <= param$rTopt, param$rMax*exp(
 abline(v = t.param$meanT.h, col="blue", lwd=3, lty=1)
 abline(v = t.param$meanT.h + abs(t.param$amplT.h) + abs(t.param$amplD.h), col="blue", lwd=3, lty=2)
 abline(v = t.param$meanT.h - abs(t.param$amplT.h) - abs(t.param$amplD.h), col="blue", lwd=3, lty=2)
-abline(v = t.param$meanT.f + t.param$delta_mean.f*365*80 , col="red", lwd=3, lty=1)
-abline(v = t.param$meanT.f + t.param$delta_mean.f*365*80 + abs(t.param$amplT.f) + t.param$delta_ampl.f*365*80 + t.param$amplD.f, col="red", lwd=3, lty=2)
-abline(v = t.param$meanT.f + t.param$delta_mean.f*365*80 - abs(t.param$amplT.f) - t.param$delta_ampl.f*365*80 - t.param$amplD.f, col="red", lwd=3, lty=2)
-if(overw == TRUE) { abline(v = param$Tmin, col="black", lwd=3, lty=2) }
+abline(v = t.param$meanT.f + t.param$delta_mean.f*365*75 , col="red", lwd=3, lty=1)
+abline(v = t.param$meanT.f + t.param$delta_mean.f*365*75 + abs(t.param$amplT.f) + t.param$delta_ampl.f*365*80 + t.param$amplD.f, col="red", lwd=3, lty=2)
+abline(v = t.param$meanT.f + t.param$delta_mean.f*365*75 - abs(t.param$amplT.f) - t.param$delta_ampl.f*365*80 - t.param$amplD.f, col="red", lwd=3, lty=2)
+if(overw == TRUE) { abline(v = param$Tmin  + 2*abs(t.param$amplD.h), col="black", lwd=3, lty=2) }
 r.TPC.h
 r.TPC.f
 
@@ -112,7 +126,13 @@ r.TPC.f
 
 ################################# MODEL: HISTORICAL CLIMATE ##################################
 # Read in climate data and temperature response parameters for selected insect
-TS.h <- as.data.frame(read_csv(paste0("Time series data/Historical time series ",species," ",location,".csv")))
+ifelse(daily == TRUE, TS.h <- as.data.frame(read_csv(paste0("Time series data/Historical time series ",species," ",location,".csv"))),
+       TS.h <- as.data.frame(read_csv(paste0("Time series data Tmax/Historical time series ",species," ",location,".csv"))))
+
+# Remove rows with NA
+TS.h <- na.omit(TS.h)
+# Set rows with negative survivorship to zero
+TS.h$S <- pmax(TS.h$S, 0)
 
 # Calculate r at each time-step in model
 init_years <- 0 # from Python DDE model
@@ -123,14 +143,22 @@ b <- function(t) { param$bTopt*exp(-((T(t)-param$Toptb)^2)/(2*param$sb^2)) }
 mJ <- function(t) { param$mTR*(T(t)/param$TR)*exp(param$AmJ*(1/param$TR-1/T(t)))/(1+exp(param$AL*(1/param$TL-1/T(t)))+exp(param$AH*(1/param$TH-1/T(t)))) }
 dJ <- function(t) {  param$dJTR*exp(param$JdA*(1/param$TR-1/T(t))) }
 dA <- function(t) {  param$dATR*exp(param$AdA*(1/param$TR-1/T(t))) }
-TS.h$r <- (lambertW0(R(S.h$Time)*M(TS.h$Time-TS.h$tau)*b(TS.h$Time-TS.h$tau) * mJ(TS.h$Time)/mJ(TS.h$Time-TS.h$tau)*TS.h$S * TS.h$tau * exp(dA(TS.h$Time)*TS.h$tau)) - dA(TS.h$Time) * TS.h$tau) / TS.h$tau
+ifelse(overw == FALSE, TS.h$r <- (lambertW0(R(S.h$Time)*M(TS.h$Time-TS.h$tau)*b(TS.h$Time-TS.h$tau) * mJ(TS.h$Time)/mJ(TS.h$Time-TS.h$tau)*TS.h$S * TS.h$tau * exp(dA(TS.h$Time)*TS.h$tau)) - dA(TS.h$Time) * TS.h$tau) / TS.h$tau,
+       TS.h$r <- ifelse(T(TS.h$Time) < param$Tmin + 2*abs(t.param$amplD.h), 0, (lambertW0(R(S.h$Time)*M(TS.h$Time-TS.h$tau)*b(TS.h$Time-TS.h$tau) * mJ(TS.h$Time)/mJ(TS.h$Time-TS.h$tau)*TS.h$S * TS.h$tau * exp(dA(TS.h$Time)*TS.h$tau)) - dA(TS.h$Time) * TS.h$tau) / TS.h$tau))
 
 # Integrate across daily per capita population growth rate from DDE model
 r.model.h <- 0
-start <- nrow(TS.h) - 365*10 + 1 # integrate over last 10 years of time-series
+start <- nrow(TS.h) - 365*5 + 1 # integrate over last 5 years of time-series
 end <- nrow(TS.h)
-for(i in start:end) { r.model.h <- r.model.h + TS.h$r[i] }
-(r.model.h <- r.model.h/(end-start))
+count <- end - start
+for(i in start:end) { r.model.h <- r.model.h + TS.h$r[i]
+  if(T(i) < param$Tmin + 2*abs(t.param$amplD.h)) { count <- count - 1 } # number of days when T(t) > Tmin
+}
+(r.model.h <- r.model.h/count)
+
+# Plot r over time
+plot(TS.h[-c(1:start),"Time"],TS.h[-c(1:start),"r"], col="blue")
+#plot(TS.h$Time,TS.h$r, col="blue")
 
 
 # Integrate model time-series across ln(t/(t-1))
@@ -146,7 +174,13 @@ for(i in start:end) { r.model.h <- r.model.h + TS.h$r[i] }
 
 ################################### MODEL: FUTURE CLIMATE ####################################
 # Read in climate data and temperature response parameters for selected insect
-TS.f <- as.data.frame(read_csv(paste0("Time series data/Future time series ",species," ",location,".csv")))
+ifelse(daily == TRUE, TS.f <- as.data.frame(read_csv(paste0("Time series data/Future time series ",species," ",location,".csv"))),
+       TS.f <- as.data.frame(read_csv(paste0("Time series data Tmax/Future time series ",species," ",location,".csv"))))
+
+# Remove rows with NA or negative values
+TS.f <- na.omit(TS.f)
+# Set rows with negative survivorship to zero
+TS.f$S <- pmax(TS.f$S, 0)
 
 # Calculate r at each time-step in model
 init_years <- 0 # from Python DDE model
@@ -157,17 +191,24 @@ b <- function(t) { param$bTopt*exp(-((T(t)-param$Toptb)^2)/(2*param$sb^2)) }
 mJ <- function(t) { param$mTR*(T(t)/param$TR)*exp(param$AmJ*(1/param$TR-1/T(t)))/(1+exp(param$AL*(1/param$TL-1/T(t)))+exp(param$AH*(1/param$TH-1/T(t)))) }
 dJ <- function(t) {  param$dJTR*exp(param$AdJ*(1/param$TR-1/T(t))) }
 dA <- function(t) {  param$dATR*exp(param$AdA*(1/param$TR-1/T(t))) }
-TS.f$r <- (lambertW0(R(S.f$Time)*M(TS.f$Time-TS.f$tau)*b(TS.f$Time-TS.f$tau) * mJ(TS.f$Time)/mJ(TS.f$Time-TS.f$tau)*TS.f$S * TS.f$tau * exp(dA(TS.f$Time)*TS.f$tau)) - dA(TS.f$Time) * TS.f$tau) / TS.f$tau
+ifelse(overw == FALSE, TS.f$r <- (lambertW0(R(S.f$Time)*M(TS.f$Time-TS.f$tau)*b(TS.f$Time-TS.f$tau) * mJ(TS.f$Time)/mJ(TS.f$Time-TS.f$tau)*TS.f$S * TS.f$tau * exp(dA(TS.f$Time)*TS.f$tau)) - dA(TS.f$Time) * TS.f$tau) / TS.f$tau,
+       TS.f$r <- ifelse(T(TS.f$Time) < param$Tmin + 2*abs(t.param$amplD.f), 0, (lambertW0(R(S.f$Time)*M(TS.f$Time-TS.f$tau)*b(TS.f$Time-TS.f$tau) * mJ(TS.f$Time)/mJ(TS.f$Time-TS.f$tau)*TS.f$S * TS.f$tau * exp(dA(TS.f$Time)*TS.f$tau)) - dA(TS.f$Time) * TS.f$tau) / TS.f$tau))
 
 # Integrate across daily per capita population growth rate from DDE model
 r.model.f <- 0
 start <- nrow(TS.f) - 365*5 + 1 # integrate over last 5 years of time-series
 end <- nrow(TS.f)
-for(i in start:end) { r.model.f <- r.model.f + TS.f$r[i] }
-(r.model.f <- r.model.f/(end-start))
+count <- end - start
+for(i in start:end) { r.model.f <- r.model.f + TS.f$r[i]
+  if(T(i) < param$Tmin + 2*abs(t.param$amplD.f)) { count <- count - 1 } # number of days when T(t) > Tmin
+}
+(r.model.f <- r.model.f/count)
 
+# Plot r over time
 plot(TS.f[-c(1:start),"Time"],TS.f[-c(1:start),"r"], col="blue")
 #plot(TS.f$Time,TS.f$r, col="blue")
+
+
 # Integrate across ln(t/(t-1))
 # r.model.f <- 0
 # count.f <- 0
