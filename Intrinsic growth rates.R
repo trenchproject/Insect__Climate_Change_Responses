@@ -13,8 +13,8 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 
 # USER: enter species and location
-species <- "Apolygus lucorum"
-location <- "China Dafeng"
+species <- "Aulacorthum solani"
+location <- "Brazil"
 
 # USER: include overwintering? (i.e., do not integrate over temperatures below Tmin)
 overw <- TRUE
@@ -105,7 +105,7 @@ if(overw == TRUE) {
 Tmin <- round(min(temp.h$T,temp.f$T),0) - 3
 Tmax <- round(max(temp.h$T,temp.f$T),0) + 1
 ymin <- 0
-ymax <- 0.2 #round(param$rMax,1) + 0.1
+ymax <- round(param$rMax,1) + 0.1
 hist(temp.h$T, xlim=c(Tmin,Tmax), ylim=c(ymin,ymax), breaks=seq(from=Tmin, to=Tmax, by=1), ylab="r", col=rgb(0,0,255, max = 255, alpha = 80), border=rgb(0,0,255, max = 255, alpha = 80), freq=FALSE, main = NULL)
 hist(temp.f[temp.f$day>365*65,"T"], xlim=c(Tmin,Tmax), ylim=c(ymin,ymax), breaks=seq(from=Tmin, to=Tmax, by=1), ylab="r", col=rgb(255,0,0, max = 255, alpha = 80), border=rgb(255,0,0, max = 255, alpha = 80), freq=FALSE, main = NULL, add=TRUE)
 #abline(v = mean(param$rTopt), col="gray", lwd=3, lty=1)
