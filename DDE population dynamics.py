@@ -23,8 +23,8 @@ if cwd != '/Users/johnson/Documents/Christopher/GitHub/Johnson_Insect_Responses'
 
 
 # USER: Enter species, location, and time period
-species = "Eriosoma lanigerum"
-location = "Australia Yathroo"
+species = "Brevicoryne brassicae"
+location = "US Columbia"
 period = "Historical"
 period = "Future"
 
@@ -44,7 +44,7 @@ minT = True
 #growing = False
 
 # USER: Incorporate diurnal temperature fluctuations?
-daily = False
+daily = True
 
 # USER: Is model fit to census data
 census = False

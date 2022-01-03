@@ -13,14 +13,14 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 
 # USER: enter species and location
-species <- "Aulacorthum solani"
-location <- "Brazil"
+species <- "Hyadaphis pseudobrassicae"
+location <- "US Columbia"
 
 # USER: include overwintering? (i.e., do not integrate over temperatures below Tmin)
 overw <- TRUE
 
 # USER: include diurnal variation?
-daily <- FALSE
+daily <- TRUE
 
 # USER: include resource variation due to precipitation?
 res <- FALSE
@@ -54,14 +54,14 @@ if(overw == FALSE) {
 if(overw == TRUE) {
   # r during active season
   r.h <- function(t) {
-    ifelse(T.h(t) <= param$Tmin + 2*abs(t.param$amplD.h), 0,
+    ifelse(T.h(t) <= param$Tmin + 0*abs(t.param$amplD.h), 0,
            ifelse(T.h(t) <= param$rTopt, param$rMax*exp(-1*((T.h(t)-param$rTopt)/(2*param$rs))^2),
                   param$rMax*(1 - ((T.h(t)-param$rTopt)/(param$rTopt-param$rTmax))^2))) # from Deutsch et al. 2008
   }
   # integrate across active season
   season <- end # season length
   ifelse(daily == TRUE, length <- 0.5, length <- 1)
-  for(t in seq(0,end,length)) { if(T.h(t) <= param$Tmin + 2*abs(t.param$amplD.h)) {season <- season - length }} # number of days when T(t) > Tmin
+  for(t in seq(0,end,length)) { if(T.h(t) <= param$Tmin + 0*abs(t.param$amplD.h)) {season <- season - length }} # number of days when T(t) > Tmin
   (r.TPC.h <- cubintegrate(r.h, lower = start, upper = end, method = "hcubature")$integral/season)
 }
 
@@ -88,14 +88,14 @@ if(overw == FALSE) {
 if(overw == TRUE) {
   # r during active season
   r.f <- function(t) {
-    ifelse(T.f(t) <= param$Tmin  + 2*abs(t.param$amplD.f), 0,
+    ifelse(T.f(t) <= param$Tmin  + 0*abs(t.param$amplD.f), 0,
            ifelse(T.f(t) <= param$rTopt, param$rMax*exp(-1*((T.f(t)-param$rTopt)/(2*param$rs))^2),
                   param$rMax*(1 - ((T.f(t)-param$rTopt)/(param$rTopt-param$rTmax))^2))) # from Deutsch et al. 2008
   }
   # integrate across active season
   season <- end - start # season length
   ifelse(daily == TRUE, length <- 0.5, length <- 1)
-  for(t in seq(start,end,length)) { if(T.f(t) <= param$Tmin  + 2*abs(t.param$amplD.f)) {season <- season - length }} # number of days when T(t) > Tmin
+  for(t in seq(start,end,length)) { if(T.f(t) <= param$Tmin  + 0*abs(t.param$amplD.f)) {season <- season - length }} # number of days when T(t) > Tmin
   (r.TPC.f <- cubintegrate(r.f, lower = start, upper = end, method = "hcubature")$integral/season)
 }
 
@@ -118,7 +118,7 @@ abline(v = t.param$meanT.h - abs(t.param$amplT.h) - abs(t.param$amplD.h), col="b
 abline(v = t.param$meanT.f + t.param$delta_mean.f*365*75 , col="red", lwd=3, lty=1)
 abline(v = t.param$meanT.f + t.param$delta_mean.f*365*75 + abs(t.param$amplT.f) + t.param$delta_ampl.f*365*80 + t.param$amplD.f, col="red", lwd=3, lty=2)
 abline(v = t.param$meanT.f + t.param$delta_mean.f*365*75 - abs(t.param$amplT.f) - t.param$delta_ampl.f*365*80 - t.param$amplD.f, col="red", lwd=3, lty=2)
-if(overw == TRUE) { abline(v = param$Tmin  + 2*abs(t.param$amplD.h), col="black", lwd=3, lty=2) }
+if(overw == TRUE) { abline(v = param$Tmin  + 0*abs(t.param$amplD.h), col="black", lwd=3, lty=2) }
 r.TPC.h
 r.TPC.f
 
@@ -138,13 +138,13 @@ TS.h$S <- pmax(TS.h$S, 0)
 init_years <- 0 # from Python DDE model
 T <- function(t) { (t.param$meanT.h + t.param$delta_mean.h*t) - (t.param$amplT.h + t.param$delta_ampl.h*t)*cos(2*pi*(t + t.param$shiftT.h)/365) - t.param$amplD.h*cos(2*pi*t) }
 ifelse(res == FALSE, R <- function(t) {1}, R <- function(t) { ifelse(t.param$meanP.h - t.param$amplP.h * cos(2*pi*((t-init_years*365) + shiftP.h)/365) < 0, 0, t.param$meanP.h - t.param$amplP.h * cos(2*pi*((t-init_years*365) + shiftP.h)/365) )})
-ifelse(overw == FALSE, M <- function(t) {1}, M <- function(t) { ifelse(T(t) < param$Tmin + 2*abs(t.param$amplD.h), 0, 1) })
+ifelse(overw == FALSE, M <- function(t) {1}, M <- function(t) { ifelse(T(t) < param$Tmin + 0*abs(t.param$amplD.h), 0, 1) })
 b <- function(t) { param$bTopt*exp(-((T(t)-param$Toptb)^2)/(2*param$sb^2)) }
 mJ <- function(t) { param$mTR*(T(t)/param$TR)*exp(param$AmJ*(1/param$TR-1/T(t)))/(1+exp(param$AL*(1/param$TL-1/T(t)))+exp(param$AH*(1/param$TH-1/T(t)))) }
 dJ <- function(t) {  param$dJTR*exp(param$JdA*(1/param$TR-1/T(t))) }
 dA <- function(t) {  param$dATR*exp(param$AdA*(1/param$TR-1/T(t))) }
 ifelse(overw == FALSE, TS.h$r <- (lambertW0(R(S.h$Time)*M(TS.h$Time-TS.h$tau)*b(TS.h$Time-TS.h$tau) * mJ(TS.h$Time)/mJ(TS.h$Time-TS.h$tau)*TS.h$S * TS.h$tau * exp(dA(TS.h$Time)*TS.h$tau)) - dA(TS.h$Time) * TS.h$tau) / TS.h$tau,
-       TS.h$r <- ifelse(T(TS.h$Time) < param$Tmin + 2*abs(t.param$amplD.h), 0, (lambertW0(R(S.h$Time)*M(TS.h$Time-TS.h$tau)*b(TS.h$Time-TS.h$tau) * mJ(TS.h$Time)/mJ(TS.h$Time-TS.h$tau)*TS.h$S * TS.h$tau * exp(dA(TS.h$Time)*TS.h$tau)) - dA(TS.h$Time) * TS.h$tau) / TS.h$tau))
+       TS.h$r <- ifelse(T(TS.h$Time) < param$Tmin + 0*abs(t.param$amplD.h), 0, (lambertW0(R(S.h$Time)*M(TS.h$Time-TS.h$tau)*b(TS.h$Time-TS.h$tau) * mJ(TS.h$Time)/mJ(TS.h$Time-TS.h$tau)*TS.h$S * TS.h$tau * exp(dA(TS.h$Time)*TS.h$tau)) - dA(TS.h$Time) * TS.h$tau) / TS.h$tau))
 
 # Integrate across daily per capita population growth rate from DDE model
 r.model.h <- 0
@@ -152,7 +152,7 @@ start <- nrow(TS.h) - 365*5 + 1 # integrate over last 5 years of time-series
 end <- nrow(TS.h)
 count <- end - start
 for(i in start:end) { r.model.h <- r.model.h + TS.h$r[i]
-  if(T(i) < param$Tmin + 2*abs(t.param$amplD.h)) { count <- count - 1 } # number of days when T(t) > Tmin
+  if(T(i) < param$Tmin + 0*abs(t.param$amplD.h)) { count <- count - 1 } # number of days when T(t) > Tmin
 }
 (r.model.h <- r.model.h/count)
 
@@ -186,13 +186,13 @@ TS.f$S <- pmax(TS.f$S, 0)
 init_years <- 0 # from Python DDE model
 T <- function(t) { (t.param$meanT.f + t.param$delta_mean.f*t) - (t.param$amplT.f + t.param$delta_ampl.f*t)*cos(2*pi*(t + t.param$shiftT.f)/365) - t.param$amplD.f*cos(2*pi*t) }
 ifelse(res == FALSE, R <- function(t) {1}, R <- function(t) { ifelse(t.param$meanP.f - t.param$amplP.f * cos(2*pi*((t-init_years*365) + shiftP.f)/365) < 0, 0, t.param$meanP.f - t.param$amplP.f * cos(2*pi*((t-init_years*365) + shiftP.f)/365) )})
-ifelse(overw == FALSE, M <- function(t) {1}, M <- function(t) { ifelse(T(t) < param$Tmin + 2*abs(t.param$amplD.f), 0, 1) })
+ifelse(overw == FALSE, M <- function(t) {1}, M <- function(t) { ifelse(T(t) < param$Tmin + 0*abs(t.param$amplD.f), 0, 1) })
 b <- function(t) { param$bTopt*exp(-((T(t)-param$Toptb)^2)/(2*param$sb^2)) }
 mJ <- function(t) { param$mTR*(T(t)/param$TR)*exp(param$AmJ*(1/param$TR-1/T(t)))/(1+exp(param$AL*(1/param$TL-1/T(t)))+exp(param$AH*(1/param$TH-1/T(t)))) }
 dJ <- function(t) {  param$dJTR*exp(param$AdJ*(1/param$TR-1/T(t))) }
 dA <- function(t) {  param$dATR*exp(param$AdA*(1/param$TR-1/T(t))) }
 ifelse(overw == FALSE, TS.f$r <- (lambertW0(R(S.f$Time)*M(TS.f$Time-TS.f$tau)*b(TS.f$Time-TS.f$tau) * mJ(TS.f$Time)/mJ(TS.f$Time-TS.f$tau)*TS.f$S * TS.f$tau * exp(dA(TS.f$Time)*TS.f$tau)) - dA(TS.f$Time) * TS.f$tau) / TS.f$tau,
-       TS.f$r <- ifelse(T(TS.f$Time) < param$Tmin + 2*abs(t.param$amplD.f), 0, (lambertW0(R(S.f$Time)*M(TS.f$Time-TS.f$tau)*b(TS.f$Time-TS.f$tau) * mJ(TS.f$Time)/mJ(TS.f$Time-TS.f$tau)*TS.f$S * TS.f$tau * exp(dA(TS.f$Time)*TS.f$tau)) - dA(TS.f$Time) * TS.f$tau) / TS.f$tau))
+       TS.f$r <- ifelse(T(TS.f$Time) < param$Tmin + 0*abs(t.param$amplD.f), 0, (lambertW0(R(S.f$Time)*M(TS.f$Time-TS.f$tau)*b(TS.f$Time-TS.f$tau) * mJ(TS.f$Time)/mJ(TS.f$Time-TS.f$tau)*TS.f$S * TS.f$tau * exp(dA(TS.f$Time)*TS.f$tau)) - dA(TS.f$Time) * TS.f$tau) / TS.f$tau))
 
 # Integrate across daily per capita population growth rate from DDE model
 r.model.f <- 0
@@ -200,7 +200,7 @@ start <- nrow(TS.f) - 365*5 + 1 # integrate over last 5 years of time-series
 end <- nrow(TS.f)
 count <- end - start
 for(i in start:end) { r.model.f <- r.model.f + TS.f$r[i] #- dA(i)
-  if(T(i) < param$Tmin + 2*abs(t.param$amplD.f)) { count <- count - 1 } # number of days when T(t) > Tmin
+  if(T(i) < param$Tmin + 0*abs(t.param$amplD.f)) { count <- count - 1 } # number of days when T(t) > Tmin
 }
 (r.model.f <- r.model.f/count)
 
