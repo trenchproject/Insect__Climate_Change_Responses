@@ -20,7 +20,7 @@ location <- "US Columbia"
 overw <- TRUE
 
 # USER: include diurnal variation?
-daily <- TRUE
+daily <- FALSE
 
 # USER: include resource variation due to precipitation?
 res <- FALSE
@@ -29,7 +29,7 @@ res <- FALSE
 param <- subset(as.data.frame(read_csv("Temperature response parameters.csv")), Species == paste(species,location))
 # Read in temperature parameters
 ifelse(daily == TRUE, t.param <- subset(as.data.frame(read_csv("Temperature parameters.csv")), Species == paste(species,location)),
-       t.param <- subset(as.data.frame(read_csv("Temperature parameters Tmax.csv")), Species == paste(species,location)))
+       t.param <- subset(as.data.frame(read_csv("Temperature parameters Tave.csv")), Species == paste(species,location)))
 
 
 ################################## TPC: HISTORICAL CLIMATE ###################################
@@ -127,7 +127,7 @@ r.TPC.f
 ################################# MODEL: HISTORICAL CLIMATE ##################################
 # Read in climate data and temperature response parameters for selected insect
 ifelse(daily == TRUE, TS.h <- as.data.frame(read_csv(paste0("Time series data/Historical time series ",species," ",location,".csv"))),
-       TS.h <- as.data.frame(read_csv(paste0("Time series data Tmax/Historical time series ",species," ",location,".csv"))))
+       TS.h <- as.data.frame(read_csv(paste0("Time series data Tave/Historical time series ",species," ",location,".csv"))))
 
 # Remove rows with NA
 TS.h <- na.omit(TS.h)
@@ -175,7 +175,7 @@ plot(TS.h[-c(1:start),"Time"],TS.h[-c(1:start),"r"], col="blue")
 ################################### MODEL: FUTURE CLIMATE ####################################
 # Read in climate data and temperature response parameters for selected insect
 ifelse(daily == TRUE, TS.f <- as.data.frame(read_csv(paste0("Time series data/Future time series ",species," ",location,".csv"))),
-       TS.f <- as.data.frame(read_csv(paste0("Time series data Tmax/Future time series ",species," ",location,".csv"))))
+       TS.f <- as.data.frame(read_csv(paste0("Time series data Tave/Future time series ",species," ",location,".csv"))))
 
 # Remove rows with NA or negative values
 TS.f <- na.omit(TS.f)

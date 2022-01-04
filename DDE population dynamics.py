@@ -23,13 +23,13 @@ if cwd != '/Users/johnson/Documents/Christopher/GitHub/Johnson_Insect_Responses'
 
 
 # USER: Enter species, location, and time period
-species = "Brevicoryne brassicae"
+species = "Hyadaphis pseudobrassicae"
 location = "US Columbia"
 period = "Historical"
 period = "Future"
 
 # USER: Save data to CSV file?
-save_data = False
+save_data = True
 
 # USER: Model egg stage?
 egg = False
@@ -44,7 +44,7 @@ minT = True
 #growing = False
 
 # USER: Incorporate diurnal temperature fluctuations?
-daily = True
+daily = False
 
 # USER: Is model fit to census data
 census = False
@@ -65,7 +65,7 @@ if period == "Historical":
 else:
     diurnal = temp_data["amplD.f"].values[0]
 if daily == False:
-    temp_data = read_csv("Temperature parameters Tmax.csv")
+    temp_data = read_csv("Temperature parameters Tave.csv")
     temp_data = temp_data[temp_data["Species"] == species + " " + location]
 
 # DEFINE MODEL PARAMETERS
@@ -349,7 +349,7 @@ if save_data == True:
         filename = 'Time series data/' + period + ' time series ' + spData["Species"].values[0] + '.csv'
         savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
     if egg == False and daily == False:
-        filename = 'Time series data Tmax/' + period + ' time series ' + spData["Species"].values[0] + '.csv'
+        filename = 'Time series data Tave/' + period + ' time series ' + spData["Species"].values[0] + '.csv'
         savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
     if egg == True and daily == True:
         filename = 'Time series data/' + period + ' time series ' + spData["Species"].values[0] + ' (egg).csv'

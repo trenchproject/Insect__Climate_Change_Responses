@@ -11,7 +11,7 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 
 # USER: enter location
-location <- "Greece"
+location <- "Benin"
 
 # INPUT DATA
 # Select a location by removing # in front of name and placing # in front of other locations
@@ -19,8 +19,23 @@ data.h <- as.data.frame(read_csv(paste0("Climate data/Historical climate data ",
 data.f <- as.data.frame(read_csv(paste0("Climate data/Future climate data ",location,".csv")))
 
 # REMOVE DAILY MINIMUM TEMPERATURES
-data.h <- data.h[data.h$day %% 1 != 0,]
-data.f <- data.f[data.f$day %% 1 != 0,]
+#data.h <- data.h[data.h$day %% 1 != 0,]
+#data.f <- data.f[data.f$day %% 1 != 0,]
+
+# AVERAGE DAILY MINIMUM AND MAXIMUM TEMPERATURES
+# historical
+data.h$day <- floor(data.h$day)
+data.h.min <- data.h[duplicated(data.h$day),]
+data.h.max <- data.h[duplicated(data.h$day, fromLast=TRUE),]
+data.h <- data.frame(data.h.min$day, (data.h.min$T + data.h.max$T)/2)
+names(data.h) <- c("day", "T")
+# future
+data.f$day <- floor(data.f$day)
+data.f.min <- data.f[duplicated(data.f$day),]
+data.f.max <- data.f[duplicated(data.f$day, fromLast=TRUE),]
+data.f <- data.frame(data.f.min$day, (data.f.min$T + data.f.max$T)/2)
+names(data.f) <- c("day", "T")
+
 
 
 #################################### HISTORICAL CLIMATE #####################################
