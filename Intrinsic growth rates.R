@@ -13,7 +13,7 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 
 # USER: enter species and location
-species <- "Hyadaphis pseudobrassicae"
+species <- "Brevicoryne brassicae"
 location <- "US Columbia"
 
 # USER: include overwintering? (i.e., do not integrate over temperatures below Tmin)

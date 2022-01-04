@@ -14,8 +14,8 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 # READ IN DATA
 # r
-r.data <- as.data.frame(read_csv("Model results Diurnal.csv"))
-#r.data <- as.data.frame(read_csv("Model results Tmax.csv"))
+#r.data <- as.data.frame(read_csv("Model results Diurnal.csv"))
+r.data <- as.data.frame(read_csv("Model results Tave.csv"))
 
 ######################################## STATISTICS #########################################
 # COMPARING CHANGE IN PER CAPITA GROWTH RATE BETWEEN MODEL AND TPC
@@ -90,7 +90,7 @@ abline(0, 1, col="gray")
 Xmin <- 0 #-1
 Xmax <- 1 #2.5
 Ymin <- 0 #-1
-Ymax <- 4 #2.5
+Ymax <- 5 #2.5
 plot(r.data[r.data$Habitat=="Tropical","r.TPC.h"], r.data[r.data$Habitat=="Tropical","r.model.h"], pch=21, col="red", bg="red",
      xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="TPC", ylab="Model")
 points(r.data[r.data$Habitat=="Subtropical","r.TPC.h"], r.data[r.data$Habitat=="Subtropical","r.model.h"], pch=21, col="orange", bg="orange")
@@ -124,23 +124,23 @@ plot(r.data[r.data$Habitat=="Tropical","Latitude"], r.data[r.data$Habitat=="Trop
 points(r.data[r.data$Habitat=="Subtropical","Latitude"], r.data[r.data$Habitat=="Subtropical","delta.TPC"], pch=21, col="orange", bg="orange")
 points(r.data[r.data$Habitat=="Mediterranean","Latitude"], r.data[r.data$Habitat=="Mediterranean","delta.TPC"], pch=21, col="orange", bg="orange")
 points(r.data[r.data$Habitat=="Temperate","Latitude"], r.data[r.data$Habitat=="Temperate","delta.TPC"], pch=21, col="blue", bg="blue")
-#points(seq(Xmin,Xmax,1), coef(TPC)[2]*seq(Xmin,Xmax,1) + coef(TPC)[1], type="l", col="black")
+#points(seq(Xmin,Xmax,1), coef(TPC)[2]*seq(Xmin,Xmax,1) + coef(TPC)[1], type="l", col="black", lty="longdash")
 #points(seq(Xmin,Xmax,1), coef(TPC2)[1] + coef(TPC2)[2]*seq(Xmin,Xmax,1) + coef(TPC2)[3]*seq(Xmin,Xmax,1)^2, type="l", col="black")
-abline(0, 0, col="black", lty="longdash")
+abline(0, 0, col="black") #, lty="longdash")
 
 # Model vs latitude
 Xmin <- 0
 Xmax <- 60
-Ymin <- -1.5 #-2.5
+Ymin <- -4 #-2.5
 Ymax <- 0.5
 plot(r.data[r.data$Habitat=="Tropical","Latitude"], r.data[r.data$Habitat=="Tropical","delta.model"], pch=21, col="red", bg="red",
      xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="Latitude", ylab="change in r")
 points(r.data[r.data$Habitat=="Subtropical","Latitude"], r.data[r.data$Habitat=="Subtropical","delta.model"], pch=21, col="orange", bg="orange")
 points(r.data[r.data$Habitat=="Mediterranean","Latitude"], r.data[r.data$Habitat=="Mediterranean","delta.model"], pch=21, col="orange", bg="orange")
 points(r.data[r.data$Habitat=="Temperate","Latitude"], r.data[r.data$Habitat=="Temperate","delta.model"], pch=21, col="blue", bg="blue")
-#points(seq(Xmin,Xmax,1), coef(model)[2]*seq(Xmin,Xmax,1) + coef(model)[1], type="l", col="black")
+points(seq(Xmin,Xmax,1), coef(model)[2]*seq(Xmin,Xmax,1) + coef(model)[1], type="l", col="black", lty="longdash")
 #points(seq(Xmin,Xmax,1), coef(model2)[1] + coef(model2)[2]*seq(Xmin,Xmax,1) + coef(model2)[3]*seq(Xmin,Xmax,1)^2, type="l", col="black")
-abline(0, 0, col="black", lty="longdash")
+abline(0, 0, col="black") #, lty="longdash")
 
 
 # # PROPORTIONAL CHANGE IN r
