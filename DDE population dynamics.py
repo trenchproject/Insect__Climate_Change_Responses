@@ -23,13 +23,13 @@ if cwd != '/Users/johnson/Documents/Christopher/GitHub/Johnson_Insect_Responses'
 
 
 # USER: Enter species, location, and time period
-species = "Hyadaphis pseudobrassicae"
-location = "US Columbia"
+species = "Aulacorthum solani"
+location = "Brazil"
 period = "Historical"
-period = "Future"
+#period = "Future"
 
 # USER: Save data to CSV file?
-save_data = True
+save_data = False
 
 # USER: Model egg stage?
 egg = False
@@ -314,7 +314,7 @@ if egg == True:
 # RUN DDE SOLVER
 # Time and initial conditions
 times = arange(0, max_years*yr, tstep)
-init = [ initJ, initA, exp(-dJ(-1e-3)/mTR), 1./mTR] #, 0. ]
+init = [ initJ, initA, exp(-dJ(-1e-3)/mTR), 1./mTR] #, 0. ] # dJ(-1e-3)
 if egg == True:
     init = [ initE, initJ, initA, exp(-dE(0)/mE(0)), exp(-dJ(0)/mJ(0)), exp(-1), 1./mE(0), 1./mJ(0), 1./dA(0)] #, 0. ]
 
@@ -355,7 +355,7 @@ if save_data == True:
         filename = 'Time series data/' + period + ' time series ' + spData["Species"].values[0] + ' (egg).csv'
         savetxt(filename, data, fmt='%s', delimiter=",", header="Time,E,J,A,SE,SJ,tauE,tauJ", comments='')
     if egg == True and daily == False:
-        filename = 'Time series data/' + period + ' time series ' + spData["Species"].values[0] + ' (egg).csv'
+        filename = 'Time series data Tave/' + period + ' time series ' + spData["Species"].values[0] + ' (egg).csv'
         savetxt(filename, data, fmt='%s', delimiter=",", header="Time,E,J,A,SE,SJ,tauE,tauJ", comments='')
 
 
@@ -374,7 +374,6 @@ ax.legend(loc='best')
 xlabel("time (days)")
 ylabel("population density")
 yscale("linear")
-xlim((max_years-75)*yr,(max_years-0)*yr)
+xlim((max_years-10)*yr,(max_years-0)*yr)
 ylim(0,200)
-
 

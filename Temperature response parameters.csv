@@ -1,27 +1,27 @@
 ﻿Species,Latitude,Habitat,subfamily,bTopt,Toptb,sb,mTR,TR,AmJ,skew,AL,TL,AH,TH,Tmin,dJTR,AdJ,dATR,AdA,qTopt,rMax,rTopt,rTmax,rs,Notes
 Clavigralla shadabi Benin,6.45,Tropical,Heteroptera,8.88,300.5,3.69,0.033,298,7185,1,-32190,286.5,277540,305.9,286.3,0.004,35450,0.027,9468,0.2,0.134,301.7,306.8,3.23,
 Clavigralla tomentosicollis Benin,6.45,Tropical,Heteroptera,6.69,303.8,5.5,0.042,298,7600,1,-66162,288.3,235541,309.6,287.2,0.024,5825,0.055,5951,0.2,0.154,304.2,313.2,4.05,
-Clavigralla tomentosicollis Nigeria,7.45,Tropical,Heteroptera,4.81,302.6,4.16,0.057,298,7801,1,-100000,293,500000,309,288.6,0.016,10840,0.027,3916,0.25,0.154,304.2,313.2,4.05,"TL and TH set to data itself, AL and AH set to arbitrary high values"
-Clavigralla tomentosicollis Burkina Faso,12.38,Tropical,Heteroptera,5.14,302.6,5.35,0.108,308,8821,1,-64796,295.3,335573,312,293.5,0.045,58900,0.035,4198,0.2,0.104,308,319.5,6.99,r calculated using Topt from temperature responses
+Clavigralla tomentosicollis Nigeria,7.45,Tropical,Heteroptera,4.81,302.6,4.16,0.057,298,7801,1,-100000,293,500000,309,288.6,0.016,10840,0.018,3916,0.25,0.088,303,324.5,3.37,"TL and TH set to data itself, AL and AH set to arbitrary high values"
+Clavigralla tomentosicollis Burkina Faso,12.38,Tropical,Heteroptera,4.81,302.6,4.16,0.04,298,8821,1,-64796,295.3,335573,312,293.5,0.028,15000,0.018,3916,0.2,0.088,303,324.5,3.37,Used dJTR from data; r calculated using Topt from temperature response data
 Apolygus lucorum China Dafeng,33.33,Temperate,Heteroptera,2.72,298.8,8.1,0.037,293,2857,1,-40519,285.3,215829,309,283.1,0.02,12310,0.025,3876,0.25,0.165,306.4,308.5,9.06,Tmin = 10 (temperature reported with zero development)
 Adelphocoris suturalis China Dafeng,33.33,Temperate,Heteroptera,2.83,301,8.91,0.027,293,6754,1,-62876,285.2,30065,308.1,281.1,0.016,10350,0.028,5165,0.25,0.083,300.8,315.6,5.82,
 Apolygus lucorum China Langfang,39.88,Temperate,Heteroptera,2.72,298.8,8.1,0.037,293,2857,1,-40519,285.3,215829,309,283.1,0.02,12310,0.025,3876,0.25,0.165,306.4,308.5,9.06,Tmin = 10 (temperature reported with zero development)
 Adelphocoris suturalis China Xinxiang,35.53,Temperate,Heteroptera,2.83,301,8.91,0.027,293,6754,1,-62876,285.2,30065,308.1,281.1,0.016,10350,0.028,5165,0.25,0.083,300.8,315.6,5.82,
 Macrosiphum euphorbiae Brazil,21.23,Tropical,Sternorrhyncha,4.34,292.3,4.65,0.445,293,3262,1,-63454,285.5,36530,299.8,284,0.087,2052,0.064,5975,0.2,0.246,294.3,305,4.95,Tmin calculated manually
-Aulacorthum solani Brazil,21.23,Tropical,Sternorrhyncha,4.08,292.1,5.03,0.478,293,7096,1,-66946,285.2,42437,298.5,280.8,0.072,18870,0.006,50920,0.2,0.257,294.2,302.1,4.23,
+Aulacorthum solani Brazil,21.23,Tropical,Sternorrhyncha,4.08,292.1,5.03,0.478,293,7096,1,-66946,285.2,42437,298.5,280.8,0.072,18870,0.053,22803,0.2,0.257,294.2,302.1,4.23,Used dATR from data
 Uroleucon ambrosiae Brazil,21.23,Tropical,Sternorrhyncha,4.94,294.3,4.92,0.478,293,5162,1,-57240,285.4,35138,298.1,286.3,0.061,12080,0.062,14140,0.2,0.249,295,302.1,4.89,Tmin calculated manually
 Macrolophus pygmaeus on Myzus persicae Greece,38.38,Mediterranean,Heteroptera,2.83,297,6.75,0.041,293,5405,1,-112637,285,57840,304.7,279.9,0.023,11240,0.012,5235,0.2,0.1,300.1,306,6.08,
 Macrolophus pygmaeus on Trialeurodes vaporariorum Greece,38.38,Mediterranean,Heteroptera,3.09,298,6.65,0.043,293,5147,1,-117479,285,61244,304.7,279.3,0.024,10810,0.012,7156,0.2,0.104,300.7,304.6,6.11,r calculated using Topt from temperature responses
 Toxoptera citricidus on C. unshiu Japan Chiba,35.38,Subtropical,Sternorrhyncha,3.58,297.2,3.99,0.107,293,5113,1,-49849,285.6,83070,301.6,279.2,0.018,30790,0.023,14070,0.2,0.484,300.1,302.6,6.14,
 Toxoptera citricidus on C. aurantium Japan Chiba,35.38,Subtropical,Sternorrhyncha,2.64,296.6,5.1,0.082,293,7560,1,-45095,282.2,121706,303.7,281.5,0.044,23560,0.033,10590,0.2,0.436,301.4,303.3,6.88,
 Aphis citricola Japan Chiba,35.38,Subtropical,Sternorrhyncha,2.86,295.9,4.2,0.108,293,6581,1,-43489,282.8,88048,303.7,281.5,0.013,74085,0.035,8714,0.2,0.34,292.8,306.6,2.69,Used dJTR from data
-Acyrthosiphon pisum UK Sand Hutton,54.02,Temperate,Sternorrhyncha,4.36,291.5,7.7,0.099,293,4369,1,-199975,284,125898,301,272.8,0.213,17600,0.127,11240,0.2,0.286,296.2,307,6.67,On cv. Scout
+Acyrthosiphon pisum UK Sand Hutton,54.02,Temperate,Sternorrhyncha,4.36,291.5,7.7,0.099,293,4369,1,-70499,281.9,26649,305.6,277,0.213,17600,0.127,11240,0.2,0.286,296.2,307,6.67,"On cv. Scout; Tmin calculated manually; how was development fit (AL = -199975, TL = 284, AH = 125898, TH = 301)?"
 Bemisia argentifollii US Homestead,25.47,Subtropical,Sternorrhyncha,10.2,297.3,5.26,0.032,293,7807,1,-37956,286.8,32349,307.6,285.3,0.011,9480,0.03,7337,0.2,0.194,298.8,310.5,3.75,Development fits are not great; different suborder of Hempitera
 Rhopalosiphum rufiabdominalis US Weston,26.14,Subtropical,Sternorrhyncha,4.26,295.9,7.32,0.135,293,5015,1,-42080,281.7,520700,303.4,277.8,0.026,15510,0.057,5363,0.2,0.443,300,307.2,7.05,
 Aphis nasturtii US Weston,26.14,Subtropical,Sternorrhyncha,2.87,297.5,7.31,0.122,293,5811,1,-29807,281.8,38128,308.7,279.5,0.035,8128,0.055,5445,0.2,0.306,300.6,307.8,6.05,Development fits from Figure 1 of Wang et al. 1997
 Diaphorina citri US Weston,26.24,Subtropical,Sternorrhyncha,19.3,298.6,4.31,0.032,293,9105,1,-13480000,285,145500,303.4,283.2,0.012,3012,0.018,4647,0.2,0.199,301,304.4,4.62,r calculated using Topt from temperature responses
 Eriosoma lanigerum Australia Yathroo,30.9,Subtropical,Sternorrhyncha,4.92,294,5.73,0.05,293,5066,1,-65912,282.3,131069,305.2,277.5,0.009,19109,0.04,7862,0.2,0.204,301,305,7.9,
-Macrosiphum euphorbiae Canada,42.81,Temperate,Sternorrhyncha,532,289.4,6.7,0.18,293,5906,1,-34923,278.2,123493,299.8,275.5,0.005,44786,0.025,10520,0.2,1.49,293.4,303,6.39,Used dJTR from data
+Macrosiphum euphorbiae Canada,42.81,Temperate,Sternorrhyncha,532,289.4,6.7,0.18,293,5906,1,-34923,278.2,123493,299.8,275.5,0.005,44786,0.252,10520,0.2,1.49,293.4,303,6.39,Used dJTR from data
 Myzus persicae Canada,42.81,Temperate,Sternorrhyncha,4016,289.1,2.53,0.1,293,5024,1,-59160,277.2,726500,298.4,272.7,0.035,17090,0.191,10700,0.2,3.42,295.9,303,5.94,
 Hyperomyzus lactucae Australia Acton,35.27,Subtropical,Sternorrhyncha,2.59,293,3.81,0.117,293,5844,1,-33123,280.2,107322,298.9,277.9,0.005,3567,0.038,6866,0.2,0.332,297,300.7,7.11,Used dJTR from data; r calculated using Topt from temperature responses
 Aphis gossypii China Henan,36.07,Temperate,Sternorrhyncha,2.5,298.5,6.6,0.106,293,6092,1,-43779,280.7,29702,307.9,279.7,0.05,6577,0.062,7313,0.2,0.397,300.4,309.1,5.83,

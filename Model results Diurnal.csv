@@ -1,8 +1,8 @@
 ﻿Species,Latitude,Habitat,subfamily,rMax,TPC historical,TPC future,Model historical,Model future,r.TPC.h,r.TPC.f,r.model.h,r.model.f,delta.TPC,delta.model,delta.prop.TPC,delta.prop.model,Notes
 Clavigralla shadabi Benin,6.45,Tropical,Heteroptera,0.134,0.113,0.079,0.109,0.063,0.843,0.590,0.813,0.470,-0.254,-0.343,-0.301,-0.422,
 Clavigralla tomentosicollis Benin,6.45,Tropical,Heteroptera,0.154,0.120,0.151,0.109,0.143,0.779,0.981,0.708,0.929,0.201,0.221,0.258,0.312,
-Clavigralla tomentosicollis Nigeria,7.45,Tropical,Heteroptera,0.154,0.120,0.137,0.133,0.150,0.779,0.890,0.864,0.974,0.110,0.110,0.142,0.128,
-Clavigralla tomentosicollis Burkina Faso,12.38,Tropical,Heteroptera,0.104,0.079,0.093,0.197,0.099,0.760,0.894,1.894,0.952,0.135,-0.942,0.177,-0.497,
+Clavigralla tomentosicollis Nigeria,7.45,Tropical,Heteroptera,0.088,0.120,0.137,0.133,0.150,1.364,1.557,1.511,1.705,0.193,0.193,0.142,0.128,
+Clavigralla tomentosicollis Burkina Faso,12.38,Tropical,Heteroptera,0.088,0.079,0.093,0.197,0.099,0.898,1.057,2.239,1.125,0.159,-1.114,0.177,-0.497,
 Apolygus lucorum China Dafeng,33.33,Temperate,Heteroptera,0.165,0.102,0.052,0.102,0.055,0.618,0.315,0.618,0.333,-0.303,-0.285,-0.490,-0.461,Including overwintering
 Adelphocoris suturalis China Dafeng,33.33,Temperate,Heteroptera,0.083,0.049,0.053,0.090,0.064,0.590,0.639,1.084,0.771,0.048,-0.313,0.082,-0.289,Including overwintering
 Apolygus lucorum China Langfang,39.88,Temperate,Heteroptera,0.165,0.104,0.103,0.159,0.220,0.630,0.624,0.964,1.333,-0.006,0.370,-0.010,0.384,Including overwintering

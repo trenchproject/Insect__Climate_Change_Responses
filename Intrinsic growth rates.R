@@ -13,11 +13,11 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 
 # USER: enter species and location
-species <- "Brevicoryne brassicae"
-location <- "US Columbia"
+species <- "Uroleucon ambrosiae"
+location <- "Brazil"
 
 # USER: include overwintering? (i.e., do not integrate over temperatures below Tmin)
-overw <- TRUE
+overw <- FALSE
 
 # USER: include diurnal variation?
 daily <- FALSE
@@ -141,10 +141,13 @@ ifelse(res == FALSE, R <- function(t) {1}, R <- function(t) { ifelse(t.param$mea
 ifelse(overw == FALSE, M <- function(t) {1}, M <- function(t) { ifelse(T(t) < param$Tmin + 0*abs(t.param$amplD.h), 0, 1) })
 b <- function(t) { param$bTopt*exp(-((T(t)-param$Toptb)^2)/(2*param$sb^2)) }
 mJ <- function(t) { param$mTR*(T(t)/param$TR)*exp(param$AmJ*(1/param$TR-1/T(t)))/(1+exp(param$AL*(1/param$TL-1/T(t)))+exp(param$AH*(1/param$TH-1/T(t)))) }
-dJ <- function(t) {  param$dJTR*exp(param$JdA*(1/param$TR-1/T(t))) }
+dJ <- function(t) {  param$dJTR*exp(param$AdJ*(1/param$TR-1/T(t))) }
 dA <- function(t) {  param$dATR*exp(param$AdA*(1/param$TR-1/T(t))) }
 ifelse(overw == FALSE, TS.h$r <- (lambertW0(R(S.h$Time)*M(TS.h$Time-TS.h$tau)*b(TS.h$Time-TS.h$tau) * mJ(TS.h$Time)/mJ(TS.h$Time-TS.h$tau)*TS.h$S * TS.h$tau * exp(dA(TS.h$Time)*TS.h$tau)) - dA(TS.h$Time) * TS.h$tau) / TS.h$tau,
        TS.h$r <- ifelse(T(TS.h$Time) < param$Tmin + 0*abs(t.param$amplD.h), 0, (lambertW0(R(S.h$Time)*M(TS.h$Time-TS.h$tau)*b(TS.h$Time-TS.h$tau) * mJ(TS.h$Time)/mJ(TS.h$Time-TS.h$tau)*TS.h$S * TS.h$tau * exp(dA(TS.h$Time)*TS.h$tau)) - dA(TS.h$Time) * TS.h$tau) / TS.h$tau))
+TS.h$b <- b(TS.h$Time)
+TS.h$mJ <- mJ(TS.h$Time)
+TS.h$dA <- dA(TS.h$Time)
 
 # Integrate across daily per capita population growth rate from DDE model
 r.model.h <- 0

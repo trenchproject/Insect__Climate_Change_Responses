@@ -19,6 +19,18 @@ r.data <- as.data.frame(read_csv("Model results Tave.csv"))
 
 ######################################## STATISTICS #########################################
 # COMPARING CHANGE IN PER CAPITA GROWTH RATE BETWEEN MODEL AND TPC
+# Compare model vs TPC
+# change in r (model vs TPCs)
+delta <- lm(delta.model ~ delta.TPC, data=r.data) # significant!
+summary(delta)
+# r in historical period (model vs TPCs)
+r.h <- lm(r.model.h ~ r.TPC.h, data=r.data) # significant!
+summary(r.h)
+# r in future period (model vs TPCs)
+r.f <- lm(r.model.f ~ r.TPC.f, data=r.data) # significant!
+summary(r.f)
+
+
 # TPC vs Latitude
 # linear
 TPC <- lm(delta.TPC ~ Latitude, data=r.data)
@@ -34,17 +46,6 @@ summary(model) # non-significant
 # non-linear
 model2 <- nls(delta.model ~ a + b*Latitude + c*Latitude^2, data=r.data, start=list(a=1, b=-0.1, c=1))
 summary(model2) # non-significant
-
-# Compare model vs TPC
-# change in r (model vs TPCs)
-delta <- lm(delta.model ~ delta.TPC, data=r.data) # non-significant
-summary(delta)
-# r in historical period (model vs TPCs)
-r.h <- lm(r.model.h ~ r.TPC.h, data=r.data) # significant!
-summary(r.h)
-# r in future period (model vs TPCs)
-r.f <- lm(r.model.f ~ r.TPC.f, data=r.data) # non-significant
-summary(r.f)
 
 
 # # COMPARING PROPORTIONAL CHANGE IN r
@@ -73,10 +74,10 @@ summary(r.f)
 ########################################### PLOTS ###########################################
 # CHANGE IN r
 # Model vs TPCs
-Xmin <- -2.5 #-4
-Xmax <- 1
-Ymin <- -2.5 #-4
-Ymax <- 1
+Xmin <- -2
+Xmax <- 0.5
+Ymin <- -1.5
+Ymax <- 0.5
 plot(r.data[r.data$Habitat=="Tropical","delta.TPC"], r.data[r.data$Habitat=="Tropical","delta.model"], pch=21, col="red", bg="red",
      xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="TPC", ylab="Model")
 points(r.data[r.data$Habitat=="Subtropical","delta.TPC"], r.data[r.data$Habitat=="Subtropical","delta.model"], pch=21, col="orange", bg="orange")
@@ -90,7 +91,7 @@ abline(0, 1, col="gray")
 Xmin <- 0 #-1
 Xmax <- 1 #2.5
 Ymin <- 0 #-1
-Ymax <- 5 #2.5
+Ymax <- 3 #2.5
 plot(r.data[r.data$Habitat=="Tropical","r.TPC.h"], r.data[r.data$Habitat=="Tropical","r.model.h"], pch=21, col="red", bg="red",
      xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="TPC", ylab="Model")
 points(r.data[r.data$Habitat=="Subtropical","r.TPC.h"], r.data[r.data$Habitat=="Subtropical","r.model.h"], pch=21, col="orange", bg="orange")
@@ -131,7 +132,7 @@ abline(0, 0, col="black") #, lty="longdash")
 # Model vs latitude
 Xmin <- 0
 Xmax <- 60
-Ymin <- -4 #-2.5
+Ymin <- -1.5 #-2.5
 Ymax <- 0.5
 plot(r.data[r.data$Habitat=="Tropical","Latitude"], r.data[r.data$Habitat=="Tropical","delta.model"], pch=21, col="red", bg="red",
      xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="Latitude", ylab="change in r")
