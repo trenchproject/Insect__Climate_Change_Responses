@@ -4,6 +4,9 @@
 #       one of the life history traits is below the minimum tolerance (1e-10)
 # NOTE: if code yields error: "CompileError: command 'gcc' failed with exit status 1", one of the parameters is not assigned a value
 # NOTE: if code yields error: "IndexError: index 0 is out of bounds for axis 0 with size 0", the location is likely wrong
+# NOTE: if code yields warning: "ufunc 'isfinite' not supported for the input types" or "ValueError: cannot convert float NaN to integer",
+#       population densities are very high, but this is not a problem for the density-independent model
+#       if densities are not plotted, check the output .csv file and remove any rows with 0's after largest density
     
 # IMPORT PACKAGES
 from numpy import arange, hstack, vstack, savetxt, diff, isnan
@@ -23,32 +26,25 @@ if cwd != '/Users/johnson/Documents/Christopher/GitHub/Johnson_Insect_Responses'
 
 
 # USER: Enter species, location, and time period
-species = "Aulacorthum solani"
-location = "Brazil"
+species = "Hyadaphis pseudobrassicae"
+location = "US Columbia"
 period = "Historical"
 #period = "Future"
 
 # USER: Save data to CSV file?
 save_data = False
 
-# USER: Model egg stage?
-egg = False
-
-# USER: Incorporate resource variation due to precipitation?
-res = False
-
 # USER: Use minimum temperature threshold?
 minT = True
 
-# USER: Use growing season?
-#growing = False
+# USER: Include competition?
+comp = False
 
 # USER: Incorporate diurnal temperature fluctuations?
 daily = False
 
-# USER: Is model fit to census data
+# USER: Is model fit to census data?
 census = False
-
 
 # INPUT TEMPERATURE RESPONSE PARAMETERS AND TEMPERATURE PARAMETERS
 data = read_csv("Temperature response parameters.csv")
@@ -71,17 +67,19 @@ if daily == False:
 # DEFINE MODEL PARAMETERS
 # Time parameters
 yr = 365 # days in year
-init_years = 0 # how many years to use for model initiation
-start_date = 0 # date on which to start model
-max_years = init_years+75 # how long to run simulations
+start_date = 0 # day on which to start model
+if comp == True:
+    init_years = 0 # how many years into climate change to start model
+    max_years = init_years + 75 # how long to run simulations
+else:
+    init_years = 65 # how many years into climate change to start model
+    max_years = 10 # how long to run simulations
 tstep = 1 # time step = 1 day
 CC_years = max_years # how long before climate change "equilibrates"
 
 # Initial abundances
-initE = 100.
 initJ = 100.
 initA = 100.
-A0 = 0.01 # initial adult density for calculating per capita population growth rate
 
 # Temperature parameters
 if period == "Historical":
@@ -101,31 +99,11 @@ else:
 if daily == False:
     amplD = 0
 
-# Resource parameters
-if period == "Historical":
-    if res == True:
-        meanP = temp_data["meanP.h"].values[0]
-        amplP = temp_data["amplP.h"].values[0] 
-        shiftP = temp_data["shiftP.h"].values[0]
-else:
-    if res == True:
-        meanP = temp_data["meanP.f"].values[0]
-        amplP = temp_data["amplP.f"].values[0] 
-        shiftP = temp_data["shiftP.f"].values[0]
-
 # Life history and competitive traits
 # fecundity
 bTopt = spData["bTopt"].values[0]
 Toptb = spData["Toptb"].values[0]
 sb = spData["sb"].values[0]
-# egg maturation
-if egg == True:
-    mETR = spData["mETR"].values[0]
-    AmE = spData["AmE"].values[0]
-    ALE = spData["ALE"].values[0]
-    TLE = spData["TLE"].values[0]
-    AHE = spData["AHE"].values[0]
-    THE = spData["THE"].values[0]
 # maturation
 mTR = spData["mTR"].values[0]
 TR = spData["TR"].values[0]
@@ -139,15 +117,15 @@ Tmin = spData["Tmin"].values[0] #+ 2*abs(diurnal) # minimum developmental temper
 if census == True: # if model is fit to census data, use temperature at start of experiment as Tmin
     Tmin = temp_data["Tstart"].values[0]
 # mortality
-if egg == True:
-    dETR = spData["dETR"].values[0]
-    AdE = spData["AdE"].values[0]
 dJTR = spData["dJTR"].values[0]
 AdJ = spData["AdJ"].values[0]
 dATR = spData["dATR"].values[0]
 AdA = spData["AdA"].values[0]
 # competition
-qTopt = spData["qTopt"].values[0]
+if comp == True:
+    qTopt = spData["qTopt"].values[0]
+else:
+    qTopt = 0
 Toptq = Toptb #spData["Toptq"].values[0]
 sq = sb #spData["sq"].values[0]
 #Aq = spData["Aq"].values[0]
@@ -158,10 +136,9 @@ sq = sb #spData["sq"].values[0]
 # FUNCTIONS
 # Seasonal temperature variation (K) over time
 def T(x):
-        return conditional(x, 0, meanT, # during "pre-history" (t<0), habitat temperature is constant at its mean
-                       conditional(x, init_years*yr, meanT - amplT * cos(2*pi*(x + shiftT)/yr) - amplD * cos(2*pi*x), # during model initiation, delta_mean = 0 and delta_ampl = 0
-                                   conditional(x, CC_years*yr, (meanT + delta_mean*(x-init_years*yr)) - (amplT + delta_ampl*(x-init_years*yr)) * cos(2*pi*((x-init_years*yr) + shiftT)/yr)  - amplD * cos(2*pi*(x-init_years*yr)), # temperature regime during climate change
-                                               (meanT + delta_mean*CC_years*yr) - (amplT + delta_ampl*CC_years*yr) * cos(2*pi*((x-init_years*yr) + shiftT)/yr)  - amplD * cos(2*pi*(x-init_years*yr))))) # temperature regime after climate change "equilibriates"
+        return conditional(x, start_date, meanT, # during "pre-history", habitat temperature is constant at its mean
+                           conditional(x, CC_years*yr, (meanT + delta_mean*(x+init_years*yr)) - (amplT + delta_ampl*(x+init_years*yr)) * cos(2*pi*(x + shiftT)/yr)  - amplD * cos(2*pi*x), # temperature regime during climate change
+                                       (meanT + delta_mean*CC_years*yr) - (amplT + delta_ampl*CC_years*yr) * cos(2*pi*(x + shiftT)/yr)  - amplD * cos(2*pi*x))) # temperature regime after climate change "equilibriates"
 '''
 # Plot temperature function
 xvals = arange(0,1*yr,0.1)
@@ -170,34 +147,11 @@ plot(xvals,yvals)
 show()
 '''
 
-# Seasonal resource variation (R) due to precipitation
-if res == True:
-    def R(x):
-        return conditional(x, init_years*yr, 1, # no resource variation during model initiation
-                                   conditional(x, CC_years*yr, # temperature regime during climate change
-                                               conditional(meanP - amplP * cos(2*pi*((x-init_years*yr) + shiftP)/yr), 0, 0, 1), 1)) # wet season if monthly precipitation > 6 (originally used 6 as defined by Köppen climate classification system)
-else:
-    def R(x):
-        return 1
-'''
-# Plot resource function
-xvals = arange(0,1*yr,1)
-yvals = vstack([meanP - amplP * cos(2*pi*(i + shiftP)/yr) for i in xvals ])
-#yvals = vstack([conditional(meanP - amplP * cos(2*pi*(i + shiftP)/yr), 0, 0, 1) for i in xvals ])
-plot(xvals,yvals)
-show()
-'''
 
 # Life history functions
 # fecundity
 def b(x):
     return conditional(bTopt * exp(-(T(x)-Toptb)**2/(2*sb**2)), 1e-5, 1e-5, bTopt * exp(-(T(x)-Toptb)**2/(2*sb**2))) # If b(T) < jitcdde min tolerance, then b(T) = 0
-
-# egg maturation rates
-if egg == True:
-    def mE(x):
-        return conditional(mETR * T(x)/TR * exp(AmE * (1/TR - 1/T(x))) / (1 + skew * (exp(ALE*(1/TLE-1/T(x)))+exp(AHE*(1/THE-1/T(x))))), 1e-5,
-                           1e-5, mETR * T(x)/TR * exp(AmE * (1/TR - 1/T(x))) / (1 + skew * (exp(ALE*(1/TLE-1/T(x)))+exp(AHE*(1/THE-1/T(x)))))) # If mJ(T) < jitcdde min tolerance, then mJ(T) = 0
 
 # maturation rates
 def mJ(x):
@@ -205,9 +159,6 @@ def mJ(x):
                        1e-5, mTR * T(x)/TR * exp(AmJ * (1/TR - 1/T(x))) / (1 + skew * (exp(AL*(1/TL-1/T(x)))+exp(AH*(1/TH-1/T(x)))))) # If mJ(T) < jitcdde min tolerance, then mJ(T) = 0
 
 # mortality rates
-if egg == True:
-    def dE(x):
-        return dETR * exp(AdE * (1/TR - 1/T(x)))
 def dJ(x):
     return dJTR * exp(AdJ * (1/TR - 1/T(x)))
 def dA(x):
@@ -217,18 +168,6 @@ def dA(x):
 def q(x):
     return qTopt * exp(-(T(x)-Toptq)**2/2/sq**2)
 
-# Other functions    
-# Allee effect
-A_thr = 0.00*qTopt # Allee threshold
-def Allee(x):
-    return conditional(x, A_thr, 0, 1) # if A < A_thr then Allee = 0; otherwise, Allee = 1 
-
-# Growing season
-#if growing == True:
-#    start = temp_data["start"].values[0]
-#    end = temp_data["end"].values[0]
-#    def M(x):
-#        return conditional(1/(1-cos(pi*(end-start)/yr))*(-cos(pi*(end-start)/yr) + sin(2*pi*(x-start)/yr+asin(cos(pi*(end-start)/yr)))), 0, 0, 1) # if function < 0, M = 0
 
 # Minimum developmental temperature
 #else:
@@ -238,15 +177,6 @@ if minT == True:
 else:
     def M(x):
         return 1
-        
-'''
-# Plot growing season function
-xvals = arange(0,1*yr,1)
-#yvals = vstack([1/(1-cos(pi*(end-start)/yr))*(-cos(pi*(end-start)/yr) + sin(2*pi*(i-start)/yr+asin(cos(pi*(end-start)/yr)))) for i in xvals ])
-yvals = vstack([M(i) for i in xvals ])
-plot(xvals,yvals)
-show()
-'''
 
 
 # DDE MODEL
@@ -255,68 +185,20 @@ J,A,S,τ = [y(i) for i in range(4)]
 
 # DDE model
 f = {
-    J: conditional(t, start_date, 0, M(t)*b(t)*A*exp(-q(t)*A) - R(t)*M(t-τ)*b(t-τ)*y(1,t-τ)*exp(-q(t-τ)*y(1,t-τ))*mJ(t)/mJ(t-τ)*S - dJ(t)*J), # juveniles: y(0)
+    J: conditional(t, start_date, 0, M(t)*b(t)*A*exp(-q(t)*A) - M(t-τ)*b(t-τ)*y(1,t-τ)*exp(-q(t-τ)*y(1,t-τ))*mJ(t)/mJ(t-τ)*S - dJ(t)*J), # juveniles: y(0)
     
-    A: conditional(t, start_date, 0, R(t)*M(t-τ)*b(t-τ)*y(1,t-τ)*exp(-q(t-τ)*y(1,t-τ))*mJ(t)/mJ(t-τ)*S - dA(t)*A), # Adults: y(1)
+    A: conditional(t, start_date, 0, M(t-τ)*b(t-τ)*y(1,t-τ)*exp(-q(t-τ)*y(1,t-τ))*mJ(t)/mJ(t-τ)*S - dA(t)*A), # Adults: y(1)
     
     S: conditional(t, start_date, 0, S*(mJ(t)/mJ(t-τ)*dJ(t-τ) - dJ(t))), # Through-stage survivorship: y(2)
     
     τ: conditional(t, start_date, 0, 1 - mJ(t)/mJ(t-τ)), # Developmental time-delay: y(3)
-    
-    #r: conditional(t, start_date, 0, R(t)*M(t-τ)*b(t-τ)*mJ(t)/mJ(t-τ)*S - dA(t)) # Low density population growth rate: y(4)
     }
-
-
-# MODEL WITH EGG STAGE
-if egg == True:
-    # Define state variables
-    E,J,A,SE,SJ,SA,τE,τJ,τA = [y(i) for i in range(9)]
-    
-    # Define functions used in DDE model
-    # adult fecundity
-    def fA(t):
-        return R(t)*M(t)*b(t)*A*Allee(A)*exp(-q(t)*A)
-    # egg development                   
-    def gE(t):
-        return M(t)*M(t-τE)*b(t-τE)*y(2,t-τE)*Allee(y(2,t-τE))*exp(-q(t-τE)*y(2,t-τE))*mE(t)/mE(t-τE)*SE
-    # juvenile development
-    def gJ(t):
-        return M(t)*M(t-y(6,t-τJ)-τJ)*b(t-y(6,t-τJ)-τJ)*y(2,t-y(6,t-τJ)-τJ)*Allee(y(2,t-y(6,t-τJ)-τJ))*exp(-q(t-y(6,t-τJ)-τJ)*y(2,t-y(6,t-τJ)-τJ))*mE(t-τJ)/mE(t-y(6,t-τJ)-τJ)*mJ(t)/mJ(t-τJ)*y(3,t-τJ)*SJ
-    # adult senescence
-    def gA(t):
-        return 0*M(t)*M(t-y(6,t-y(7,t-τA)-τA)-y(7,t-τA)-τA) * b(t-y(6,t-y(7,t-τA)-τA)-y(7,t-τA)-τA) * y(2,t-y(6,t-y(7,t-τA)-τA)-y(7,t-τA)-τA) * Allee(y(2,t-y(6,t-y(7,t-τA)-τA)-y(7,t-τA)-τA)) * exp(-q(t-y(6,t-y(7,t-τA)-τA)-y(7,t-τA)-τA) * y(2,t-y(6,t-y(7,t-τA)-τA)-y(7,t-τA)-τA)) * mE(t-y(7,t-τA)-τA)/mE(t-y(6,t-y(7,t-τA)-τA)-y(7,t-τA)-τA) * mJ(t-τA)/mJ(t-y(7,t-τA)-τA) * dA(t)/dA(t-τA) * y(3,t-y(7,t-τA)-τA) * y(4,t-τA) * SA
-
-    # DDE model
-    f = {
-        E: fA(t) - gE(t) - dE(t)*E, # eggs: y(0)
-
-        J: gE(t) - gJ(t) - dJ(t)*J, # juveniles: y(1)
-    
-        A: gJ(t) - gA(t) - dA(t)*A, # Adults: y(2)
-    
-        SE: SE*(mE(t)/mE(t-τE)*dE(t-τE) - dE(t)), # Through-egg stage survivorship: y(3)
-    
-        SJ: SJ*(mJ(t)/mJ(t-τJ)*dJ(t-τJ) - dJ(t)), # Through-juvenile stage survivorship: y(4)
-        
-        SA: SA*(dA(t)/dA(t-τA)*dA(t-τA) - dA(t)), # Through-adult stage survivorship: y(5)
-        
-        τE: 1 - mE(t)/mE(t-τE), # Egg developmental time-delay: y(6)
-        
-        τJ: 1 - mJ(t)/mJ(t-τJ), # Juvenile developmental time-delay: y(7)
-        
-        τA: 1 - dA(t)/dA(t-τA), # Adult longevity time-delay: y(8)
-        
-        # Low density population growth rate: y(9)
-        #r: M(t)*M(t-y(6,t-τJ)-τJ)*b(t-y(6,t-τJ)-τJ)*Allee(A0)*mE(t-τJ)/mE(t-y(6,t-τJ)-τJ)*mJ(t)/mJ(t-τJ)*y(3,t-τJ)*SJ - dA(t)  -  M(t)*M(t-y(6,t-y(7,t-τA)-τA)-y(7,t-τA)-τA) * b(t-y(6,t-y(7,t-τA)-τA)-y(7,t-τA)-τA) * Allee(A0) * mE(t-y(7,t-τA)-τA)/mE(t-y(6,t-y(7,t-τA)-τA)-y(7,t-τA)-τA) * mJ(t-τA)/mJ(t-y(7,t-τA)-τA) * dA(t)/dA(t-τA) * y(3,t-y(7,t-τA)-τA) * y(4,t-τA) * SA
-        }
 
 
 # RUN DDE SOLVER
 # Time and initial conditions
 times = arange(0, max_years*yr, tstep)
-init = [ initJ, initA, exp(-dJ(-1e-3)/mTR), 1./mTR] #, 0. ] # dJ(-1e-3)
-if egg == True:
-    init = [ initE, initJ, initA, exp(-dE(0)/mE(0)), exp(-dJ(0)/mJ(0)), exp(-1), 1./mE(0), 1./mJ(0), 1./dA(0)] #, 0. ]
+init = [ initJ, initA, exp(-dJ(-1e-3)/mTR), 1./mTR]
 
 # Run DDE solver
 DDE = jitcdde(f, max_delay=1e5, verbose=False)
@@ -328,52 +210,37 @@ DDE.adjust_diff()
 # SAVE DATA
 # array containing time and state variables
 data = vstack([ hstack([time, DDE.integrate(time)]) for time in times ])
-'''
-if egg == False:
-    data[:,5] = data[:,5]/data[:,0] # r column from DDE.integrate is actually r*t, so divide by t
-    data[0,5] = 0 # reset initial r to 0
-    #r_diff = hstack([0, diff(data[:,5])])
-    #r_diff = r_diff.reshape(len(r_diff),1)
-    #data = hstack([ data, r_diff ]) # add 6th column taking difference between intregrals of r from DDE model
-else:
-    data[:,8] = data[:,8]/data[:,0] # r column from DDE.integrate is actually r*t, so divide by t
-    data[0,8] = 0 # reset initial r to 0
-'''
-# set values below 1e-8 or NAN to 0
+
+# set values below 1e-5 or NAN to 0
 data[data < 1e-5] = 0
 data[isnan(data)] = 0
 
 # save data to csv 
 if save_data == True:
-    if egg == False and daily == True:
+    if comp == True and daily == True:
         filename = 'Time series data/' + period + ' time series ' + spData["Species"].values[0] + '.csv'
         savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
-    if egg == False and daily == False:
+    if comp == True and daily == False:
         filename = 'Time series data Tave/' + period + ' time series ' + spData["Species"].values[0] + '.csv'
         savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
-    if egg == True and daily == True:
-        filename = 'Time series data/' + period + ' time series ' + spData["Species"].values[0] + ' (egg).csv'
-        savetxt(filename, data, fmt='%s', delimiter=",", header="Time,E,J,A,SE,SJ,tauE,tauJ", comments='')
-    if egg == True and daily == False:
-        filename = 'Time series data Tave/' + period + ' time series ' + spData["Species"].values[0] + ' (egg).csv'
-        savetxt(filename, data, fmt='%s', delimiter=",", header="Time,E,J,A,SE,SJ,tauE,tauJ", comments='')
+    if comp == False and daily == True:
+        filename = 'Time series data DI/' + period + ' time series ' + spData["Species"].values[0] + '.csv'
+        savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
+    if comp == False and daily == False:
+        filename = 'Time series data DI Tave/' + period + ' time series ' + spData["Species"].values[0] + '.csv'
+        savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
 
 
 # PLOT
 fig,ax = subplots()
-if egg == False:
-    ax.plot(data[:,0], data[:,1], label='J')
-    ax.plot(data[:,0], data[:,2], label='A')
-    #ax.plot(data[:,0], data[:,3], label='S')
-    #ax.plot(data[:,0], data[:,4], label='τ')
-else:
-    ax.plot(data[:,0], data[:,1], label='E')
-    ax.plot(data[:,0], data[:,2], label='J')
-    ax.plot(data[:,0], data[:,3], label='A')
+ax.plot(data[:,0], data[:,1], label='J')
+ax.plot(data[:,0], data[:,2], label='A')
+#ax.plot(data[:,0], data[:,3], label='S')
+#ax.plot(data[:,0], data[:,4], label='τ')
 ax.legend(loc='best')
 xlabel("time (days)")
 ylabel("population density")
-yscale("linear")
-xlim((max_years-10)*yr,(max_years-0)*yr)
-ylim(0,200)
+yscale("log")
+xlim((max_years-max_years)*yr,(max_years-0)*yr)
+ylim(0,100000000000000000000000000000)
 

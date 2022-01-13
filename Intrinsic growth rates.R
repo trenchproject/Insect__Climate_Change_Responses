@@ -13,8 +13,8 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 
 # USER: enter species and location
-species <- "Uroleucon ambrosiae"
-location <- "Brazil"
+species <- "Brevicoryne brassicae"
+location <- "US Columbia"
 
 # USER: include overwintering? (i.e., do not integrate over temperatures below Tmin)
 overw <- FALSE
@@ -37,7 +37,14 @@ ifelse(daily == TRUE, t.param <- subset(as.data.frame(read_csv("Temperature para
 temp.h <- as.data.frame(read_csv(paste0("Climate data/Historical climate data ",location,".csv")))
 
 # Remove daily minimum temperatures (if daily == FALSE)
-if(daily == FALSE) { temp.h <- temp.h[temp.h$day %% 1 != 0,] }
+#if(daily == FALSE) { temp.h <- temp.h[temp.h$day %% 1 != 0,] }
+
+# average daily maximum and minimum temperatures (if daily == FALSE)
+if(daily == FALSE) { temp.h$day <- floor(temp.h$day)
+temp.h.min <- temp.h[duplicated(temp.h$day),]
+temp.h.max <- temp.h[duplicated(temp.h$day, fromLast=TRUE),]
+temp.h <- data.frame(temp.h.min$day, (temp.h.min$T + temp.h.max$T)/2)
+names(temp.h) <- c("day", "T") }
 
 # Integrate across r(T(t))
 T.h <- function(t) { (t.param$meanT.h+t.param$delta_mean.h*t) - (t.param$amplT.h+t.param$delta_ampl.h*t)*cos(2*pi*(t + t.param$shiftT.h)/365) - t.param$amplD.h*cos(2*pi*t) }
@@ -71,7 +78,14 @@ if(overw == TRUE) {
 temp.f <- as.data.frame(read_csv(paste0("Climate data/Future climate data ",location,".csv")))
 
 # Remove daily minimum temperatures (if daily == FALSE)
-if(daily == FALSE) { temp.f <- temp.f[temp.f$day %% 1 != 0,] }
+#if(daily == FALSE) { temp.f <- temp.f[temp.f$day %% 1 != 0,] }
+
+# average daily maximum and minimum temperatures (if daily == FALSE)
+if(daily == FALSE) { temp.f$day <- floor(temp.f$day)
+temp.f.min <- temp.f[duplicated(temp.f$day),]
+temp.f.max <- temp.f[duplicated(temp.f$day, fromLast=TRUE),]
+temp.f <- data.frame(temp.f.min$day, (temp.f.min$T + temp.f.max$T)/2)
+names(temp.f) <- c("day", "T") }
 
 # Integrate across r(T(t))
 T.f <- function(t) { (t.param$meanT.f+t.param$delta_mean.f*t) - (t.param$amplT.f+t.param$delta_ampl.f*t)*cos(2*pi*(t + t.param$shiftT.f)/365) - t.param$amplD.f*cos(2*pi*t) }
@@ -100,18 +114,15 @@ if(overw == TRUE) {
 }
 
 
-
 # PLOT
 Tmin <- round(min(temp.h$T,temp.f$T),0) - 3
-Tmax <- round(max(temp.h$T,temp.f$T),0) + 1
+Tmax <- round(max(temp.h$T,temp.f$T),0) + 3
 ymin <- 0
-ymax <- round(param$rMax,1) + 0.1
-hist(temp.h$T, xlim=c(Tmin,Tmax), ylim=c(ymin,ymax), breaks=seq(from=Tmin, to=Tmax, by=1), ylab="r", col=rgb(0,0,255, max = 255, alpha = 80), border=rgb(0,0,255, max = 255, alpha = 80), freq=FALSE, main = NULL)
-hist(temp.f[temp.f$day>365*65,"T"], xlim=c(Tmin,Tmax), ylim=c(ymin,ymax), breaks=seq(from=Tmin, to=Tmax, by=1), ylab="r", col=rgb(255,0,0, max = 255, alpha = 80), border=rgb(255,0,0, max = 255, alpha = 80), freq=FALSE, main = NULL, add=TRUE)
-#abline(v = mean(param$rTopt), col="gray", lwd=3, lty=1)
-#abline(v = mean(param$rTmax), col="gray", lwd=3, lty=2)
-points(seq(Tmin,Tmax,1), ifelse(seq(Tmin,Tmax,1) <= param$rTopt, param$rMax*exp(-1*((seq(Tmin,Tmax,1)-param$rTopt)/(2*param$rs))^2),
-                                param$rMax*(1 - ((seq(Tmin,Tmax,1)-param$rTopt)/(param$rTopt-param$rTmax))^2)), type="l", lwd=4, col="black")
+ymax1 <- round(param$rMax,1) + 0.05
+ymax2 <- 0.2
+# TPC plots
+plot(seq(Tmin,Tmax,1), ifelse(seq(Tmin,Tmax,1) <= param$rTopt, param$rMax*exp(-1*((seq(Tmin,Tmax,1)-param$rTopt)/(2*param$rs))^2),
+                                param$rMax*(1 - ((seq(Tmin,Tmax,1)-param$rTopt)/(param$rTopt-param$rTmax))^2)), type="l", lwd=4, col="black", xlim=c(Tmin,Tmax), ylim=c(ymin,ymax1), xlab="T", ylab="r(T)")
 abline(v = t.param$meanT.h, col="blue", lwd=3, lty=1)
 abline(v = t.param$meanT.h + abs(t.param$amplT.h) + abs(t.param$amplD.h), col="blue", lwd=3, lty=2)
 abline(v = t.param$meanT.h - abs(t.param$amplT.h) - abs(t.param$amplD.h), col="blue", lwd=3, lty=2)
@@ -119,9 +130,11 @@ abline(v = t.param$meanT.f + t.param$delta_mean.f*365*75 , col="red", lwd=3, lty
 abline(v = t.param$meanT.f + t.param$delta_mean.f*365*75 + abs(t.param$amplT.f) + t.param$delta_ampl.f*365*80 + t.param$amplD.f, col="red", lwd=3, lty=2)
 abline(v = t.param$meanT.f + t.param$delta_mean.f*365*75 - abs(t.param$amplT.f) - t.param$delta_ampl.f*365*80 - t.param$amplD.f, col="red", lwd=3, lty=2)
 if(overw == TRUE) { abline(v = param$Tmin  + 0*abs(t.param$amplD.h), col="black", lwd=3, lty=2) }
-r.TPC.h
-r.TPC.f
-
+# histograms of temperature
+par(new = T)
+hist(temp.h$T, xlim=c(Tmin,Tmax), ylim=c(ymin,ymax2), axes=F, xlab=NA, ylab=NA, breaks=seq(from=Tmin, to=Tmax, by=1), col=rgb(0,0,255, max = 255, alpha = 80), border=rgb(0,0,255, max = 255, alpha = 80), freq=FALSE, main = NULL)
+hist(temp.f[temp.f$day>365*65,"T"], xlim=c(Tmin,Tmax), ylim=c(ymin,ymax2), breaks=seq(from=Tmin, to=Tmax, by=1), ylab="r", col=rgb(255,0,0, max = 255, alpha = 80), border=rgb(255,0,0, max = 255, alpha = 80), freq=FALSE, main = NULL, add=TRUE)
+axis(side = 4)
 
 
 ################################# MODEL: HISTORICAL CLIMATE ##################################
@@ -228,8 +241,8 @@ r.TPC.h
 r.TPC.f
 r.model.h
 r.model.f
-#r.TPC.f/r.TPC.h
-#r.model.f/r.model.h
+#max(TS.h[-c(1:start),"r"])
+#max(TS.f[-c(1:start),"r"])
 
 # PLOT CHANGES IN r
-#barplot(c((r.TPC.f-r.TPC.h)/r.TPC.h, (r.model.f-r.model.h)/r.model.h), col=c("Darkgreen","Orange"), ylim=c(-0.4,0.6), main=expression("Proportional change in r"))
+#barplot(c((r.TPC.f-r.TPC.h), (r.model.f-r.model.h)), col=c("Darkgreen","Orange"), ylim=c(-0.4,0.6), main=expression("Change in r"))
