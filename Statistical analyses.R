@@ -83,9 +83,10 @@ plot(r.data[r.data$Habitat=="Tropical","delta.TPC"], r.data[r.data$Habitat=="Tro
 points(r.data[r.data$Habitat=="Subtropical","delta.TPC"], r.data[r.data$Habitat=="Subtropical","delta.model"], pch=21, col="orange", bg="orange")
 points(r.data[r.data$Habitat=="Mediterranean","delta.TPC"], r.data[r.data$Habitat=="Mediterranean","delta.model"], pch=21, col="orange", bg="orange")
 points(r.data[r.data$Habitat=="Temperate","delta.TPC"], r.data[r.data$Habitat=="Temperate","delta.model"], pch=21, col="blue", bg="blue")
-points(seq(Xmin,Xmax,0.1), coef(delta)[2]*seq(Xmin,Xmax,0.1)+coef(delta)[1], type="l", col="black", lty="longdash")
+points(seq(Xmin,Xmax,0.1), coef(delta)[2]*seq(Xmin,Xmax,0.1)+coef(delta)[1], type="l", col="black")
 abline(0, 1, col="gray")
-#abline(v = 0, col="gray")
+abline(0, 0, col="gray", lty="longdash")
+abline(v = 0, col="gray", lty="longdash")
 
 # Model vs TPCs in historical period
 Xmin <- 0 #-1

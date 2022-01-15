@@ -12,12 +12,13 @@ library(lamW)
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 
-# USER: enter species and location
-species <- "Brevicoryne brassicae"
-location <- "US Columbia"
+# USER: enter species and location or set All to true to run analysis for all species
+species <- "Clavigralla shadabi"
+location <- "Benin"
+all <- TRUE
 
 # USER: include overwintering? (i.e., do not integrate over temperatures below Tmin)
-overw <- FALSE
+overw <- TRUE
 
 # USER: include diurnal variation?
 daily <- FALSE
@@ -25,26 +26,53 @@ daily <- FALSE
 # USER: include resource variation due to precipitation?
 res <- FALSE
 
+# USER: use density-independent DDE model?
+DI <- TRUE
+
 # Read in temperature response and temperature parameters, and temperature response data for selected insect
 param <- subset(as.data.frame(read_csv("Temperature response parameters.csv")), Species == paste(species,location))
 # Read in temperature parameters
 ifelse(daily == TRUE, t.param <- subset(as.data.frame(read_csv("Temperature parameters.csv")), Species == paste(species,location)),
        t.param <- subset(as.data.frame(read_csv("Temperature parameters Tave.csv")), Species == paste(species,location)))
 
+# Select datasets if running the analysis for all species
+if(all == TRUE) {
+  # Read in temperature response and temperature parameters, and temperature response data
+  param.all <- as.data.frame(read_csv("Temperature response parameters.csv"))
+  # Read in temperature parameters
+  ifelse(daily == TRUE, t.param.all <- as.data.frame(read_csv("Temperature parameters.csv")),
+         t.param.all <- as.data.frame(read_csv("Temperature parameters Tave.csv")))
+  # Create array for results
+  results <- data.frame(param.all[,1], 1:nrow(param.all), 1:nrow(param.all), 1:nrow(param.all), 1:nrow(param.all), 1:nrow(param.all), 1:nrow(param.all))
+  names(results) <- c("Species","TPC.h","TPC.f","Model.h","Model.f","max.h","max.f")
+}
+
+# Run analysis for each species
+for(s in 1:nrow(param.all)) {
+  
+# Select species
+if(all == TRUE) {
+  param <- param.all[s,]
+  t.param <- t.param.all[s,]
+}
 
 ################################## TPC: HISTORICAL CLIMATE ###################################
+if(all == FALSE) { 
 # Read in climate data
 temp.h <- as.data.frame(read_csv(paste0("Climate data/Historical climate data ",location,".csv")))
 
-# Remove daily minimum temperatures (if daily == FALSE)
+# For maximum temperature, remove daily minimum temperatures (if daily == FALSE)
 #if(daily == FALSE) { temp.h <- temp.h[temp.h$day %% 1 != 0,] }
 
 # average daily maximum and minimum temperatures (if daily == FALSE)
-if(daily == FALSE) { temp.h$day <- floor(temp.h$day)
-temp.h.min <- temp.h[duplicated(temp.h$day),]
-temp.h.max <- temp.h[duplicated(temp.h$day, fromLast=TRUE),]
-temp.h <- data.frame(temp.h.min$day, (temp.h.min$T + temp.h.max$T)/2)
-names(temp.h) <- c("day", "T") }
+if(daily == FALSE) {
+  temp.h$day <- floor(temp.h$day)
+  temp.h.min <- temp.h[duplicated(temp.h$day),]
+  temp.h.max <- temp.h[duplicated(temp.h$day, fromLast=TRUE),]
+  temp.h <- data.frame(temp.h.min$day, (temp.h.min$T + temp.h.max$T)/2)
+  names(temp.h) <- c("day", "T") }
+}
+
 
 # Integrate across r(T(t))
 T.h <- function(t) { (t.param$meanT.h+t.param$delta_mean.h*t) - (t.param$amplT.h+t.param$delta_ampl.h*t)*cos(2*pi*(t + t.param$shiftT.h)/365) - t.param$amplD.h*cos(2*pi*t) }
@@ -74,18 +102,22 @@ if(overw == TRUE) {
 
 
 ##################################### TPC: FUTURE CLIMATE ####################################
+if(all == FALSE) { 
 # Read in climate data
 temp.f <- as.data.frame(read_csv(paste0("Climate data/Future climate data ",location,".csv")))
 
-# Remove daily minimum temperatures (if daily == FALSE)
+# For maximum temperature, remove daily minimum temperatures (if daily == FALSE)
 #if(daily == FALSE) { temp.f <- temp.f[temp.f$day %% 1 != 0,] }
 
 # average daily maximum and minimum temperatures (if daily == FALSE)
-if(daily == FALSE) { temp.f$day <- floor(temp.f$day)
-temp.f.min <- temp.f[duplicated(temp.f$day),]
-temp.f.max <- temp.f[duplicated(temp.f$day, fromLast=TRUE),]
-temp.f <- data.frame(temp.f.min$day, (temp.f.min$T + temp.f.max$T)/2)
-names(temp.f) <- c("day", "T") }
+if(daily == FALSE) {
+  temp.f$day <- floor(temp.f$day)
+  temp.f.min <- temp.f[duplicated(temp.f$day),]
+  temp.f.max <- temp.f[duplicated(temp.f$day, fromLast=TRUE),]
+  temp.f <- data.frame(temp.f.min$day, (temp.f.min$T + temp.f.max$T)/2)
+  names(temp.f) <- c("day", "T") }
+}
+
 
 # Integrate across r(T(t))
 T.f <- function(t) { (t.param$meanT.f+t.param$delta_mean.f*t) - (t.param$amplT.f+t.param$delta_ampl.f*t)*cos(2*pi*(t + t.param$shiftT.f)/365) - t.param$amplD.f*cos(2*pi*t) }
@@ -114,6 +146,7 @@ if(overw == TRUE) {
 }
 
 
+if(all == FALSE) { 
 # PLOT
 Tmin <- round(min(temp.h$T,temp.f$T),0) - 3
 Tmax <- round(max(temp.h$T,temp.f$T),0) + 3
@@ -135,63 +168,87 @@ par(new = T)
 hist(temp.h$T, xlim=c(Tmin,Tmax), ylim=c(ymin,ymax2), axes=F, xlab=NA, ylab=NA, breaks=seq(from=Tmin, to=Tmax, by=1), col=rgb(0,0,255, max = 255, alpha = 80), border=rgb(0,0,255, max = 255, alpha = 80), freq=FALSE, main = NULL)
 hist(temp.f[temp.f$day>365*65,"T"], xlim=c(Tmin,Tmax), ylim=c(ymin,ymax2), breaks=seq(from=Tmin, to=Tmax, by=1), ylab="r", col=rgb(255,0,0, max = 255, alpha = 80), border=rgb(255,0,0, max = 255, alpha = 80), freq=FALSE, main = NULL, add=TRUE)
 axis(side = 4)
+}
+
 
 
 ################################# MODEL: HISTORICAL CLIMATE ##################################
 # Read in climate data and temperature response parameters for selected insect
 ifelse(daily == TRUE, TS.h <- as.data.frame(read_csv(paste0("Time series data/Historical time series ",species," ",location,".csv"))),
-       TS.h <- as.data.frame(read_csv(paste0("Time series data Tave/Historical time series ",species," ",location,".csv"))))
+       ifelse(DI == FALSE, TS.h <- as.data.frame(read_csv(paste0("Time series data Tave/Historical time series ",species," ",location,".csv"))),
+              TS.h <- as.data.frame(read_csv(paste0("Time series data DI Tave/Historical time series ",species," ",location,".csv")))))
+
+# Select datasets if running the analysis for all species
+if(all == TRUE) {  
+  # Select species
+  ifelse(daily == TRUE, TS.h <- as.data.frame(read_csv(paste0("Time series data/Historical time series ",param[1],".csv"))),
+         ifelse(DI == FALSE, TS.h <- as.data.frame(read_csv(paste0("Time series data Tave/Historical time series ",param[1],".csv"))),
+                TS.h <- as.data.frame(read_csv(paste0("Time series data DI Tave/Historical time series ",param[1],".csv")))))
+}
 
 # Remove rows with NA
 TS.h <- na.omit(TS.h)
 # Set rows with negative survivorship to zero
 TS.h$S <- pmax(TS.h$S, 0)
 
-# Calculate r at each time-step in model
-init_years <- 0 # from Python DDE model
-T <- function(t) { (t.param$meanT.h + t.param$delta_mean.h*t) - (t.param$amplT.h + t.param$delta_ampl.h*t)*cos(2*pi*(t + t.param$shiftT.h)/365) - t.param$amplD.h*cos(2*pi*t) }
-ifelse(res == FALSE, R <- function(t) {1}, R <- function(t) { ifelse(t.param$meanP.h - t.param$amplP.h * cos(2*pi*((t-init_years*365) + shiftP.h)/365) < 0, 0, t.param$meanP.h - t.param$amplP.h * cos(2*pi*((t-init_years*365) + shiftP.h)/365) )})
-ifelse(overw == FALSE, M <- function(t) {1}, M <- function(t) { ifelse(T(t) < param$Tmin + 0*abs(t.param$amplD.h), 0, 1) })
-b <- function(t) { param$bTopt*exp(-((T(t)-param$Toptb)^2)/(2*param$sb^2)) }
-mJ <- function(t) { param$mTR*(T(t)/param$TR)*exp(param$AmJ*(1/param$TR-1/T(t)))/(1+exp(param$AL*(1/param$TL-1/T(t)))+exp(param$AH*(1/param$TH-1/T(t)))) }
-dJ <- function(t) {  param$dJTR*exp(param$AdJ*(1/param$TR-1/T(t))) }
-dA <- function(t) {  param$dATR*exp(param$AdA*(1/param$TR-1/T(t))) }
-ifelse(overw == FALSE, TS.h$r <- (lambertW0(R(S.h$Time)*M(TS.h$Time-TS.h$tau)*b(TS.h$Time-TS.h$tau) * mJ(TS.h$Time)/mJ(TS.h$Time-TS.h$tau)*TS.h$S * TS.h$tau * exp(dA(TS.h$Time)*TS.h$tau)) - dA(TS.h$Time) * TS.h$tau) / TS.h$tau,
-       TS.h$r <- ifelse(T(TS.h$Time) < param$Tmin + 0*abs(t.param$amplD.h), 0, (lambertW0(R(S.h$Time)*M(TS.h$Time-TS.h$tau)*b(TS.h$Time-TS.h$tau) * mJ(TS.h$Time)/mJ(TS.h$Time-TS.h$tau)*TS.h$S * TS.h$tau * exp(dA(TS.h$Time)*TS.h$tau)) - dA(TS.h$Time) * TS.h$tau) / TS.h$tau))
-TS.h$b <- b(TS.h$Time)
-TS.h$mJ <- mJ(TS.h$Time)
-TS.h$dA <- dA(TS.h$Time)
 
-# Integrate across daily per capita population growth rate from DDE model
-r.model.h <- 0
-start <- nrow(TS.h) - 365*5 + 1 # integrate over last 5 years of time-series
-end <- nrow(TS.h)
-count <- end - start
-for(i in start:end) { r.model.h <- r.model.h + TS.h$r[i]
-  if(T(i) < param$Tmin + 0*abs(t.param$amplD.h)) { count <- count - 1 } # number of days when T(t) > Tmin
-}
-(r.model.h <- r.model.h/count)
+# Calculate r at each time-step in model
+# init_years <- 0 # from Python DDE model
+# T <- function(t) { (t.param$meanT.h + t.param$delta_mean.h*t) - (t.param$amplT.h + t.param$delta_ampl.h*t)*cos(2*pi*(t + t.param$shiftT.h)/365) - t.param$amplD.h*cos(2*pi*t) }
+# ifelse(res == FALSE, R <- function(t) {1}, R <- function(t) { ifelse(t.param$meanP.h - t.param$amplP.h * cos(2*pi*((t-init_years*365) + shiftP.h)/365) < 0, 0, t.param$meanP.h - t.param$amplP.h * cos(2*pi*((t-init_years*365) + shiftP.h)/365) )})
+# ifelse(overw == FALSE, M <- function(t) {1}, M <- function(t) { ifelse(T(t) < param$Tmin + 0*abs(t.param$amplD.h), 0, 1) })
+# b <- function(t) { param$bTopt*exp(-((T(t)-param$Toptb)^2)/(2*param$sb^2)) }
+# mJ <- function(t) { param$mTR*(T(t)/param$TR)*exp(param$AmJ*(1/param$TR-1/T(t)))/(1+exp(param$AL*(1/param$TL-1/T(t)))+exp(param$AH*(1/param$TH-1/T(t)))) }
+# dJ <- function(t) {  param$dJTR*exp(param$AdJ*(1/param$TR-1/T(t))) }
+# dA <- function(t) {  param$dATR*exp(param$AdA*(1/param$TR-1/T(t))) }
+# ifelse(overw == FALSE, TS.h$r <- (lambertW0(R(S.h$Time)*M(TS.h$Time-TS.h$tau)*b(TS.h$Time-TS.h$tau) * mJ(TS.h$Time)/mJ(TS.h$Time-TS.h$tau)*TS.h$S * TS.h$tau * exp(dA(TS.h$Time)*TS.h$tau)) - dA(TS.h$Time) * TS.h$tau) / TS.h$tau,
+#        TS.h$r <- ifelse(T(TS.h$Time) < param$Tmin + 0*abs(t.param$amplD.h), 0, (lambertW0(R(S.h$Time)*M(TS.h$Time-TS.h$tau)*b(TS.h$Time-TS.h$tau) * mJ(TS.h$Time)/mJ(TS.h$Time-TS.h$tau)*TS.h$S * TS.h$tau * exp(dA(TS.h$Time)*TS.h$tau)) - dA(TS.h$Time) * TS.h$tau) / TS.h$tau))
+# 
+# 
+# # Integrate across daily per capita population growth rate from DDE model
+# r.model.h <- 0
+# start <- nrow(TS.h) - 365*5 + 1 # integrate over last 5 years of time-series
+# end <- nrow(TS.h)
+# count <- end - start
+# for(i in start:end) { r.model.h <- r.model.h + TS.h$r[i]
+#   if(T(i) < param$Tmin + 0*abs(t.param$amplD.h)) { count <- count - 1 } # number of days when T(t) > Tmin
+# }
+# (r.model.h <- r.model.h/count)
 
 # Plot r over time
-plot(TS.h[-c(1:start),"Time"],TS.h[-c(1:start),"r"], col="blue")
+#plot(TS.h[-c(1:start),"Time"],TS.h[-c(1:start),"r"], col="blue")
 #plot(TS.h$Time,TS.h$r, col="blue")
 
 
 # Integrate model time-series across ln(t/(t-1))
-# r.model.h <- 0
-# count.h <- 0
-# for(i in 3:nrow(TS.h)) {
-#   if(TS.h$A[i] >= 0 && TS.h$A[i-1] >= 0 && is.na(TS.h$A[i]) == FALSE && is.na(TS.h$A[i-1]) == FALSE) {
-#     r.model.h <- r.model.h + log(TS.h$A[i]/TS.h$A[i-1])
-#     count.h <- count.h + 1
-# }}
-# (r.model.h <- r.model.h/count.h)
+T <- function(t) { (t.param$meanT.h + t.param$delta_mean.h*t) - (t.param$amplT.h + t.param$delta_ampl.h*t)*cos(2*pi*(t + t.param$shiftT.h)/365) - t.param$amplD.h*cos(2*pi*t) }
+r.model.h <- 0
+count.h <- 0
+r.max.h <- 0
+start <- max(2,nrow(TS.h) - 365*5 + 1) # integrate over last 5 years of time-series
+end <- nrow(TS.h)
+for(i in start:end) {
+  if(TS.h$A[i] > 0 && TS.h$A[i-1] > 0 && (overw == FALSE || T(i) >= param$Tmin + 0*abs(t.param$amplD.h))) {
+    r.max.h <- max(r.max.h, log(TS.h$A[i]/TS.h$A[i-1]))
+    r.model.h <- r.model.h + log(TS.h$A[i]/TS.h$A[i-1])
+    count.h <- count.h + 1
+}}
+(r.model.h <- r.model.h/count.h)
 
 
 ################################### MODEL: FUTURE CLIMATE ####################################
 # Read in climate data and temperature response parameters for selected insect
 ifelse(daily == TRUE, TS.f <- as.data.frame(read_csv(paste0("Time series data/Future time series ",species," ",location,".csv"))),
-       TS.f <- as.data.frame(read_csv(paste0("Time series data Tave/Future time series ",species," ",location,".csv"))))
+       ifelse(DI == FALSE, TS.f <- as.data.frame(read_csv(paste0("Time series data Tave/Future time series ",species," ",location,".csv"))),
+              TS.f <- as.data.frame(read_csv(paste0("Time series data DI Tave/Future time series ",species," ",location,".csv")))))
+
+# Select datasets if running the analysis for all species
+if(all == TRUE) {  
+  # Select species
+  ifelse(daily == TRUE, TS.h <- as.data.frame(read_csv(paste0("Time series data/Future time series ",param[1],".csv"))),
+         ifelse(DI == FALSE, TS.h <- as.data.frame(read_csv(paste0("Time series data Tave/Future time series ",param[1],".csv"))),
+                TS.h <- as.data.frame(read_csv(paste0("Time series data DI Tave/Future time series ",param[1],".csv")))))
+}
 
 # Remove rows with NA or negative values
 TS.f <- na.omit(TS.f)
@@ -199,41 +256,67 @@ TS.f <- na.omit(TS.f)
 TS.f$S <- pmax(TS.f$S, 0)
 
 # Calculate r at each time-step in model
-init_years <- 0 # from Python DDE model
-T <- function(t) { (t.param$meanT.f + t.param$delta_mean.f*t) - (t.param$amplT.f + t.param$delta_ampl.f*t)*cos(2*pi*(t + t.param$shiftT.f)/365) - t.param$amplD.f*cos(2*pi*t) }
-ifelse(res == FALSE, R <- function(t) {1}, R <- function(t) { ifelse(t.param$meanP.f - t.param$amplP.f * cos(2*pi*((t-init_years*365) + shiftP.f)/365) < 0, 0, t.param$meanP.f - t.param$amplP.f * cos(2*pi*((t-init_years*365) + shiftP.f)/365) )})
-ifelse(overw == FALSE, M <- function(t) {1}, M <- function(t) { ifelse(T(t) < param$Tmin + 0*abs(t.param$amplD.f), 0, 1) })
-b <- function(t) { param$bTopt*exp(-((T(t)-param$Toptb)^2)/(2*param$sb^2)) }
-mJ <- function(t) { param$mTR*(T(t)/param$TR)*exp(param$AmJ*(1/param$TR-1/T(t)))/(1+exp(param$AL*(1/param$TL-1/T(t)))+exp(param$AH*(1/param$TH-1/T(t)))) }
-dJ <- function(t) {  param$dJTR*exp(param$AdJ*(1/param$TR-1/T(t))) }
-dA <- function(t) {  param$dATR*exp(param$AdA*(1/param$TR-1/T(t))) }
-ifelse(overw == FALSE, TS.f$r <- (lambertW0(R(S.f$Time)*M(TS.f$Time-TS.f$tau)*b(TS.f$Time-TS.f$tau) * mJ(TS.f$Time)/mJ(TS.f$Time-TS.f$tau)*TS.f$S * TS.f$tau * exp(dA(TS.f$Time)*TS.f$tau)) - dA(TS.f$Time) * TS.f$tau) / TS.f$tau,
-       TS.f$r <- ifelse(T(TS.f$Time) < param$Tmin + 0*abs(t.param$amplD.f), 0, (lambertW0(R(S.f$Time)*M(TS.f$Time-TS.f$tau)*b(TS.f$Time-TS.f$tau) * mJ(TS.f$Time)/mJ(TS.f$Time-TS.f$tau)*TS.f$S * TS.f$tau * exp(dA(TS.f$Time)*TS.f$tau)) - dA(TS.f$Time) * TS.f$tau) / TS.f$tau))
-
-# Integrate across daily per capita population growth rate from DDE model
-r.model.f <- 0
-start <- nrow(TS.f) - 365*5 + 1 # integrate over last 5 years of time-series
-end <- nrow(TS.f)
-count <- end - start
-for(i in start:end) { r.model.f <- r.model.f + TS.f$r[i] #- dA(i)
-  if(T(i) < param$Tmin + 0*abs(t.param$amplD.f)) { count <- count - 1 } # number of days when T(t) > Tmin
-}
-(r.model.f <- r.model.f/count)
+# init_years <- 0 # from Python DDE model
+# T <- function(t) { (t.param$meanT.f + t.param$delta_mean.f*t) - (t.param$amplT.f + t.param$delta_ampl.f*t)*cos(2*pi*(t + t.param$shiftT.f)/365) - t.param$amplD.f*cos(2*pi*t) }
+# ifelse(res == FALSE, R <- function(t) {1}, R <- function(t) { ifelse(t.param$meanP.f - t.param$amplP.f * cos(2*pi*((t-init_years*365) + shiftP.f)/365) < 0, 0, t.param$meanP.f - t.param$amplP.f * cos(2*pi*((t-init_years*365) + shiftP.f)/365) )})
+# ifelse(overw == FALSE, M <- function(t) {1}, M <- function(t) { ifelse(T(t) < param$Tmin + 0*abs(t.param$amplD.f), 0, 1) })
+# b <- function(t) { param$bTopt*exp(-((T(t)-param$Toptb)^2)/(2*param$sb^2)) }
+# mJ <- function(t) { param$mTR*(T(t)/param$TR)*exp(param$AmJ*(1/param$TR-1/T(t)))/(1+exp(param$AL*(1/param$TL-1/T(t)))+exp(param$AH*(1/param$TH-1/T(t)))) }
+# dJ <- function(t) {  param$dJTR*exp(param$AdJ*(1/param$TR-1/T(t))) }
+# dA <- function(t) {  param$dATR*exp(param$AdA*(1/param$TR-1/T(t))) }
+# ifelse(overw == FALSE, TS.f$r <- (lambertW0(R(S.f$Time)*M(TS.f$Time-TS.f$tau)*b(TS.f$Time-TS.f$tau) * mJ(TS.f$Time)/mJ(TS.f$Time-TS.f$tau)*TS.f$S * TS.f$tau * exp(dA(TS.f$Time)*TS.f$tau)) - dA(TS.f$Time) * TS.f$tau) / TS.f$tau,
+#        TS.f$r <- ifelse(T(TS.f$Time) < param$Tmin + 0*abs(t.param$amplD.f), 0, (lambertW0(R(S.f$Time)*M(TS.f$Time-TS.f$tau)*b(TS.f$Time-TS.f$tau) * mJ(TS.f$Time)/mJ(TS.f$Time-TS.f$tau)*TS.f$S * TS.f$tau * exp(dA(TS.f$Time)*TS.f$tau)) - dA(TS.f$Time) * TS.f$tau) / TS.f$tau))
+# 
+# # Integrate across daily per capita population growth rate from DDE model
+# r.model.f <- 0
+# start <- nrow(TS.f) - 365*5 + 1 # integrate over last 5 years of time-series
+# end <- nrow(TS.f)
+# count <- end - start
+# for(i in start:end) { r.model.f <- r.model.f + TS.f$r[i] #- dA(i)
+#   if(T(i) < param$Tmin + 0*abs(t.param$amplD.f)) { count <- count - 1 } # number of days when T(t) > Tmin
+# }
+# (r.model.f <- r.model.f/count)
 
 # Plot r over time
-plot(TS.f[-c(1:start),"Time"],TS.f[-c(1:start),"r"], col="blue")
+#plot(TS.f[-c(1:start),"Time"],TS.f[-c(1:start),"r"], col="blue")
 #plot(TS.f$Time,TS.f$r, col="blue")
 
 
 # Integrate across ln(t/(t-1))
-# r.model.f <- 0
-# count.f <- 0
-# for(i in 3:nrow(TS.f)) {
-#   if(TS.f$A[i] >= 0 && TS.f$A[i-1] >= 0 && is.na(TS.f$A[i]) == FALSE && is.na(TS.f$A[i-1]) == FALSE) {
-#     r.model.f <- r.model.f + log(TS.f$A[i]/TS.f$A[i-1])
-#     count.f <- count.f + 1
-#   }}
-# (r.model.f <- r.model.f/count.f)
+T <- function(t) { (t.param$meanT.f + t.param$delta_mean.f*t) - (t.param$amplT.f + t.param$delta_ampl.f*t)*cos(2*pi*(t + t.param$shiftT.f)/365) - t.param$amplD.f*cos(2*pi*t) }
+r.model.f <- 0
+count.f <- 0
+r.max.f <- 0
+start <- max(2,nrow(TS.f) - 365*5 + 1) # integrate over last 5 years of time-series
+end <- nrow(TS.f)
+for(i in start:end) {
+  if(TS.f$A[i] > 0 && TS.f$A[i-1] > 0 && (overw == FALSE || T(i) >= param$Tmin + 0*abs(t.param$amplD.f))) {
+    r.max.f <- max(r.max.f, log(TS.f$A[i]/TS.f$A[i-1]))
+    r.model.f <- r.model.f + log(TS.f$A[i]/TS.f$A[i-1])
+    count.f <- count.f + 1
+  }}
+(r.model.f <- r.model.f/count.f)
+
+
+
+# INPUT RESUTS INTO ARRAY
+if(all == TRUE) {
+  results[s,2] <- r.TPC.h
+  results[s,3] <- r.TPC.f
+  results[s,4] <- r.model.h
+  results[s,5] <- r.model.f
+  results[s,6] <- r.max.h
+  results[s,7] <- r.max.f
+}
+
+
+# BREAK FOR LOOP IF ANALYSES ARE RUN FOR A SPECIFIED SPECIES
+if(all == FALSE) { break  }
+}
+
+
+# OUTPUT RESULTS IN CSV FILE
+if(all == TRUE) { write_csv(results, "Intrinsic growth rates.csv")  }
 
 
 # SUMMARIZE RESULTS
@@ -241,8 +324,12 @@ r.TPC.h
 r.TPC.f
 r.model.h
 r.model.f
+r.max.h
+r.max.f
 #max(TS.h[-c(1:start),"r"])
 #max(TS.f[-c(1:start),"r"])
-
+  
 # PLOT CHANGES IN r
 #barplot(c((r.TPC.f-r.TPC.h), (r.model.f-r.model.h)), col=c("Darkgreen","Orange"), ylim=c(-0.4,0.6), main=expression("Change in r"))
+
+

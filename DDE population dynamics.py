@@ -26,8 +26,8 @@ if cwd != '/Users/johnson/Documents/Christopher/GitHub/Johnson_Insect_Responses'
 
 
 # USER: Enter species, location, and time period
-species = "Hyadaphis pseudobrassicae"
-location = "US Columbia"
+species = "Aphis citricola"
+location = "Japan Chiba"
 period = "Historical"
 #period = "Future"
 
@@ -38,7 +38,7 @@ save_data = False
 minT = True
 
 # USER: Include competition?
-comp = False
+comp = True
 
 # USER: Incorporate diurnal temperature fluctuations?
 daily = False
@@ -47,14 +47,14 @@ daily = False
 census = False
 
 # INPUT TEMPERATURE RESPONSE PARAMETERS AND TEMPERATURE PARAMETERS
-data = read_csv("Temperature response parameters.csv")
-temp_data = read_csv("Temperature parameters.csv")
+S_data = read_csv("Temperature response parameters.csv")
+T_data = read_csv("Temperature parameters.csv")
 
 # INSECT LIFE HISTORY TRAIT TEMPERATURE RESPONSES
-spData = data[data["Species"] == species + " " + location]
+spData = S_data[S_data["Species"] == species + " " + location]
 
 # HABITAT TEMPERATURE PARAMETERS
-temp_data = temp_data[temp_data["Species"] == species + " " + location]
+temp_data = T_data[T_data["Species"] == species + " " + location]
 # diurnal variation (for Tmin)
 if period == "Historical":
     diurnal = temp_data["amplD.h"].values[0]
@@ -62,7 +62,7 @@ else:
     diurnal = temp_data["amplD.f"].values[0]
 if daily == False:
     temp_data = read_csv("Temperature parameters Tave.csv")
-    temp_data = temp_data[temp_data["Species"] == species + " " + location]
+    temp_data = T_data[T_data["Species"] == species + " " + location]
 
 # DEFINE MODEL PARAMETERS
 # Time parameters
@@ -98,6 +98,9 @@ else:
     amplD = temp_data["amplD.f"].values[0]
 if daily == False:
     amplD = 0
+
+# Increase mean temperature by 0.1 until extinct
+delta_mean = 0.1/yr
 
 # Life history and competitive traits
 # fecundity
@@ -170,7 +173,6 @@ def q(x):
 
 
 # Minimum developmental temperature
-#else:
 if minT == True:
     def M(x):
         return conditional(T(x), Tmin, 0, 1) # if temperature < developmental min, Tmin, then development M = 0; otherwise, M = 1
@@ -221,7 +223,7 @@ if save_data == True:
         filename = 'Time series data/' + period + ' time series ' + spData["Species"].values[0] + '.csv'
         savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
     if comp == True and daily == False:
-        filename = 'Time series data Tave/' + period + ' time series ' + spData["Species"].values[0] + '.csv'
+        filename = 'Time series data Ext/' + period + ' time series ' + spData["Species"].values[0] + '.csv'
         savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
     if comp == False and daily == True:
         filename = 'Time series data DI/' + period + ' time series ' + spData["Species"].values[0] + '.csv'
@@ -240,7 +242,7 @@ ax.plot(data[:,0], data[:,2], label='A')
 ax.legend(loc='best')
 xlabel("time (days)")
 ylabel("population density")
-yscale("log")
+yscale("linear")
 xlim((max_years-max_years)*yr,(max_years-0)*yr)
-ylim(0,100000000000000000000000000000)
+ylim(0,200)
 
