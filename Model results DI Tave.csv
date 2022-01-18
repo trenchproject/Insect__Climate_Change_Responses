@@ -1,0 +1,28 @@
+﻿Species,Latitude,Habitat,subfamily,rMax.TPC,rMax.model.h,rMax.model.f,TPC historical,TPC future,Model historical,Model future,r.TPC.h,r.TPC.f,r.model.h,r.model.f,delta.TPC,delta.model,Notes
+Clavigralla shadabi Benin,6.45,Tropical,Heteroptera,0.134,0.127,0.108,0.127,0.083,0.120,0.076,0.950,0.616,0.951,0.601,-0.334,-0.350,
+Clavigralla tomentosicollis Benin,6.45,Tropical,Heteroptera,0.154,0.132,0.157,0.125,0.152,0.116,0.148,0.813,0.990,0.878,1.124,0.176,0.246,
+Clavigralla tomentosicollis Nigeria,7.45,Tropical,Heteroptera,0.088,0.182,0.203,0.079,0.087,0.159,0.193,0.892,0.987,0.875,1.065,0.095,0.190,
+Clavigralla tomentosicollis Burkina Faso,12.38,Tropical,Heteroptera,0.088,0.104,0.091,0.081,0.082,0.091,0.049,0.925,0.933,0.876,0.477,0.008,-0.399,
+Apolygus lucorum China Dafeng,33.33,Temperate,Heteroptera,0.165,0.699,0.106,0.104,0.109,0.122,0.101,0.632,0.659,0.175,0.144,0.027,-0.031,Including overwintering
+Adelphocoris suturalis China Dafeng,33.33,Temperate,Heteroptera,0.083,0.603,0.096,0.052,0.063,0.119,0.085,0.631,0.756,0.198,0.140,0.125,-0.058,Including overwintering
+Apolygus lucorum China Langfang,39.88,Temperate,Heteroptera,0.165,0.638,0.740,0.105,0.116,0.187,0.245,0.638,0.705,0.293,0.384,0.066,0.091,Including overwintering
+Adelphocoris suturalis China Xinxiang,35.53,Temperate,Heteroptera,0.083,0.678,0.759,0.054,0.054,0.138,0.118,0.648,0.656,0.203,0.174,0.008,-0.029,Including overwintering
+Macrosiphum euphorbiae Brazil,21.23,Tropical,Sternorrhyncha,0.246,0.693,0.682,0.188,0.090,0.656,0.591,0.762,0.364,0.947,0.853,-0.398,-0.094,
+Aulacorthum solani Brazil,21.23,Tropical,Sternorrhyncha,0.257,0.726,0.703,0.147,-0.026,0.687,0.551,0.571,-0.103,0.946,0.759,-0.673,-0.187,
+Uroleucon ambrosiae Brazil,21.23,Tropical,Sternorrhyncha,0.249,0.785,0.777,0.231,0.197,0.730,0.558,0.927,0.789,0.931,0.711,-0.138,-0.220,
+Macrolophus pygmaeus on Myzus persicae Greece,38.38,Mediterranean,Heteroptera,0.100,0.406,0.827,0.070,0.091,0.084,0.059,0.700,0.913,0.208,0.145,0.213,-0.063,Including overwintering
+Macrolophus pygmaeus on Trialeurodes vaporariorum Greece,38.38,Mediterranean,Heteroptera,0.104,0.447,0.629,0.069,0.093,0.088,0.060,0.663,0.893,0.196,0.134,0.230,-0.062,Including overwintering
+Acyrthosiphon pisum UK Sand Hutton,54.02,Temperate,Sternorrhyncha,0.286,0.529,0.360,0.124,0.154,0.279,0.163,0.433,0.539,0.527,0.308,0.107,-0.219,Including overwintering
+Bemisia argentifollii US Homestead,25.47,Subtropical,Sternorrhyncha,0.194,0.136,0.117,0.161,0.175,0.109,0.102,0.828,0.903,0.796,0.749,0.075,-0.047,Including overwintering
+Rhopalosiphum rufiabdominalis US Weston,26.14,Subtropical,Sternorrhyncha,0.443,0.288,2.778,0.407,0.378,0.263,0.130,0.920,0.853,0.916,0.451,-0.066,-0.465,Including overwintering
+Aphis nasturtii US Weston,26.14,Subtropical,Sternorrhyncha,0.306,0.247,0.223,0.270,0.272,0.215,0.199,0.882,0.888,0.870,0.805,0.006,-0.065,Including overwintering
+Diaphorina citri US Weston,26.24,Subtropical,Sternorrhyncha,0.199,0.188,0.205,0.158,0.123,0.136,0.103,0.794,0.618,0.721,0.547,-0.176,-0.173,Including overwintering
+Eriosoma lanigerum Australia Yathroo,30.9,Subtropical,Sternorrhyncha,0.204,0.184,0.174,0.142,0.107,0.137,0.093,0.694,0.523,0.745,0.504,-0.172,-0.241,Including overwintering
+Macrosiphum euphorbiae Canada,42.81,Temperate,Sternorrhyncha,1.49,2.675,1.814,1.076,0.592,1.535,-0.275,0.722,0.398,0.574,-0.103,-0.325,-0.677,Including overwintering; extinct in model
+Myzus persicae Canada,42.81,Temperate,Sternorrhyncha,3.42,1.474,1.564,1.852,0.978,0.723,0.120,0.542,0.286,0.491,0.082,-0.256,-0.409,Including overwintering
+Hyperomyzus lactucae Australia Acton,35.27,Subtropical,Sternorrhyncha,0.332,0.384,0.397,0.188,0.252,0.166,0.246,0.567,0.760,0.432,0.639,0.193,0.207,Including overwintering
+Aphis gossypii China Henan,36.07,Temperate,Sternorrhyncha,0.397,0.664,0.710,0.249,0.240,0.228,0.234,0.628,0.604,0.344,0.353,-0.024,0.009,Including overwintering
+Aulacorthum solani US Ithaca,42.42,Temperate,Sternorrhyncha,0.464,0.736,0.159,0.258,0.045,0.312,-0.014,0.555,0.098,0.424,-0.019,-0.458,-0.443,Including overwintering; extinct in model
+Brevicoryne brassicae US Columbia,38.93,Temperate,Sternorrhyncha,0.139,0.551,0.074,0.074,-0.192,0.071,-0.014,0.531,-1.385,0.129,-0.025,-1.916,-0.154,Including overwintering; extinct in model
+Myzus persicae US Columbia,38.93,Temperate,Sternorrhyncha,0.299,0.467,0.176,0.167,-0.186,0.210,0.020,0.560,-0.623,0.449,0.043,-1.183,-0.406,Including overwintering
+Hyadaphis pseudobrassicae US Columbia,38.93,Temperate,Sternorrhyncha,0.357,0.607,0.434,0.212,0.118,0.280,0.092,0.593,0.330,0.461,0.152,-0.264,-0.310,Including overwintering

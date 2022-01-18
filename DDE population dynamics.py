@@ -26,10 +26,10 @@ if cwd != '/Users/johnson/Documents/Christopher/GitHub/Johnson_Insect_Responses'
 
 
 # USER: Enter species, location, and time period
-species = "Aphis citricola"
-location = "Japan Chiba"
+species = "Macrosiphum euphorbiae"
+location = "Canada"
 period = "Historical"
-#period = "Future"
+period = "Future"
 
 # USER: Save data to CSV file?
 save_data = False
@@ -37,7 +37,7 @@ save_data = False
 # USER: Use minimum temperature threshold?
 minT = True
 
-# USER: Include competition?
+# USER: Include competition (i.e., density-dependent population growth)?
 comp = True
 
 # USER: Incorporate diurnal temperature fluctuations?
@@ -46,23 +46,17 @@ daily = False
 # USER: Is model fit to census data?
 census = False
 
+
 # INPUT TEMPERATURE RESPONSE PARAMETERS AND TEMPERATURE PARAMETERS
-S_data = read_csv("Temperature response parameters.csv")
-T_data = read_csv("Temperature parameters.csv")
+Sdata = read_csv("Temperature response parameters.csv")
+spData = Sdata[Sdata["Species"] == species + " " + location]
 
-# INSECT LIFE HISTORY TRAIT TEMPERATURE RESPONSES
-spData = S_data[S_data["Species"] == species + " " + location]
-
-# HABITAT TEMPERATURE PARAMETERS
-temp_data = T_data[T_data["Species"] == species + " " + location]
-# diurnal variation (for Tmin)
-if period == "Historical":
-    diurnal = temp_data["amplD.h"].values[0]
+if daily == True:
+    Tdata = read_csv("Temperature parameters.csv")
 else:
-    diurnal = temp_data["amplD.f"].values[0]
-if daily == False:
-    temp_data = read_csv("Temperature parameters Tave.csv")
-    temp_data = T_data[T_data["Species"] == species + " " + location]
+    Tdata = read_csv("Temperature parameters Tave.csv")
+tempData = Tdata[Tdata["Species"] == species + " " + location]
+
 
 # DEFINE MODEL PARAMETERS
 # Time parameters
@@ -83,24 +77,25 @@ initA = 100.
 
 # Temperature parameters
 if period == "Historical":
-    meanT = temp_data["meanT.h"].values[0]
-    amplT = temp_data["amplT.h"].values[0] 
-    shiftT = temp_data["shiftT.h"].values[0]
-    delta_mean = temp_data["delta_mean.h"].values[0]
-    delta_ampl = temp_data["delta_ampl.h"].values[0]
-    amplD = temp_data["amplD.h"].values[0]
+    meanT = tempData["meanT.h"].values[0]
+    amplT = tempData["amplT.h"].values[0] 
+    shiftT = tempData["shiftT.h"].values[0]
+    delta_mean = tempData["delta_mean.h"].values[0]
+    delta_ampl = tempData["delta_ampl.h"].values[0]
+    amplD = tempData["amplD.h"].values[0]
 else:
-    meanT = temp_data["meanT.f"].values[0]
-    amplT = temp_data["amplT.f"].values[0] 
-    shiftT = temp_data["shiftT.f"].values[0]
-    delta_mean = temp_data["delta_mean.f"].values[0]
-    delta_ampl = temp_data["delta_ampl.f"].values[0]
-    amplD = temp_data["amplD.f"].values[0]
+    meanT = tempData["meanT.f"].values[0]
+    amplT = tempData["amplT.f"].values[0] 
+    shiftT = tempData["shiftT.f"].values[0]
+    delta_mean = tempData["delta_mean.f"].values[0]
+    delta_ampl = tempData["delta_ampl.f"].values[0]
+    amplD = tempData["amplD.f"].values[0]
 if daily == False:
     amplD = 0
 
 # Increase mean temperature by 0.1 until extinct
-delta_mean = 0.1/yr
+#delta_mean = 0.1/yr
+
 
 # Life history and competitive traits
 # fecundity
@@ -116,9 +111,9 @@ AL = spData["AL"].values[0]
 TL = spData["TL"].values[0]
 AH = spData["AH"].values[0]
 TH = spData["TH"].values[0]
-Tmin = spData["Tmin"].values[0] #+ 2*abs(diurnal) # minimum developmental temperature
+Tmin = spData["Tmin"].values[0] # minimum developmental temperature
 if census == True: # if model is fit to census data, use temperature at start of experiment as Tmin
-    Tmin = temp_data["Tstart"].values[0]
+    Tmin = tempData["Tstart"].values[0]
 # mortality
 dJTR = spData["dJTR"].values[0]
 AdJ = spData["AdJ"].values[0]
@@ -245,4 +240,4 @@ ylabel("population density")
 yscale("linear")
 xlim((max_years-max_years)*yr,(max_years-0)*yr)
 ylim(0,200)
-
+#ylim(0,1e10)

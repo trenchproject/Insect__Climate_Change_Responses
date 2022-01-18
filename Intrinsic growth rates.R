@@ -13,9 +13,9 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 
 # USER: enter species and location or set All to true to run analysis for all species
-species <- "Clavigralla shadabi"
-location <- "Benin"
-all <- TRUE
+species <- "Macrosiphum euphorbiae"
+location <- "Canada"
+all <- FALSE
 
 # USER: include overwintering? (i.e., do not integrate over temperatures below Tmin)
 overw <- TRUE
@@ -56,6 +56,7 @@ if(all == TRUE) {
   t.param <- t.param.all[s,]
 }
 
+  
 ################################## TPC: HISTORICAL CLIMATE ###################################
 if(all == FALSE) { 
 # Read in climate data
@@ -146,6 +147,7 @@ if(overw == TRUE) {
 }
 
 
+
 if(all == FALSE) { 
 # PLOT
 Tmin <- round(min(temp.h$T,temp.f$T),0) - 3
@@ -174,13 +176,14 @@ axis(side = 4)
 
 ################################# MODEL: HISTORICAL CLIMATE ##################################
 # Read in climate data and temperature response parameters for selected insect
-ifelse(daily == TRUE, TS.h <- as.data.frame(read_csv(paste0("Time series data/Historical time series ",species," ",location,".csv"))),
+if(all == FALSE) {
+  ifelse(daily == TRUE, TS.h <- as.data.frame(read_csv(paste0("Time series data/Historical time series ",species," ",location,".csv"))),
        ifelse(DI == FALSE, TS.h <- as.data.frame(read_csv(paste0("Time series data Tave/Historical time series ",species," ",location,".csv"))),
               TS.h <- as.data.frame(read_csv(paste0("Time series data DI Tave/Historical time series ",species," ",location,".csv")))))
+}
 
-# Select datasets if running the analysis for all species
-if(all == TRUE) {  
-  # Select species
+# Select species if running the analysis for all species
+if(all == TRUE) {
   ifelse(daily == TRUE, TS.h <- as.data.frame(read_csv(paste0("Time series data/Historical time series ",param[1],".csv"))),
          ifelse(DI == FALSE, TS.h <- as.data.frame(read_csv(paste0("Time series data Tave/Historical time series ",param[1],".csv"))),
                 TS.h <- as.data.frame(read_csv(paste0("Time series data DI Tave/Historical time series ",param[1],".csv")))))
@@ -221,11 +224,13 @@ TS.h$S <- pmax(TS.h$S, 0)
 
 
 # Integrate model time-series across ln(t/(t-1))
-T <- function(t) { (t.param$meanT.h + t.param$delta_mean.h*t) - (t.param$amplT.h + t.param$delta_ampl.h*t)*cos(2*pi*(t + t.param$shiftT.h)/365) - t.param$amplD.h*cos(2*pi*t) }
+init_year = 65 # how many years into climate change to start model (see python DDE model)
+ifelse(DI == FALSE, T <- function(t) { (t.param$meanT.h + t.param$delta_mean.h*t) - (t.param$amplT.h + t.param$delta_ampl.h*t)*cos(2*pi*(t + t.param$shiftT.h)/365) - t.param$amplD.h*cos(2*pi*t) },
+  T <- function(t) { (t.param$meanT.h + t.param$delta_mean.h*(t+init_year*365)) - (t.param$amplT.h + t.param$delta_ampl.h*(t+init_year*365))*cos(2*pi*(t + t.param$shiftT.h)/365) - t.param$amplD.h*cos(2*pi*t) } )
 r.model.h <- 0
 count.h <- 0
 r.max.h <- 0
-start <- max(2,nrow(TS.h) - 365*5 + 1) # integrate over last 5 years of time-series
+start <- max(366, nrow(TS.h) - 365*5 + 1) # integrate over last 5 years of time-series (or after 1 year if <5 years in data)
 end <- nrow(TS.h)
 for(i in start:end) {
   if(TS.h$A[i] > 0 && TS.h$A[i-1] > 0 && (overw == FALSE || T(i) >= param$Tmin + 0*abs(t.param$amplD.h))) {
@@ -238,16 +243,17 @@ for(i in start:end) {
 
 ################################### MODEL: FUTURE CLIMATE ####################################
 # Read in climate data and temperature response parameters for selected insect
-ifelse(daily == TRUE, TS.f <- as.data.frame(read_csv(paste0("Time series data/Future time series ",species," ",location,".csv"))),
+if(all == FALSE) {
+  ifelse(daily == TRUE, TS.f <- as.data.frame(read_csv(paste0("Time series data/Future time series ",species," ",location,".csv"))),
        ifelse(DI == FALSE, TS.f <- as.data.frame(read_csv(paste0("Time series data Tave/Future time series ",species," ",location,".csv"))),
               TS.f <- as.data.frame(read_csv(paste0("Time series data DI Tave/Future time series ",species," ",location,".csv")))))
+}
 
-# Select datasets if running the analysis for all species
-if(all == TRUE) {  
-  # Select species
-  ifelse(daily == TRUE, TS.h <- as.data.frame(read_csv(paste0("Time series data/Future time series ",param[1],".csv"))),
-         ifelse(DI == FALSE, TS.h <- as.data.frame(read_csv(paste0("Time series data Tave/Future time series ",param[1],".csv"))),
-                TS.h <- as.data.frame(read_csv(paste0("Time series data DI Tave/Future time series ",param[1],".csv")))))
+# Select species if running the analysis for all species
+if(all == TRUE) {
+  ifelse(daily == TRUE, TS.f <- as.data.frame(read_csv(paste0("Time series data/Future time series ",param[1],".csv"))),
+         ifelse(DI == FALSE, TS.f <- as.data.frame(read_csv(paste0("Time series data Tave/Future time series ",param[1],".csv"))),
+                TS.f <- as.data.frame(read_csv(paste0("Time series data DI Tave/Future time series ",param[1],".csv")))))
 }
 
 # Remove rows with NA or negative values
@@ -283,11 +289,13 @@ TS.f$S <- pmax(TS.f$S, 0)
 
 
 # Integrate across ln(t/(t-1))
-T <- function(t) { (t.param$meanT.f + t.param$delta_mean.f*t) - (t.param$amplT.f + t.param$delta_ampl.f*t)*cos(2*pi*(t + t.param$shiftT.f)/365) - t.param$amplD.f*cos(2*pi*t) }
+init_year = 65 # how many years into climate change to start model (see python DDE model)
+ifelse(DI == FALSE, T <- function(t) { (t.param$meanT.f + t.param$delta_mean.f*t) - (t.param$amplT.f + t.param$delta_ampl.f*t)*cos(2*pi*(t + t.param$shiftT.f)/365) - t.param$amplD.f*cos(2*pi*t) },
+       T <- function(t) { (t.param$meanT.f + t.param$delta_mean.f*(t+init_year*365)) - (t.param$amplT.f + t.param$delta_ampl.f*(t+init_year*365))*cos(2*pi*(t + t.param$shiftT.f)/365) - t.param$amplD.f*cos(2*pi*t) } )
 r.model.f <- 0
 count.f <- 0
 r.max.f <- 0
-start <- max(2,nrow(TS.f) - 365*5 + 1) # integrate over last 5 years of time-series
+start <- max(366, nrow(TS.f) - 365*5 + 1) # integrate over last 5 years of time-series (or after 1 year if <5 years in data)
 end <- nrow(TS.f)
 for(i in start:end) {
   if(TS.f$A[i] > 0 && TS.f$A[i-1] > 0 && (overw == FALSE || T(i) >= param$Tmin + 0*abs(t.param$amplD.f))) {

@@ -26,7 +26,7 @@ if cwd != '/Users/johnson/Documents/Christopher/GitHub/Johnson_Insect_Responses'
 
 
 # USER: Save data to CSV file?
-save_data = True
+save_data = False
 
 # USER: Use minimum temperature threshold?
 minT = True
@@ -36,20 +36,20 @@ daily = False
 
 
 # INPUT TEMPERATURE RESPONSE PARAMETERS AND TEMPERATURE PARAMETERS
-S_data = read_csv("Temperature response parameters.csv")
+Sdata = read_csv("Temperature response parameters.csv")
 if daily == True:
-    T_data = read_csv("Temperature parameters.csv")
+    Tdata = read_csv("Temperature parameters.csv")
 else:
-    T_data = read_csv("Temperature parameters Tave.csv")
+    Tdata = read_csv("Temperature parameters Tave.csv")
 
 
 # REPEAT CODE FOR ALL SPECIES
-species = 15
+species = 0
 while(True):
     
     # SELECT SPECIES
-    spData = S_data.iloc[species]
-    temp_data = T_data.iloc[species]
+    spData = Sdata.iloc[species]
+    tempData = Tdata.iloc[species]
         
     
     # DEFINE MODEL PARAMETERS
@@ -57,7 +57,7 @@ while(True):
     yr = 365 # days in year
     start_date = 0 # day on which to start model
     init_years = 0 # how many years into climate change to start model
-    max_years = init_years + 125 # how long to run simulations
+    max_years = init_years + 175 # how long to run simulations
     tstep = 1 # time step = 1 day
     
     # Initial abundances
@@ -65,12 +65,12 @@ while(True):
     initA = 100.
     
     # Temperature parameters
-    meanT = temp_data["meanT.h"]
-    amplT = temp_data["amplT.h"] 
-    shiftT = temp_data["shiftT.h"]
-    delta_mean = temp_data["delta_mean.h"]
-    delta_ampl = temp_data["delta_ampl.h"]
-    amplD = temp_data["amplD.h"]
+    meanT = tempData["meanT.h"]
+    amplT = tempData["amplT.h"] 
+    shiftT = tempData["shiftT.h"]
+    delta_mean = tempData["delta_mean.h"]
+    delta_ampl = tempData["delta_ampl.h"]
+    amplD = tempData["amplD.h"]
     
     # Increase mean temperature by 0.1 until extinct
     delta_mean = 0.1/yr
@@ -192,24 +192,27 @@ while(True):
         else:
             filename = 'Time series data Ext/Time series ' + spData["Species"] + '.csv'
             savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
+    
+    
+    # PLOT
+    fig,ax = subplots()
+    ax.plot(data[:,0], data[:,1], label='J')
+    ax.plot(data[:,0], data[:,2], label='A')
+    #ax.plot(data[:,0], data[:,3], label='S')
+    #ax.plot(data[:,0], data[:,4], label='τ')
+    ax.legend(loc='best')
+    xlabel("time (days)")
+    ylabel("population density")
+    yscale("linear")
+    xlim((max_years-max_years)*yr,(max_years-0)*yr)
+    ylim(0,200)
+
 
 
     # END LOOP WHEN MODEL IS RUN FOR ALL SPECIES
     species = species + 1
-    if species > S_data.shape[0] - 1:
+    if species > Sdata.shape[0] - 1:
         break
 
 
-# PLOT
-fig,ax = subplots()
-ax.plot(data[:,0], data[:,1], label='J')
-ax.plot(data[:,0], data[:,2], label='A')
-#ax.plot(data[:,0], data[:,3], label='S')
-#ax.plot(data[:,0], data[:,4], label='τ')
-ax.legend(loc='best')
-xlabel("time (days)")
-ylabel("population density")
-yscale("linear")
-xlim((max_years-max_years)*yr,(max_years-0)*yr)
-ylim(0,200)
 

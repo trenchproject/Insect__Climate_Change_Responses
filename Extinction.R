@@ -1,6 +1,6 @@
-##################################################################################
-#### This R script calculates a species' intrinsic per capita growth rate (r) ####
-##################################################################################
+###################################################################################
+#### This R script calculates a species' temperature sensitivity to extinction ####
+###################################################################################
 
 # Load packages and set working directory
 library(tidyr)
@@ -18,6 +18,9 @@ overw <- TRUE
 # USER: include diurnal variation?
 daily <- FALSE
 
+# USER: run TPC analysis?
+TPC <- FALSE
+
 
 # Read in temperature response and temperature parameters, and temperature response data
 param.all <- as.data.frame(read_csv("Temperature response parameters.csv"))
@@ -29,13 +32,17 @@ results <- data.frame(param.all[,1], 1:nrow(param.all), 1:nrow(param.all))
 names(results) <- c("Species","TPC","Model")
 
 
-############################################ TPC ############################################
-for(s in 1:nrow(param.all)) {
+# RUN ANALYSIS FOR ALL SPECIES
+#for(s in 1:nrow(param.all)) {
+for(s in 1:1) {
 
 # Select species
 param <- param.all[s,]
 t.param <- t.param.all[s,]
 
+
+############################################ TPC ############################################
+if(TPC == TRUE){
 # Increase temperature mean and/or amplitude
 delta.mean <- 0
 delta.ampl <- 0
@@ -79,7 +86,17 @@ if(r.TPC <= 0){
 
 # Increase temperature mean and/or amplitude
 delta.mean <- delta.mean + 0.1
-}
+}}
+
+
+########################################### MODEL ############################################
+TS <- as.data.frame(read_csv(paste0("Time series data Ext/Time series ",param[1],".csv")))
+
+# Time of extinction
+ext.time <- TS[(TS$J == 0 & TS$A == 0), "Time"][1]
+print(ext.time)
+
+
 }
 
 
