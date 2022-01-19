@@ -90,14 +90,14 @@ if(overw == FALSE) {
 if(overw == TRUE) {
   # r during active season
   r.h <- function(t) {
-    ifelse(T.h(t) <= param$Tmin + 0*abs(t.param$amplD.h), 0,
+    ifelse(T.h(t) < param$Tmin + 0*abs(t.param$amplD.h), 0,
            ifelse(T.h(t) <= param$rTopt, param$rMax*exp(-1*((T.h(t)-param$rTopt)/(2*param$rs))^2),
                   param$rMax*(1 - ((T.h(t)-param$rTopt)/(param$rTopt-param$rTmax))^2))) # from Deutsch et al. 2008
   }
   # integrate across active season
-  season <- end # season length
+  season <- end - start # season length
   ifelse(daily == TRUE, length <- 0.5, length <- 1)
-  for(t in seq(0,end,length)) { if(T.h(t) <= param$Tmin + 0*abs(t.param$amplD.h)) {season <- season - length }} # number of days when T(t) > Tmin
+  for(t in seq(start,end,length)) { if(T.h(t) <= param$Tmin + 0*abs(t.param$amplD.h)) {season <- season - length }} # number of days when T(t) > Tmin
   (r.TPC.h <- cubintegrate(r.h, lower = start, upper = end, method = "hcubature")$integral/season)
 }
 
@@ -122,7 +122,7 @@ if(daily == FALSE) {
 
 # Integrate across r(T(t))
 T.f <- function(t) { (t.param$meanT.f+t.param$delta_mean.f*t) - (t.param$amplT.f+t.param$delta_ampl.f*t)*cos(2*pi*(t + t.param$shiftT.f)/365) - t.param$amplD.f*cos(2*pi*t) }
-start <- 365*70 # start 2090
+start <- 365*70 # start 2095
 end <- 365*75 # end 2100
 
 if(overw == FALSE) {
@@ -135,7 +135,7 @@ if(overw == FALSE) {
 if(overw == TRUE) {
   # r during active season
   r.f <- function(t) {
-    ifelse(T.f(t) <= param$Tmin  + 0*abs(t.param$amplD.f), 0,
+    ifelse(T.f(t) < param$Tmin  + 0*abs(t.param$amplD.f), 0,
            ifelse(T.f(t) <= param$rTopt, param$rMax*exp(-1*((T.f(t)-param$rTopt)/(2*param$rs))^2),
                   param$rMax*(1 - ((T.f(t)-param$rTopt)/(param$rTopt-param$rTmax))^2))) # from Deutsch et al. 2008
   }
@@ -278,7 +278,7 @@ TS.f$S <- pmax(TS.f$S, 0)
 # start <- nrow(TS.f) - 365*5 + 1 # integrate over last 5 years of time-series
 # end <- nrow(TS.f)
 # count <- end - start
-# for(i in start:end) { r.model.f <- r.model.f + TS.f$r[i] #- dA(i)
+# for(i in start:end) { r.model.f <- r.model.f + TS.f$r[i]
 #   if(T(i) < param$Tmin + 0*abs(t.param$amplD.f)) { count <- count - 1 } # number of days when T(t) > Tmin
 # }
 # (r.model.f <- r.model.f/count)
