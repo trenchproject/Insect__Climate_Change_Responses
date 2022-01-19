@@ -356,7 +356,7 @@ Xmin <- -0.5
 Xmax <- 0.1
 Ymin <- -1
 Ymax <- 0.2
-plot(results$delta.TPC, results$delta.model, pch=21, col="black", bg="black", xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="Prop. change (TPC)", ylab="Prop. change (model)")
+plot(results$delta.TPC, results$delta.model, pch=19, col="black", xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="Prop. change (TPC)", ylab="Prop. change (model)")
 #points(seq(Xmin,Xmax,0.1), coef(model)[2]*seq(Xmin,Xmax,0.1)+coef(model)[1], type="l", col="black")
 points(seq(Xmin,Xmax,0.1), coef(model)[1]*seq(Xmin,Xmax,0.1), type="l", col="black")
 abline(0, 1, col="gray")
