@@ -26,7 +26,7 @@ if cwd != '/Users/johnson/Documents/Christopher/GitHub/Johnson_Insect_Responses'
 
 
 # USER: Save data to CSV file?
-save_data = False
+save_data = True
 
 # USER: Use minimum temperature threshold?
 minT = True
@@ -57,7 +57,7 @@ while(True):
     yr = 365 # days in year
     start_date = 0 # day on which to start model
     init_years = 0 # how many years into climate change to start model
-    max_years = init_years + 175 # how long to run simulations
+    max_years = init_years + 275 # how long to run simulations
     tstep = 1 # time step = 1 day
     
     # Initial abundances

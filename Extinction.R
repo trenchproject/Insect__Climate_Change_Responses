@@ -19,7 +19,7 @@ overw <- TRUE
 daily <- FALSE
 
 # USER: run TPC analysis?
-TPC <- FALSE
+TPC <- TRUE
 
 
 # Read in temperature response and temperature parameters, and temperature response data
@@ -33,8 +33,7 @@ names(results) <- c("Species","TPC","Model")
 
 
 # RUN ANALYSIS FOR ALL SPECIES
-#for(s in 1:nrow(param.all)) {
-for(s in 1:1) {
+for(s in 1:nrow(param.all)) {
 
 # Select species
 param <- param.all[s,]
@@ -43,11 +42,11 @@ t.param <- t.param.all[s,]
 
 ############################################ TPC ############################################
 if(TPC == TRUE){
-# Increase temperature mean and/or amplitude
+# Increase in mean temperature mean and amplitude of temperature fluctuations
 delta.mean <- 0
 delta.ampl <- 0
 
-# Repeat integration of TPC as mean and/or amplitude increase until r < 0
+# Repeat integration of TPC as mean temperature increase until r < 0
 repeat{
 
 # Integrate across r(T(t))
@@ -84,7 +83,7 @@ if(r.TPC <= 0){
   break
 }
 
-# Increase temperature mean and/or amplitude
+# Increase in mean temperature
 delta.mean <- delta.mean + 0.1
 }}
 
@@ -94,9 +93,32 @@ TS <- as.data.frame(read_csv(paste0("Time series data Ext/Time series ",param[1]
 
 # Time of extinction
 ext.time <- TS[(TS$J == 0 & TS$A == 0), "Time"][1]
-print(ext.time)
+#print(ext.time)
 
+# Calculate change in mean temperature at time of extinction
+results[s,3] <- 0.1/365*ext.time
 
 }
+
+
+# PRINT RESULTS
+results
+
+
+# STATISTICS
+#model <- lm(Model ~ TPC, data=results)
+model <- lm(Model ~ 0 + TPC, data=results)
+summary(model) # non-significant
+
+
+# PLOT
+Xmin <- 0
+Xmax <- 25
+Ymin <- 0
+Ymax <- 25
+plot(results$TPC, results$Model, pch=21, col="black", bg="black", xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="TPC", ylab="Model")
+#points(seq(Xmin,Xmax,0.1), coef(model)[2]*seq(Xmin,Xmax,0.1)+coef(model)[1], type="l", col="black")
+points(seq(Xmin,Xmax,0.1), coef(model)[1]*seq(Xmin,Xmax,0.1), type="l", col="black")
+abline(0, 1, col="gray")
 
 

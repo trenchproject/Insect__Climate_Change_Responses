@@ -1,12 +1,12 @@
 ﻿Species,Latitude,Habitat,subfamily,bTopt,Toptb,sb,mTR,TR,AmJ,skew,AL,TL,AH,TH,Tmin,dJTR,AdJ,dATR,AdA,qTopt,rMax,rTopt,rTmax,rs,Notes
 Clavigralla shadabi Benin,6.45,Tropical,Heteroptera,8.88,300.5,3.69,0.033,298,7185,1,-32190,286.5,277540,305.9,286.3,0.004,35450,0.027,9468,0.2,0.134,301.7,306.8,3.23,
 Clavigralla tomentosicollis Benin,6.45,Tropical,Heteroptera,6.69,303.8,5.5,0.042,298,7600,1,-66162,288.3,235541,309.6,287.2,0.024,5825,0.055,5951,0.2,0.154,304.2,313.2,4.05,
-Clavigralla tomentosicollis Nigeria,7.45,Tropical,Heteroptera,4.81,302.6,4.16,0.057,298,7801,1,-100000,293,500000,309,288.6,0.016,10840,0.018,3916,0.25,0.088,303,324.5,3.37,"TL and TH set to data itself, AL and AH set to arbitrary high values"
+Clavigralla tomentosicollis Nigeria,7.45,Tropical,Heteroptera,4.81,302.6,4.16,0.057,298,7801,1,-100000,293,500000,309,288.6,0.016,10840,0.018,3916,0.2,0.088,303,324.5,3.37,"TL and TH set to data itself, AL and AH set to arbitrary high values"
 Clavigralla tomentosicollis Burkina Faso,12.38,Tropical,Heteroptera,4.81,302.6,4.16,0.04,298,8821,1,-64796,295.3,335573,312,293.5,0.028,15000,0.018,3916,0.2,0.088,303,324.5,3.37,Used dJTR from data; r calculated using Topt from temperature response data
-Apolygus lucorum China Dafeng,33.33,Temperate,Heteroptera,2.72,298.8,8.1,0.037,293,2857,1,-40519,285.3,215829,309,283.1,0.02,12310,0.025,3876,0.25,0.165,306.4,308.5,9.06,Tmin = 10 (temperature reported with zero development)
-Adelphocoris suturalis China Dafeng,33.33,Temperate,Heteroptera,2.83,301,8.91,0.027,293,6754,1,-62876,285.2,30065,308.1,281.1,0.016,10350,0.028,5165,0.25,0.083,300.8,315.6,5.82,
-Apolygus lucorum China Langfang,39.88,Temperate,Heteroptera,2.72,298.8,8.1,0.037,293,2857,1,-40519,285.3,215829,309,283.1,0.02,12310,0.025,3876,0.25,0.165,306.4,308.5,9.06,Tmin = 10 (temperature reported with zero development)
-Adelphocoris suturalis China Xinxiang,35.53,Temperate,Heteroptera,2.83,301,8.91,0.027,293,6754,1,-62876,285.2,30065,308.1,281.1,0.016,10350,0.028,5165,0.25,0.083,300.8,315.6,5.82,
+Apolygus lucorum China Dafeng,33.33,Temperate,Heteroptera,2.72,298.8,8.1,0.037,293,2857,1,-40519,285.3,215829,309,283.1,0.02,12310,0.025,3876,0.2,0.165,306.4,308.5,9.06,Tmin = 10 (temperature reported with zero development)
+Adelphocoris suturalis China Dafeng,33.33,Temperate,Heteroptera,2.83,301,8.91,0.027,293,6754,1,-62876,285.2,30065,308.1,281.1,0.016,10350,0.028,5165,0.2,0.083,300.8,315.6,5.82,
+Apolygus lucorum China Langfang,39.88,Temperate,Heteroptera,2.72,298.8,8.1,0.037,293,2857,1,-40519,285.3,215829,309,283.1,0.02,12310,0.025,3876,0.2,0.165,306.4,308.5,9.06,Tmin = 10 (temperature reported with zero development)
+Adelphocoris suturalis China Xinxiang,35.53,Temperate,Heteroptera,2.83,301,8.91,0.027,293,6754,1,-62876,285.2,30065,308.1,281.1,0.016,10350,0.028,5165,0.2,0.083,300.8,315.6,5.82,
 Macrosiphum euphorbiae Brazil,21.23,Tropical,Sternorrhyncha,4.34,292.3,4.65,0.445,293,3262,1,-63454,285.5,36530,299.8,284,0.087,2052,0.064,5975,0.2,0.246,294.3,305,4.95,Tmin calculated manually
 Aulacorthum solani Brazil,21.23,Tropical,Sternorrhyncha,4.08,292.1,5.03,0.478,293,7096,1,-66946,285.2,42437,298.5,280.8,0.072,18870,0.053,22803,0.2,0.257,294.2,302.1,4.23,Used dATR from data
 Uroleucon ambrosiae Brazil,21.23,Tropical,Sternorrhyncha,4.94,294.3,4.92,0.478,293,5162,1,-57240,285.4,35138,298.1,286.3,0.061,12080,0.062,14140,0.2,0.249,295,302.1,4.89,Tmin calculated manually
