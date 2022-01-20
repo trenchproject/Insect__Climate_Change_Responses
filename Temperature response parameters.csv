@@ -1,4 +1,4 @@
-﻿Species,Latitude,Habitat,subfamily,bTopt,Toptb,sb,mTR,TR,AmJ,skew,AL,TL,AH,TH,Tmin,dJTR,AdJ,dATR,AdA,qTopt,rMax,rTopt,rTmax,rs,Notes
+﻿Species,Latitude,Habitat,Subfamily,bTopt,Toptb,sb,mTR,TR,AmJ,skew,AL,TL,AH,TH,Tmin,dJTR,AdJ,dATR,AdA,qTopt,rMax,rTopt,rTmax,rs,Notes
 Clavigralla shadabi Benin,6.45,Tropical,Heteroptera,8.88,300.5,3.69,0.033,298,7185,1,-32190,286.5,277540,305.9,286.3,0.004,35450,0.027,9468,0.2,0.134,301.7,306.8,3.23,
 Clavigralla tomentosicollis Benin,6.45,Tropical,Heteroptera,6.69,303.8,5.5,0.042,298,7600,1,-66162,288.3,235541,309.6,287.2,0.024,5825,0.055,5951,0.2,0.154,304.2,313.2,4.05,
 Clavigralla tomentosicollis Nigeria,7.45,Tropical,Heteroptera,4.81,302.6,4.16,0.057,298,7801,1,-100000,293,500000,309,288.6,0.016,10840,0.018,3916,0.2,0.088,303,324.5,3.37,"TL and TH set to data itself, AL and AH set to arbitrary high values"
@@ -23,6 +23,6 @@ Myzus persicae Canada,42.81,Temperate,Sternorrhyncha,4016,289.1,2.53,0.1,293,502
 Hyperomyzus lactucae Australia Acton,35.27,Subtropical,Sternorrhyncha,2.59,293,3.81,0.117,293,5844,1,-33123,280.2,107322,298.9,277.9,0.005,3567,0.038,6866,0.2,0.332,297,300.7,7.11,Used dJTR from data; r calculated using Topt from temperature responses
 Aphis gossypii China Henan,36.07,Temperate,Sternorrhyncha,2.5,298.5,6.6,0.106,293,6092,1,-43779,280.7,29702,307.9,279.7,0.05,6577,0.062,7313,0.2,0.397,300.4,309.1,5.83,
 Aulacorthum solani US Ithaca,42.42,Temperate,Sternorrhyncha,1.63,292.1,6.7,0.111,293,5078,1,-47322,280.5,90315,303.1,275.3,0.007,26765,0.021,12400,0.2,0.464,296.2,303.8,5.67,Used dJTR from data
-Brevicoryne brassicae US Columbia,38.93,Temperate,Sternorrhyncha,0.94,289.2,4.91,0.069,293,6787,1,-51548,280,82660,303.4,277.3,0.04,13110,0.055,-3565,0.2,0.139,295.4,300.2,5.57,AL at TL = 285; dA declines with T
-Myzus persicae US Columbia,38.93,Temperate,Sternorrhyncha,3.41,290.7,5.93,0.097,293,6229,1,-43706,278.1,80886,303.2,275.9,0.019,17350,0.069,-4666,0.2,0.299,296.5,302,5.54,dA fit excluding data at T = 278; dA declines with T
-Hyadaphis pseudobrassicae US Columbia,38.93,Temperate,Sternorrhyncha,6.27,292.8,4.82,0.099,293,7318,1,-36505,277.4,90844,303.2,277.1,0.038,5817,0.092,-1634,0.2,0.357,296,307.9,4.47,dA fit excluding data at T = 278; dA declines with T
+Brevicoryne brassicae US Columbia,38.93,Temperate,Sternorrhyncha,0.94,289.2,4.93,0.069,293,6787,1,-5553933,280,82660,303.4,277.3,0.04,13110,0.065,-1487,0.2,0.139,295.4,300.2,5.57,dA declines with T
+Myzus persicae US Columbia,38.93,Temperate,Sternorrhyncha,3.34,291,6.29,0.097,293,6229,1,-41946,278.1,30315,302.4,275.9,0.019,17350,0.081,608,0.2,0.299,296.5,302,5.54,
+Hyadaphis pseudobrassicae US Columbia,38.93,Temperate,Sternorrhyncha,6.18,292.9,5.01,0.099,293,7318,1,-36505,277.4,90844,303.2,277.1,0.038,5817,0.1,2867,0.2,0.357,296,307.9,4.47,

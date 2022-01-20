@@ -1,4 +1,4 @@
-﻿Species,Latitude,Habitat,subfamily,meanT.h,amplT.h,shiftT.h,delta_mean.h,delta_ampl.h,amplD.h,meanT.f,amplT.f,shiftT.f,delta_mean.f,delta_ampl.f,amplD.f,Tstart,Notes
+﻿Species,Latitude,Habitat,Subfamily,meanT.h,amplT.h,shiftT.h,delta_mean.h,delta_ampl.h,amplD.h,meanT.f,amplT.f,shiftT.f,delta_mean.f,delta_ampl.f,amplD.f,Tstart,Notes
 Clavigralla shadabi Benin,6.45,Tropical,Heteroptera,300.6,1.4,120.6,0,0,0,301.5,1,117.2,0.000124,0,0,,
 Clavigralla tomentosicollis Benin,6.45,Tropical,Heteroptera,300.6,1.4,120.6,0,0,0,301.5,1,117.2,0.000124,0,0,,
 Clavigralla tomentosicollis Nigeria,7.45,Tropical,Heteroptera,301,1.7,126.6,0,0,0,301.3,1.2,109.7,0.000151,0,0,,

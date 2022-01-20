@@ -26,10 +26,10 @@ if cwd != '/Users/johnson/Documents/Christopher/GitHub/Johnson_Insect_Responses'
 
 
 # USER: Enter species, location, and time period
-species = "Macrosiphum euphorbiae"
-location = "Canada"
+species = "Hyadaphis pseudobrassicae"
+location = "US Columbia"
 period = "Historical"
-period = "Future"
+#period = "Future"
 
 # USER: Save data to CSV file?
 save_data = False

@@ -13,9 +13,9 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 
 # USER: enter species and location or set All to true to run analysis for all species
-species <- "Macrosiphum euphorbiae"
-location <- "Canada"
-all <- FALSE
+species <- "Brevicoryne brassicae"
+location <- "US Columbia"
+all <- TRUE
 
 # USER: include overwintering? (i.e., do not integrate over temperatures below Tmin)
 overw <- TRUE

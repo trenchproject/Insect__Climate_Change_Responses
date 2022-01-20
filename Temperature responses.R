@@ -14,7 +14,7 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 data <- as.data.frame(read_csv("Temperature response data.csv"))
 
 # USER: enter species name (used in temperature response data.csv)
-name <- "Aulacorthum solani Brazil"
+name <- "Hyadaphis pseudobrassicae"
 
 # Assign species
 sp.data <- data[data$Species == name,]
@@ -43,7 +43,7 @@ points(seq(Tmin,Tmax,1),coef(fec)[1]*exp(-((seq(Tmin,Tmax,1)-coef(fec)[2])^2)/(2
 ###################################### DEVELOPMENT ##########################################
 # estimate xTR and A
 # NOTE: removed data beyond max development
-dev.mon <- nls(Development ~ xTR*T_K/TR*exp(A*(1/TR-1/T_K)), data=sp.data[-c((nrow(sp.data)-0):nrow(sp.data)),],
+dev.mon <- nls(Development ~ xTR*T_K/TR*exp(A*(1/TR-1/T_K)), data=sp.data[-c((nrow(sp.data)-1):nrow(sp.data)),],
                start=list(xTR=0.1, A=1000))
 summary(dev.mon)
 # Plot model fits
@@ -53,8 +53,8 @@ points(seq(Tmin,Tmax,1), coef(dev.mon)[1]*(seq(Tmin,Tmax,1)/TR)*exp(coef(dev.mon
 # estimate AL and AH separately from TL and TH if needed
 xTR <- coef(dev.mon)[1]
 A <- coef(dev.mon)[2]
-kTL <- 278
-kTH <- 300
+kTL <- 283
+kTH <- 303
 dev.A <- nls(Development ~ xTR*(T_K/TR)*exp(A*(1/TR-1/T_K))/(1+exp(AL*(1/kTL-1/T_K))+exp(AH*(1/kTH-1/T_K))),
               data=sp.data, start=list(AL=-50000, AH=100000))
 summary(dev.A)
@@ -65,11 +65,8 @@ dev.T <- nls(Development ~ xTR*(T_K/TR)*exp(A*(1/TR-1/T_K))/(1+exp(AL*(1/TL-1/T_
 summary(dev.T)
 # Plot model fits
 plot(sp.data$T_K, sp.data$Development, xlim=c(Tmin,Tmax), ylim=c(0,max(sp.data$Development)+0.05))
-#points(seq(Tmin,Tmax,1), xTR*(seq(Tmin,Tmax,1)/TR)*exp(A*(1/TR-1/seq(Tmin,Tmax,1)))/
-#         (1+(exp(AL*(1/coef(dev.T)[1]-1/seq(Tmin,Tmax,1)))+exp(AH*(1/coef(dev.T)[2]-1/seq(Tmin,Tmax,1))))), type="l", col="blue")
-points(seq(Tmin,Tmax,1), 0.108*(seq(Tmin,Tmax,1)/308)*exp(8821*(1/308-1/seq(Tmin,Tmax,1)))/
-         (1+(exp(-64796*(1/295.3-1/seq(Tmin,Tmax,1)))+exp(335573*(1/312-1/seq(Tmin,Tmax,1))))), type="l", col="red")
-points(seq(Tmin,Tmax,1),0.25*exp(-((seq(Tmin,Tmax,1)-coef(fec)[2])^2)/(2*coef(fec)[3]^2)), type="l", col="green")
+points(seq(Tmin,Tmax,1), xTR*(seq(Tmin,Tmax,1)/TR)*exp(A*(1/TR-1/seq(Tmin,Tmax,1)))/
+         (1+(exp(AL*(1/coef(dev.T)[1]-1/seq(Tmin,Tmax,1)))+exp(AH*(1/coef(dev.T)[2]-1/seq(Tmin,Tmax,1))))), type="l", col="blue")
 
 
 # estimate all parameters without TL and AL
@@ -107,7 +104,7 @@ points(seq(Tmin,Tmax,1), xTR*(seq(Tmin,Tmax,1)/TR)*exp(A*(1/TR-1/seq(Tmin,Tmax,1
 
 # Minimum developmental temperature
 # NOTE: removed data beyond max development
-dev.min <- nls(Development ~ m*T_K+b, data=sp.data[-c((nrow(sp.data)-0):nrow(sp.data)),],
+dev.min <- nls(Development ~ m*T_K+b, data=sp.data[-c((nrow(sp.data)-1):nrow(sp.data)),],
                start=list(m=0.01, b=0))
 summary(dev.min)
 # Plot model fits
@@ -120,7 +117,7 @@ Tmin
 
 
 
-#################################### MORTALITY ######################################
+######################################## MORTALITY ##########################################
 # NLS for juvenile mortality
 mort.J <- nls(Juv_Mortality ~ xTR*exp(A*(1/TR-1/T_K)), data=sp.data,
               start=list(xTR=0.01, A=10000))
@@ -140,14 +137,14 @@ points(seq(Tmin,Tmax,1), coef(mort.A)[1]*exp(coef(mort.A)[2]*(1/TR-1/seq(Tmin,Tm
 
 
 
-############################# r (INTRINSIC GROWTH RATE) #############################
+################################## r (INTRINSIC GROWTH RATE) ################################
 # estimate all parameters
 r <- nls(r ~ ifelse(T_K <= Topt, rMax*exp(-1*((T_K-Topt)/(2*sr))^2),
                     rMax*(1 - ((T_K-Topt)/(Topt-Tmax))^2)),
                     data=sp.data, start=list(sr=5, Topt=295, Tmax=300, rMax=0.3))
 summary(r)
 # Plot model fits
-plot(sp.data$T_K, sp.data$r, xlim = c(Tmin,Tmax+5), ylim = c(0,0.5)) #max(sp.data$r)+0.05))
+plot(sp.data$T_K, sp.data$r, xlim = c(Tmin,Tmax+5), ylim = c(-0.2,0.4)) #max(sp.data$r)+0.05))
 points(seq(Tmin,Tmax+5,1), ifelse(seq(Tmin,Tmax+5,1) <= coef(r)[2], coef(r)[4]*exp(-1*((seq(Tmin,Tmax+5,1)-coef(r)[2])/(2*coef(r)[1]))^2),
                                 coef(r)[4]*(1 - ((seq(Tmin,Tmax+5,1)-coef(r)[2])/(coef(r)[2]-coef(r)[3]))^2)), type="l", col="blue")
 
