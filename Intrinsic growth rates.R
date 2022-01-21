@@ -27,6 +27,7 @@ daily <- FALSE
 res <- FALSE
 
 # USER: use density-independent DDE model?
+#   (use DI model if r = ln(A[t]/A[t-1]), use DD model if r calculated via LambertW function)
 DI <- TRUE
 
 # Read in temperature response and temperature parameters, and temperature response data for selected insect

@@ -11,7 +11,7 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 
 # USER: enter location
-location <- "UK Sand Hutton"
+location <- "US Ithaca"
 
 # INPUT DATA
 # Select a location by removing # in front of name and placing # in front of other locations
@@ -85,14 +85,14 @@ ggplot(data.h, aes(x=day, y=T)) +
   geom_point(size=0.8, color="red") +
   #geom_line(size=0.8) +
   # function describing monthly temperature variation
-  geom_function(fun = function(t){coef(fit.h2)[1] - coef(fit.h2)[2]*cos(2*pi*(t + coef(fit.h2)[3])/365)},
+  geom_function(fun = function(t){coef(fit.h)[1] - coef(fit.h)[2]*cos(2*pi*(t + coef(fit.h)[3])/365)},
                 size=0.8, color="black") +
   #  daily maximum
-  geom_function(fun = function(t){coef(fit.h2)[1] - coef(fit.h2)[2]*cos(2*pi*(t + coef(fit.h2)[3])/365) + coef(fit.h2)[4]},
-                size=0.8, color="black", linetype="longdash") +
+  #geom_function(fun = function(t){coef(fit.h2)[1] - coef(fit.h2)[2]*cos(2*pi*(t + coef(fit.h2)[3])/365) + coef(fit.h2)[4]},
+  #              size=0.8, color="black", linetype="longdash") +
   #  daily minimum
-  geom_function(fun = function(t){coef(fit.h2)[1] - coef(fit.h2)[2]*cos(2*pi*(t + coef(fit.h2)[3])/365) - coef(fit.h2)[4]},
-                size=0.8, color="black", linetype="longdash") +
+  #geom_function(fun = function(t){coef(fit.h2)[1] - coef(fit.h2)[2]*cos(2*pi*(t + coef(fit.h2)[3])/365) - coef(fit.h2)[4]},
+  #              size=0.8, color="black", linetype="longdash") +
   # function describing monthly and diurnal temperature variation using diurnal.h
   #geom_function(fun = function(t){coef(fit.h2)[1] - coef(fit.h2)[2]*cos(2*pi*(t + coef(fit.h2)[3])/365) - coef(fit.h2)[4]*cos(2*pi*t)},
   #              size=0.8, color="black", linetype="longdash") +
@@ -155,14 +155,14 @@ ggplot(data.f, aes(x=day, y=T)) +
   geom_point(size=0.8, color="red") +
   #geom_line(size=0.8) +
   # function describing monthly temperature variation
-  geom_function(fun = function(t){(coef(fit.f2)[1]+coef(fit.f2)[5]*t) - (coef(fit.f2)[2]+coef(fit.f2)[6]*t)*cos(2*pi*(t + coef(fit.f2)[3])/365)},
+  geom_function(fun = function(t){(coef(fit.f)[1]+coef(fit.f)[4]*t) - (coef(fit.f)[2]+coef(fit.f)[5]*t)*cos(2*pi*(t + coef(fit.f)[3])/365)},
                 size=0.8, color="black") +
   #  daily maximum
-  geom_function(fun = function(t){(coef(fit.f2)[1]+coef(fit.f2)[5]*t) - (coef(fit.f2)[2]+coef(fit.f2)[6]*t)*cos(2*pi*(t + coef(fit.f2)[3])/365) + coef(fit.f2)[4]},
-                size=0.8, color="black", linetype="longdash") +
+  #geom_function(fun = function(t){(coef(fit.f2)[1]+coef(fit.f2)[5]*t) - (coef(fit.f2)[2]+coef(fit.f2)[6]*t)*cos(2*pi*(t + coef(fit.f2)[3])/365) + coef(fit.f2)[4]},
+  #              size=0.8, color="black", linetype="longdash") +
   #  daily minimum
-  geom_function(fun = function(t){(coef(fit.f2)[1]+coef(fit.f2)[5]*t) - (coef(fit.f2)[2]+coef(fit.f2)[6]*t)*cos(2*pi*(t + coef(fit.f2)[3])/365) - coef(fit.f2)[4]},
-                size=0.8, color="black", linetype="longdash") +
+  #geom_function(fun = function(t){(coef(fit.f2)[1]+coef(fit.f2)[5]*t) - (coef(fit.f2)[2]+coef(fit.f2)[6]*t)*cos(2*pi*(t + coef(fit.f2)[3])/365) - coef(fit.f2)[4]},
+  #              size=0.8, color="black", linetype="longdash") +
   # function describing monthly and diurnal temperature variation using diurnal.f
   #geom_function(fun = function(t){(coef(fit.f2)[1]+coef(fit.f2)[5]*t) - (coef(fit.f2)[2]+coef(fit.f2)[6]*t)*cos(2*pi*(t + coef(fit.f2)[3])/365) - coef(fit.f2)[4]*cos(2*pi*t)},
   #              size=0.8, color="black", linetype="longdash") +
@@ -184,20 +184,6 @@ ggplot(data.f, aes(x=day, y=T)) +
 # input temperature response parameters
 #TR.data <- as.data.frame(read_csv("Temperature response parameters.csv"))
 
-# Select an insect by removing # in front of name and placing # in front of other species
-#sp.data <- subset(TR.data, Species == "Clavigralla shadabi Benin")
-#sp.data <- subset(TR.data, Species == "Clavigralla tomentosicollis Benin")
-#sp.data <- subset(TR.data, Species == "Clavigralla tomentosicollis Burkina Faso")
-#sp.data <- subset(TR.data, Species == "Apolygus lucorum China Dafeng")
-#sp.data <- subset(TR.data, Species == "Adelphocoris suturalis China Dafeng")
-#sp.data <- subset(TR.data, Species == "Apolygus lucorum China Langfang")
-#sp.data <- subset(TR.data, Species == "Adelphocoris suturalis China Xinxiang")
-#sp.data <- subset(TR.data, Species == "Macrosiphum euphorbiae Brazil")
-#sp.data <- subset(TR.data, Species == "Aulacorthum solani Brazil")
-#sp.data <- subset(TR.data, Species == "Uroleucon ambrosiae Brazil")
-#sp.data <- subset(TR.data, Species == "Macrolophus pygmaeus on Myzus persicae Greece")
-#sp.data <- subset(TR.data, Species == "Macrolophus pygmaeus on Trialeurodes vaporariorum Greece")
-
 
 # Calculate active period in data (T > Tmin)
 # T.sum <- 0 # sum of temperatures during active period
@@ -211,7 +197,7 @@ ggplot(data.f, aes(x=day, y=T)) +
 # 
 # 
 # # Calculate active period in model (T(t) > Tmin)
-# yr <- 360 # days in a year (using 360 for simplicity)
+# yr <- 365
 # # temperature function
 # T <- function(t) (coef(fit.f)[1] - coef(fit.f)[2] * cos(2*pi*(t + coef(fit.f)[3])/yr))[[1]]
 # tStart <- 0 # start of active period

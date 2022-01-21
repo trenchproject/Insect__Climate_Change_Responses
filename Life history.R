@@ -16,8 +16,8 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 trait <- "Survival"
 
 # USER: enter species and location or set "all" to TRUE to run analysis for all species
-species <- "Clavigralla shadabi"
-location <- "Benin"
+species <- "Aulacorthum solani"
+location <- "US Ithaca"
 all <- TRUE
 
 # USER: include overwintering? (i.e., do not integrate over temperatures below Tmin)
@@ -26,28 +26,27 @@ overw <- TRUE
 # USER: include diurnal variation?
 daily <- FALSE
 
-# USER: use density-independent DDE model?
-DI <- TRUE
 
-# Read in temperature response and temperature parameters, and temperature response data for selected insect
-param <- subset(as.data.frame(read_csv("Temperature response parameters.csv")), Species == paste(species,location))
-# Read in temperature parameters
-ifelse(daily == TRUE, t.param <- subset(as.data.frame(read_csv("Temperature parameters.csv")), Species == paste(species,location)),
-       t.param <- subset(as.data.frame(read_csv("Temperature parameters Tave.csv")), Species == paste(species,location)))
+# READ PARAMETERS AND TEMPERATURE DATA
+param.all <- as.data.frame(read_csv("Temperature response parameters.csv"))
+ifelse(daily == TRUE, t.param.all <- as.data.frame(read_csv("Temperature parameters.csv")),
+       t.param.all <- as.data.frame(read_csv("Temperature parameters Tave.csv")))
+# Get parameters and data for selected species
+if(all == FALSE) {
+  param <- subset(as.data.frame(read_csv("Temperature response parameters.csv")), Species == paste(species,location))
+  ifelse(daily == TRUE, t.param <- subset(as.data.frame(read_csv("Temperature parameters.csv")), Species == paste(species,location)),
+         t.param <- subset(as.data.frame(read_csv("Temperature parameters Tave.csv")), Species == paste(species,location)))
+}
 
-# Select datasets if running the analysis for all species
+
+# CREATE ARRAY FOR RESULTS
 if(all == TRUE) {
-  # Read in temperature response and temperature parameters, and temperature response data
-  param.all <- as.data.frame(read_csv("Temperature response parameters.csv"))
-  # Read in temperature parameters
-  ifelse(daily == TRUE, t.param.all <- as.data.frame(read_csv("Temperature parameters.csv")),
-         t.param.all <- as.data.frame(read_csv("Temperature parameters Tave.csv")))
-  # Create array for results
   results <- data.frame(param.all[,1], param.all[,2], param.all[,3], param.all[,4], 1:nrow(param.all), 1:nrow(param.all), 1:nrow(param.all), 1:nrow(param.all), 1:nrow(param.all), 1:nrow(param.all), 1:nrow(param.all), 1:nrow(param.all))
   names(results) <- c("Species","Latitude","Habitat","Subfamily","TPC.h","TPC.f","Model.h","Model.f","max.h","max.f","delta.TPC","delta.model")
 }
 
-# Run analysis for each species
+
+# RUN ANALYSES FOR EACH SPECIES
 for(s in 1:nrow(param.all)) {
   
   # Select species
@@ -158,13 +157,14 @@ for(s in 1:nrow(param.all)) {
     Tmin <- round(min(temp.h$T,temp.f$T),0) - 3
     Tmax <- round(max(temp.h$T,temp.f$T),0) + 3
     ymin <- 0
-    ymax1 <- round(param$bTopt/param$dATR,1)
-    ymax2 <- 0.1
+    if(trait == "Fecundity") { ymax1 <- 2*round(param$bTopt/param$dATR,1) }
+    if(trait == "Survival") { ymax1 <- 1 }
+    ymax2 <- 0.2
     # TPC plots
-    # fecundity
-    plot(seq(Tmin,Tmax,1), param$bTopt*exp(-((seq(Tmin,Tmax,1)-param$Toptb)^2)/(2*param$sb^2)) / (param$dATR*exp(param$AdA*(1/param$TR-1/seq(Tmin,Tmax,1)))), type="l", lwd=4, col="black", xlim=c(Tmin,Tmax), ylim=c(ymin,ymax1), xlab="T", ylab="b(T)/dA(T)")
-    # survival
-    #plot(seq(Tmin,Tmax,1), exp(-param$dJTR*exp(AdJ*(1/TR-1/seq(Tmin,Tmax,1))) * mTR*(seq(Tmin,Tmax,1)/param$TR)*exp(param$AmJ*(1/param$TR-1/seq(Tmin,Tmax,1)))/(1+exp(param$AL*(1/param$TL-1/seq(Tmin,Tmax,1)))+exp(param$AH*(1/param$TH-1/seq(Tmin,Tmax,1))))), type="l", lwd=4, col="black", xlim=c(Tmin,Tmax), ylim=c(ymin,ymax1), xlab="T", ylab="s(T)")
+    #plot(seq(Tmin,Tmax,1), param$bTopt*exp(-((seq(Tmin,Tmax,1)-param$Toptb)^2)/(2*param$sb^2)) / (param$dATR*exp(param$AdA*(1/param$TR-1/seq(Tmin,Tmax,1)))),
+    #      type="l", lwd=4, col="black", xlim=c(Tmin,Tmax), ylim=c(ymin,ymax1), xlab="T", ylab="b(T)/dA(T)")
+    plot(seq(Tmin,Tmax,1), exp(-param$dJTR*exp(param$AdJ*(1/param$TR-1/seq(Tmin,Tmax,1))) / (param$mTR*(seq(Tmin,Tmax,1)/param$TR)*exp(param$AmJ*(1/param$TR-1/seq(Tmin,Tmax,1)))/(1+exp(param$AL*(1/param$TL-1/seq(Tmin,Tmax,1)))+exp(param$AH*(1/param$TH-1/seq(Tmin,Tmax,1)))))),
+          type="l", lwd=4, col="black", xlim=c(Tmin,Tmax), ylim=c(ymin,ymax1), xlab="T", ylab="s(T)")
     abline(v = t.param$meanT.h, col="blue", lwd=3, lty=1)
     abline(v = t.param$meanT.h + abs(t.param$amplT.h) + abs(t.param$amplD.h), col="blue", lwd=3, lty=2)
     abline(v = t.param$meanT.h - abs(t.param$amplT.h) - abs(t.param$amplD.h), col="blue", lwd=3, lty=2)
@@ -172,7 +172,7 @@ for(s in 1:nrow(param.all)) {
     abline(v = t.param$meanT.f + t.param$delta_mean.f*365*75 + abs(t.param$amplT.f) + t.param$delta_ampl.f*365*80 + t.param$amplD.f, col="red", lwd=3, lty=2)
     abline(v = t.param$meanT.f + t.param$delta_mean.f*365*75 - abs(t.param$amplT.f) - t.param$delta_ampl.f*365*80 - t.param$amplD.f, col="red", lwd=3, lty=2)
     if(overw == TRUE) { abline(v = param$Tmin, col="black", lwd=3, lty=2) }
-    # histograms of temperature
+    # Temperature histograms
     par(new = T)
     hist(temp.h$T, xlim=c(Tmin,Tmax), ylim=c(ymin,ymax2), axes=F, xlab=NA, ylab=NA, breaks=seq(from=Tmin, to=Tmax, by=1), col=rgb(0,0,255, max = 255, alpha = 80), border=rgb(0,0,255, max = 255, alpha = 80), freq=FALSE, main = NULL)
     hist(temp.f[temp.f$day>365*65,"T"], xlim=c(Tmin,Tmax), ylim=c(ymin,ymax2), breaks=seq(from=Tmin, to=Tmax, by=1), ylab="r", col=rgb(255,0,0, max = 255, alpha = 80), border=rgb(255,0,0, max = 255, alpha = 80), freq=FALSE, main = NULL, add=TRUE)
@@ -184,15 +184,13 @@ for(s in 1:nrow(param.all)) {
   # Read in climate data and temperature response parameters for selected insect
   if(all == FALSE) {
     ifelse(daily == TRUE, TS.h <- as.data.frame(read_csv(paste0("Time series data/Historical time series ",species," ",location,".csv"))),
-           ifelse(DI == FALSE, TS.h <- as.data.frame(read_csv(paste0("Time series data Tave/Historical time series ",species," ",location,".csv"))),
-                  TS.h <- as.data.frame(read_csv(paste0("Time series data DI Tave/Historical time series ",species," ",location,".csv")))))
+           TS.h <- as.data.frame(read_csv(paste0("Time series data Tave/Historical time series ",species," ",location,".csv"))))
   }
   
   # Select species if running the analysis for all species
   if(all == TRUE) {
     ifelse(daily == TRUE, TS.h <- as.data.frame(read_csv(paste0("Time series data/Historical time series ",param[1],".csv"))),
-           ifelse(DI == FALSE, TS.h <- as.data.frame(read_csv(paste0("Time series data Tave/Historical time series ",param[1],".csv"))),
-                  TS.h <- as.data.frame(read_csv(paste0("Time series data DI Tave/Historical time series ",param[1],".csv")))))
+           TS.h <- as.data.frame(read_csv(paste0("Time series data Tave/Historical time series ",param[1],".csv"))))
   }
   
   # Remove rows with NA
@@ -239,15 +237,13 @@ for(s in 1:nrow(param.all)) {
   # Read in climate data and temperature response parameters for selected insect
   if(all == FALSE) {
     ifelse(daily == TRUE, TS.f <- as.data.frame(read_csv(paste0("Time series data/Future time series ",species," ",location,".csv"))),
-           ifelse(DI == FALSE, TS.f <- as.data.frame(read_csv(paste0("Time series data Tave/Future time series ",species," ",location,".csv"))),
-                  TS.f <- as.data.frame(read_csv(paste0("Time series data DI Tave/Future time series ",species," ",location,".csv")))))
+           TS.f <- as.data.frame(read_csv(paste0("Time series data Tave/Future time series ",species," ",location,".csv"))))
   }
   
   # Select species if running the analysis for all species
   if(all == TRUE) {
     ifelse(daily == TRUE, TS.f <- as.data.frame(read_csv(paste0("Time series data/Future time series ",param[1],".csv"))),
-           ifelse(DI == FALSE, TS.f <- as.data.frame(read_csv(paste0("Time series data Tave/Future time series ",param[1],".csv"))),
-                  TS.f <- as.data.frame(read_csv(paste0("Time series data DI Tave/Future time series ",param[1],".csv")))))
+           TS.f <- as.data.frame(read_csv(paste0("Time series data Tave/Future time series ",param[1],".csv"))))
   }
   
   # Remove rows with NA or negative values
@@ -256,7 +252,7 @@ for(s in 1:nrow(param.all)) {
   TS.f$S <- pmax(TS.f$S, 0)
   
   # Calculate r at each time-step in model
-  init_years <- 65 # from Python DDE model
+  init_years <- 0 # from Python DDE model
   T.f <- function(t) { (t.param$meanT.f + t.param$delta_mean.f*(t+init_years*365)) - (t.param$amplT.f + t.param$delta_ampl.f*(t+init_years*365))*cos(2*pi*(t + t.param$shiftT.f)/365) - t.param$amplD.f*cos(2*pi*t) }
   b <- function(t) { param$bTopt*exp(-((T.f(t)-param$Toptb)^2)/(2*param$sb^2)) }
   mJ <- function(t) { param$mTR*(T.f(t)/param$TR)*exp(param$AmJ*(1/param$TR-1/T.f(t)))/(1+exp(param$AL*(1/param$TL-1/T.f(t)))+exp(param$AH*(1/param$TH-1/T.f(t)))) }
@@ -269,6 +265,9 @@ for(s in 1:nrow(param.all)) {
   s.model.f <- 0
   start.f <- max(366, nrow(TS.f) - 365*5 + 1) # integrate over last 5 years of time-series (or after 1 year if <5 years in data)
   end.f <- nrow(TS.f)
+  if(trait == "Survival" && nrow(TS.f[TS.f$S>0,]) < 75*365) {
+    end.f <- nrow(TS.f[TS.f$S>0,]) # if insect goes extinct, end = day of extinction
+    start.f <- max(366, end.f - 365*5 + 1) } 
   count <- 0
   for(i in start.f:end.f) {
     if(overw == FALSE) {

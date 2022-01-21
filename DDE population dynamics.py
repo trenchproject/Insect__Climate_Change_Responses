@@ -26,10 +26,10 @@ if cwd != '/Users/johnson/Documents/Christopher/GitHub/Johnson_Insect_Responses'
 
 
 # USER: Enter species, location, and time period
-species = "Hyadaphis pseudobrassicae"
-location = "US Columbia"
+species = "Myzus persicae"
+location = "Canada"
 period = "Historical"
-#period = "Future"
+period = "Future"
 
 # USER: Save data to CSV file?
 save_data = False
@@ -218,7 +218,7 @@ if save_data == True:
         filename = 'Time series data/' + period + ' time series ' + spData["Species"].values[0] + '.csv'
         savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
     if comp == True and daily == False:
-        filename = 'Time series data Ext/' + period + ' time series ' + spData["Species"].values[0] + '.csv'
+        filename = 'Time series data Tave/' + period + ' time series ' + spData["Species"].values[0] + '.csv'
         savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
     if comp == False and daily == True:
         filename = 'Time series data DI/' + period + ' time series ' + spData["Species"].values[0] + '.csv'
