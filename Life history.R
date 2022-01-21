@@ -26,6 +26,9 @@ overw <- TRUE
 # USER: include diurnal variation?
 daily <- FALSE
 
+# USER: output results in csv?
+output <- FALSE
+
 
 # READ PARAMETERS AND TEMPERATURE DATA
 param.all <- as.data.frame(read_csv("Temperature response parameters.csv"))
@@ -320,7 +323,7 @@ for(s in 1:nrow(param.all)) {
 
 
 # OUTPUT RESULTS IN CSV FILE
-if(all == TRUE) {
+if(output == TRUE && all == TRUE) {
   if(trait == "Fecundity") { write_csv(results, "Fecundity.csv") }
   if(trait == "Survival") { write_csv(results, "Survival.csv") }
 }

@@ -12,6 +12,9 @@ library(lamW)
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 
+# USER: run analyses for temperature "mean", "ampl", or "both"?
+type <- "mean"
+
 # USER: include overwintering? (i.e., do not integrate over temperatures below Tmin)
 overw <- TRUE
 
@@ -21,20 +24,29 @@ daily <- FALSE
 # USER: run TPC analysis?
 TPC <- TRUE
 
+# USER: read results in from Extinction.csv?
+read <- TRUE
 
-# Read in temperature response and temperature parameters, and temperature response data
+# USER: output results in csv?
+output <- FALSE
+
+
+# READ PARAMETERS AND TEMPERATURE DATA
 param.all <- as.data.frame(read_csv("Temperature response parameters.csv"))
-# Read in temperature parameters
 ifelse(daily == TRUE, t.param.all <- as.data.frame(read_csv("Temperature parameters.csv")),
        t.param.all <- as.data.frame(read_csv("Temperature parameters Tave.csv")))
-# Create array for results
-results <- data.frame(param.all[,1], 1:nrow(param.all), 1:nrow(param.all))
-names(results) <- c("Species","TPC","Model")
+if(read == TRUE) { results.m <- as.data.frame(read_csv("Extinction meanT.csv")) }
 
 
-# RUN ANALYSIS FOR ALL SPECIES
+if(read == FALSE){
+# CREATE ARRAY FOR RESULTS
+results.m <- data.frame(param.all[,1], param.all[,2], param.all[,3], param.all[,4], 1:nrow(param.all), 1:nrow(param.all))
+names(results.m) <- c("Species","Latitude","Habitat","Subfamily","TPC","Model")
+
+
+# RUN ANALYSES FOR EACH SPECIES
 for(s in 1:nrow(param.all)) {
-
+  
 # Select species
 param <- param.all[s,]
 t.param <- t.param.all[s,]
@@ -79,7 +91,7 @@ if(overw == TRUE) {
 # Evaluate whether r < 0 and if so, break repeat
 #if(delta.mean > 1){
 if(r.TPC <= 0){
-  results[s,2] <- delta.mean
+  results.m[s,5] <- delta.mean
   break
 }
 
@@ -96,29 +108,36 @@ ext.time <- TS[(TS$J == 0 & TS$A == 0), "Time"][1]
 #print(ext.time)
 
 # Calculate change in mean temperature at time of extinction
-results[s,3] <- 0.1/365*ext.time
+results.m[s,6] <- 0.1/365*ext.time
 
-}
+}}
 
 
-# PRINT RESULTS
-results
+# OUTPUT RESULTS IN CSV FILE
+if(output == TRUE) { write_csv(results.m, "Extinction meanT.csv") }
 
 
 # STATISTICS
-#model <- lm(Model ~ TPC, data=results)
-model <- lm(Model ~ 0 + TPC, data=results)
-summary(model) # non-significant
+model.m <- lm(Model ~ TPC, data=results.m)
+summary(model.m) # marginally significant
 
 
 # PLOT
+# Change in mean temperature
+# Model vs TPCs
 Xmin <- 0
 Xmax <- 25
 Ymin <- 0
 Ymax <- 25
-plot(results$TPC, results$Model, pch=21, col="black", bg="black", xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="TPC", ylab="Model")
-#points(seq(Xmin,Xmax,0.1), coef(model)[2]*seq(Xmin,Xmax,0.1)+coef(model)[1], type="l", col="black")
-points(seq(Xmin,Xmax,0.1), coef(model)[1]*seq(Xmin,Xmax,0.1), type="l", col="black")
+#dev.new(width=3, height=3, unit="in")
+plot(results.m[results.m$Habitat=="Tropical","TPC"], results.m[results.m$Habitat=="Tropical","Model"], pch=19, cex=1.5, col="red",
+     xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="TPC", ylab="Model")
+points(results.m[results.m$Habitat=="Subtropical","TPC"], results.m[results.m$Habitat=="Subtropical","Model"], pch=19, cex=1.5, col="orange")
+points(results.m[results.m$Habitat=="Mediterranean","TPC"], results.m[results.m$Habitat=="Mediterranean","Model"], pch=19, cex=1.5, col="orange")
+points(results.m[results.m$Habitat=="Temperate","TPC"], results.m[results.m$Habitat=="Temperate","Model"], pch=19, cex=1.5, col="blue")
+points(seq(Xmin,Xmax,0.1), coef(model.m)[2]*seq(Xmin,Xmax,0.1)+coef(model.m)[1], type="l", col="black", lty="longdash")
 abline(0, 1, col="gray")
+abline(0, 0, col="gray", lty="longdash")
+abline(v = 0, col="gray", lty="longdash")
 
 
