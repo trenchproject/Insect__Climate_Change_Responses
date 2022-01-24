@@ -13,7 +13,7 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 
 # USER: run analyses for temperature "mean", "ampl", or "both"?
-type <- "mean"
+case <- "ampl"
 
 # USER: include overwintering? (i.e., do not integrate over temperatures below Tmin)
 overw <- TRUE
@@ -29,8 +29,8 @@ ifelse(daily == TRUE, t.param.all <- as.data.frame(read_csv("Temperature paramet
 
 
 # CREATE ARRAY FOR RESULTS
-results.m <- data.frame(param.all[,1], param.all[,2], param.all[,3], param.all[,4], 1:nrow(param.all), 1:nrow(param.all))
-names(results.m) <- c("Species","Latitude","Habitat","Subfamily","TPC","Model")
+results <- data.frame(param.all[,1], param.all[,2], param.all[,3], param.all[,4], 1:nrow(param.all), 1:nrow(param.all))
+names(results) <- c("Species","Latitude","Habitat","Subfamily","TPC","Model")
 
 
 # RUN ANALYSES FOR EACH SPECIES
@@ -78,27 +78,33 @@ if(overw == TRUE) {
 
 # Evaluate whether r < 0 and if so, break repeat
 if(r.TPC <= 0){
-  results.m[s,5] <- delta.mean
+  if(case == "mean") { results[s,5] <- delta.mean }
+  if(case == "ampl") { results[s,5] <- delta.ampl }
   break
 }
 
-# Increase in mean temperature
-delta.mean <- delta.mean + 0.1
-}}
+# Increase in temperature
+if(case == "mean") { delta.mean <- delta.mean + 0.1 }
+if(case == "ampl") { delta.ampl <- delta.ampl + 0.1 }
+}
 
 
 ########################################### MODEL ############################################
-TS <- as.data.frame(read_csv(paste0("Time series data Ext/Time series ",param[1],".csv")))
+if(case == "mean") { TS <- as.data.frame(read_csv(paste0("Time series data Ext meanT/Time series ",param[1],".csv"))) }
+if(case == "ampl") { TS <- as.data.frame(read_csv(paste0("Time series data Ext amplT/Time series ",param[1],".csv"))) }
 
 # Time of extinction
 ext.time <- TS[(TS$J == 0 & TS$A == 0), "Time"][1]
 #print(ext.time)
 
-# Calculate change in mean temperature at time of extinction
-results.m[s,6] <- 0.1/365*ext.time
-
+# Calculate change in temperature at time of extinction
+if(case == "mean") { results[s,6] <- 0.1/365*ext.time }
+if(case == "ampl") { results[s,6] <- 0.1/365*ext.time }
+}
 
 
 # OUTPUT RESULTS IN CSV FILE
-write_csv(results.m, "Extinction meanT.csv")
+if(case == "mean") { write_csv(results, "Extinction meanT.csv") }
+if(case == "ampl") { write_csv(results, "Extinction amplT.csv") }
+
 
