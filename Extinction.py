@@ -28,6 +28,9 @@ if cwd != '/Users/johnson/Documents/Christopher/GitHub/Johnson_Insect_Responses'
 # USER: Save data to CSV file?
 save_data = True
 
+# USER: run analyses for temperature "mean", "ampl", or "both"?
+case = "ampl"
+
 # USER: Use minimum temperature threshold?
 minT = True
 
@@ -57,7 +60,7 @@ while(True):
     yr = 365 # days in year
     start_date = 0 # day on which to start model
     init_years = 0 # how many years into climate change to start model
-    max_years = init_years + 275 # how long to run simulations
+    max_years = init_years + 375 # how long to run simulations
     tstep = 1 # time step = 1 day
     
     # Initial abundances
@@ -73,7 +76,12 @@ while(True):
     amplD = tempData["amplD.h"]
     
     # Increase mean temperature by 0.1 until extinct
-    delta_mean = 0.1/yr
+    if case == "mean":
+        delta_mean = 0.1/yr
+        delta_ampl = 0
+    if case == "ampl":
+        delta_mean = 0
+        delta_ampl = 0.1/yr
     
     # Life history and competitive traits
     # fecundity
@@ -186,11 +194,17 @@ while(True):
     
     # save data to csv 
     if save_data == True:
-        if daily == True:
-            filename = 'Time series data diurnal Ext/Time series ' + spData["Species"] + '.csv'
+        if case == "mean" and daily == True:
+            filename = 'Time series data diurnal Ext meanT/Time series ' + spData["Species"] + '.csv'
             savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
-        else:
-            filename = 'Time series data Ext/Time series ' + spData["Species"] + '.csv'
+        if case == "mean" and daily == False:
+            filename = 'Time series data Ext meanT/Time series ' + spData["Species"] + '.csv'
+            savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
+        if case == "ampl" and daily == True:
+            filename = 'Time series data diurnal Ext amplT/Time series ' + spData["Species"] + '.csv'
+            savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
+        if case == "ampl" and daily == False:
+            filename = 'Time series data Ext amplT/Time series ' + spData["Species"] + '.csv'
             savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
     
     
