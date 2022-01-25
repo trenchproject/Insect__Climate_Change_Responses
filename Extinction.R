@@ -88,8 +88,8 @@ if(r.TPC <= 0){
 if(case == "mean") { delta.mean <- delta.mean + 0.1 }
 if(case == "ampl") { delta.ampl <- delta.ampl + 0.1 }
 if(case == "both") { 
-  delta.mean <- delta.mean + t.param$delta_mean.f*365
-  delta.ampl <- delta.ampl + t.param$delta_ampl.f*365 }
+  delta.mean <- delta.mean + 0.1 #t.param$delta_mean.f*365
+  delta.ampl <- delta.ampl + 0.1 } #t.param$delta_ampl.f*365 }
 }
 
 

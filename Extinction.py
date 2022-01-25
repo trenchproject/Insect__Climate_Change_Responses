@@ -81,8 +81,8 @@ while(True):
         delta_mean = 0
         delta_ampl = 0.1/yr
     if case == "both":
-        delta_mean = tempData["delta_mean.f"]
-        delta_ampl = tempData["delta_ampl.f"]
+        delta_mean = 0.1/yr #tempData["delta_mean.f"]
+        delta_ampl = 0.1/yr #tempData["delta_ampl.f"]
     
     # Life history and competitive traits
     # fecundity
