@@ -29,7 +29,7 @@ if cwd != '/Users/johnson/Documents/Christopher/GitHub/Johnson_Insect_Responses'
 save_data = False
 
 # USER: run analyses for temperature "mean", "ampl", or "both"?
-case = "ampl"
+case = "both"
 
 # USER: Use minimum temperature threshold?
 minT = True
@@ -60,7 +60,7 @@ while(True):
     yr = 365 # days in year
     start_date = 0 # day on which to start model
     init_years = 0 # how many years into climate change to start model
-    max_years = init_years + 175 # how long to run simulations
+    max_years = init_years + 275 # how long to run simulations
     tstep = 1 # time step = 1 day
     
     # Initial abundances
@@ -71,8 +71,6 @@ while(True):
     meanT = tempData["meanT.h"]
     amplT = tempData["amplT.h"] 
     shiftT = tempData["shiftT.h"]
-    delta_mean = tempData["delta_mean.h"]
-    delta_ampl = tempData["delta_ampl.h"]
     amplD = tempData["amplD.h"]
     
     # Increase mean temperature by 0.1 until extinct
@@ -82,6 +80,9 @@ while(True):
     if case == "ampl":
         delta_mean = 0
         delta_ampl = 0.1/yr
+    if case == "both":
+        delta_mean = tempData["delta_mean.f"]
+        delta_ampl = tempData["delta_ampl.f"]
     
     # Life history and competitive traits
     # fecundity
@@ -205,6 +206,12 @@ while(True):
             savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
         if case == "ampl" and daily == False:
             filename = 'Time series data Ext amplT/Time series ' + spData["Species"] + '.csv'
+            savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
+        if case == "both" and daily == True:
+            filename = 'Time series data diurnal Ext both/Time series ' + spData["Species"] + '.csv'
+            savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
+        if case == "both" and daily == False:
+            filename = 'Time series data Ext both/Time series ' + spData["Species"] + '.csv'
             savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
     
     

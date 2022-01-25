@@ -13,7 +13,7 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 
 # USER: run analyses for temperature "mean", "ampl", or "both"?
-case <- "ampl"
+case <- "both"
 
 # USER: include overwintering? (i.e., do not integrate over temperatures below Tmin)
 overw <- TRUE
@@ -35,7 +35,7 @@ names(results) <- c("Species","Latitude","Habitat","Subfamily","TPC","Model")
 
 # RUN ANALYSES FOR EACH SPECIES
 for(s in 1:nrow(param.all)) {
-  
+ 
 # Select species
 param <- param.all[s,]
 t.param <- t.param.all[s,]
@@ -80,31 +80,35 @@ if(overw == TRUE) {
 if(r.TPC <= 0){
   if(case == "mean") { results[s,5] <- delta.mean }
   if(case == "ampl") { results[s,5] <- delta.ampl }
+  if(case == "both") { results[s,5] <- (delta.mean/t.param$delta_mean.f)/365 } # years to extinction
   break
 }
 
 # Increase in temperature
 if(case == "mean") { delta.mean <- delta.mean + 0.1 }
 if(case == "ampl") { delta.ampl <- delta.ampl + 0.1 }
+if(case == "both") { 
+  delta.mean <- delta.mean + t.param$delta_mean.f*365
+  delta.ampl <- delta.ampl + t.param$delta_ampl.f*365 }
 }
 
 
 ########################################### MODEL ############################################
 if(case == "mean") { TS <- as.data.frame(read_csv(paste0("Time series data Ext meanT/Time series ",param[1],".csv"))) }
 if(case == "ampl") { TS <- as.data.frame(read_csv(paste0("Time series data Ext amplT/Time series ",param[1],".csv"))) }
+if(case == "both") { TS <- as.data.frame(read_csv(paste0("Time series data Ext both/Time series ",param[1],".csv"))) }
 
 # Time of extinction
 ext.time <- TS[(TS$J == 0 & TS$A == 0), "Time"][1]
 #print(ext.time)
 
 # Calculate change in temperature at time of extinction
-if(case == "mean") { results[s,6] <- 0.1/365*ext.time }
-if(case == "ampl") { results[s,6] <- 0.1/365*ext.time }
+ifelse(case != "both", results[s,6] <- 0.1/365*ext.time, results[s,6] <- ext.time/365)
 }
 
 
 # OUTPUT RESULTS IN CSV FILE
 if(case == "mean") { write_csv(results, "Extinction meanT.csv") }
 if(case == "ampl") { write_csv(results, "Extinction amplT.csv") }
-
+if(case == "both") { write_csv(results, "Extinction both.csv") }
 

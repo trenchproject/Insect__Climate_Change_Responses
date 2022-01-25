@@ -1,28 +1,28 @@
 Species,Latitude,Habitat,Subfamily,TPC,Model
-Clavigralla shadabi Benin,6.45,Tropical,Heteroptera,1,8.218904109589042
-Clavigralla tomentosicollis Benin,6.45,Tropical,Heteroptera,2,21.03205479452055
-Clavigralla tomentosicollis Nigeria,7.45,Tropical,Heteroptera,3,20.226575342465758
-Clavigralla tomentosicollis Burkina Faso,12.38,Tropical,Heteroptera,4,11.019452054794522
-Apolygus lucorum China Dafeng,33.33,Temperate,Heteroptera,5,39.90493150684932
-Adelphocoris suturalis China Dafeng,33.33,Temperate,Heteroptera,6,45.71616438356165
-Apolygus lucorum China Langfang,39.88,Temperate,Heteroptera,7,15.456986301369865
-Adelphocoris suturalis China Xinxiang,35.53,Temperate,Heteroptera,8,48.70876712328768
-Macrosiphum euphorbiae Brazil,21.23,Tropical,Sternorrhyncha,9,0.11561643835616439
-Aulacorthum solani Brazil,21.23,Tropical,Sternorrhyncha,10,1.567123287671233
-Uroleucon ambrosiae Brazil,21.23,Tropical,Sternorrhyncha,11,9.18986301369863
-Macrolophus pygmaeus on Myzus persicae Greece,38.38,Mediterranean,Heteroptera,12,25.636164383561646
-Macrolophus pygmaeus on Trialeurodes vaporariorum Greece,38.38,Mediterranean,Heteroptera,13,26.041369863013703
-Acyrthosiphon pisum UK Sand Hutton,54.02,Temperate,Sternorrhyncha,14,14.2627397260274
-Bemisia argentifollii US Homestead,25.47,Subtropical,Sternorrhyncha,15,25.861369863013703
-Rhopalosiphum rufiabdominalis US Weston,26.14,Subtropical,Sternorrhyncha,16,5.85068493150685
-Aphis nasturtii US Weston,26.14,Subtropical,Sternorrhyncha,17,14.658082191780824
-Diaphorina citri US Weston,26.24,Subtropical,Sternorrhyncha,18,34.3654794520548
-Eriosoma lanigerum Australia Yathroo,30.9,Subtropical,Sternorrhyncha,19,27.067123287671237
-Macrosiphum euphorbiae Canada,42.81,Temperate,Sternorrhyncha,20,3.4410958904109594
-Myzus persicae Canada,42.81,Temperate,Sternorrhyncha,21,36.04054794520548
-Hyperomyzus lactucae Australia Acton,35.27,Subtropical,Sternorrhyncha,22,74.83780821917809
-Aphis gossypii China Henan,36.07,Temperate,Sternorrhyncha,23,42.01534246575343
-Aulacorthum solani US Ithaca,42.42,Temperate,Sternorrhyncha,24,14.763561643835619
-Brevicoryne brassicae US Columbia,38.93,Temperate,Sternorrhyncha,25,10.067123287671235
-Myzus persicae US Columbia,38.93,Temperate,Sternorrhyncha,26,13.370410958904111
-Hyadaphis pseudobrassicae US Columbia,38.93,Temperate,Sternorrhyncha,27,18.083287671232878
+Clavigralla shadabi Benin,6.45,Tropical,Heteroptera,8.399999999999986,8.218904109589042
+Clavigralla tomentosicollis Benin,6.45,Tropical,Heteroptera,16.599999999999966,21.03205479452055
+Clavigralla tomentosicollis Nigeria,7.45,Tropical,Heteroptera,32.40000000000019,20.226575342465758
+Clavigralla tomentosicollis Burkina Faso,12.38,Tropical,Heteroptera,30.600000000000165,11.019452054794522
+Apolygus lucorum China Dafeng,33.33,Temperate,Heteroptera,34.900000000000226,39.90493150684932
+Adelphocoris suturalis China Dafeng,33.33,Temperate,Heteroptera,48.00000000000041,45.71616438356165
+Apolygus lucorum China Langfang,39.88,Temperate,Heteroptera,9.99999999999998,15.456986301369865
+Adelphocoris suturalis China Xinxiang,35.53,Temperate,Heteroptera,50.10000000000044,48.70876712328768
+Macrosiphum euphorbiae Brazil,21.23,Tropical,Sternorrhyncha,10.799999999999978,0.11561643835616439
+Aulacorthum solani Brazil,21.23,Tropical,Sternorrhyncha,6.5999999999999925,1.567123287671233
+Uroleucon ambrosiae Brazil,21.23,Tropical,Sternorrhyncha,16.29999999999996,9.18986301369863
+Macrolophus pygmaeus on Myzus persicae Greece,38.38,Mediterranean,Heteroptera,20.000000000000014,25.636164383561646
+Macrolophus pygmaeus on Trialeurodes vaporariorum Greece,38.38,Mediterranean,Heteroptera,17.49999999999998,26.041369863013703
+Acyrthosiphon pisum UK Sand Hutton,54.02,Temperate,Sternorrhyncha,25.200000000000088,14.2627397260274
+Bemisia argentifollii US Homestead,25.47,Subtropical,Sternorrhyncha,24.500000000000078,25.861369863013703
+Rhopalosiphum rufiabdominalis US Weston,26.14,Subtropical,Sternorrhyncha,11.299999999999976,5.85068493150685
+Aphis nasturtii US Weston,26.14,Subtropical,Sternorrhyncha,11.499999999999975,14.658082191780824
+Diaphorina citri US Weston,26.24,Subtropical,Sternorrhyncha,5.599999999999996,34.3654794520548
+Eriosoma lanigerum Australia Yathroo,30.9,Subtropical,Sternorrhyncha,24.100000000000072,27.067123287671237
+Macrosiphum euphorbiae Canada,42.81,Temperate,Sternorrhyncha,40.1000000000003,3.4410958904109594
+Myzus persicae Canada,42.81,Temperate,Sternorrhyncha,38.70000000000028,36.04054794520548
+Hyperomyzus lactucae Australia Acton,35.27,Subtropical,Sternorrhyncha,10.29999999999998,74.83780821917809
+Aphis gossypii China Henan,36.07,Temperate,Sternorrhyncha,40.90000000000031,42.01534246575343
+Aulacorthum solani US Ithaca,42.42,Temperate,Sternorrhyncha,14.299999999999965,14.763561643835619
+Brevicoryne brassicae US Columbia,38.93,Temperate,Sternorrhyncha,3.900000000000002,10.067123287671235
+Myzus persicae US Columbia,38.93,Temperate,Sternorrhyncha,5.999999999999995,13.370410958904111
+Hyadaphis pseudobrassicae US Columbia,38.93,Temperate,Sternorrhyncha,14.599999999999964,18.083287671232878
