@@ -13,41 +13,32 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 
 # READ IN DATA
+# Life history data
 r.data <- as.data.frame(read_csv("Model results DI Tave.csv"))
 f.data <- as.data.frame(read_csv("Fecundity.csv"))
 s.data <- as.data.frame(read_csv("Survival.csv"))
+tau.data <- as.data.frame(read_csv("Development.csv"))
+# Extinction results
 results.m <- as.data.frame(read_csv("Extinction meanT.csv"))
 results.a <- as.data.frame(read_csv("Extinction amplT.csv"))
+results.b <- as.data.frame(read_csv("Extinction both.csv"))
 
 
 # EXCLUDE DELOACH 1974 (QUESTIONABLE DATA on r)
-r.data <- r.data[-c(25:27),]
-f.data <- f.data[-c(25:27),]
-s.data <- s.data[-c(25:27),]
-results.m <- results.m[-c(25:27),]
-results.a <- results.a[-c(25:27),]
+#r.data <- r.data[-c(25:27),]
+#f.data <- f.data[-c(25:27),]
+#s.data <- s.data[-c(25:27),]
+#tau.data <- tau.data[-c(25:27),]
+#results.m <- results.m[-c(25:27),]
+#results.a <- results.a[-c(25:27),]
+#results.b <- results.b[-c(25:27),]
 
 
 ######################################## STATISTICS #########################################
 # RELATIVE FITNESS
 # Change in relative fitness
-delta.r <- lm(delta.model ~ delta.TPC, data=r.data) # significant!
-summary(delta.r)
-# Relative fitness in historical period
-r.h <- lm(r.model.h ~ r.TPC.h, data=r.data) # significant!
-summary(r.h)
-# Relative fitness in future period
-r.f <- lm(r.model.f ~ r.TPC.f, data=r.data) # non-significant
-summary(r.f)
-
-# # TPC vs Latitude
-# # Linear
-# TPC <- lm(delta.TPC ~ Latitude, data=r.data)
-# summary(TPC) # non-significant
-# # Non-linear
-# TPC2 <- nls(delta.TPC ~ a + b*Latitude + c*Latitude^2, data=r.data, start=list(a=1, b=-0.1, c=1))
-# summary(TPC2) # non-significant
-
+delta.r <- lm(delta.model ~ delta.TPC, data=r.data)
+summary(delta.r) # significant!
 # Model vs Latitude
 # linear
 r.model <- lm(delta.model ~ Latitude, data=r.data)
@@ -56,45 +47,53 @@ summary(r.model) # non-significant
 r.model2 <- nls(delta.model ~ a + b*Latitude + c*Latitude^2, data=r.data, start=list(a=1, b=-0.1, c=1))
 summary(r.model2) # non-significant
 
-
-# RELATIVE FECUNDITY
+# LIFETIME FECUNDITY
 # Model vs Latitude
 # Linear
 f.model <- lm(delta.model ~ Latitude, data=f.data)
 summary(f.model) # significant!
-# Non-linear
-f.model2 <- nls(delta.model ~ a + b*Latitude + c*Latitude^2, data=f.data, start=list(a=1, b=-0.1, c=1))
-summary(f.model2) # non-significant
-
 
 # SURVIVAL
 # Change in survival
-delta.s <- lm(delta.model ~ delta.TPC, data=s.data) # significant!
-summary(delta.s)
-# Survival in historical period
-s.h <- lm(Model.h ~ TPC.h, data=s.data) # significant!
-summary(s.h)
-# Survival in future period
-s.f <- lm(Model.f ~ TPC.f, data=s.data) # significant!
-summary(s.f)
-
+delta.s <- lm(delta.model ~ delta.TPC, data=s.data)
+summary(delta.s)  # significant!
 # Model vs Latitude
-# Linear
 s.model <- lm(delta.model ~ Latitude, data=s.data)
 summary(s.model) # non-significant
-# Non-linear
-s.model2 <- nls(delta.model ~ a + b*Latitude + c*Latitude^2, data=s.data, start=list(a=1, b=-0.1, c=1))
-summary(s.model2) # non-significant
+
+# DEVELOPMENT TIME
+# Change in development time
+delta.tau <- lm(delta.model ~ delta.TPC, data=tau.data)
+summary(delta.tau)  # non-significant
+# Model vs Latitude
+tau.model <- lm(delta.model ~ Latitude, data=tau.data)
+summary(tau.model) # non-significant
 
 
-# EXTINCTION (INCREASE IN MEAN TEMPERATURE)
+# EXTINCTION
+# Increase in mean temperature
+# TPC vs model
 model.m <- lm(Model ~ TPC, data=results.m)
 summary(model.m) # marginally significant
+# Model vs Latitude
+m.lat <- lm(Model ~ Latitude, data=results.m)
+summary(m.lat) # significant!
 
-
-# EXTINCTION (INCREASE IN TEMPERATURE AMPLITUDE)
+# Increase in temperature amplitude
+# TPC vs model
 model.a <- lm(Model ~ TPC, data=results.a)
 summary(model.a) # marginally significant
+# Model vs Latitude
+a.lat <- lm(Model ~ Latitude, data=results.a)
+summary(a.lat) # non-significant
+
+# Increase in temperature mean and amplitude
+# TPC vs model
+model.b <- lm(Model ~ TPC, data=results.b)
+summary(model.b) # non-significant
+# Model vs Latitude
+b.lat <- lm(Model ~ Latitude, data=results.b)
+summary(b.lat) # non-significant
 
 
 
@@ -116,52 +115,6 @@ abline(0, 1, col="gray")
 abline(0, 0, col="gray", lty="longdash")
 abline(v = 0, col="gray", lty="longdash")
 
-# Model vs TPCs in historical period
-Xmin <- 0
-Xmax <- 1
-Ymin <- 0
-Ymax <- 1
-#dev.new(width=3, height=3, unit="in")
-plot(r.data[r.data$Habitat=="Tropical","r.TPC.h"], r.data[r.data$Habitat=="Tropical","r.model.h"], pch=19, cex=1.5, col="red",
-     xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="TPC", ylab="Model")
-points(r.data[r.data$Habitat=="Subtropical","r.TPC.h"], r.data[r.data$Habitat=="Subtropical","r.model.h"], pch=19, cex=1.5, col="orange")
-points(r.data[r.data$Habitat=="Mediterranean","r.TPC.h"], r.data[r.data$Habitat=="Mediterranean","r.model.h"], pch=19, cex=1.5, col="orange")
-points(r.data[r.data$Habitat=="Temperate","r.TPC.h"], r.data[r.data$Habitat=="Temperate","r.model.h"], pch=19, cex=1.5, col="blue")
-points(seq(Xmin,Xmax,0.1), coef(r.h)[2]*seq(Xmin,Xmax,0.1)+coef(r.h)[1], type="l", col="black")
-abline(0, 1, col="gray")
-#abline(0, 0, col="gray", lty="longdash")
-#abline(v = 0, col="gray", lty="longdash")
-
-# Model vs TPCs in future period
-Xmin <- -0.5
-Xmax <- 1.5
-Ymin <- -0.5
-Ymax <- 1.5
-#dev.new(width=3, height=3, unit="in")
-plot(r.data[r.data$Habitat=="Tropical","r.TPC.f"], r.data[r.data$Habitat=="Tropical","r.model.f"], pch=19, cex=1.5, col="red",
-     xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="TPC", ylab="Model")
-points(r.data[r.data$Habitat=="Subtropical","r.TPC.f"], r.data[r.data$Habitat=="Subtropical","r.model.f"], pch=19, cex=1.5, col="orange")
-points(r.data[r.data$Habitat=="Mediterranean","r.TPC.f"], r.data[r.data$Habitat=="Mediterranean","r.model.f"], pch=19, cex=1.5, col="orange")
-points(r.data[r.data$Habitat=="Temperate","r.TPC.f"], r.data[r.data$Habitat=="Temperate","r.model.f"], pch=19, cex=1.5, col="blue")
-points(seq(Xmin,Xmax,0.1), coef(r.f)[2]*seq(Xmin,Xmax,0.1)+coef(r.f)[1], type="l", col="black")
-abline(0, 1, col="gray")
-#abline(0, 0, col="gray", lty="longdash")
-#abline(v = 0, col="gray", lty="longdash")
-
-# TPC vs latitude
-# Xmin <- 0
-# Xmax <- 60
-# Ymin <- -1
-# Ymax <- 0.5
-# plot(r.data[r.data$Habitat=="Tropical","Latitude"], r.data[r.data$Habitat=="Tropical","delta.TPC"], pch=19, cex=1.5, col="red",
-#      xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="Latitude", ylab="change in r")
-# points(r.data[r.data$Habitat=="Subtropical","Latitude"], r.data[r.data$Habitat=="Subtropical","delta.TPC"], pch=19, cex=1.5, col="orange")
-# points(r.data[r.data$Habitat=="Mediterranean","Latitude"], r.data[r.data$Habitat=="Mediterranean","delta.TPC"], pch=19, cex=1.5, col="orange")
-# points(r.data[r.data$Habitat=="Temperate","Latitude"], r.data[r.data$Habitat=="Temperate","delta.TPC"], pch=19, cex=1.5, col="blue")
-# points(seq(Xmin,Xmax,1), coef(TPC)[2]*seq(Xmin,Xmax,1) + coef(TPC)[1], type="l", col="black", lty="longdash")
-# points(seq(Xmin,Xmax,1), coef(TPC2)[1] + coef(TPC2)[2]*seq(Xmin,Xmax,1) + coef(TPC2)[3]*seq(Xmin,Xmax,1)^2, type="l", col="black")
-# abline(0, 0, col="black") #, lty="longdash")
-
 # Model vs latitude
 Xmin <- 0
 Xmax <- 60
@@ -172,7 +125,6 @@ plot(r.data[r.data$Habitat=="Tropical","Latitude"], r.data[r.data$Habitat=="Trop
      xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="Latitude", ylab="change in r")
 points(r.data[r.data$Habitat=="Subtropical","Latitude"], r.data[r.data$Habitat=="Subtropical","delta.model"], pch=19, cex=1.5, col="orange")
 points(r.data[r.data$Habitat=="Mediterranean","Latitude"], r.data[r.data$Habitat=="Mediterranean","delta.model"], pch=19, cex=1.5, col="orange")
-abline(0, 0, col="gray") #, lty="longdash")
 points(r.data[r.data$Habitat=="Temperate","Latitude"], r.data[r.data$Habitat=="Temperate","delta.model"], pch=19, cex=1.5, col="blue")
 #points(seq(Xmin,Xmax,1), coef(r.model)[2]*seq(Xmin,Xmax,1) + coef(r.model)[1], type="l", col="black", lty="longdash")
 #points(seq(Xmin,Xmax,1), coef(r.model2)[1] + coef(r.model2)[2]*seq(Xmin,Xmax,1) + coef(r.model2)[3]*seq(Xmin,Xmax,1)^2, type="l", col="black")
@@ -194,36 +146,6 @@ abline(0, 1, col="gray")
 abline(0, 0, col="gray", lty="longdash")
 abline(v = 0, col="gray", lty="longdash")
 
-# Model vs TPCs in historical period
-Xmin <- 0
-Xmax <- 1
-Ymin <- 0
-Ymax <- 1
-#dev.new(width=3, height=3, unit="in")
-plot(f.data[f.data$Habitat=="Tropical","TPC.h"], f.data[f.data$Habitat=="Tropical","Model.h"], pch=19, cex=1.5, col="red",
-     xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="TPC", ylab="Model")
-points(f.data[f.data$Habitat=="Subtropical","TPC.h"], f.data[f.data$Habitat=="Subtropical","Model.h"], pch=19, cex=1.5, col="orange")
-points(f.data[f.data$Habitat=="Mediterranean","TPC.h"], f.data[f.data$Habitat=="Mediterranean","Model.h"], pch=19, cex=1.5, col="orange")
-points(f.data[f.data$Habitat=="Temperate","TPC.h"], f.data[f.data$Habitat=="Temperate","Model.h"], pch=19, cex=1.5, col="blue")
-abline(0, 1, col="gray")
-#abline(0, 0, col="gray", lty="longdash")
-#abline(v = 0, col="gray", lty="longdash")
-
-# Model vs TPCs in future period
-Xmin <- 0
-Xmax <- 1
-Ymin <- 0
-Ymax <- 1
-#dev.new(width=3, height=3, unit="in")
-plot(f.data[f.data$Habitat=="Tropical","TPC.f"], f.data[f.data$Habitat=="Tropical","Model.f"], pch=19, cex=1.5, col="red",
-     xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="TPC", ylab="Model")
-points(f.data[f.data$Habitat=="Subtropical","TPC.f"], f.data[f.data$Habitat=="Subtropical","Model.f"], pch=19, cex=1.5, col="orange")
-points(f.data[f.data$Habitat=="Mediterranean","TPC.f"], f.data[f.data$Habitat=="Mediterranean","Model.f"], pch=19, cex=1.5, col="orange")
-points(f.data[f.data$Habitat=="Temperate","TPC.f"], f.data[f.data$Habitat=="Temperate","Model.f"], pch=19, cex=1.5, col="blue")
-abline(0, 1, col="gray")
-#abline(0, 0, col="gray", lty="longdash")
-#abline(v = 0, col="gray", lty="longdash")
-
 # Model vs latitude
 Xmin <- 0
 Xmax <- 60
@@ -235,7 +157,6 @@ plot(f.data[f.data$Habitat=="Tropical","Latitude"], f.data[f.data$Habitat=="Trop
 points(f.data[f.data$Habitat=="Subtropical","Latitude"], f.data[f.data$Habitat=="Subtropical","delta.model"], pch=19, cex=1.5, col="orange")
 points(f.data[f.data$Habitat=="Mediterranean","Latitude"], f.data[f.data$Habitat=="Mediterranean","delta.model"], pch=19, cex=1.5, col="orange")
 points(f.data[f.data$Habitat=="Temperate","Latitude"], f.data[f.data$Habitat=="Temperate","delta.model"], pch=19, cex=1.5, col="blue")
-abline(0, 0, col="gray") #, lty="longdash")
 points(seq(Xmin,Xmax,1), coef(f.model)[2]*seq(Xmin,Xmax,1) + coef(f.model)[1], type="l", col="black")
 #points(seq(Xmin,Xmax,1), coef(f.model2)[1] + coef(f.model2)[2]*seq(Xmin,Xmax,1) + coef(f.model2)[3]*seq(Xmin,Xmax,1)^2, type="l", col="black")
 
@@ -257,37 +178,37 @@ abline(0, 1, col="gray")
 abline(0, 0, col="gray", lty="longdash")
 abline(v = 0, col="gray", lty="longdash")
 
-# Model vs TPCs in historical period
+# Model vs latitude
 Xmin <- 0
-Xmax <- 1
-Ymin <- 0
-Ymax <- 1
+Xmax <- 60
+Ymin <- -1
+Ymax <- 0.5
 #dev.new(width=3, height=3, unit="in")
-plot(s.data[s.data$Habitat=="Tropical","TPC.h"], s.data[s.data$Habitat=="Tropical","Model.h"], pch=19, cex=1.5, col="red",
-     xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="TPC", ylab="Model")
-points(s.data[s.data$Habitat=="Subtropical","TPC.h"], s.data[s.data$Habitat=="Subtropical","Model.h"], pch=19, cex=1.5, col="orange")
-points(s.data[s.data$Habitat=="Mediterranean","TPC.h"], s.data[s.data$Habitat=="Mediterranean","Model.h"], pch=19, cex=1.5, col="orange")
-points(s.data[s.data$Habitat=="Temperate","TPC.h"], s.data[s.data$Habitat=="Temperate","Model.h"], pch=19, cex=1.5, col="blue")
-points(seq(Xmin,Xmax,0.1), coef(s.h)[2]*seq(Xmin,Xmax,0.1)+coef(s.h)[1], type="l", col="black")
-abline(0, 1, col="gray")
-#abline(0, 0, col="gray", lty="longdash")
-#abline(v = 0, col="gray", lty="longdash")
+plot(s.data[s.data$Habitat=="Tropical","Latitude"], s.data[s.data$Habitat=="Tropical","delta.model"], pch=19, cex=1.5, col="red",
+     xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="Latitude", ylab="change in survival")
+points(s.data[s.data$Habitat=="Subtropical","Latitude"], s.data[s.data$Habitat=="Subtropical","delta.model"], pch=19, cex=1.5, col="orange")
+points(s.data[s.data$Habitat=="Mediterranean","Latitude"], s.data[s.data$Habitat=="Mediterranean","delta.model"], pch=19, cex=1.5, col="orange")
+points(s.data[s.data$Habitat=="Temperate","Latitude"], s.data[s.data$Habitat=="Temperate","delta.model"], pch=19, cex=1.5, col="blue")
+#points(seq(Xmin,Xmax,1), coef(s.model)[2]*seq(Xmin,Xmax,1) + coef(s.model)[1], type="l", col="black")
+#points(seq(Xmin,Xmax,1), coef(s.model2)[1] + coef(s.model2)[2]*seq(Xmin,Xmax,1) + coef(s.model2)[3]*seq(Xmin,Xmax,1)^2, type="l", col="black")
 
-# Model vs TPCs in future period
-Xmin <- 0
-Xmax <- 1
-Ymin <- 0
-Ymax <- 1
+
+# DEVELOPMENT TIME
+# Model vs TPCs
+Xmin <- -0.6
+Xmax <- 0.6
+Ymin <- -0.6
+Ymax <- 0.6
 #dev.new(width=3, height=3, unit="in")
-plot(s.data[s.data$Habitat=="Tropical","TPC.f"], s.data[s.data$Habitat=="Tropical","Model.f"], pch=19, cex=1.5, col="red",
+plot(tau.data[tau.data$Habitat=="Tropical","delta.TPC"], tau.data[tau.data$Habitat=="Tropical","delta.model"], pch=19, cex=1.5, col="red",
      xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="TPC", ylab="Model")
-points(s.data[s.data$Habitat=="Subtropical","TPC.f"], s.data[s.data$Habitat=="Subtropical","Model.f"], pch=19, cex=1.5, col="orange")
-points(s.data[s.data$Habitat=="Mediterranean","TPC.f"], s.data[s.data$Habitat=="Mediterranean","Model.f"], pch=19, cex=1.5, col="orange")
-points(s.data[s.data$Habitat=="Temperate","TPC.f"], s.data[s.data$Habitat=="Temperate","Model.f"], pch=19, cex=1.5, col="blue")
-points(seq(Xmin,Xmax,0.1), coef(s.f)[2]*seq(Xmin,Xmax,0.1)+coef(s.f)[1], type="l", col="black")
+points(tau.data[tau.data$Habitat=="Subtropical","delta.TPC"], tau.data[tau.data$Habitat=="Subtropical","delta.model"], pch=19, cex=1.5, col="orange")
+points(tau.data[tau.data$Habitat=="Mediterranean","delta.TPC"], tau.data[tau.data$Habitat=="Mediterranean","delta.model"], pch=19, cex=1.5, col="orange")
+points(tau.data[tau.data$Habitat=="Temperate","delta.TPC"], tau.data[tau.data$Habitat=="Temperate","delta.model"], pch=19, cex=1.5, col="blue")
+#points(seq(Xmin,Xmax,0.1), coef(delta.tau)[2]*seq(Xmin,Xmax,0.1)+coef(delta.tau)[1], type="l", col="black")
 abline(0, 1, col="gray")
-#abline(0, 0, col="gray", lty="longdash")
-#abline(v = 0, col="gray", lty="longdash")
+abline(0, 0, col="gray", lty="longdash")
+abline(v = 0, col="gray", lty="longdash")
 
 # Model vs latitude
 Xmin <- 0
@@ -302,7 +223,6 @@ points(s.data[s.data$Habitat=="Mediterranean","Latitude"], s.data[s.data$Habitat
 points(s.data[s.data$Habitat=="Temperate","Latitude"], s.data[s.data$Habitat=="Temperate","delta.model"], pch=19, cex=1.5, col="blue")
 #points(seq(Xmin,Xmax,1), coef(s.model)[2]*seq(Xmin,Xmax,1) + coef(s.model)[1], type="l", col="black")
 #points(seq(Xmin,Xmax,1), coef(s.model2)[1] + coef(s.model2)[2]*seq(Xmin,Xmax,1) + coef(s.model2)[3]*seq(Xmin,Xmax,1)^2, type="l", col="black")
-abline(0, 0, col="gray") #, lty="longdash")
 
 
 # EXTINCTION
@@ -313,15 +233,27 @@ Xmax <- 25
 Ymin <- 0
 Ymax <- 25
 #dev.new(width=3, height=3, unit="in")
-plot(results.m[results.m$Habitat=="Tropical","TPC"], results.m[results.m$Habitat=="Tropical","Model"], pch=19, cex=1.5, col="red",
-     xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="TPC", ylab="Model")
+plot(-100,-100, xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="TPC", ylab="Model")
+abline(0, 1, col="gray")
+points(results.m[results.m$Habitat=="Tropical","TPC"], results.m[results.m$Habitat=="Tropical","Model"], pch=19, cex=1.5, col="red")
 points(results.m[results.m$Habitat=="Subtropical","TPC"], results.m[results.m$Habitat=="Subtropical","Model"], pch=19, cex=1.5, col="orange")
 points(results.m[results.m$Habitat=="Mediterranean","TPC"], results.m[results.m$Habitat=="Mediterranean","Model"], pch=19, cex=1.5, col="orange")
 points(results.m[results.m$Habitat=="Temperate","TPC"], results.m[results.m$Habitat=="Temperate","Model"], pch=19, cex=1.5, col="blue")
-points(seq(Xmin,Xmax,0.1), coef(model.m)[2]*seq(Xmin,Xmax,0.1)+coef(model.m)[1], type="l", col="black", lty="longdash")
-abline(0, 1, col="gray")
-#abline(0, 0, col="gray", lty="longdash")
-#abline(v = 0, col="gray", lty="longdash")
+#points(seq(Xmin,Xmax,0.1), coef(model.m)[2]*seq(Xmin,Xmax,0.1)+coef(model.m)[1], type="l", col="black", lty="longdash")
+
+# Model vs latitude
+Xmin <- 0
+Xmax <- 60
+Ymin <- 0
+Ymax <- 25
+#dev.new(width=3, height=3, unit="in")
+plot(results.m[results.m$Habitat=="Tropical","Latitude"], results.m[results.m$Habitat=="Tropical","Model"], pch=19, cex=1.5, col="red",
+     xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="Latitude", ylab="change in mean temperature")
+points(results.m[results.m$Habitat=="Subtropical","Latitude"], results.m[results.m$Habitat=="Subtropical","Model"], pch=19, cex=1.5, col="orange")
+points(results.m[results.m$Habitat=="Mediterranean","Latitude"], results.m[results.m$Habitat=="Mediterranean","Model"], pch=19, cex=1.5, col="orange")
+points(results.m[results.m$Habitat=="Temperate","Latitude"], results.m[results.m$Habitat=="Temperate","Model"], pch=19, cex=1.5, col="blue")
+points(seq(Xmin,Xmax,1), coef(m.lat)[2]*seq(Xmin,Xmax,1) + coef(m.lat)[1], type="l", col="black")
+
 
 # Change in temperature amplitude
 # Model vs TPCs
@@ -330,15 +262,55 @@ Xmax <- 50
 Ymin <- 0
 Ymax <- 50
 #dev.new(width=3, height=3, unit="in")
-plot(results.a[results.a$Habitat=="Tropical","TPC"], results.a[results.a$Habitat=="Tropical","Model"], pch=19, cex=1.5, col="red",
-     xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="TPC", ylab="Model")
+plot(-100,-100, xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="TPC", ylab="Model")
+abline(0, 1, col="gray")
+points(results.a[results.a$Habitat=="Tropical","TPC"], results.a[results.a$Habitat=="Tropical","Model"], pch=19, cex=1.5, col="red")
 points(results.a[results.a$Habitat=="Subtropical","TPC"], results.a[results.a$Habitat=="Subtropical","Model"], pch=19, cex=1.5, col="orange")
 points(results.a[results.a$Habitat=="Mediterranean","TPC"], results.a[results.a$Habitat=="Mediterranean","Model"], pch=19, cex=1.5, col="orange")
 points(results.a[results.a$Habitat=="Temperate","TPC"], results.a[results.a$Habitat=="Temperate","Model"], pch=19, cex=1.5, col="blue")
-points(seq(Xmin,Xmax,0.1), coef(model.a)[2]*seq(Xmin,Xmax,0.1)+coef(model.a)[1], type="l", col="black", lty="longdash")
+#points(seq(Xmin,Xmax,0.1), coef(model.a)[2]*seq(Xmin,Xmax,0.1)+coef(model.a)[1], type="l", col="black", lty="longdash")
+
+# Model vs latitude
+Xmin <- 0
+Xmax <- 60
+Ymin <- 0
+Ymax <- 50
+#dev.new(width=3, height=3, unit="in")
+plot(results.a[results.a$Habitat=="Tropical","Latitude"], results.a[results.a$Habitat=="Tropical","Model"], pch=19, cex=1.5, col="red",
+     xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="Latitude", ylab="change in amplitude")
+points(results.a[results.a$Habitat=="Subtropical","Latitude"], results.a[results.a$Habitat=="Subtropical","Model"], pch=19, cex=1.5, col="orange")
+points(results.a[results.a$Habitat=="Mediterranean","Latitude"], results.a[results.a$Habitat=="Mediterranean","Model"], pch=19, cex=1.5, col="orange")
+points(results.a[results.a$Habitat=="Temperate","Latitude"], results.a[results.a$Habitat=="Temperate","Model"], pch=19, cex=1.5, col="blue")
+#points(seq(Xmin,Xmax,1), coef(a.lat)[2]*seq(Xmin,Xmax,1) + coef(a.lat)[1], type="l", col="black")
+
+
+# Change in temperature mean and amplitude
+# Model vs TPCs
+Xmin <- 0
+Xmax <- 600
+Ymin <- 0
+Ymax <- 600
+#dev.new(width=3, height=3, unit="in")
+plot(results.b[results.b$Habitat=="Tropical","TPC"], results.b[results.b$Habitat=="Tropical","Model"], pch=19, cex=1.5, col="red",
+     xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="TPC", ylab="Model")
 abline(0, 1, col="gray")
-#abline(0, 0, col="gray", lty="longdash")
-#abline(v = 0, col="gray", lty="longdash")
+points(results.b[results.b$Habitat=="Subtropical","TPC"], results.b[results.b$Habitat=="Subtropical","Model"], pch=19, cex=1.5, col="orange")
+points(results.b[results.b$Habitat=="Mediterranean","TPC"], results.b[results.b$Habitat=="Mediterranean","Model"], pch=19, cex=1.5, col="orange")
+points(results.b[results.b$Habitat=="Temperate","TPC"], results.b[results.b$Habitat=="Temperate","Model"], pch=19, cex=1.5, col="blue")
+#points(seq(Xmin,Xmax,0.1), coef(model.b)[2]*seq(Xmin,Xmax,0.1)+coef(model.b)[1], type="l", col="black", lty="longdash")
+
+# Model vs latitude
+Xmin <- 0
+Xmax <- 60
+Ymin <- 0
+Ymax <- 600
+#dev.new(width=3, height=3, unit="in")
+plot(results.b[results.b$Habitat=="Tropical","Latitude"], results.b[results.b$Habitat=="Tropical","Model"], pch=19, cex=1.5, col="red",
+     xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="Latitude", ylab="years to extinction")
+points(results.b[results.b$Habitat=="Subtropical","Latitude"], results.b[results.b$Habitat=="Subtropical","Model"], pch=19, cex=1.5, col="orange")
+points(results.b[results.b$Habitat=="Mediterranean","Latitude"], results.b[results.b$Habitat=="Mediterranean","Model"], pch=19, cex=1.5, col="orange")
+points(results.b[results.b$Habitat=="Temperate","Latitude"], results.b[results.b$Habitat=="Temperate","Model"], pch=19, cex=1.5, col="blue")
+#points(seq(Xmin,Xmax,1), coef(b.lat)[2]*seq(Xmin,Xmax,1) + coef(b.lat)[1], type="l", col="black")
 
 
 

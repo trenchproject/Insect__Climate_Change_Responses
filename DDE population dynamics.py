@@ -26,10 +26,10 @@ if cwd != '/Users/johnson/Documents/Christopher/GitHub/Johnson_Insect_Responses'
 
 
 # USER: Enter species, location, and time period
-species = "Myzus persicae"
-location = "Canada"
+species = "Adelphocoris suturalis"
+location = "China Dafeng"
 period = "Historical"
-period = "Future"
+#period = "Future"
 
 # USER: Save data to CSV file?
 save_data = False

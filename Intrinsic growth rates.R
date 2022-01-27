@@ -82,8 +82,7 @@ start <- 0
 end <- 5*365
 
 if(overw == FALSE) {
-  r.h <- function(t) {
-           ifelse(T.h(t) <= param$rTopt, param$rMax*exp(-1*((T.h(t)-param$rTopt)/(2*param$rs))^2),
+  r.h <- function(t) { ifelse(T.h(t) <= param$rTopt, param$rMax*exp(-1*((T.h(t)-param$rTopt)/(2*param$rs))^2),
                   param$rMax*(1 - ((T.h(t)-param$rTopt)/(param$rTopt-param$rTmax))^2)) # from Deutsch et al. 2008
   }
   (r.TPC.h <- cubintegrate(r.h, lower = start, upper = end, method = "pcubature")$integral/(end-start)) # pcubature is faster but cannot be used with overwintering
