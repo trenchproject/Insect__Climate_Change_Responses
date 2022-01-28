@@ -47,7 +47,7 @@ else:
 
 
 # REPEAT CODE FOR ALL SPECIES
-species = 0
+species = 8
 while(True):
     
     # SELECT SPECIES
@@ -232,7 +232,7 @@ while(True):
 
     # END LOOP WHEN MODEL IS RUN FOR ALL SPECIES
     species = species + 1
-    if species > Sdata.shape[0] - 1:
+    if species > 12: #Sdata.shape[0] - 1:
         break
 
 

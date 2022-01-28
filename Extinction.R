@@ -80,7 +80,7 @@ if(overw == TRUE) {
 if(r.TPC <= 0){
   if(case == "mean") { results[s,5] <- delta.mean }
   if(case == "ampl") { results[s,5] <- delta.ampl }
-  if(case == "both") { results[s,5] <- (delta.mean/t.param$delta_mean.f)/365 } # years to extinction
+  if(case == "both") { results[s,5] <- delta.mean }
   break
 }
 
@@ -88,8 +88,8 @@ if(r.TPC <= 0){
 if(case == "mean") { delta.mean <- delta.mean + 0.1 }
 if(case == "ampl") { delta.ampl <- delta.ampl + 0.1 }
 if(case == "both") { 
-  delta.mean <- delta.mean + 0.1 #t.param$delta_mean.f*365
-  delta.ampl <- delta.ampl + 0.1 } #t.param$delta_ampl.f*365 }
+  delta.mean <- delta.mean + 0.1
+  delta.ampl <- delta.ampl + 0.1 }
 }
 
 
@@ -103,7 +103,7 @@ ext.time <- TS[(TS$J == 0 & TS$A == 0), "Time"][1]
 #print(ext.time)
 
 # Calculate change in temperature at time of extinction
-ifelse(case != "both", results[s,6] <- 0.1/365*ext.time, results[s,6] <- ext.time/365)
+results[s,6] <- 0.1/365*ext.time
 }
 
 
