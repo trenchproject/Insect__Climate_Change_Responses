@@ -35,7 +35,7 @@ period = "Historical"
 all_sp = True
 
 # USER: Save data to CSV file?
-save_data = True
+save_data = False
 
 # USER: Use minimum temperature threshold?
 minT = True
@@ -44,7 +44,7 @@ minT = True
 dev_fits = False
 
 # USER: Include competition (i.e., density-dependent population growth)?
-comp = False
+comp = True
 
 # USER: Incorporate diurnal temperature fluctuations?
 daily = False

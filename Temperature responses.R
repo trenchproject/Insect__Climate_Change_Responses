@@ -73,6 +73,7 @@ summary(dev.T)
 plot(sp.data$T_K, sp.data$Development, xlim=c(Tmin,Tmax), ylim=c(0,max(sp.data$Development)+0.05))
 points(seq(Tmin,Tmax,1), xTR*(seq(Tmin,Tmax,1)/TR)*exp(A*(1/TR-1/seq(Tmin,Tmax,1)))/
          (1+(exp(AL*(1/coef(dev.T)[1]-1/seq(Tmin,Tmax,1)))+exp(AH*(1/coef(dev.T)[2]-1/seq(Tmin,Tmax,1))))), type="l", col="blue")
+points(seq(Tmin,Tmax,1), coef(dev.mon)[1]*(seq(Tmin,Tmax,1)/TR)*exp(coef(dev.mon)[2]*(1/TR-1/seq(Tmin,Tmax,1))), type="l", col="blue")
 
 
 # developmental temperature optima and maximum for all species
