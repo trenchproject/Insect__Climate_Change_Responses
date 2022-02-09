@@ -26,13 +26,13 @@ if cwd != '/Users/johnson/Documents/Christopher/GitHub/Johnson_Insect_Responses'
 
 
 # USER: Enter species, location, and time period
-species = "Adelphocoris suturalis"
-location = "China Dafeng"
+species = "Macrosiphum euphorbiae"
+location = "Canada"
 period = "Historical"
 #period = "Future"
 
 # USER: Run model for all species?
-all_sp = True
+all_sp = False
 
 # USER: Save data to CSV file?
 save_data = False
@@ -40,11 +40,11 @@ save_data = False
 # USER: Use minimum temperature threshold?
 minT = True
 
-# USER: Use developmental fits (or assume step function at high temperatures)?
+# USER: Use left-skewed functon for development?
 dev_fits = False
 
 # USER: Include competition (i.e., density-dependent population growth)?
-comp = True
+comp = False
 
 # USER: Incorporate diurnal temperature fluctuations?
 daily = False
@@ -173,8 +173,9 @@ while(True):
                                1e-5, mTR * T(x)/TR * exp(AmJ * (1/TR - 1/T(x))) / (1 + (exp(AL*(1/TL-1/T(x)))+exp(AH*(1/TH-1/T(x)))))) # If mJ(T) < jitcdde min tolerance, then mJ(T) = 1e-5
     else:
         def mJ(x):
-            return conditional(T(x), Topt, mTR * T(x)/TR * exp(AmJ * (1/TR - 1/T(x))), # If temperature < developmental optima (Topt), then use monotonic mJ(T)
-                               conditional(T(x), Tmax, mTR * Topt/TR * exp(AmJ * (1/TR - 1/Topt)), 1e-5))  # If temperature < developmental maximum (Tmax), then mJ(T) = mJ(Topt); otherwise, mJ(T) = 1e-5
+            return conditional(mTR * T(x)/TR * exp(AmJ * (1/TR - 1/T(x))) / (1 + (exp(AL*(1/TL-1/T(x)))+exp(AH*(1/TH-1/T(x))))), 1e-5, 1e-5, # If mJ(T) < jitcdde min tolerance, then mJ(T) = 1e-5
+                               conditional(T(x), Topt, mTR * T(x)/TR * exp(AmJ * (1/TR - 1/T(x))) / (1 + exp(AL*(1/TL-1/T(x)))), # If temperature < developmental optima (Topt), then use monotonic mJ(T)
+                               conditional(T(x), Tmax, mTR * Topt/TR * exp(AmJ * (1/TR - 1/Topt)) / (1 + exp(AL*(1/TL-1/Topt))), 1e-5)))  # If temperature < developmental maximum (Tmax), then mJ(T) = mJ(Topt); otherwise, mJ(T) = 1e-5
         
     # mortality rates
     def dJ(x):
@@ -225,7 +226,7 @@ while(True):
     
     
     # SAVE DATA
-    # array containing time and state variables
+    # array containing time and state variables (can add N(T(time)) to output temperature data, but with significantly longer run-time)
     data = vstack([ hstack([time, DDE.integrate(time)]) for time in times ])
     
     # set values below 1e-5 or NAN to 0
@@ -259,8 +260,8 @@ while(True):
     ylabel("population density")
     yscale("linear")
     xlim((max_years-max_years)*yr,(max_years-0)*yr)
-    ylim(0,200)
-    #ylim(0,1e10)
+    #ylim(0,200)
+    ylim(0,1e10)
     
     
     # END LOOP WHEN MODEL IS RUN FOR ALL SPECIES

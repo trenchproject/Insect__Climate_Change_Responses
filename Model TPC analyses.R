@@ -14,12 +14,12 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 # USER: choose "Fitness", "R0", "Fecundity", "Survival",
 #               "Birth", "Generation", "Longevity", or "Recruitment"
-trait <- "Recruitment"
+trait <- "Fitness"
 
 # USER: enter species and location or set "all" to TRUE to run analysis for all species
-species <- "Myzus persicae"
-location <- "Canada"
-all <- TRUE
+species <- "Clavigralla shadabi"
+location <- "Benin"
+all <- FALSE
 
 # USER: include overwintering? (i.e., do not integrate over temperatures below Tmin)
 overw <- TRUE
@@ -62,15 +62,15 @@ for(s in 1:nrow(param.all)) {
   # Read in DDE model data for selected insect
   if(all == FALSE) {
     ifelse(daily == TRUE, TS.h <- as.data.frame(read_csv(paste0("Time series data/Historical time series ",species," ",location,".csv"))),
-           TS.h <- as.data.frame(read_csv(paste0("Time series data DI Tave/Historical time series ",species," ",location,".csv"))))
+           TS.h <- as.data.frame(read_csv(paste0("Time series data DI Tave Dev/Historical time series ",species," ",location,".csv"))))
     ifelse(daily == TRUE, TS.f <- as.data.frame(read_csv(paste0("Time series data/Future time series ",species," ",location,".csv"))),
-           TS.f <- as.data.frame(read_csv(paste0("Time series data DI Tave/Future time series ",species," ",location,".csv"))))
+           TS.f <- as.data.frame(read_csv(paste0("Time series data DI Tave Dev/Future time series ",species," ",location,".csv"))))
   }
   if(all == TRUE) {
     ifelse(daily == TRUE, TS.h <- as.data.frame(read_csv(paste0("Time series data/Historical time series ",param[1],".csv"))),
-           TS.h <- as.data.frame(read_csv(paste0("Time series data DI Tave/Historical time series ",param[1],".csv"))))
+           TS.h <- as.data.frame(read_csv(paste0("Time series data DI Tave Dev/Historical time series ",param[1],".csv"))))
     ifelse(daily == TRUE, TS.f <- as.data.frame(read_csv(paste0("Time series data/Future time series ",param[1],".csv"))),
-           TS.f <- as.data.frame(read_csv(paste0("Time series data DI Tave/Future time series ",param[1],".csv"))))
+           TS.f <- as.data.frame(read_csv(paste0("Time series data DI Tave Dev/Future time series ",param[1],".csv"))))
   }
   # Remove rows with NA
   #TS.h <- na.omit(TS.h)
@@ -436,14 +436,14 @@ for(s in 1:nrow(param.all)) {
 
 # OUTPUT RESULTS IN CSV FILE
 if(output == TRUE && all == TRUE) {
-  if(trait == "Fitness") { write_csv(results, "Predictions fitness.csv") }
-  if(trait == "R0") { write_csv(results, "Predictions R0.csv") }
-  if(trait == "Fecundity") { write_csv(results, "Predictions fecundity.csv") }
-  if(trait == "Survival") { write_csv(results, "Predictions survival.csv") }
-  if(trait == "Birth") { write_csv(results, "Predictions birth.csv") }
-  if(trait == "Generation") { write_csv(results, "Predictions generation.csv") }
-  if(trait == "Longevity") { write_csv(results, "Predictions longevity.csv") }
-  if(trait == "Recruitment") { write_csv(results, "Predictions recruitment.csv") }
+  if(trait == "Fitness") { write_csv(results, "Predictions Dev fitness.csv") }
+  if(trait == "R0") { write_csv(results, "Predictions Dev R0.csv") }
+  if(trait == "Fecundity") { write_csv(results, "Predictions Dev fecundity.csv") }
+  if(trait == "Survival") { write_csv(results, "Predictions Dev survival.csv") }
+  if(trait == "Birth") { write_csv(results, "Predictions Dev birth.csv") }
+  if(trait == "Generation") { write_csv(results, "Predictions Dev generation.csv") }
+  if(trait == "Longevity") { write_csv(results, "Predictions Dev longevity.csv") }
+  if(trait == "Recruitment") { write_csv(results, "Predictions Dev recruitment.csv") }
 }
 
 
@@ -504,7 +504,7 @@ if(all == FALSE) {
   R <- b*s
   # TPC plots
   # Fitness
-  #plot(seq(Tmin,Tmax,1), r, type="l", lwd=4, col="black", xlim=c(Tmin,Tmax), ylim=c(ymin,ymax1), xlab="T", ylab="r(T)")
+  plot(seq(Tmin,Tmax,1), r, type="l", lwd=4, col="black", xlim=c(Tmin,Tmax), ylim=c(ymin,ymax1), xlab="T", ylab="r(T)")
   # R0
   #plot(seq(Tmin,Tmax,1), R0, type="l", lwd=4, col="black", xlim=c(Tmin,Tmax), ylim=c(ymin,ymax1), xlab="T", ylab="R0(T)")
   # Fecundity
@@ -518,7 +518,7 @@ if(all == FALSE) {
   # Adult longevity
   #plot(seq(Tmin,Tmax,1), 1/dA, type="l", lwd=4, col="black", xlim=c(Tmin,Tmax), ylim=c(ymin,ymax1), xlab="T", ylab="1/dA(T)")
   # Recruitment
-  plot(seq(Tmin,Tmax,1), R, type="l", lwd=4, col="black", xlim=c(Tmin,Tmax), ylim=c(ymin,ymax1), xlab="T", ylab="R(T)")
+  #plot(seq(Tmin,Tmax,1), R, type="l", lwd=4, col="black", xlim=c(Tmin,Tmax), ylim=c(ymin,ymax1), xlab="T", ylab="R(T)")
   abline(v = t.param$meanT.h, col="blue", lwd=3, lty=1)
   abline(v = t.param$meanT.h + abs(t.param$amplT.h) + abs(t.param$amplD.h), col="blue", lwd=3, lty=2)
   abline(v = t.param$meanT.h - abs(t.param$amplT.h) - abs(t.param$amplD.h), col="blue", lwd=3, lty=2)
@@ -535,10 +535,10 @@ if(all == FALSE) {
 
 # SUMMARIZE RESULTS
 if(trait == "Fitness") { 
-  print(paste("r.TPC.h:", r.TPC.h))
-  print(paste("r.TPC.f:", r.TPC.f))
-  print(paste("r.model.h:", r.model.h))
-  print(paste("r.model.f:", r.model.f))
+  print(paste("r.TPC.h:", r.TPC.h/param$rMax))
+  print(paste("r.TPC.f:", r.TPC.f/param$rMax))
+  print(paste("r.model.h:", r.model.h/param$rMax))
+  print(paste("r.model.f:", r.model.f/param$rMax))
   print(paste("r.max.h:", r.max.h))
   print(paste("r.max.f:", r.max.f))
 }

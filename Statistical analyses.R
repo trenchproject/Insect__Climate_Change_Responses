@@ -14,7 +14,7 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 # READ IN DATA
 # Life history data
-r.data <- as.data.frame(read_csv("Predictions fitness.csv"))
+r.data <- as.data.frame(read_csv("Predictions Dev fitness.csv"))
 R0.data <- as.data.frame(read_csv("Predictions R0.csv"))
 f.data <- as.data.frame(read_csv("Predictions fecundity.csv"))
 s.data <- as.data.frame(read_csv("Predictions survival.csv"))
@@ -23,13 +23,12 @@ G.data <- as.data.frame(read_csv("Predictions generation.csv"))
 L.data <- as.data.frame(read_csv("Predictions longevity.csv"))
 R.data <- as.data.frame(read_csv("Predictions recruitment.csv"))
 # Extinction results
-results.m <- as.data.frame(read_csv("Extinction meanT.csv"))
-results.a <- as.data.frame(read_csv("Extinction amplT.csv"))
-results.b <- as.data.frame(read_csv("Extinction both.csv"))
+# results.m <- as.data.frame(read_csv("Extinction meanT.csv"))
+# results.a <- as.data.frame(read_csv("Extinction amplT.csv"))
+# results.b <- as.data.frame(read_csv("Extinction both.csv"))
 
 
 # EXCLUDE CLAVIGRALLA TOMENTOSICOLLIS NIGERIA (NO LIFETIME FECUNDITY DATA)
-#       AND DELOACH 1974 (QUESTIONABLE FITNESS RESULTS)
 r.data <- r.data[-c(3),]#,25:27),]
 R0.data <- R0.data[-c(3),]#,25:27),]
 f.data <- f.data[-c(3),]#,25:27),]
@@ -38,16 +37,20 @@ b.data <- b.data[-c(3),]#,25:27),]
 G.data <- G.data[-c(3),]#,25:27),]
 L.data <- L.data[-c(3),]#,25:27),]
 R.data <- R.data[-c(3),]#,25:27),]
-results.m <- results.m[-c(3),]#,25:27),]
-results.a <- results.a[-c(3),]#,25:27),]
-results.b <- results.b[-c(3),]#,25:27),]
+# results.m <- results.m[-c(3),]#,25:27),]
+# results.a <- results.a[-c(3),]#,25:27),]
+# results.b <- results.b[-c(3),]#,25:27),]
+
+
+# SCALE LOWEST TPC FITNESS CHANGE TO -1
+r.data$delta.TPC <- pmax(-1, r.data$delta.TPC)
 
 
 ######################################## STATISTICS #########################################
 # FITNESS
 # Change in relative fitness
 r.delta <- lm(delta.model ~ delta.TPC, data=r.data)
-summary(r.delta) # non-significant
+summary(r.delta) # significant
 # Model vs Latitude
 # linear
 r.lat <- lm(delta.model ~ Latitude, data=r.data)
@@ -134,7 +137,7 @@ summary(both.lat) # non-significant
 ########################################### PLOTS ###########################################
 # RELATIVE FITNESS
 # Model vs TPCs
-Xmin <- -2
+Xmin <- -1
 Xmax <- 0.5
 Ymin <- -1.5
 Ymax <- 0.5
