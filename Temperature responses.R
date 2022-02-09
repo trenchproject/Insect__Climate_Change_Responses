@@ -14,7 +14,7 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 data <- as.data.frame(read_csv("Temperature response data.csv"))
 
 # USER: enter species name (used in temperature response data.csv)
-name <- "Hyadaphis pseudobrassicae"
+name <- "Hyadaphis pseudobrassicae US"
 
 # Assign species
 sp.data <- data[data$Species == name,]
@@ -36,7 +36,7 @@ fec <- nls(Birth_Rate ~ bTopt*exp(-((T_K-Toptb)^2)/(2*sb^2)), data=sp.data,
            start=list(bTopt=5, Toptb=TR, sb=3))
 summary(fec)
 # Plot model fits
-plot(sp.data$T_K, sp.data$Birth_Rate, xlim = c(Tmin,Tmax), ylim = c(0,5)) #max(sp.data$Birth_Rate)))
+plot(sp.data$T_K, sp.data$Birth_Rate, xlim = c(Tmin,Tmax), ylim = c(0,max(sp.data$Birth_Rate, na.rm = T)))
 points(seq(Tmin,Tmax,1),coef(fec)[1]*exp(-((seq(Tmin,Tmax,1)-coef(fec)[2])^2)/(2*coef(fec)[3]^2)), type="l", col="blue")
 
 
@@ -46,9 +46,15 @@ points(seq(Tmin,Tmax,1),coef(fec)[1]*exp(-((seq(Tmin,Tmax,1)-coef(fec)[2])^2)/(2
 dev.mon <- nls(Development ~ xTR*T_K/TR*exp(A*(1/TR-1/T_K)), data=sp.data[-c((nrow(sp.data)-1):nrow(sp.data)),],
                start=list(xTR=0.1, A=1000))
 summary(dev.mon)
-# Plot model fits
+# plot model fits
 plot(sp.data$T_K, sp.data$Development)
 points(seq(Tmin,Tmax,1), coef(dev.mon)[1]*(seq(Tmin,Tmax,1)/TR)*exp(coef(dev.mon)[2]*(1/TR-1/seq(Tmin,Tmax,1))), type="l", col="blue")
+
+
+# developmental temperature optima and maximum
+(sp.data[sp.data$Development == max(sp.data$Development, na.rm = T), "T_K"])
+(max(sp.data$T_K))
+
 
 # estimate AL and AH separately from TL and TH if needed
 xTR <- coef(dev.mon)[1]
@@ -63,10 +69,25 @@ AH <- coef(dev.A)[2]
 dev.T <- nls(Development ~ xTR*(T_K/TR)*exp(A*(1/TR-1/T_K))/(1+exp(AL*(1/TL-1/T_K))+exp(AH*(1/TH-1/T_K))),
              data=sp.data, start=list(TL=kTL, TH=kTH))
 summary(dev.T)
-# Plot model fits
+# plot model fits
 plot(sp.data$T_K, sp.data$Development, xlim=c(Tmin,Tmax), ylim=c(0,max(sp.data$Development)+0.05))
 points(seq(Tmin,Tmax,1), xTR*(seq(Tmin,Tmax,1)/TR)*exp(A*(1/TR-1/seq(Tmin,Tmax,1)))/
          (1+(exp(AL*(1/coef(dev.T)[1]-1/seq(Tmin,Tmax,1)))+exp(AH*(1/coef(dev.T)[2]-1/seq(Tmin,Tmax,1))))), type="l", col="blue")
+
+
+# developmental temperature optima and maximum for all species
+# results array
+param.all <- as.data.frame(read_csv("Temperature response parameters.csv"))
+results <- data.frame(param.all[,1], 1:nrow(param.all), 1:nrow(param.all))
+results[4,] <- "Clavigralla tomentosicollis Burkina_Faso"
+names(results) <- c("Species","Topt","Tmax")
+# get data
+for(s in 1:nrow(param.all)) {
+  param <- data[data$Species == str_extract(results[s,]$Species, "[^ ]+ [^ ]+ [^ ]+"),]
+  results[s,2] <- param[param$Development == max(param$Development), "T_K"]
+  results[s,3] <- max(param$T_K) }
+write_csv(results, "Development params.csv")
+
 
 
 # estimate all parameters without TL and AL
