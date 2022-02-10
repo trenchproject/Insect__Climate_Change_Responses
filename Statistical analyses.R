@@ -16,12 +16,12 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 # Life history data
 r.data <- as.data.frame(read_csv("Predictions Dev fitness.csv"))
 R0.data <- as.data.frame(read_csv("Predictions Dev R0.csv"))
-b.data <- as.data.frame(read_csv("Predictions birth.csv"))
+b.data <- as.data.frame(read_csv("Predictions Dev birth.csv"))
 tau.data <- as.data.frame(read_csv("Predictions Dev development.csv"))
-s.data <- as.data.frame(read_csv("Predictions survival.csv"))
-L.data <- as.data.frame(read_csv("Predictions longevity.csv"))
-f.data <- as.data.frame(read_csv("Predictions fecundity.csv"))
-R.data <- as.data.frame(read_csv("Predictions recruitment.csv"))
+s.data <- as.data.frame(read_csv("Predictions Dev survival.csv"))
+L.data <- as.data.frame(read_csv("Predictions Dev longevity.csv"))
+f.data <- as.data.frame(read_csv("Predictions Dev fecundity.csv"))
+R.data <- as.data.frame(read_csv("Predictions Dev recruitment.csv"))
 # Extinction results
 # results.m <- as.data.frame(read_csv("Extinction meanT.csv"))
 # results.a <- as.data.frame(read_csv("Extinction amplT.csv"))
@@ -72,14 +72,14 @@ summary(R0.lat) # marginally-significant
 # BIRTH RATE
 # Model vs Latitude
 b.lat <- lm(delta.model ~ Latitude, data=b.data)
-summary(b.lat) # marginally significant
+summary(b.lat) # non-significant
 
 # DEVELOPMENT TIME
 # Change in development time
 tau.delta <- lm(delta.model ~ delta.TPC, data=tau.data)
 summary(tau.delta)  # significant!
 # Model vs Latitude
-tau.lat <- lm(delta.model ~ Latitude, data=tau.data[-c(15),]) # NOTE: removed 1 outlier
+tau.lat <- lm(delta.model ~ Latitude, data=tau.data)
 summary(tau.lat) # significant!
 
 # SURVIVAL
@@ -102,11 +102,11 @@ summary(L.lat) # significant!
 
 # ADULT RECRUITMENT
 # Change in recruitment
-R.delta <- lm(delta.model ~ delta.TPC, data=R.data)
-summary(R.delta) # significant!
+#R.delta <- lm(delta.model ~ delta.TPC, data=R.data)
+#summary(R.delta) # significant!
 # Model vs Latitude
-R.lat <- lm(delta.model ~ Latitude, data=R.data)
-summary(R.lat) # non-significant
+#R.lat <- lm(delta.model ~ Latitude, data=R.data)
+#summary(R.lat) # non-significant
 
 
 # EXTINCTION
@@ -162,7 +162,7 @@ Xmin <- 0
 Xmax <- 60
 Ymin <- -1
 Ymax <- 0.5
-#dev.new(width=3, height=3, unit="in")
+dev.new(width=3, height=3, unit="in")
 plot(-100, xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="Latitude", ylab="Model")
 abline(0, 0, col="gray", lwd=3, lty="longdash")
 points(r.data[r.data$Habitat=="Tropical","Latitude"], r.data[r.data$Habitat=="Tropical","delta.model"], pch=19, cex=1.5, col="red")
@@ -226,7 +226,6 @@ points(b.data[b.data$Habitat=="Tropical","delta.TPC"], b.data[b.data$Habitat=="T
 points(b.data[b.data$Habitat=="Subtropical","delta.TPC"], b.data[b.data$Habitat=="Subtropical","delta.model"], pch=19, cex=1.5, col="orange")
 points(b.data[b.data$Habitat=="Mediterranean","delta.TPC"], b.data[b.data$Habitat=="Mediterranean","delta.model"], pch=19, cex=1.5, col="orange")
 points(b.data[b.data$Habitat=="Temperate","delta.TPC"], b.data[b.data$Habitat=="Temperate","delta.model"], pch=19, cex=1.5, col="blue")
-#points(seq(2*Xmin,2*Xmax,0.1), coef(b.delta)[2]*seq(2*Xmin,2*Xmax,0.1)+coef(b.delta)[1], type="l", lwd=3, col="black")
 
 # Model vs latitude
 Xmin <- 0
@@ -248,7 +247,7 @@ points(seq(2*Xmin,2*Xmax,1), coef(b.lat)[2]*seq(2*Xmin,2*Xmax,1) + coef(b.lat)[1
 Xmin <- -0.3
 Xmax <- 0.2
 Ymin <- -0.3
-Ymax <- 0.2
+Ymax <- 0.1
 #dev.new(width=3, height=3, unit="in")
 plot(-100, xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="TPC", ylab="Model")
 polygon(c(2*Xmin,0,2*Xmax,2*Xmax),c(2*Xmin,0,-2*Xmax,2*Ymin), col = "lightgray", border = NA)
@@ -331,7 +330,6 @@ points(L.data[L.data$Habitat=="Tropical","delta.TPC"], L.data[L.data$Habitat=="T
 points(L.data[L.data$Habitat=="Subtropical","delta.TPC"], L.data[L.data$Habitat=="Subtropical","delta.model"], pch=19, cex=1.5, col="orange")
 points(L.data[L.data$Habitat=="Mediterranean","delta.TPC"], L.data[L.data$Habitat=="Mediterranean","delta.model"], pch=19, cex=1.5, col="orange")
 points(L.data[L.data$Habitat=="Temperate","delta.TPC"], L.data[L.data$Habitat=="Temperate","delta.model"], pch=19, cex=1.5, col="blue")
-#points(seq(2*Xmin,2*Xmax,0.1), coef(L.delta)[2]*seq(2*Xmin,2*Xmax,0.1)+coef(L.delta)[1], type="l", lwd=3, col="black")
 
 # Model vs latitude
 Xmin <- 0

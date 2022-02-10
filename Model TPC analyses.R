@@ -31,7 +31,7 @@ daily <- FALSE
 output <- TRUE
 
 
-# READ PARAMETERS AND TEMPERATURE DATA
+# READ LIFE HISTORY AND TEMPERATURE PARAMETERS
 param.all <- as.data.frame(read_csv("Temperature response parameters.csv"))
 ifelse(daily == TRUE, t.param.all <- as.data.frame(read_csv("Temperature parameters.csv")),
        t.param.all <- as.data.frame(read_csv("Temperature parameters Tave.csv")))
@@ -439,14 +439,14 @@ for(s in 1:nrow(param.all)) {
 
 # OUTPUT RESULTS IN CSV FILE
 if(output == TRUE && all == TRUE) {
-  if(trait == "Fitness") { write_csv(results, "Predictions Dev fitness.csv") }
-  if(trait == "R0") { write_csv(results, "Predictions Dev R0.csv") }
-  if(trait == "Fecundity") { write_csv(results, "Predictions Dev fecundity.csv") }
-  if(trait == "Survival") { write_csv(results, "Predictions Dev survival.csv") }
-  if(trait == "Birth") { write_csv(results, "Predictions Dev birth.csv") }
-  if(trait == "Development") { write_csv(results, "Predictions Dev development.csv") }
-  if(trait == "Longevity") { write_csv(results, "Predictions Dev longevity.csv") }
-  if(trait == "Recruitment") { write_csv(results, "Predictions Dev recruitment.csv") }
+  if(trait == "Fitness") { write_csv(results, "Predictions/Predictions Dev fitness.csv") }
+  if(trait == "R0") { write_csv(results, "Predictions/Predictions Dev R0.csv") }
+  if(trait == "Fecundity") { write_csv(results, "Predictions/Predictions Dev fecundity.csv") }
+  if(trait == "Survival") { write_csv(results, "Predictions/Predictions Dev survival.csv") }
+  if(trait == "Birth") { write_csv(results, "Predictions/Predictions Dev birth.csv") }
+  if(trait == "Development") { write_csv(results, "Predictions/Predictions Dev development.csv") }
+  if(trait == "Longevity") { write_csv(results, "Predictions/Predictions Dev longevity.csv") }
+  if(trait == "Recruitment") { write_csv(results, "Predictions/Predictions Dev recruitment.csv") }
 }
 
 

@@ -44,7 +44,7 @@ minT = True
 dev_fits = False
 
 # USER: Include competition (i.e., density-dependent population growth)?
-comp = False
+comp = True
 
 # USER: Incorporate diurnal temperature fluctuations?
 daily = False
@@ -239,7 +239,7 @@ while(True):
             filename = 'Time series data/' + period + ' time series ' + spData["Species"] + '.csv'
             savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
         if comp == True and daily == False:
-            filename = 'Time series data Tave/' + period + ' time series ' + spData["Species"] + '.csv'
+            filename = 'Time series data Tave Dev/' + period + ' time series ' + spData["Species"] + '.csv'
             savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
         if comp == False and daily == True:
             filename = 'Time series data DI/' + period + ' time series ' + spData["Species"] + '.csv'
@@ -260,8 +260,8 @@ while(True):
     ylabel("population density")
     yscale("linear")
     xlim((max_years-max_years)*yr,(max_years-0)*yr)
-    #ylim(0,200)
-    ylim(0,1e10)
+    ylim(0,200)
+    #ylim(0,1e10)
     
     
     # END LOOP WHEN MODEL IS RUN FOR ALL SPECIES
