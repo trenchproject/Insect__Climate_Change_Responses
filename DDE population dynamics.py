@@ -173,7 +173,7 @@ while(True):
                                1e-5, mTR * T(x)/TR * exp(AmJ * (1/TR - 1/T(x))) / (1 + (exp(AL*(1/TL-1/T(x)))+exp(AH*(1/TH-1/T(x)))))) # If mJ(T) < jitcdde min tolerance, then mJ(T) = 1e-5
     else:
         def mJ(x):
-            return conditional(mTR * T(x)/TR * exp(AmJ * (1/TR - 1/T(x))) / (1 + (exp(AL*(1/TL-1/T(x)))+exp(AH*(1/TH-1/T(x))))), 1e-5, 1e-5, # If mJ(T) < jitcdde min tolerance, then mJ(T) = 1e-5
+            return conditional(mTR * T(x)/TR * exp(AmJ * (1/TR - 1/T(x))) / (1 + exp(AL*(1/TL-1/T(x)))), 1e-5, 1e-5, # If mJ(T) < jitcdde min tolerance, then mJ(T) = 1e-5
                                conditional(T(x), Topt, mTR * T(x)/TR * exp(AmJ * (1/TR - 1/T(x))) / (1 + exp(AL*(1/TL-1/T(x)))), # If temperature < developmental optima (Topt), then use monotonic mJ(T)
                                conditional(T(x), Tmax, mTR * Topt/TR * exp(AmJ * (1/TR - 1/Topt)) / (1 + exp(AL*(1/TL-1/Topt))), 1e-5)))  # If temperature < developmental maximum (Tmax), then mJ(T) = mJ(Topt); otherwise, mJ(T) = 1e-5
         

@@ -13,12 +13,12 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 
 # USER: choose "Fitness", "R0", "Fecundity", "Survival",
-#               "Birth", "Generation", "Longevity", or "Recruitment"
+#               "Birth", "Development", "Longevity", or "Recruitment"
 trait <- "Fitness"
 
 # USER: enter species and location or set "all" to TRUE to run analysis for all species
-species <- "Clavigralla shadabi"
-location <- "Benin"
+species <- "Macrosiphum euphorbiae"
+location <- "Canada"
 all <- FALSE
 
 # USER: include overwintering? (i.e., do not integrate over temperatures below Tmin)
@@ -27,7 +27,7 @@ overw <- TRUE
 # USER: include diurnal variation?
 daily <- FALSE
 
-# USER: output results in csv?
+# USER: output results in csv (only if all == TRUE)?
 output <- TRUE
 
 
@@ -72,24 +72,19 @@ for(s in 1:nrow(param.all)) {
     ifelse(daily == TRUE, TS.f <- as.data.frame(read_csv(paste0("Time series data/Future time series ",param[1],".csv"))),
            TS.f <- as.data.frame(read_csv(paste0("Time series data DI Tave Dev/Future time series ",param[1],".csv"))))
   }
-  # Remove rows with NA
-  #TS.h <- na.omit(TS.h)
-  # Set rows with negative survival to zero
-  #TS.h$S <- pmax(TS.h$S, 0)
   
   # Define temperature function and the start and end dates for integration
   init_years <- 65 # from Python DDE model
-  # historical period
+  # habitat temperature
   T.h <- function(t) { (t.param$meanT.h + t.param$delta_mean.h*(t+init_years*365)) - (t.param$amplT.h + t.param$delta_ampl.h*(t+init_years*365))*cos(2*pi*(t + t.param$shiftT.h)/365) - t.param$amplD.h*cos(2*pi*t) }
-  start.h <- max(365, nrow(TS.h) - 365*5) # integrate over last 5 years of time-series (or after 1 year if <5 years in data)
-  end.h <- nrow(TS.h)
-  # future period
   T.f <- function(t) { (t.param$meanT.f + t.param$delta_mean.f*(t+init_years*365)) - (t.param$amplT.f + t.param$delta_ampl.f*(t+init_years*365))*cos(2*pi*(t + t.param$shiftT.f)/365) - t.param$amplD.f*cos(2*pi*t) }
-  start.f <- max(365, nrow(TS.f) - 365*5) # integrate over last 5 years of time-series (or after 1 year if <5 years in data)
+  # start and end times for integration
+  end.h <- nrow(TS.h)
   end.f <- nrow(TS.f)
-  if((trait == "R0" || trait == "Survival") && nrow(TS.f[TS.f$S>0,]) < 75*365) { # if insect goes extinct, end = day of extinction
-    end.f <- nrow(TS.f[TS.f$S>0,])
-    start.f <- max(365, end.f - 365*5) } 
+  start.h <- max(end.h - 365*5, end.h %% 365) # integrate over last 5 years of time-series (max number of years before end date if <5 years in data)
+  start.f <- max(end.f - 365*5, end.f %% 365) # integrate over last 5 years of time-series (max number of years before end date if <5 years in data)
+  if(start.h == end.h) { start.h <- 31 } # if < 1 year, set start = 31 to avoid initial transients
+  if(start.f == end.f) { start.f <- 31 } # if < 1 year, set start = 31 to avoid initial transients
   
   
   ################################## TPC: HISTORICAL CLIMATE ###################################
@@ -100,7 +95,9 @@ for(s in 1:nrow(param.all)) {
                                 param$rMax*(1 - ((T.h(t)-param$rTopt)/(param$rTopt-param$rTmax))^2)) }
     # Life history traits
     b.h <- function(t) { param$bTopt*exp(-((T.h(t)-param$Toptb)^2)/(2*param$sb^2)) }
-    m.h <- function(t) { param$mTR*(T.h(t)/param$TR)*exp(param$AmJ*(1/param$TR-1/T.h(t)))/(1+exp(param$AL*(1/param$TL-1/T.h(t)))+exp(param$AH*(1/param$TH-1/T.h(t)))) }
+    #m.h <- function(t) { param$mTR*(T.h(t)/param$TR)*exp(param$AmJ*(1/param$TR-1/T.h(t)))/(1+exp(param$AL*(1/param$TL-1/T.h(t)))+exp(param$AH*(1/param$TH-1/T.h(t)))) }
+    m.h <- function(t) { ifelse(T.h(t) <= param$Topt, param$mTR*(T.h(t)/param$TR)*exp(param$AmJ*(1/param$TR-1/T.h(t)))/(1+exp(param$AL*(1/param$TL-1/T.h(t)))), # if T(t) < Topt, use monotonic mJ(T)
+                                ifelse(T.h(t) <= param$Tmax, param$mTR*(param$Topt/param$TR)*exp(param$AmJ*(1/param$TR-1/param$Topt))/(1+exp(param$AL*(1/param$TL-1/param$Topt))), 0)) } # If T(t) < Tmax, mJ(T) = mJ(Topt); otherwise, mJ(T) = 0
     dJ.h <- function(t) { param$dJTR*exp(param$AdJ*(1/param$TR-1/T.h(t))) }
     dA.h <- function(t) { param$dATR*exp(param$AdA*(1/param$TR-1/T.h(t))) }
     # R0, lifetime fecundity, survivorship, and recruitment
@@ -165,7 +162,9 @@ for(s in 1:nrow(param.all)) {
                                 param$rMax*(1 - ((T.f(t)-param$rTopt)/(param$rTopt-param$rTmax))^2)) }
     # Life history traits
     b.f <- function(t) { param$bTopt*exp(-((T.f(t)-param$Toptb)^2)/(2*param$sb^2)) }
-    m.f <- function(t) { param$mTR*(T.f(t)/param$TR)*exp(param$AmJ*(1/param$TR-1/T.f(t)))/(1+exp(param$AL*(1/param$TL-1/T.f(t)))+exp(param$AH*(1/param$TH-1/T.f(t)))) }
+    #m.f <- function(t) { param$mTR*(T.f(t)/param$TR)*exp(param$AmJ*(1/param$TR-1/T.f(t)))/(1+exp(param$AL*(1/param$TL-1/T.f(t)))+exp(param$AH*(1/param$TH-1/T.f(t)))) }
+    m.f <- function(t) { ifelse(T.f(t) <= param$Topt, param$mTR*(T.f(t)/param$TR)*exp(param$AmJ*(1/param$TR-1/T.f(t)))/(1+exp(param$AL*(1/param$TL-1/T.f(t)))), # if T(t) < Topt, use monotonic mJ(T)
+                                ifelse(T.f(t) <= param$Tmax, param$mTR*(param$Topt/param$TR)*exp(param$AmJ*(1/param$TR-1/param$Topt))/(1+exp(param$AL*(1/param$TL-1/param$Topt))), 0)) } # If T(t) < Tmax, mJ(T) = mJ(Topt); otherwise, mJ(T) = 0
     dJ.f <- function(t) { param$dJTR*exp(param$AdJ*(1/param$TR-1/T.f(t))) }
     dA.f <- function(t) { param$dATR*exp(param$AdA*(1/param$TR-1/T.f(t))) }
     # R0, lifetime fecundity, survivorship, and recruitment
@@ -225,7 +224,9 @@ for(s in 1:nrow(param.all)) {
   ################################# MODEL: HISTORICAL CLIMATE ##################################
   # Life history traits
   b.h <- function(t) { param$bTopt*exp(-((T.h(t)-param$Toptb)^2)/(2*param$sb^2)) }
-  m.h <- function(t) { param$mTR*(T.h(t)/param$TR)*exp(param$AmJ*(1/param$TR-1/T.h(t)))/(1+exp(param$AL*(1/param$TL-1/T.h(t)))+exp(param$AH*(1/param$TH-1/T.h(t)))) }
+  #m.h <- function(t) { param$mTR*(T.h(t)/param$TR)*exp(param$AmJ*(1/param$TR-1/T.h(t)))/(1+exp(param$AL*(1/param$TL-1/T.h(t)))+exp(param$AH*(1/param$TH-1/T.h(t)))) }
+  m.h <- function(t) { ifelse(T.h(t) <= param$Topt, param$mTR*(T.h(t)/param$TR)*exp(param$AmJ*(1/param$TR-1/T.h(t)))/(1+exp(param$AL*(1/param$TL-1/T.h(t)))), # if T(t) < Topt, use monotonic mJ(T)
+                              ifelse(T.h(t) <= param$Tmax, param$mTR*(param$Topt/param$TR)*exp(param$AmJ*(1/param$TR-1/param$Topt))/(1+exp(param$AL*(1/param$TL-1/param$Topt))), 0)) } # If T(t) < Tmax, mJ(T) = mJ(Topt); otherwise, mJ(T) = 0
   dJ.h <- function(t) { param$dJTR*exp(param$AdJ*(1/param$TR-1/T.h(t))) }
   dA.h <- function(t) { param$dATR*exp(param$AdA*(1/param$TR-1/T.h(t))) }
   # Add R0, fecundity, and recruitment at each time-step in DDE model
@@ -286,7 +287,9 @@ for(s in 1:nrow(param.all)) {
   ################################### MODEL: FUTURE CLIMATE ####################################
   # Life history traits
   b.f <- function(t) { param$bTopt*exp(-((T.f(t)-param$Toptb)^2)/(2*param$sb^2)) }
-  m.f <- function(t) { param$mTR*(T.f(t)/param$TR)*exp(param$AmJ*(1/param$TR-1/T.f(t)))/(1+exp(param$AL*(1/param$TL-1/T.f(t)))+exp(param$AH*(1/param$TH-1/T.f(t)))) }
+  #m.f <- function(t) { param$mTR*(T.f(t)/param$TR)*exp(param$AmJ*(1/param$TR-1/T.f(t)))/(1+exp(param$AL*(1/param$TL-1/T.f(t)))+exp(param$AH*(1/param$TH-1/T.f(t)))) }
+  m.f <- function(t) { ifelse(T.f(t) <= param$Topt, param$mTR*(T.f(t)/param$TR)*exp(param$AmJ*(1/param$TR-1/T.f(t)))/(1+exp(param$AL*(1/param$TL-1/T.f(t)))), # if T(t) < Topt, use monotonic mJ(T)
+                              ifelse(T.f(t) <= param$Tmax, param$mTR*(param$Topt/param$TR)*exp(param$AmJ*(1/param$TR-1/param$Topt))/(1+exp(param$AL*(1/param$TL-1/param$Topt))), 0)) } # If T(t) < Tmax, mJ(T) = mJ(Topt); otherwise, mJ(T) = 0
   dJ.f <- function(t) { param$dJTR*exp(param$AdJ*(1/param$TR-1/T.f(t))) }
   dA.f <- function(t) { param$dATR*exp(param$AdA*(1/param$TR-1/T.f(t))) }
   # Add R0, fecundity, and recruitment at each time-step in DDE model
@@ -397,7 +400,7 @@ for(s in 1:nrow(param.all)) {
       results[s,11] <- (b.TPC.f - b.TPC.h)/param$bTopt
       results[s,12] <- (b.model.f - b.model.h)/param$bTopt
     }
-    if(trait == "Generation") {
+    if(trait == "Development") {
       results[s,5] <- 1/m.TPC.h
       results[s,6] <- 1/m.TPC.f
       results[s,7] <- tau.model.h
@@ -441,7 +444,7 @@ if(output == TRUE && all == TRUE) {
   if(trait == "Fecundity") { write_csv(results, "Predictions Dev fecundity.csv") }
   if(trait == "Survival") { write_csv(results, "Predictions Dev survival.csv") }
   if(trait == "Birth") { write_csv(results, "Predictions Dev birth.csv") }
-  if(trait == "Generation") { write_csv(results, "Predictions Dev generation.csv") }
+  if(trait == "Development") { write_csv(results, "Predictions Dev development.csv") }
   if(trait == "Longevity") { write_csv(results, "Predictions Dev longevity.csv") }
   if(trait == "Recruitment") { write_csv(results, "Predictions Dev recruitment.csv") }
 }
@@ -486,7 +489,7 @@ if(all == FALSE) {
   if(trait == "Fecundity") { ymax1 <- round(param$bTopt/param$dATR,0) }
   if(trait == "Survival") { ymax1 <- 1 }
   if(trait == "Birth") { ymax1 <- round(param$bTopt,2) + 0.1 }
-  if(trait == "Generation") { ymax1 <- round(param$mTR,2) + 0.1 }
+  if(trait == "Development") { ymax1 <- round(param$mTR,2) + 0.1 }
   if(trait == "Longevity") { ymax1 <- 2*round(1/param$dATR,1) }
   if(trait == "Recruitment") { ymax1 <- round(param$bTopt,2) + 0.1 }
   ymax2 <- 0.1 # for temperature histogram
@@ -513,7 +516,7 @@ if(all == FALSE) {
   #plot(seq(Tmin,Tmax,1), s, type="l", lwd=4, col="black", xlim=c(Tmin,Tmax), ylim=c(ymin,ymax1), xlab="T", ylab="s(T)")
   # Birth rate
   #plot(seq(Tmin,Tmax,1), b, type="l", lwd=4, col="black", xlim=c(Tmin,Tmax), ylim=c(ymin,ymax1), xlab="T", ylab="b(T)")
-  # Generation time (maturation rate)
+  # Development time (maturation rate)
   #plot(seq(Tmin,Tmax,1), m, type="l", lwd=4, col="black", xlim=c(Tmin,Tmax), ylim=c(ymin,ymax1), xlab="T", ylab="m(T)")
   # Adult longevity
   #plot(seq(Tmin,Tmax,1), 1/dA, type="l", lwd=4, col="black", xlim=c(Tmin,Tmax), ylim=c(ymin,ymax1), xlab="T", ylab="1/dA(T)")
@@ -574,7 +577,7 @@ if(trait == "Birth") {
   print(paste("b.max.h:", max(TS.h[-c(1:start.h),"b"])))
   print(paste("b.max.f:", max(TS.f[-c(1:start.f),"b"])))
 }
-if(trait == "Generation") { 
+if(trait == "Development") { 
   print(paste("G.TPC.h:", 1/m.TPC.h))
   print(paste("G.TPC.f:", 1/m.TPC.f))
   print(paste("G.model.h:", tau.model.h))

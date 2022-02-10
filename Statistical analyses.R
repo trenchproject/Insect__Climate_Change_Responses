@@ -15,12 +15,12 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 # READ IN DATA
 # Life history data
 r.data <- as.data.frame(read_csv("Predictions Dev fitness.csv"))
-R0.data <- as.data.frame(read_csv("Predictions R0.csv"))
-f.data <- as.data.frame(read_csv("Predictions fecundity.csv"))
-s.data <- as.data.frame(read_csv("Predictions survival.csv"))
+R0.data <- as.data.frame(read_csv("Predictions Dev R0.csv"))
 b.data <- as.data.frame(read_csv("Predictions birth.csv"))
-G.data <- as.data.frame(read_csv("Predictions generation.csv"))
+tau.data <- as.data.frame(read_csv("Predictions Dev development.csv"))
+s.data <- as.data.frame(read_csv("Predictions survival.csv"))
 L.data <- as.data.frame(read_csv("Predictions longevity.csv"))
+f.data <- as.data.frame(read_csv("Predictions fecundity.csv"))
 R.data <- as.data.frame(read_csv("Predictions recruitment.csv"))
 # Extinction results
 # results.m <- as.data.frame(read_csv("Extinction meanT.csv"))
@@ -31,19 +31,21 @@ R.data <- as.data.frame(read_csv("Predictions recruitment.csv"))
 # EXCLUDE CLAVIGRALLA TOMENTOSICOLLIS NIGERIA (NO LIFETIME FECUNDITY DATA)
 r.data <- r.data[-c(3),]#,25:27),]
 R0.data <- R0.data[-c(3),]#,25:27),]
-f.data <- f.data[-c(3),]#,25:27),]
-s.data <- s.data[-c(3),]#,25:27),]
 b.data <- b.data[-c(3),]#,25:27),]
-G.data <- G.data[-c(3),]#,25:27),]
+tau.data <- tau.data[-c(3),]#,25:27),]
+s.data <- s.data[-c(3),]#,25:27),]
 L.data <- L.data[-c(3),]#,25:27),]
+f.data <- f.data[-c(3),]#,25:27),]
 R.data <- R.data[-c(3),]#,25:27),]
 # results.m <- results.m[-c(3),]#,25:27),]
 # results.a <- results.a[-c(3),]#,25:27),]
 # results.b <- results.b[-c(3),]#,25:27),]
 
 
-# SCALE LOWEST TPC FITNESS CHANGE TO -1
+# SCALE LOWEST FITNESS CHANGE TO -1
 r.data$delta.TPC <- pmax(-1, r.data$delta.TPC)
+r.data$delta.model <- pmax(-1, r.data$delta.model)
+
 
 
 ######################################## STATISTICS #########################################
@@ -65,28 +67,20 @@ R0.delta <- lm(delta.model ~ delta.TPC, data=R0.data)
 summary(R0.delta) # significant!
 # Model vs Latitude
 R0.lat <- lm(delta.model ~ Latitude, data=R0.data)
-summary(R0.lat) # non-significant
-
-# GENERATION TIME
-# Change in generation time
-G.delta <- lm(delta.model ~ delta.TPC, data=G.data)
-summary(G.delta)  # significant!
-# Model vs Latitude
-G.lat <- lm(delta.model ~ Latitude, data=G.data[-c(15),]) # NOTE: removed 1 outlier
-summary(G.lat) # non-significant
+summary(R0.lat) # marginally-significant
 
 # BIRTH RATE
 # Model vs Latitude
 b.lat <- lm(delta.model ~ Latitude, data=b.data)
 summary(b.lat) # marginally significant
 
-# ADULT RECRUITMENT
-# Change in recruitment
-R.delta <- lm(delta.model ~ delta.TPC, data=R.data)
-summary(R.delta) # significant!
+# DEVELOPMENT TIME
+# Change in development time
+tau.delta <- lm(delta.model ~ delta.TPC, data=tau.data)
+summary(tau.delta)  # significant!
 # Model vs Latitude
-R.lat <- lm(delta.model ~ Latitude, data=R.data)
-summary(R.lat) # non-significant
+tau.lat <- lm(delta.model ~ Latitude, data=tau.data[-c(15),]) # NOTE: removed 1 outlier
+summary(tau.lat) # significant!
 
 # SURVIVAL
 # Change in survival
@@ -105,6 +99,14 @@ summary(L.lat) # significant!
 # Model vs Latitude
 #f.lat <- lm(delta.model ~ Latitude, data=f.data)
 #summary(f.lat) # significant!
+
+# ADULT RECRUITMENT
+# Change in recruitment
+R.delta <- lm(delta.model ~ delta.TPC, data=R.data)
+summary(R.delta) # significant!
+# Model vs Latitude
+R.lat <- lm(delta.model ~ Latitude, data=R.data)
+summary(R.lat) # non-significant
 
 
 # EXTINCTION
@@ -139,7 +141,7 @@ summary(both.lat) # non-significant
 # Model vs TPCs
 Xmin <- -1
 Xmax <- 0.5
-Ymin <- -1.5
+Ymin <- -1
 Ymax <- 0.5
 #dev.new(width=3, height=3, unit="in")
 plot(-100, xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="TPC", ylab="Model")
@@ -153,12 +155,12 @@ points(r.data[r.data$Habitat=="Tropical","delta.TPC"], r.data[r.data$Habitat=="T
 points(r.data[r.data$Habitat=="Subtropical","delta.TPC"], r.data[r.data$Habitat=="Subtropical","delta.model"], pch=19, cex=1.5, col="orange")
 points(r.data[r.data$Habitat=="Mediterranean","delta.TPC"], r.data[r.data$Habitat=="Mediterranean","delta.model"], pch=19, cex=1.5, col="orange")
 points(r.data[r.data$Habitat=="Temperate","delta.TPC"], r.data[r.data$Habitat=="Temperate","delta.model"], pch=19, cex=1.5, col="blue")
-points(seq(2*Xmin,2*Xmax,0.1), coef(r.delta)[2]*seq(2*Xmin,2*Xmax,0.1)+coef(r.delta)[1], type="l", lwd=3, col="black", lty="longdash")
+points(seq(2*Xmin,2*Xmax,0.1), coef(r.delta)[2]*seq(2*Xmin,2*Xmax,0.1)+coef(r.delta)[1], type="l", lwd=3, col="black")
 
 # Model vs latitude
 Xmin <- 0
 Xmax <- 60
-Ymin <- -1.5
+Ymin <- -1
 Ymax <- 0.5
 #dev.new(width=3, height=3, unit="in")
 plot(-100, xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="Latitude", ylab="Model")
@@ -169,6 +171,7 @@ points(r.data[r.data$Habitat=="Mediterranean","Latitude"], r.data[r.data$Habitat
 points(r.data[r.data$Habitat=="Temperate","Latitude"], r.data[r.data$Habitat=="Temperate","delta.model"], pch=19, cex=1.5, col="blue")
 points(seq(2*Xmin,2*Xmax,1), coef(r.lat)[2]*seq(2*Xmin,2*Xmax,1) + coef(r.lat)[1], type="l", lwd=3, col="black", lty="longdash")
 #points(seq(Xmin,Xmax,1), coef(r.lat2)[1] + coef(r.lat2)[2]*seq(Xmin,Xmax,1) + coef(r.lat2)[3]*seq(Xmin,Xmax,1)^2, type="l", lwd=3, col="black")
+
 
 # R0
 # Model vs TPCs
@@ -193,7 +196,7 @@ points(seq(2*Xmin,2*Xmax,0.1), coef(R0.delta)[2]*seq(2*Xmin,2*Xmax,0.1)+coef(R0.
 # Model vs latitude
 Xmin <- 0
 Xmax <- 60
-Ymin <- -1
+Ymin <- -0.8
 Ymax <- 0.2
 #dev.new(width=3, height=3, unit="in")
 plot(-100, xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="Latitude", ylab="Model")
@@ -204,39 +207,6 @@ points(R0.data[R0.data$Habitat=="Mediterranean","Latitude"], R0.data[R0.data$Hab
 points(R0.data[R0.data$Habitat=="Temperate","Latitude"], R0.data[R0.data$Habitat=="Temperate","delta.model"], pch=19, cex=1.5, col="blue")
 points(seq(2*Xmin,2*Xmax,1), coef(R0.lat)[2]*seq(2*Xmin,2*Xmax,1) + coef(R0.lat)[1], type="l", lwd=3, col="black", lty="longdash")
 
-# GENERATION TIME
-# Model vs TPCs
-Xmin <- -0.3
-Xmax <- 0.3
-Ymin <- -0.3
-Ymax <- 0.3
-#dev.new(width=3, height=3, unit="in")
-plot(-100, xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="TPC", ylab="Model")
-polygon(c(2*Xmin,0,2*Xmax,2*Xmax),c(2*Xmin,0,-2*Xmax,2*Ymin), col = "lightgray", border = NA)
-polygon(c(2*Xmin,0,2*Xmax),c(-2*Xmin,0,2*Xmax), col = "lightgray", border = NA)
-abline(0, 1, col="gray", lwd=3)
-abline(0, -1, col="gray", lwd=1)
-abline(0, 0, col="gray", lwd=3, lty="longdash")
-abline(v = 0, col="gray", lwd=3, lty="longdash")
-points(G.data[G.data$Habitat=="Tropical","delta.TPC"], G.data[G.data$Habitat=="Tropical","delta.model"], pch=19, cex=1.5, col="red")
-points(G.data[G.data$Habitat=="Subtropical","delta.TPC"], G.data[G.data$Habitat=="Subtropical","delta.model"], pch=19, cex=1.5, col="orange")
-points(G.data[G.data$Habitat=="Mediterranean","delta.TPC"], G.data[G.data$Habitat=="Mediterranean","delta.model"], pch=19, cex=1.5, col="orange")
-points(G.data[G.data$Habitat=="Temperate","delta.TPC"], G.data[G.data$Habitat=="Temperate","delta.model"], pch=19, cex=1.5, col="blue")
-points(seq(2*Xmin,2*Xmax,0.1), coef(G.delta)[2]*seq(2*Xmin,2*Xmax,0.1)+coef(G.delta)[1], type="l", lwd=3, col="black")
-
-# Model vs latitude
-Xmin <- 0
-Xmax <- 60
-Ymin <- -0.3
-Ymax <- 0.3
-#dev.new(width=3, height=3, unit="in")
-plot(-100, xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="Latitude", ylab="Model")
-abline(0, 0, col="gray", lwd=3, lty="longdash")
-points(G.data[G.data$Habitat=="Tropical","Latitude"], G.data[G.data$Habitat=="Tropical","delta.model"], pch=19, cex=1.5, col="red")
-points(G.data[G.data$Habitat=="Subtropical","Latitude"], G.data[G.data$Habitat=="Subtropical","delta.model"], pch=19, cex=1.5, col="orange")
-points(G.data[G.data$Habitat=="Mediterranean","Latitude"], G.data[G.data$Habitat=="Mediterranean","delta.model"], pch=19, cex=1.5, col="orange")
-points(G.data[G.data$Habitat=="Temperate","Latitude"], G.data[G.data$Habitat=="Temperate","delta.model"], pch=19, cex=1.5, col="blue")
-points(seq(2*Xmin,2*Xmax,1), coef(G.lat)[2]*seq(2*Xmin,2*Xmax,1) + coef(G.lat)[1], type="l", lwd=3, col="black", lty="longdash")
 
 # BIRTH RATE
 # Model vs TPCs
@@ -272,6 +242,42 @@ points(b.data[b.data$Habitat=="Mediterranean","Latitude"], b.data[b.data$Habitat
 points(b.data[b.data$Habitat=="Temperate","Latitude"], b.data[b.data$Habitat=="Temperate","delta.model"], pch=19, cex=1.5, col="blue")
 points(seq(2*Xmin,2*Xmax,1), coef(b.lat)[2]*seq(2*Xmin,2*Xmax,1) + coef(b.lat)[1], type="l", lwd=3, col="black", lty="longdash")
 
+
+# DEVELOPMENT TIME
+# Model vs TPCs
+Xmin <- -0.3
+Xmax <- 0.2
+Ymin <- -0.3
+Ymax <- 0.2
+#dev.new(width=3, height=3, unit="in")
+plot(-100, xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="TPC", ylab="Model")
+polygon(c(2*Xmin,0,2*Xmax,2*Xmax),c(2*Xmin,0,-2*Xmax,2*Ymin), col = "lightgray", border = NA)
+polygon(c(2*Xmin,0,2*Xmax),c(-2*Xmin,0,2*Xmax), col = "lightgray", border = NA)
+abline(0, 1, col="gray", lwd=3)
+abline(0, -1, col="gray", lwd=1)
+abline(0, 0, col="gray", lwd=3, lty="longdash")
+abline(v = 0, col="gray", lwd=3, lty="longdash")
+points(tau.data[tau.data$Habitat=="Tropical","delta.TPC"], tau.data[tau.data$Habitat=="Tropical","delta.model"], pch=19, cex=1.5, col="red")
+points(tau.data[tau.data$Habitat=="Subtropical","delta.TPC"], tau.data[tau.data$Habitat=="Subtropical","delta.model"], pch=19, cex=1.5, col="orange")
+points(tau.data[tau.data$Habitat=="Mediterranean","delta.TPC"], tau.data[tau.data$Habitat=="Mediterranean","delta.model"], pch=19, cex=1.5, col="orange")
+points(tau.data[tau.data$Habitat=="Temperate","delta.TPC"], tau.data[tau.data$Habitat=="Temperate","delta.model"], pch=19, cex=1.5, col="blue")
+points(seq(2*Xmin,2*Xmax,0.1), coef(tau.delta)[2]*seq(2*Xmin,2*Xmax,0.1)+coef(tau.delta)[1], type="l", lwd=3, col="black")
+
+# Model vs latitude
+Xmin <- 0
+Xmax <- 60
+Ymin <- -0.3
+Ymax <- 0.1
+#dev.new(width=3, height=3, unit="in")
+plot(-100, xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="Latitude", ylab="Model")
+abline(0, 0, col="gray", lwd=3, lty="longdash")
+points(tau.data[tau.data$Habitat=="Tropical","Latitude"], tau.data[tau.data$Habitat=="Tropical","delta.model"], pch=19, cex=1.5, col="red")
+points(tau.data[tau.data$Habitat=="Subtropical","Latitude"], tau.data[tau.data$Habitat=="Subtropical","delta.model"], pch=19, cex=1.5, col="orange")
+points(tau.data[tau.data$Habitat=="Mediterranean","Latitude"], tau.data[tau.data$Habitat=="Mediterranean","delta.model"], pch=19, cex=1.5, col="orange")
+points(tau.data[tau.data$Habitat=="Temperate","Latitude"], tau.data[tau.data$Habitat=="Temperate","delta.model"], pch=19, cex=1.5, col="blue")
+points(seq(2*Xmin,2*Xmax,1), coef(tau.lat)[2]*seq(2*Xmin,2*Xmax,1) + coef(tau.lat)[1], type="l", lwd=3, col="black")
+
+
 # SURVIVAL
 # Model vs TPCs
 Xmin <- -0.6
@@ -306,6 +312,7 @@ points(s.data[s.data$Habitat=="Mediterranean","Latitude"], s.data[s.data$Habitat
 points(s.data[s.data$Habitat=="Temperate","Latitude"], s.data[s.data$Habitat=="Temperate","delta.model"], pch=19, cex=1.5, col="blue")
 points(seq(2*Xmin,2*Xmax,1), coef(s.lat)[2]*seq(2*Xmin,2*Xmax,1) + coef(s.lat)[1], type="l", lwd=3, col="black", lty="longdash")
 
+
 # ADULT LONGEVITY
 # Model vs TPCs
 Xmin <- -0.4
@@ -339,6 +346,7 @@ points(L.data[L.data$Habitat=="Subtropical","Latitude"], L.data[L.data$Habitat==
 points(L.data[L.data$Habitat=="Mediterranean","Latitude"], L.data[L.data$Habitat=="Mediterranean","delta.model"], pch=19, cex=1.5, col="orange")
 points(L.data[L.data$Habitat=="Temperate","Latitude"], L.data[L.data$Habitat=="Temperate","delta.model"], pch=19, cex=1.5, col="blue")
 points(seq(2*Xmin,2*Xmax,1), coef(L.lat)[2]*seq(2*Xmin,2*Xmax,1) + coef(L.lat)[1], type="l", lwd=3, col="black")
+
 
 
 # EXTINCTION
