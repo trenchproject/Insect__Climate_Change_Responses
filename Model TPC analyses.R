@@ -81,8 +81,8 @@ for(s in 1:nrow(param.all)) {
   # start and end times for integration
   end.h <- nrow(TS.h)
   end.f <- nrow(TS.f)
-  start.h <- max(end.h - 365*5, end.h %% 365) # integrate over last 5 years of time-series (max number of years before end date if <5 years in data)
-  start.f <- max(end.f - 365*5, end.f %% 365) # integrate over last 5 years of time-series (max number of years before end date if <5 years in data)
+  start.h <- max(end.h - 365*5 + 1, end.h %% 365) # integrate over last 5 years of time-series (max number of years before end date if <5 years in data)
+  start.f <- max(end.f - 365*5 + 1, end.f %% 365) # integrate over last 5 years of time-series (max number of years before end date if <5 years in data)
   if(start.h == end.h) { start.h <- 31 } # if < 1 year, set start = 31 to avoid initial transients
   if(start.f == end.f) { start.f <- 31 } # if < 1 year, set start = 31 to avoid initial transients
   
@@ -278,11 +278,7 @@ for(s in 1:nrow(param.all)) {
   b.model.h <- b.model.h/count.h
   tau.model.h <- tau.model.h/count.h
   dA.model.h <- dA.model.h/count.h
-  
-  # Plot trait value over time
-  #plot(TS.h[-c(1:start.h),"Time"],TS.h[-c(1:start.h),"b"], col="blue")
-  #plot(TS.h$Time,TS.h$b, col="blue")
-  
+
   
   ################################### MODEL: FUTURE CLIMATE ####################################
   # Life history traits
@@ -341,13 +337,9 @@ for(s in 1:nrow(param.all)) {
   b.model.f <- b.model.f/count.f
   tau.model.f <- tau.model.f/count.f
   dA.model.f <- dA.model.f/count.f
+
   
-  # Plot trait value over time
-  #plot(TS.f[-c(1:start.f),"Time"],TS.f[-c(1:start.f),"b"], col="blue")
-  #plot(TS.f$Time,TS.f$b, col="blue")
-  
-  
-   
+  ################################# RECORD AND DISPLAY RESULTS ###############################
   # INPUT RESUTS INTO ARRAY
   if(all == TRUE) {
     if(trait == "Fitness") {
@@ -437,6 +429,7 @@ for(s in 1:nrow(param.all)) {
   if(all == FALSE) { break  }
 }
 
+
 # OUTPUT RESULTS IN CSV FILE
 if(output == TRUE && all == TRUE) {
   if(trait == "Fitness") { write_csv(results, "Predictions/Predictions Dev fitness.csv") }
@@ -450,9 +443,8 @@ if(output == TRUE && all == TRUE) {
 }
 
 
-
 ###################### PLOT TEMPERATURE RESPONSE AND SUMMARIZE RESULTS ######################
-# READ IN CLIMATE DATA
+# Read in climate data
 if(all == FALSE) {
   temp.h <- as.data.frame(read_csv(paste0("Climate data/Historical climate data ",location,".csv")))
   temp.f <- as.data.frame(read_csv(paste0("Climate data/Future climate data ",location,".csv")))
@@ -478,7 +470,7 @@ if(all == FALSE) {
   }
 }
 
-# PLOT
+# Plot
 if(all == FALSE) {
   # Plot options
   Tmin <- round(min(temp.h$T,temp.f$T),0) - 3
@@ -536,7 +528,7 @@ if(all == FALSE) {
   axis(side = 4)
 }
 
-# SUMMARIZE RESULTS
+# Summarize results
 if(trait == "Fitness") { 
   print(paste("r.TPC.h:", r.TPC.h/param$rMax))
   print(paste("r.TPC.f:", r.TPC.f/param$rMax))
@@ -603,5 +595,5 @@ if(trait == "Recruitment") {
 }
 if(all == TRUE) { print(results) }
 
-# PLOT CHANGES IN LIFE HISTORY TRAIT
+# Plot changes in life history traits
 #barplot(c((b.TPC.f-b.TPC.h), (b.model.f-b.model.h)), col=c("Darkgreen","Orange"), ylim=c(-0.4,0.6), main=expression("Change in r"))

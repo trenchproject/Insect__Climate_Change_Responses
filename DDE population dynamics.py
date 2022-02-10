@@ -27,7 +27,7 @@ if cwd != '/Users/johnson/Documents/Christopher/GitHub/Johnson_Insect_Responses'
 
 # USER: Enter species, location, and time period
 species = "Macrosiphum euphorbiae"
-location = "Canada"
+location = "Brazil"
 period = "Historical"
 #period = "Future"
 
@@ -260,7 +260,7 @@ while(True):
     ylabel("population density")
     yscale("linear")
     xlim((max_years-max_years)*yr,(max_years-0)*yr)
-    ylim(0,200)
+    ylim(0,500)
     #ylim(0,1e10)
     
     
