@@ -79,10 +79,7 @@ while(True):
     # DEFINE MODEL PARAMETERS
     # Time parameters
     yr = 365 # days in year
-    if census == False:
-        start_date = 0 # day on which to start model
-    else:
-        start_date = 210 # day on which to start model
+    start_date = 0 # day on which to start model
     if comp == True:
         init_years = 0 # how many years into climate change to start model
         max_years = init_years + 75 # how long to run simulations
@@ -90,6 +87,8 @@ while(True):
         init_years = 65 # how many years into climate change to start model
         max_years = 10 # how long to run simulations
     if census == True:
+        start_date = 0 # day on which to start model
+        census_start = 135 # day on which to start population growth (e.g., planting date)
         max_years = 10 # how long to run simulations
     tstep = 1 # time step = 1 day
     CC_years = max_years # how long before climate change "equilibrates"
@@ -163,7 +162,6 @@ while(True):
     show()
     '''
     
-    
     # Life history functions
     # fecundity
     def b(x):
@@ -183,8 +181,10 @@ while(True):
     # mortality rates
     def dJ(x):
         return dJTR * exp(AdJ * (1/TR - 1/T(x)))
+    #def dA(x):
+    #    return dATR * exp(AdA * (1/TR - 1/T(x)))
     def dA(x):
-        return conditional(T(x), Tmin, 1, dATR * exp(AdA * (1/TR - 1/T(x)))) # if temperature < developmental min (Tmin), then dA = 1; otherwise, use dA(T(x))
+        return conditional(T(x), Tmin, 0.1 + dATR * exp(AdA * (1/TR - 1/T(x))), dATR * exp(AdA * (1/TR - 1/T(x)))) # if temperature < developmental min (Tmin), then dA = 1; otherwise, use dA(T(x))
     
     # density-dependence due to competition
     def q(x):
@@ -193,12 +193,16 @@ while(True):
     
     # Minimum developmental temperature
     if minT == True:
-        def M(x):
-            return conditional(T(x), Tmin, 0, 1) # if temperature < developmental min, Tmin, then development M = 0; otherwise, M = 1
+        if census == False:
+            def M(x):
+                return conditional(T(x), Tmin, 0, 1) # if temperature < developmental min (Tmin) then development M = 0; otherwise, M = 1
+        else:
+            def M(x):
+                return conditional(T(x), Tmin, 0, conditional(sin(2*pi*(t - census_start)/yr), 0, 0, 1)) # development M = 0 before census_start or when T < Tmin
     else:
         def M(x):
             return 1
-    
+
     
     # DDE MODEL
     # Define state variables
@@ -269,13 +273,13 @@ while(True):
                 filename = 'Time series data Census/' + period + ' time series ' + spData["Species"] + '.csv'
                 savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
             if daily == False and left_skew == True:
-                filename = 'Time series data Census/' + period + ' time series ' + spData["Species"] + ' Tave.csv'
+                filename = 'Time series data Census/' + period + ' time series Tave ' + spData["Species"] + '.csv'
                 savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
             if daily == True and left_skew == False:
-                filename = 'Time series data Census/' + period + ' time series ' + spData["Species"] + ' Dev.csv'
+                filename = 'Time series data Census/' + period + ' time series Dev ' + spData["Species"] + '.csv'
                 savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
             if daily == False and left_skew == False:
-                filename = 'Time series data Census/' + period + ' time series ' + spData["Species"] + ' Tave Dev.csv'
+                filename = 'Time series data Census/' + period + ' time series Tave Dev ' + spData["Species"] + '.csv'
                 savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
     
     
@@ -290,7 +294,7 @@ while(True):
     ylabel("population density")
     yscale("linear")
     xlim((max_years-max_years)*yr,(max_years-0)*yr)
-    ylim(0,500)
+    ylim(0,100)
     #ylim(0,1e10)
     
     

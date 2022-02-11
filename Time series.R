@@ -12,22 +12,25 @@ library(tidyverse)
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 
+############# NOTE: RE-RUN ENTIRE SCRIPT IF ELAPSED TIME LIMIT ERROR OCCURS ##################
+
+
 # USER: enter species and location
 species <- "Apolygus lucorum"
 location <- "China Dafeng"
-plot <- "B" # For Nigeria, must specify plot
+field_plot <- "B" # For Nigeria, must specify plot "A", "B", or "C"
 
 # USER: include diurnal variation?
 daily <- FALSE
 
 # USER: Use left-skewed function for development?
-left_skew <- TRUE #(if FALSE, development plateaus between Topt and Tmax before going to zero above Tmax)
+left_skew <- TRUE # if FALSE, development plateaus between Topt and Tmax before going to zero above Tmax
 
 # USER: SET PLOT OPTIONS
 xmin <- 0 # start date
 xmax <- 730 # end date
 ymin <- 0 # min density
-ymax <- 200 # max density
+ymax <- 100 # max density
 temp.min <- 275 # min temperature
 temp.max <- 310 # max temperature
 
@@ -45,7 +48,7 @@ if(location == "Nigeria") { data.density <- read_csv("Population data Nigeria.cs
 
 # Select time-series data
 if(str_split(location, boundary("word"), simplify = T)[,1] == "China") { data.TS <- data.density[data.density$location==str_split(location, boundary("word"), simplify = T)[,2] & data.density$species==species,] }
-if(location == "Nigeria") { data.TS <- data.density[data.density$Plot==plot,] }
+if(location == "Nigeria") { data.TS <- data.density[data.density$Plot==field_plot,] }
 
 
 # DATA TRANSFORMATIONS (IF NECESSARY)
@@ -68,12 +71,12 @@ if(daily == TRUE) {
   data.model.CC <- as.data.frame(read_csv(paste0("Time series data Census/Future Time Series ",species," ",location,".csv")))
 }
 if(daily == FALSE && left_skew == TRUE) {
-  data.model <- as.data.frame(read_csv(paste0("Time series data Census/Historical Time Series ",species," ",location," Tave.csv")))
-  data.model.CC <- as.data.frame(read_csv(paste0("Time series data Census/Future Time Series ",species," ",location," Tave.csv")))
+  data.model <- as.data.frame(read_csv(paste0("Time series data Census/Historical Time Series Tave ",species," ",location,".csv")))
+  data.model.CC <- as.data.frame(read_csv(paste0("Time series data Census/Future Time Series Tave ",species," ",location,".csv")))
 }
 if(daily == FALSE && left_skew == FALSE) {
-  data.model <- as.data.frame(read_csv(paste0("Time series data Census/Historical Time Series ",species," ",location," Tave Dev.csv")))
-  data.model.CC <- as.data.frame(read_csv(paste0("Time series data Census/Future Time Series ",species," ",location," Tave Dev.csv")))
+  data.model <- as.data.frame(read_csv(paste0("Time series data Census/Historical Time Series Tave Dev ",species," ",location,".csv")))
+  data.model.CC <- as.data.frame(read_csv(paste0("Time series data Census/Future Time Series Tave Dev ",species," ",location," .csv")))
 }
 
 
@@ -84,7 +87,7 @@ xmax.CC <- xmax
 ymin.CC <- ymin
 ymax.CC <- ymax
 yr <- 365 # days in a year
-init_yrs <- 0 # number of years to initiate the model (from Python DDE model)
+init_yrs <- 8 # number of years before taking time-series data
 TS.length <- xmax - xmin # length of time-series data
 end <- nrow(data.model)
 end.CC <- nrow(data.model.CC)
@@ -92,13 +95,13 @@ end.CC <- nrow(data.model.CC)
 
 # FORMAT MODEL OUTPUT TO ALIGN WITH TIME-SERIES DATA
 # Remove all rows before time-series data starts
-data.model <- data.model[c(-1:-(init_yrs*yr + xmin)), ]
+data.model <- data.model[-c(1:(init_yrs*yr + xmin)), ]
 
 # Remove all rows after xmax days
-data.model <- data.model[c(-xmax+1:-end), ]
+if(xmax < end) { data.model <- data.model[-c(xmax+1:end), ] }
 
 # climate change period (remove all but last 2 years of data)
-data.model.CC <- data.model.CC[c(-1:-(end.CC-2*yr + xmin.CC)), ]
+if(xmax.CC < end.CC) { data.model.CC <- data.model.CC[-c(1:(end.CC-2*yr + xmin.CC)), ] }
 
 # Re-scale time to start at xmin
 # historical period
@@ -108,14 +111,15 @@ data.model <- sweep(data.model, 2, c(time.shift,0,0,0,0))
 time.shift.CC <- data.model.CC[[1,1]] + xmin.CC
 data.model.CC <- sweep(data.model.CC, 2, c(time.shift.CC,0,0,0,0))
 
-
-# DATA TRANSFORMATIONS (IF NECESSARY)
-# Convert from linear to log scale
+# Convert from linear to log scale (if necessary)
 # data.model$J <- log(data.model$J + 1, 10)
 # data.model$A <- log(data.model$A + 1, 10)
 # data.model.CC$J <- log(data.model.CC$J + 1, 10)
 # data.model.CC$A <- log(data.model.CC$A + 1, 10)
 
+# Quantify total insects
+data.model$I <- data.model$J + data.model$A
+data.model.CC$I <- data.model.CC$J + data.model.CC$A
 
 
 ########################################## PLOTS #############################################
@@ -184,7 +188,7 @@ model.A = ggplot(data.model, aes(x=Time, y=A)) +
         axis.text = element_text(size=13), axis.title = element_text(size=20)) 
 
 # Insect density (juveniles + adults)
-model.I = ggplot(data.model, aes(x=Time, y=J+A)) + 
+model.I = ggplot(data.model, aes(x=Time, y=I)) + 
   geom_line(size=0.8, color="black") +
   labs(x="Time", y="Density") +
   scale_x_continuous(limits=c(xmin, xmax)) +
@@ -193,7 +197,7 @@ model.I = ggplot(data.model, aes(x=Time, y=J+A)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
         axis.line = element_line(color = "black"), legend.position = "none", 
-        axis.text = element_text(size=13), axis.title = element_text(size=20)) 
+        axis.text = element_text(size=13), axis.title = element_text(size=20))
 
 # Future time period
 # Juvenile density
@@ -221,7 +225,7 @@ model.A.CC = ggplot(data.model.CC, aes(x=Time, y=A)) +
         axis.text = element_text(size=13), axis.title = element_text(size=20)) 
 
 # Insect density (juveniles + adults)
-model.I.CC = ggplot(data.model.CC, aes(x=Time, y=J+A)) + 
+model.I.CC = ggplot(data.model.CC, aes(x=Time, y=I)) + 
   geom_line(size=0.8, color="black", linetype="longdash") +
   labs(x="Time", y="Density") +
   scale_x_continuous(limits=c(xmin.CC, xmax.CC)) +
@@ -237,9 +241,8 @@ model.I.CC = ggplot(data.model.CC, aes(x=Time, y=J+A)) +
 # Historical time period
 # data table from Tmin and Tmax functions
 temp.fun.h <- data.frame(t=c(xmin:xmax))
-temp.fun.h <- data.frame(t=c(xmin:xmax),
-                       fun.min = sapply(temp.fun.h$t, FUN = function(t) (temp.data$meanT.h + temp.data$delta_mean.h*(t+time.shift))  - (temp.data$amplT.h + temp.data$delta_ampl.h*(t+time.shift)) * cos(2*pi*((t+time.shift) + temp.data$shiftT.h)/yr) - abs(temp.data$amplD.h)),
-                       fun.max = sapply(temp.fun.h$t, FUN = function(t) (temp.data$meanT.h + temp.data$delta_mean.h*(t+time.shift))  - (temp.data$amplT.h + temp.data$delta_ampl.h*(t+time.shift)) * cos(2*pi*((t+time.shift) + temp.data$shiftT.h)/yr) + abs(temp.data$amplD.h)))
+temp.fun.h$fun.min <- sapply(temp.fun.h$t, FUN = function(t) { (temp.data$meanT.h + temp.data$delta_mean.h*(t+time.shift))  - (temp.data$amplT.h + temp.data$delta_ampl.h*(t+time.shift)) * cos(2*pi*((t+time.shift) + temp.data$shiftT.h)/yr) - abs(temp.data$amplD.h) })
+temp.fun.h$fun.max <- sapply(temp.fun.h$t, FUN = function(t) { (temp.data$meanT.h + temp.data$delta_mean.h*(t+time.shift))  - (temp.data$amplT.h + temp.data$delta_ampl.h*(t+time.shift)) * cos(2*pi*((t+time.shift) + temp.data$shiftT.h)/yr) + abs(temp.data$amplD.h) })
 
 # day at which habitat temperature exceeds Tmin
 day1.h <- temp.fun.h[temp.fun.h$fun.min >= sp.data$Tmin, "t"][1]
@@ -268,10 +271,9 @@ plot.temp <- ggplot(temp.fun.h, aes(x=t, y=fun.max)) +
 
 # Future time period
 # data table from Tmin and Tmax functions
-temp.fun.f <- data.frame(t=c(xmin.CC:xmax.CC))
-temp.fun.f <- data.frame(t=c(xmin.CC:xmax.CC),
-                       fun.min = sapply(temp.fun.f$t, FUN = function(t) (temp.data$meanT.f + temp.data$delta_mean.f*(t+time.shift.CC))  - (temp.data$amplT.f + temp.data$delta_ampl.f*(t+time.shift.CC)) * cos(2*pi*((t+time.shift.CC) + temp.data$shiftT.f)/yr) - abs(temp.data$amplD.f)),
-                       fun.max = sapply(temp.fun.f$t, FUN = function(t) (temp.data$meanT.f + temp.data$delta_mean.f*(t+time.shift.CC))  - (temp.data$amplT.f + temp.data$delta_ampl.f*(t+time.shift.CC)) * cos(2*pi*((t+time.shift.CC) + temp.data$shiftT.f)/yr) + abs(temp.data$amplD.f)))
+temp.fun.f <- data.frame(t=c(xmin:xmax))
+temp.fun.f$fun.min <- sapply(temp.fun.f$t, FUN = function(t) { (temp.data$meanT.f + temp.data$delta_mean.f*(t+time.shift))  - (temp.data$amplT.f + temp.data$delta_ampl.f*(t+time.shift)) * cos(2*pi*((t+time.shift) + temp.data$shiftT.f)/yr) - abs(temp.data$amplD.f) })
+temp.fun.f$fun.max <- sapply(temp.fun.f$t, FUN = function(t) { (temp.data$meanT.f + temp.data$delta_mean.f*(t+time.shift))  - (temp.data$amplT.f + temp.data$delta_ampl.f*(t+time.shift)) * cos(2*pi*((t+time.shift) + temp.data$shiftT.f)/yr) + abs(temp.data$amplD.f) })
 
 # day at which habitat temperature exceeds Tmin
 day1.f <- temp.fun.f[temp.fun.f$fun.min >= sp.data$Tmin, "t"][1]
@@ -321,8 +323,8 @@ if(str_split(location, boundary("word"), simplify = T)[,1] == "China") {
   plot <- ggdraw()  +
    draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
    draw_plot(plot.I, x = 0, y = 0.3, width = 1, height = 0.7) +
-   draw_plot(model.J, x = 0, y = 0.3, width = 1, height = 0.7) +
-   draw_plot(model.A, x = 0, y = 0.3, width = 1, height = 0.7) +
+   #draw_plot(model.J, x = 0, y = 0.3, width = 1, height = 0.7) +
+   #draw_plot(model.A, x = 0, y = 0.3, width = 1, height = 0.7) +
    draw_plot(model.I, x = 0, y = 0.3, width = 1, height = 0.7)
 }
 
