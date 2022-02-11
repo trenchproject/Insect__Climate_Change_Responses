@@ -26,8 +26,8 @@ if cwd != '/Users/johnson/Documents/Christopher/GitHub/Johnson_Insect_Responses'
 
 
 # USER: Enter species, location, and time period
-species = "Macrosiphum euphorbiae"
-location = "Canada"
+species = "Apolygus lucorum"
+location = "China Dafeng"
 period = "Historical"
 #period = "Future"
 
@@ -35,13 +35,13 @@ period = "Historical"
 all_sp = False
 
 # USER: Save data to CSV file?
-save_data = False
+save_data = True
 
 # USER: Use minimum temperature threshold?
 minT = True
 
 # USER: Use left-skewed function for development?
-dev_fits = False #(if False, development plateaus between Topt and Tmax before going to zero above Tmax)
+left_skew = True #(if False, development plateaus between Topt and Tmax before going to zero above Tmax)
 
 # USER: Include competition (i.e., density-dependent population growth)?
 comp = True
@@ -50,7 +50,7 @@ comp = True
 daily = False
 
 # USER: Is model fit to census data?
-census = False
+census = True
 
 
 # INPUT TEMPERATURE RESPONSE PARAMETERS AND TEMPERATURE PARAMETERS
@@ -79,12 +79,17 @@ while(True):
     # DEFINE MODEL PARAMETERS
     # Time parameters
     yr = 365 # days in year
-    start_date = 0 # day on which to start model
+    if census == False:
+        start_date = 0 # day on which to start model
+    else:
+        start_date = 210 # day on which to start model
     if comp == True:
         init_years = 0 # how many years into climate change to start model
         max_years = init_years + 75 # how long to run simulations
     else:
         init_years = 65 # how many years into climate change to start model
+        max_years = 10 # how long to run simulations
+    if census == True:
         max_years = 10 # how long to run simulations
     tstep = 1 # time step = 1 day
     CC_years = max_years # how long before climate change "equilibrates"
@@ -127,8 +132,6 @@ while(True):
     Tmin = spData["Tmin"] # minimum developmental temperature
     Topt = spData["Topt"] # optimum developmental temperature
     Tmax = spData["Tmax"] # maximum developmental temperature
-    if census == True: # if model is fit to census data, use temperature at start of experiment as Tmin
-        Tmin = tempData["Tstart"]
     # mortality
     dJTR = spData["dJTR"]
     AdJ = spData["AdJ"]
@@ -167,7 +170,7 @@ while(True):
         return conditional(bTopt * exp(-(T(x)-Toptb)**2/(2*sb**2)), 1e-5, 1e-5, bTopt * exp(-(T(x)-Toptb)**2/(2*sb**2))) # If b(T) < jitcdde min tolerance, then b(T) = 0
     
     # maturation rates
-    if dev_fits == True:
+    if left_skew == True:
         def mJ(x):
             return conditional(mTR * T(x)/TR * exp(AmJ * (1/TR - 1/T(x))) / (1 + (exp(AL*(1/TL-1/T(x)))+exp(AH*(1/TH-1/T(x))))), 1e-5,
                                1e-5, mTR * T(x)/TR * exp(AmJ * (1/TR - 1/T(x))) / (1 + (exp(AL*(1/TL-1/T(x)))+exp(AH*(1/TH-1/T(x)))))) # If mJ(T) < jitcdde min tolerance, then mJ(T) = 1e-5
@@ -235,30 +238,45 @@ while(True):
     
     # save data to csv 
     if save_data == True:
-        if comp == True and daily == True and dev_fits == True:
-            filename = 'Time series data/' + period + ' time series ' + spData["Species"] + '.csv'
-            savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
-        if comp == True and daily == False and dev_fits == True:
-            filename = 'Time series data Tave/' + period + ' time series ' + spData["Species"] + '.csv'
-            savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
-        if comp == False and daily == True and dev_fits == True:
-            filename = 'Time series data DI/' + period + ' time series ' + spData["Species"] + '.csv'
-            savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
-        if comp == False and daily == False and dev_fits == True:
-            filename = 'Time series data DI Tave/' + period + ' time series ' + spData["Species"] + '.csv'
-            savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
-        if comp == True and daily == True and dev_fits == False:
-            filename = 'Time series data Dev/' + period + ' time series ' + spData["Species"] + '.csv'
-            savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
-        if comp == True and daily == False and dev_fits == False:
-            filename = 'Time series data Tave Dev/' + period + ' time series ' + spData["Species"] + '.csv'
-            savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
-        if comp == False and daily == True and dev_fits == False:
-            filename = 'Time series data DI Dev/' + period + ' time series ' + spData["Species"] + '.csv'
-            savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
-        if comp == False and daily == False and dev_fits == False:
-            filename = 'Time series data DI Tave Dev/' + period + ' time series ' + spData["Species"] + '.csv'
-            savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
+        if census == False:
+            if comp == True and daily == True and left_skew == True:
+                filename = 'Time series data/' + period + ' time series ' + spData["Species"] + '.csv'
+                savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
+            if comp == True and daily == False and left_skew == True:
+                filename = 'Time series data Tave/' + period + ' time series ' + spData["Species"] + '.csv'
+                savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
+            if comp == False and daily == True and left_skew == True:
+                filename = 'Time series data DI/' + period + ' time series ' + spData["Species"] + '.csv'
+                savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
+            if comp == False and daily == False and left_skew == True:
+                filename = 'Time series data DI Tave/' + period + ' time series ' + spData["Species"] + '.csv'
+                savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
+            if comp == True and daily == True and left_skew == False:
+                filename = 'Time series data Dev/' + period + ' time series ' + spData["Species"] + '.csv'
+                savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
+            if comp == True and daily == False and left_skew == False:
+                filename = 'Time series data Tave Dev/' + period + ' time series ' + spData["Species"] + '.csv'
+                savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
+            if comp == False and daily == True and left_skew == False:
+                filename = 'Time series data DI Dev/' + period + ' time series ' + spData["Species"] + '.csv'
+                savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
+            if comp == False and daily == False and left_skew == False:
+                filename = 'Time series data DI Tave Dev/' + period + ' time series ' + spData["Species"] + '.csv'
+                savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
+        # For fits to census data
+        else:
+            if daily == True and left_skew == True:
+                filename = 'Time series data Census/' + period + ' time series ' + spData["Species"] + '.csv'
+                savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
+            if daily == False and left_skew == True:
+                filename = 'Time series data Census/' + period + ' time series ' + spData["Species"] + ' Tave.csv'
+                savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
+            if daily == True and left_skew == False:
+                filename = 'Time series data Census/' + period + ' time series ' + spData["Species"] + ' Dev.csv'
+                savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
+            if daily == False and left_skew == False:
+                filename = 'Time series data Census/' + period + ' time series ' + spData["Species"] + ' Tave Dev.csv'
+                savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
     
     
     # PLOT
