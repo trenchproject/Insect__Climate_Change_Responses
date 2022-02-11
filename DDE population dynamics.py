@@ -27,7 +27,7 @@ if cwd != '/Users/johnson/Documents/Christopher/GitHub/Johnson_Insect_Responses'
 
 # USER: Enter species, location, and time period
 species = "Macrosiphum euphorbiae"
-location = "Brazil"
+location = "Canada"
 period = "Historical"
 #period = "Future"
 
@@ -40,8 +40,8 @@ save_data = False
 # USER: Use minimum temperature threshold?
 minT = True
 
-# USER: Use left-skewed functon for development?
-dev_fits = False
+# USER: Use left-skewed function for development?
+dev_fits = False #(if False, development plateaus between Topt and Tmax before going to zero above Tmax)
 
 # USER: Include competition (i.e., density-dependent population growth)?
 comp = True
@@ -235,16 +235,28 @@ while(True):
     
     # save data to csv 
     if save_data == True:
-        if comp == True and daily == True:
+        if comp == True and daily == True and dev_fits == True:
             filename = 'Time series data/' + period + ' time series ' + spData["Species"] + '.csv'
             savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
-        if comp == True and daily == False:
-            filename = 'Time series data Tave Dev/' + period + ' time series ' + spData["Species"] + '.csv'
+        if comp == True and daily == False and dev_fits == True:
+            filename = 'Time series data Tave/' + period + ' time series ' + spData["Species"] + '.csv'
             savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
-        if comp == False and daily == True:
+        if comp == False and daily == True and dev_fits == True:
             filename = 'Time series data DI/' + period + ' time series ' + spData["Species"] + '.csv'
             savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
-        if comp == False and daily == False:
+        if comp == False and daily == False and dev_fits == True:
+            filename = 'Time series data DI Tave/' + period + ' time series ' + spData["Species"] + '.csv'
+            savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
+        if comp == True and daily == True and dev_fits == False:
+            filename = 'Time series data Dev/' + period + ' time series ' + spData["Species"] + '.csv'
+            savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
+        if comp == True and daily == False and dev_fits == False:
+            filename = 'Time series data Tave Dev/' + period + ' time series ' + spData["Species"] + '.csv'
+            savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
+        if comp == False and daily == True and dev_fits == False:
+            filename = 'Time series data DI Dev/' + period + ' time series ' + spData["Species"] + '.csv'
+            savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
+        if comp == False and daily == False and dev_fits == False:
             filename = 'Time series data DI Tave Dev/' + period + ' time series ' + spData["Species"] + '.csv'
             savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
     

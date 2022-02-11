@@ -14,7 +14,7 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 data <- as.data.frame(read_csv("Temperature response data.csv"))
 
 # USER: enter species name (used in temperature response data.csv)
-name <- "Hyadaphis pseudobrassicae US"
+name <- "Macrosiphum euphorbiae Canada"
 
 # Assign species
 sp.data <- data[data$Species == name,]

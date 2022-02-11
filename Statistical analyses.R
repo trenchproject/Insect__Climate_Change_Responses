@@ -24,6 +24,10 @@ f.data <- as.data.frame(read_csv("Predictions/Predictions Dev fecundity.csv"))
 R.data <- as.data.frame(read_csv("Predictions/Predictions Dev recruitment.csv"))
 # Population dynamics data
 pop.data <- as.data.frame(read_csv("Predictions/Predictions population dynamics.csv"))
+# Life history trait data
+LH.data <- as.data.frame(read_csv("Temperature response parameters.csv"))
+# Temperature data
+temp.data <- as.data.frame(read_csv("Temperature parameters Tave.csv"))
 # Extinction results
 # results.m <- as.data.frame(read_csv("Extinction meanT.csv"))
 # results.a <- as.data.frame(read_csv("Extinction amplT.csv"))
@@ -33,18 +37,21 @@ pop.data <- as.data.frame(read_csv("Predictions/Predictions population dynamics.
 # EXCLUDE DATA
 # Clavigralla tomentosicollis Nigeria (no lifetime fecundity data)
 # Macrolophus pygmaeus (only predator and separate thermal responses for each prey)
-r.data <- r.data[-c(3,12,13),]
-R0.data <- R0.data[-c(3,12,13),]
-b.data <- b.data[-c(3,12,13),]
-tau.data <- tau.data[-c(3,12,13),]
-s.data <- s.data[-c(3,12,13),]
-L.data <- L.data[-c(3,12,13),]
-f.data <- f.data[-c(3,12,13),]
-R.data <- R.data[-c(3,12,13),]
-pop.data <- pop.data[-c(3,12,13),]
-# results.m <- results.m[-c(3,12,13),]
-# results.a <- results.a[-c(3,12,13),]
-# results.b <- results.b[-c(3,12,13),]
+# Bemisia argentifollii and Diaphorina citri (different suborder)
+r.data <- r.data[-c(3,12,13,15,18),]
+R0.data <- R0.data[-c(3,12,13,15,18),]
+b.data <- b.data[-c(3,12,13,15,18),]
+tau.data <- tau.data[-c(3,12,13,15,18),]
+s.data <- s.data[-c(3,12,13,15,18),]
+L.data <- L.data[-c(3,12,13,15,18),]
+f.data <- f.data[-c(3,12,13,15,18),]
+R.data <- R.data[-c(3,12,13,15,18),]
+pop.data <- pop.data[-c(3,12,13,15,18),]
+LH.data <- LH.data[-c(3,12,13,15,18),]
+temp.data <- temp.data[-c(3,12,13,15,18),]
+# results.m <- results.m[-c(3,12,13,15,18),]
+# results.a <- results.a[-c(3,12,13,15,18),]
+# results.b <- results.b[-c(3,12,13,15,18),]
 
 
 # SCALE LOWEST FITNESS CHANGE TO -1
@@ -124,6 +131,113 @@ summary(CV.lat) # non-significant
 # Active period vs Latitude (NOTE: non-significant for temperate species only)
 active.lat <- lm(delta.active ~ Latitude, data=pop.data) #[pop.data$Habitat == "Temperate",])
 summary(active.lat) # significant!
+
+
+# LIFE HISTORY TRAITS
+# BIRTH RATE
+# bTopt vs Latitude
+bTopt.lat <- lm(bTopt ~ Latitude, data=LH.data)
+summary(bTopt.lat) # significant!
+plot(LH.data$Latitude,LH.data$bTopt, ylim=c(0,10))
+# Toptb vs Latitude
+Toptb.lat <- lm(Toptb ~ Latitude, data=LH.data)
+summary(Toptb.lat) # significant!
+plot(LH.data$Latitude,LH.data$Toptb)
+# sb vs Latitude
+sb.lat <- lm(sb ~ Latitude, data=LH.data)
+summary(sb.lat) # significant!
+plot(LH.data$Latitude,LH.data$sb)
+# Toptb - meanT vs Latitude
+LH.data$delta_b <- LH.data$Toptb - temp.data$meanT.f + temp.data$delta_mean.f*70*365
+delta.b.lat <- lm(delta_b ~ Latitude, data=LH.data)
+summary(delta.b.lat) # significant!
+plot(LH.data$Latitude,LH.data$delta_b)
+
+# DEVELOPMENT RATE
+# mTR vs Latitude
+mTR.lat <- lm(mTR ~ Latitude, data=LH.data)
+summary(mTR.lat) # non-significant
+plot(LH.data$Latitude,LH.data$mTR)
+# AL vs Latitude
+AL.lat <- lm(AL ~ Latitude, data=LH.data)
+summary(AL.lat) # non-significant
+plot(LH.data$Latitude,LH.data$AL)
+# AH vs Latitude
+AH.lat <- lm(AH ~ Latitude, data=LH.data)
+summary(AH.lat) # non-significant
+plot(LH.data$Latitude,LH.data$AH)
+# TL vs Latitude
+TL.lat <- lm(TL ~ Latitude, data=LH.data)
+summary(TL.lat) # significant!
+plot(LH.data$Latitude,LH.data$TL)
+# TH vs Latitude
+TH.lat <- lm(TH ~ Latitude, data=LH.data)
+summary(TH.lat) # non-significant
+plot(LH.data$Latitude,LH.data$TH)
+# Tmin vs Latitude
+Tmin.lat <- lm(Tmin ~ Latitude, data=LH.data)
+summary(Tmin.lat) # significant!
+plot(LH.data$Latitude,LH.data$Tmin)
+# Topt vs Latitude
+Topt.lat <- lm(Topt ~ Latitude, data=LH.data)
+summary(Topt.lat) # significant!
+plot(LH.data$Latitude,LH.data$Topt)
+# Tmax vs Latitude
+Tmax.lat <- lm(Tmax ~ Latitude, data=LH.data)
+summary(Tmax.lat) # non-significant
+plot(LH.data$Latitude,LH.data$Tmax)
+# Topt - meanT vs Latitude
+LH.data$delta_Topt <- LH.data$Topt - temp.data$meanT.f  + temp.data$delta_mean.f*70*365
+delta.Topt.lat <- lm(delta_Topt ~ Latitude, data=LH.data)
+summary(delta.Topt.lat) # significant!
+plot(LH.data$Latitude,LH.data$delta_Topt)
+
+# JUVENILE MORTALITY RATE
+# dJTR vs Latitude
+dJTR.lat <- lm(dJTR ~ Latitude, data=LH.data)
+summary(dJTR.lat) # non-significant
+plot(LH.data$Latitude,LH.data$dJTR)
+# AdJ vs Latitude
+AdJ.lat <- lm(AdJ ~ Latitude, data=LH.data)
+summary(AdJ.lat) # non-significant
+plot(LH.data$Latitude,LH.data$AdJ)
+# dJ(Tmean) vs Latitude
+LH.data$dJ_Tmean <- LH.data$dJTR*exp(LH.data$AdJ*(1/LH.data$TR-1/(temp.data$meanT.f + temp.data$delta_mean.f*70*365)))
+dJ.Tmean.lat <- lm(dJ_Tmean ~ Latitude, data=LH.data)
+summary(dJ.Tmean.lat) # significant
+plot(LH.data$Latitude,LH.data$dJ_Tmean)
+
+# ADULT MORTALITY RATE
+# dATR vs Latitude
+dATR.lat <- lm(dATR ~ Latitude, data=LH.data)
+summary(dATR.lat) # marginally-significant
+plot(LH.data$Latitude,LH.data$dATR)
+# AdA vs Latitude
+AdA.lat <- lm(AdA ~ Latitude, data=LH.data)
+summary(AdA.lat) # non-significant
+plot(LH.data$Latitude,LH.data$AdA)
+# dA(Tmean) vs Latitude
+LH.data$dA_Tmean <- LH.data$dATR*exp(LH.data$AdA*(1/LH.data$TR-1/(temp.data$meanT.f + temp.data$delta_mean.f*70*365)))
+dA.Tmean.lat <- lm(dA_Tmean ~ Latitude, data=LH.data)
+summary(dA.Tmean.lat) # marginally-significant
+plot(LH.data$Latitude,LH.data$dA_Tmean)
+
+
+# TEMPERATURE
+# delta_meanT vs Latitude
+Tmean.lat <- lm(delta_mean.f ~ Latitude, data=temp.data)
+summary(Tmean.lat) # non-significant
+# delta_amplT temperature vs Latitude
+Tampl.lat <- lm(delta_ampl.f ~ Latitude, data=temp.data)
+summary(Tampl.lat) # significant!
+# Change in mean temperature vs Latitude
+temp.data$mean_ch <- (temp.data$meanT.f + temp.data$delta_mean.f*70*365)- temp.data$meanT.h
+mean.ch.lat <- lm(mean_ch ~ Latitude, data=temp.data)
+summary(mean.ch.lat) # non-significant
+# Change in ampl temperature vs Latitude
+temp.data$ampl_ch <- (temp.data$amplT.f + temp.data$delta_ampl.f*70*365)- temp.data$amplT.h
+ampl.ch.lat <- lm(ampl_ch ~ Latitude, data=temp.data)
+summary(ampl.ch.lat) # marginally-significant
 
 
 # EXTINCTION
