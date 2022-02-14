@@ -26,8 +26,8 @@ if cwd != '/Users/johnson/Documents/Christopher/GitHub/Johnson_Insect_Responses'
 
 
 # USER: Enter species, location, and time period
-species = "Apolygus lucorum"
-location = "China Dafeng"
+species = "Clavigralla tomentosicollis"
+location = "Nigeria"
 period = "Historical"
 #period = "Future"
 
@@ -63,17 +63,17 @@ else:
 
 # SELECT SPECIES
 if all_sp == True:
-    species = 0
+    sp = 0
 else:
-    species = Sdata[Sdata["Species"] == species + " " + location].index[0]
+    sp = Sdata[Sdata["Species"] == species + " " + location].index[0]
 
 
 # REPEAT CODE FOR ALL SPECIES
 while(True):
     
     # SELECT SPECIES
-    spData = Sdata.iloc[species]
-    tempData = Tdata.iloc[species]
+    spData = Sdata.iloc[sp]
+    tempData = Tdata.iloc[sp]
     
 
     # DEFINE MODEL PARAMETERS
@@ -88,7 +88,8 @@ while(True):
         max_years = 10 # how long to run simulations
     if census == True:
         start_date = 0 # day on which to start model
-        census_start = 135 # day on which to start population growth (e.g., planting date)
+        census_start = 135 # for Apolygus lucorum, fields were sown in mid-May (day = 135)
+        #census_start = 120 # for Clavigralla tomentosicollis (plot C)
         max_years = 10 # how long to run simulations
     tstep = 1 # time step = 1 day
     CC_years = max_years # how long before climate change "equilibrates"
@@ -197,8 +198,14 @@ while(True):
             def M(x):
                 return conditional(T(x), Tmin, 0, 1) # if temperature < developmental min (Tmin) then development M = 0; otherwise, M = 1
         else:
-            def M(x):
-                return conditional(T(x), Tmin, 0, conditional(sin(2*pi*(t - census_start)/yr), 0, 0, 1)) # development M = 0 before census_start or when T < Tmin
+            if species == "Clavigralla tomentosicollis":
+                def M(x):
+                    #return conditional(T(x), Tmin, 0, conditional(sin(2*pi*(t - census_start)/(yr/2)), 0, 0, 1)) # development M = 0 before census_start or when T < Tmin
+                    return 1
+            else:
+                if species == "Apolygus lucorum":
+                    def M(x):
+                        return conditional(T(x), Tmin, 0, conditional(sin(2*pi*(t - census_start)/yr), 0, 0, 1)) # development M = 0 before census_start or when T < Tmin
     else:
         def M(x):
             return 1
@@ -300,8 +307,8 @@ while(True):
     
     # END LOOP WHEN MODEL IS RUN FOR ALL SPECIES
     if all_sp == True:
-        species = species + 1
+        sp = sp + 1
     else:
-        species = Sdata.shape[0]
-    if species > Sdata.shape[0] - 1:
+        sp = Sdata.shape[0]
+    if sp > Sdata.shape[0] - 1:
         break

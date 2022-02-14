@@ -16,9 +16,10 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 
 # USER: enter species and location
-species <- "Apolygus lucorum"
-location <- "China Dafeng"
-field_plot <- "B" # For Nigeria, must specify plot "A", "B", or "C"
+species <- "Clavigralla tomentosicollis"
+location <- "Nigeria"
+field_plot <- "A" # for Nigeria, must specify plot "A", "B", or "C" 
+                  # densities excluded during dry pods in plot A, B and harmattan in plot C
 
 # USER: include diurnal variation?
 daily <- FALSE
@@ -314,9 +315,9 @@ plot.climate <- ggdraw()  +
 if(location == "Nigeria") {
   plot <- ggdraw()  +
      draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
-     draw_plot(plot.J, x = 0, y = 0.3, width = 1, height = 0.7) +
+     #draw_plot(plot.J, x = 0, y = 0.3, width = 1, height = 0.7) +
      draw_plot(plot.A, x = 0, y = 0.3, width = 1, height = 0.7) +
-     draw_plot(model.J, x = 0, y = 0.3, width = 1, height = 0.7) +
+     #draw_plot(model.J, x = 0, y = 0.3, width = 1, height = 0.7) +
      draw_plot(model.A, x = 0, y = 0.3, width = 1, height = 0.7)
 }
 if(str_split(location, boundary("word"), simplify = T)[,1] == "China") { 
