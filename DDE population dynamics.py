@@ -26,8 +26,8 @@ if cwd != '/Users/johnson/Documents/Christopher/GitHub/Johnson_Insect_Responses'
 
 
 # USER: Enter species, location, and time period
-species = "Clavigralla tomentosicollis"
-location = "Nigeria"
+species = "Apolygus lucorum"
+location = "China Dafeng"
 period = "Historical"
 #period = "Future"
 
@@ -300,7 +300,7 @@ while(True):
     xlabel("time (days)")
     ylabel("population density")
     yscale("linear")
-    xlim((max_years-max_years)*yr,(max_years-0)*yr)
+    xlim((max_years-2)*yr,(max_years-0)*yr)
     ylim(0,100)
     #ylim(0,1e10)
     

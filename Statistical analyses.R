@@ -35,23 +35,23 @@ temp.data <- as.data.frame(read_csv("Temperature parameters Tave.csv"))
 
 
 # EXCLUDE DATA
-# Clavigralla tomentosicollis Nigeria (no lifetime fecundity data)
 # Macrolophus pygmaeus (only predator and separate thermal responses for each prey)
 # Bemisia argentifollii and Diaphorina citri (different suborder)
-r.data <- r.data[-c(3,12,13,15,18),]
-R0.data <- R0.data[-c(3,12,13,15,18),]
-b.data <- b.data[-c(3,12,13,15,18),]
-tau.data <- tau.data[-c(3,12,13,15,18),]
-s.data <- s.data[-c(3,12,13,15,18),]
-L.data <- L.data[-c(3,12,13,15,18),]
-f.data <- f.data[-c(3,12,13,15,18),]
-R.data <- R.data[-c(3,12,13,15,18),]
-pop.data <- pop.data[-c(3,12,13,15,18),]
-LH.data <- LH.data[-c(3,12,13,15,18),]
-temp.data <- temp.data[-c(3,12,13,15,18),]
-# results.m <- results.m[-c(3,12,13,15,18),]
-# results.a <- results.a[-c(3,12,13,15,18),]
-# results.b <- results.b[-c(3,12,13,15,18),]
+r.data <- r.data[-c(12,13,15,18),]
+R0.data <- R0.data[-c(12,13,15,18),]
+b.data <- b.data[-c(12,13,15,18),]
+tau.data <- tau.data[-c(12,13,15,18),]
+s.data <- s.data[-c(12,13,15,18),]
+L.data <- L.data[-c(12,13,15,18),]
+f.data <- f.data[-c(12,13,15,18),]
+R.data <- R.data[-c(12,13,15,18),]
+LH.data <- LH.data[-c(12,13,15,18),]
+temp.data <- temp.data[-c(12,13,15,18),]
+# Macrosiphum euphorbiae Canada and Brevicoryne brassicae (went extinct)
+pop.data <- pop.data[-c(12,13,15,18,20,25),]
+# results.m <- results.m[-c(12,13,15,18),]
+# results.a <- results.a[-c(12,13,15,18),]
+# results.b <- results.b[-c(12,13,15,18),]
 
 
 # SCALE LOWEST FITNESS CHANGE TO -1
@@ -127,7 +127,7 @@ mean.lat <- lm(delta.mean ~ Latitude, data=pop.data)
 summary(mean.lat) # non-significant
 # CV of density vs Latitude
 CV.lat <- lm(delta.CV ~ Latitude, data=pop.data)
-summary(CV.lat) # non-significant
+summary(CV.lat) # significant!
 # Active period vs Latitude (NOTE: non-significant for temperate species only)
 active.lat <- lm(delta.active ~ Latitude, data=pop.data) #[pop.data$Habitat == "Temperate",])
 summary(active.lat) # significant!
@@ -482,30 +482,30 @@ points(seq(2*Xmin,2*Xmax,1), coef(L.lat)[2]*seq(2*Xmin,2*Xmax,1) + coef(L.lat)[1
 # Mean density vs latitude
 Xmin <- 0
 Xmax <- 60
-Ymin <- -1
-Ymax <- 0.5
+Ymin <- -0.6
+Ymax <- 0.6
 #dev.new(width=3, height=3, unit="in")
 plot(-100, xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="Latitude", ylab="Model")
 abline(0, 0, col="gray", lwd=3, lty="longdash")
+points(seq(2*Xmin,2*Xmax,1), coef(mean.lat)[2]*seq(2*Xmin,2*Xmax,1) + coef(mean.lat)[1], type="l", lwd=3, col="black", lty="longdash")
 points(pop.data[pop.data$Habitat=="Tropical","Latitude"], pop.data[pop.data$Habitat=="Tropical","delta.mean"], pch=19, cex=1.5, col="red")
 points(pop.data[pop.data$Habitat=="Subtropical","Latitude"], pop.data[pop.data$Habitat=="Subtropical","delta.mean"], pch=19, cex=1.5, col="orange")
 points(pop.data[pop.data$Habitat=="Mediterranean","Latitude"], pop.data[pop.data$Habitat=="Mediterranean","delta.mean"], pch=19, cex=1.5, col="orange")
 points(pop.data[pop.data$Habitat=="Temperate","Latitude"], pop.data[pop.data$Habitat=="Temperate","delta.mean"], pch=19, cex=1.5, col="blue")
-points(seq(2*Xmin,2*Xmax,1), coef(mean.lat)[2]*seq(2*Xmin,2*Xmax,1) + coef(mean.lat)[1], type="l", lwd=3, col="black", lty="longdash")
 
-# CV of density vs latitude (NOTE: one outlier beyond Ymax (=8))
+# CV of density vs latitude
 Xmin <- 0
 Xmax <- 60
-Ymin <- -1
-Ymax <- 1.5
+Ymin <- -0.6
+Ymax <- 0.8
 #dev.new(width=3, height=3, unit="in")
 plot(-100, xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="Latitude", ylab="Model")
 abline(0, 0, col="gray", lwd=3, lty="longdash")
+points(seq(2*Xmin,2*Xmax,1), coef(CV.lat)[2]*seq(2*Xmin,2*Xmax,1) + coef(CV.lat)[1], type="l", lwd=3, col="black")
 points(pop.data[pop.data$Habitat=="Tropical","Latitude"], pop.data[pop.data$Habitat=="Tropical","delta.CV"], pch=19, cex=1.5, col="red")
 points(pop.data[pop.data$Habitat=="Subtropical","Latitude"], pop.data[pop.data$Habitat=="Subtropical","delta.CV"], pch=19, cex=1.5, col="orange")
 points(pop.data[pop.data$Habitat=="Mediterranean","Latitude"], pop.data[pop.data$Habitat=="Mediterranean","delta.CV"], pch=19, cex=1.5, col="orange")
 points(pop.data[pop.data$Habitat=="Temperate","Latitude"], pop.data[pop.data$Habitat=="Temperate","delta.CV"], pch=19, cex=1.5, col="blue")
-points(seq(2*Xmin,2*Xmax,1), coef(CV.lat)[2]*seq(2*Xmin,2*Xmax,1) + coef(CV.lat)[1], type="l", lwd=3, col="black", lty="longdash")
 
 # Active period vs latitude
 Xmin <- 0
@@ -515,11 +515,11 @@ Ymax <- 0.6
 #dev.new(width=3, height=3, unit="in")
 plot(-100, xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="Latitude", ylab="Model")
 abline(0, 0, col="gray", lwd=3, lty="longdash")
+points(seq(2*Xmin,2*Xmax,1), coef(active.lat)[2]*seq(2*Xmin,2*Xmax,1) + coef(active.lat)[1], type="l", lwd=3, col="black")
 points(pop.data[pop.data$Habitat=="Tropical","Latitude"], pop.data[pop.data$Habitat=="Tropical","delta.active"], pch=19, cex=1.5, col="red")
 points(pop.data[pop.data$Habitat=="Subtropical","Latitude"], pop.data[pop.data$Habitat=="Subtropical","delta.active"], pch=19, cex=1.5, col="orange")
 points(pop.data[pop.data$Habitat=="Mediterranean","Latitude"], pop.data[pop.data$Habitat=="Mediterranean","delta.active"], pch=19, cex=1.5, col="orange")
 points(pop.data[pop.data$Habitat=="Temperate","Latitude"], pop.data[pop.data$Habitat=="Temperate","delta.active"], pch=19, cex=1.5, col="blue")
-points(seq(2*Xmin,2*Xmax,1), coef(active.lat)[2]*seq(2*Xmin,2*Xmax,1) + coef(active.lat)[1], type="l", lwd=3, col="black")
 
 
 

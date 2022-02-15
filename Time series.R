@@ -31,7 +31,7 @@ left_skew <- TRUE # if FALSE, development plateaus between Topt and Tmax before 
 xmin <- 0 # start date
 xmax <- 730 # end date
 ymin <- 0 # min density
-ymax <- 100 # max density
+ymax <- 200 # max density
 temp.min <- 0 # min temperature
 temp.max <- 40 # max temperature
 
@@ -128,7 +128,7 @@ data.model.CC$I <- data.model.CC$J + data.model.CC$A
 # Juvenile density
 plot.J = ggplot(data.TS, aes(x=time, y=J, ymin=J_SE_L, ymax=J_SE_H)) + 
   geom_pointrange(size=0.5, color="#E69F00") + # orange color
-  labs(x="Time", y="Density") +
+  labs(x="", y="") +
   scale_x_continuous(limits=c(xmin, xmax)) +
   scale_y_continuous(limits=c(ymin, ymax)) +
   #scale_y_log10(limits=c(ymin, ymax)) +
@@ -140,7 +140,7 @@ plot.J = ggplot(data.TS, aes(x=time, y=J, ymin=J_SE_L, ymax=J_SE_H)) +
 # Adult density
 plot.A = ggplot(data.TS, aes(x=time, y=A, ymin=A_SE_L, ymax=A_SE_H)) + 
   geom_pointrange(size=0.5, color="#009E73") + # green color
-  labs(x="Time", y="Density") +
+  labs(x="", y="") +
   scale_x_continuous(limits=c(xmin, xmax)) +
   scale_y_continuous(limits=c(ymin, ymax)) +
   #scale_y_log10(limits=c(ymin, ymax)) +
@@ -152,7 +152,7 @@ plot.A = ggplot(data.TS, aes(x=time, y=A, ymin=A_SE_L, ymax=A_SE_H)) +
 # Insect density (Juveniles + Adults)
 plot.I = ggplot(data.TS, aes(x=time, y=A, ymin=A_SE_L, ymax=A_SE_H)) + # NOTE: data labelled "A", but are for all insect stages
   geom_pointrange(size=0.5, color="black") +
-  labs(x="Time", y="Density") +
+  labs(x="", y="") +
   scale_x_continuous(limits=c(xmin, xmax)) +
   scale_y_continuous(limits=c(ymin, ymax)) +
   #scale_y_log10(limits=c(ymin, ymax)) +
@@ -166,8 +166,8 @@ plot.I = ggplot(data.TS, aes(x=time, y=A, ymin=A_SE_L, ymax=A_SE_H)) + # NOTE: d
 # Historical time period
 # Juvenile density
 model.J = ggplot(data.model, aes(x=Time, y=J)) + 
-  geom_line(size=1.5, color="#E69F00", linetype="dashed") + # orange color
-  labs(x="Time", y="Density") +
+  geom_line(size=1.5, color="#0072B2") + # blue color
+  labs(x="", y="") +
   scale_x_continuous(limits=c(xmin, xmax)) +
   scale_y_continuous(limits=c(ymin, ymax)) +
   #scale_y_log10(limits=c(ymin, ymax)) +
@@ -178,8 +178,8 @@ model.J = ggplot(data.model, aes(x=Time, y=J)) +
 
 # Adult density
 model.A = ggplot(data.model, aes(x=Time, y=A)) + 
-  geom_line(size=1.5, color="#009E73", linetype="longdash") + # green color
-  labs(x="Time", y="Density") +
+  geom_line(size=1.5, color="#0072B2") + # blue color
+  labs(x="", y="") +
   scale_x_continuous(limits=c(xmin, xmax)) +
   scale_y_continuous(limits=c(ymin, ymax)) +
   #scale_y_log10(limits=c(ymin, ymax)) +
@@ -190,8 +190,8 @@ model.A = ggplot(data.model, aes(x=Time, y=A)) +
 
 # Insect density (juveniles + adults)
 model.I = ggplot(data.model, aes(x=Time, y=I)) + 
-  geom_line(size=1.5, color="black", linetype="dashed") +
-  labs(x="Time", y="Density") +
+  geom_line(size=1.5, color="black") +
+  labs(x="", y="") +
   scale_x_continuous(limits=c(xmin, xmax)) +
   scale_y_continuous(limits=c(ymin, ymax)) +
   #scale_y_log10(limits=c(ymin, ymax)) +
@@ -203,8 +203,8 @@ model.I = ggplot(data.model, aes(x=Time, y=I)) +
 # Future time period
 # Juvenile density
 model.J.CC = ggplot(data.model.CC, aes(x=Time, y=J)) + 
-  geom_line(size=1.5, color="#E69F00") + # orange color
-  labs(x="Time", y="Density") +
+  geom_line(size=1.5, color="#D55E00") + # red color
+  labs(x="", y="") +
   scale_x_continuous(limits=c(xmin.CC, xmax.CC)) +
   scale_y_continuous(limits=c(ymin.CC, ymax.CC)) +
   #scale_y_log10(limits=c(ymin.CC, ymax.CC)) +
@@ -215,8 +215,8 @@ model.J.CC = ggplot(data.model.CC, aes(x=Time, y=J)) +
 
 # Adult density
 model.A.CC = ggplot(data.model.CC, aes(x=Time, y=A)) + 
-  geom_line(size=1.5, color="#009E73") + # green color
-  labs(x="Time", y="Density") +
+  geom_line(size=1.5, color="#D55E00") + # red color
+  labs(x="", y="") +
   scale_x_continuous(limits=c(xmin.CC, xmax.CC)) +
   scale_y_continuous(limits=c(ymin.CC, ymax.CC)) +
   #scale_y_log10(limits=c(ymin.CC, ymax.CC)) +
@@ -228,7 +228,7 @@ model.A.CC = ggplot(data.model.CC, aes(x=Time, y=A)) +
 # Insect density (juveniles + adults)
 model.I.CC = ggplot(data.model.CC, aes(x=Time, y=I)) + 
   geom_line(size=1.5, color="black") +
-  labs(x="Time", y="Density") +
+  labs(x="", y="") +
   scale_x_continuous(limits=c(xmin.CC, xmax.CC)) +
   scale_y_continuous(limits=c(ymin.CC, ymax.CC)) +
   #scale_y_log10(limits=c(ymin.CC, ymax.CC)) +
@@ -252,17 +252,17 @@ day1.h <- temp.fun.h[temp.fun.h$fun.min >= sp.data$Tmin, "t"][1]
 plot.temp <- ggplot(temp.fun.h, aes(x=t, y=fun.max)) +
   # Daily average temperature
   geom_function(fun = function(t) (temp.data$meanT.h - 273.15 + temp.data$delta_mean.h*(t+time.shift))  - (temp.data$amplT.h + temp.data$delta_ampl.h*(t+time.shift)) * cos(2*pi*((t+time.shift) + temp.data$shiftT.h)/yr),
-                size=1.5, color="#30638e") + # blue color
+                size=1.5, color="#0072B2") + # blue color
   # Daily minimum temperature
   #geom_function(fun = function(t) (temp.data$meanT.h - 273.15 + temp.data$delta_mean.h*(t+time.shift))  - (temp.data$amplT.h + temp.data$delta_ampl.h*(t+time.shift)) * cos(2*pi*((t+time.shift) + temp.data$shiftT.h)/yr) - temp.data$amplD.h,
-  #              size=1.5, linetype="dashed", color="#30638e") +
+  #              size=1.5, linetype="dashed", color="#0072B2") +
   # Daily maximum temperature
   #geom_function(fun = function(t) (temp.data$meanT.h - 273.15 + temp.data$delta_mean.h*(t+time.shift))  - (temp.data$amplT.h + temp.data$delta_ampl.h*(t+time.shift)) * cos(2*pi*((t+time.shift) + temp.data$shiftT.h)/yr) + temp.data$amplD.h,
-  #              size=1.5, linetype="dashed", color="#30638e") +
-  geom_ribbon(aes(ymin = fun.min, ymax = fun.max), fill = "#30638e", alpha = 0.2) +
+  #              size=1.5, linetype="dashed", color="#0072B2") +
+  geom_ribbon(aes(ymin = fun.min, ymax = fun.max), fill = "#0072B2", alpha = 0.2) +
   # Minimum developmental temperature
   geom_function(fun = function(t) (sp.data$Tmin), size=1.5, color="black") +
-  labs(x="Time", y="T(K)") +
+  labs(x="", y="") +
   scale_x_continuous(limits=c(xmin, xmax)) +
   scale_y_continuous(limits=c(temp.min, temp.max)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
@@ -283,17 +283,17 @@ day1.f <- temp.fun.f[temp.fun.f$fun.min >= sp.data$Tmin, "t"][1]
 plot.temp.CC <- ggplot(temp.fun.f, aes(x=t, y=fun.max)) +
   # Daily average temperature
   geom_function(fun = function(t) (temp.data$meanT.f - 273.15 + temp.data$delta_mean.f*(t+time.shift.CC))  - (temp.data$amplT.f + temp.data$delta_ampl.f*(t+time.shift.CC)) * cos(2*pi*((t+time.shift.CC) + temp.data$shiftT.f)/yr),
-                size=1.5, color="#d1495b") + # red color
+                size=1.5, color="#D55E00") + # red color
   # Daily minimum temperature
   #geom_function(fun = function(t) (temp.data$meanT.f - 273.15 + temp.data$delta_mean.f*(t+time.shift.CC))  - (temp.data$amplT.f + temp.data$delta_ampl.f*(t+time.shift.CC)) * cos(2*pi*((t+time.shift.CC) + temp.data$shiftT.f)/yr) - temp.data$amplD.f,
-  #              size=1.5, linetype="dashed", color="#d1495b") +
+  #              size=1.5, linetype="dashed", color="#D55E00") +
   # Daily maximum temperature
   #geom_function(fun = function(t) (temp.data$meanT.f - 273.15 + temp.data$delta_mean.f*(t+time.shift.CC))  - (temp.data$amplT.f + temp.data$delta_ampl.f*(t+time.shift.CC)) * cos(2*pi*((t+time.shift.CC) + temp.data$shiftT.f)/yr) + temp.data$amplD.f,
-  #              size=1.5, linetype="dashed", color="#d1495b") +
-  geom_ribbon(aes(ymin = fun.min, ymax = fun.max), fill = "#d1495b", alpha = 0.2) +
+  #              size=1.5, linetype="dashed", color="#D55E00") +
+  geom_ribbon(aes(ymin = fun.min, ymax = fun.max), fill = "#D55E00", alpha = 0.2) +
   # Minimum developmental temperature
   geom_function(fun = function(t) (sp.data$Tmin), size=1.5, color="black") +
-  labs(x="Time", y="T(K)") +
+  labs(x="", y="") +
   scale_x_continuous(limits=c(xmin, xmax)) +
   scale_y_continuous(limits=c(temp.min, temp.max)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
@@ -378,20 +378,21 @@ plot.compare
 # Time-series plots
 # Nigeria
 # ggdraw() +
-#    draw_plot(plot.A, width = 1, height = 0.5) +
-#    draw_plot(model.A, width = 1, height = 0.5)
+#   draw_plot(plot.A, width = 1, height = 0.4) +
+#   draw_plot(model.A, width = 1, height = 0.4)
 # China
 # ggdraw() +
-#    draw_plot(plot.I, width = 1, height = 0.5) +
-#    draw_plot(model.I, width = 1, height = 0.5)
+#   draw_plot(plot.I, width = 1, height = 0.4) +
+#   draw_plot(model.A, width = 1, height = 0.4) +
+#   draw_plot(model.I, width = 1, height = 0.4)
 
 # Climate change plots
 # ggdraw()  +
 #   draw_plot(model.J, width = 1, height = 0.4) +
 #   draw_plot(model.J.CC, width = 1, height = 0.4)
 # ggdraw()  +
-#   draw_plot(model.A, width = 1, height = 0.4) +
-#   draw_plot(model.A.CC, width = 1, height = 0.4)
+#    draw_plot(model.A, width = 1, height = 0.4) +
+#    draw_plot(model.A.CC, width = 1, height = 0.4)
 
 # Temperature plots
 # ggdraw()  +

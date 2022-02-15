@@ -13,7 +13,7 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 # USER: enter species and location or set "all" to TRUE to run analysis for all species
 species <- "Macrosiphum euphorbiae"
 location <- "Canada"
-all <- FALSE
+all <- TRUE
 
 # USER: include diurnal variation?
 daily <- FALSE
@@ -137,7 +137,7 @@ for(s in 1:nrow(param.all)) {
       results[s,9] <- active.h
       results[s,10] <- active.f
       results[s,11] <- (mean.f - mean.h)/mean.h
-      results[s,12] <- (cv.f - cv.h)/cv.h
+      results[s,12] <- cv.f - cv.h
       results[s,13] <- (active.f - active.h)/active.h
     }
 
@@ -161,7 +161,7 @@ if(all == FALSE) {
   print(paste("active.h:", active.h))
   print(paste("active.f:", active.f))
   print(paste("delta.mean:", (mean.f - mean.h)/mean.h))
-  print(paste("delta.CV:", (cv.f - cv.h)/cv.h))
+  print(paste("delta.CV:", cv.f - cv.h)
   print(paste("delta.active:", (active.f - active.h)/active.h))
 }
 if(all == TRUE) { print(results) }
