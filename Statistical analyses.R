@@ -1,5 +1,5 @@
 #############################################################################
-#### This R script analyzes the thermal performance curve and model data ####
+#### This R script analyzes thermal performance curve and DDE model data ####
 #############################################################################
 
 

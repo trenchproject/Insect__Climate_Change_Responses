@@ -1,6 +1,6 @@
-#################################################################################
-#### This R script calculates a species' fecundity using TPCs and DDE model #####
-#################################################################################
+##############################################################################################
+### This R script calculates species' mean density, CV, and activity period from DDE model ###
+##############################################################################################
 
 # Load packages and set working directory
 library(tidyr)

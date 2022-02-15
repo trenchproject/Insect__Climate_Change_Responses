@@ -16,8 +16,8 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 
 # USER: enter species and location
-species <- "Clavigralla tomentosicollis"
-location <- "Nigeria"
+species <- "Apolygus lucorum"
+location <- "China Dafeng"
 field_plot <- "A" # for Nigeria, must specify plot "A", "B", or "C" 
                   # densities excluded during dry pods in plot A, B and harmattan in plot C
 
@@ -32,8 +32,8 @@ xmin <- 0 # start date
 xmax <- 730 # end date
 ymin <- 0 # min density
 ymax <- 100 # max density
-temp.min <- 275 # min temperature
-temp.max <- 310 # max temperature
+temp.min <- 0 # min temperature
+temp.max <- 40 # max temperature
 
 
 # READ IN TEMPERATURE RESPONSE PARAMETERS AND TIME-SERIES DATA
@@ -127,7 +127,7 @@ data.model.CC$I <- data.model.CC$J + data.model.CC$A
 # TIME-SERIES DATA
 # Juvenile density
 plot.J = ggplot(data.TS, aes(x=time, y=J, ymin=J_SE_L, ymax=J_SE_H)) + 
-  geom_pointrange(size=0.5, color="#d1495b") + # red color
+  geom_pointrange(size=0.5, color="#E69F00") + # orange color
   labs(x="Time", y="Density") +
   scale_x_continuous(limits=c(xmin, xmax)) +
   scale_y_continuous(limits=c(ymin, ymax)) +
@@ -135,11 +135,11 @@ plot.J = ggplot(data.TS, aes(x=time, y=J, ymin=J_SE_L, ymax=J_SE_H)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
         axis.line = element_line(color = "black"), legend.position = "none", 
-        axis.text = element_text(size=13), axis.title = element_text(size=20))
+        axis.text = element_text(size=13), axis.title = element_text(size=1.50))
 
 # Adult density
 plot.A = ggplot(data.TS, aes(x=time, y=A, ymin=A_SE_L, ymax=A_SE_H)) + 
-  geom_pointrange(size=0.5, color="#30638e") + # blue color
+  geom_pointrange(size=0.5, color="#009E73") + # green color
   labs(x="Time", y="Density") +
   scale_x_continuous(limits=c(xmin, xmax)) +
   scale_y_continuous(limits=c(ymin, ymax)) +
@@ -147,10 +147,10 @@ plot.A = ggplot(data.TS, aes(x=time, y=A, ymin=A_SE_L, ymax=A_SE_H)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
         axis.line = element_line(color = "black"), legend.position = "none", 
-        axis.text = element_text(size=13), axis.title = element_text(size=20)) 
+        axis.text = element_text(size=13), axis.title = element_text(size=1.50)) 
 
 # Insect density (Juveniles + Adults)
-plot.I = ggplot(data.TS, aes(x=time, y=A, ymin=A_SE_L, ymax=A_SE_H)) + # NOTE: data under column "A", but are for all insect stages
+plot.I = ggplot(data.TS, aes(x=time, y=A, ymin=A_SE_L, ymax=A_SE_H)) + # NOTE: data labelled "A", but are for all insect stages
   geom_pointrange(size=0.5, color="black") +
   labs(x="Time", y="Density") +
   scale_x_continuous(limits=c(xmin, xmax)) +
@@ -159,14 +159,14 @@ plot.I = ggplot(data.TS, aes(x=time, y=A, ymin=A_SE_L, ymax=A_SE_H)) + # NOTE: d
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
         axis.line = element_line(color = "black"), legend.position = "none", 
-        axis.text = element_text(size=13), axis.title = element_text(size=20)) 
+        axis.text = element_text(size=13), axis.title = element_text(size=1.50)) 
 
 
 # DDE MODEL DATA
 # Historical time period
 # Juvenile density
 model.J = ggplot(data.model, aes(x=Time, y=J)) + 
-  geom_line(size=0.8, color="#d1495b") + # red color
+  geom_line(size=1.5, color="#E69F00", linetype="dashed") + # orange color
   labs(x="Time", y="Density") +
   scale_x_continuous(limits=c(xmin, xmax)) +
   scale_y_continuous(limits=c(ymin, ymax)) +
@@ -174,11 +174,11 @@ model.J = ggplot(data.model, aes(x=Time, y=J)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
         axis.line = element_line(color = "black"), legend.position = "none", 
-        axis.text = element_text(size=13), axis.title = element_text(size=20))
+        axis.text = element_text(size=13), axis.title = element_text(size=1.50))
 
 # Adult density
 model.A = ggplot(data.model, aes(x=Time, y=A)) + 
-  geom_line(size=0.8, color="#30638e") + # blue color
+  geom_line(size=1.5, color="#009E73", linetype="longdash") + # green color
   labs(x="Time", y="Density") +
   scale_x_continuous(limits=c(xmin, xmax)) +
   scale_y_continuous(limits=c(ymin, ymax)) +
@@ -186,11 +186,11 @@ model.A = ggplot(data.model, aes(x=Time, y=A)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
         axis.line = element_line(color = "black"), legend.position = "none", 
-        axis.text = element_text(size=13), axis.title = element_text(size=20)) 
+        axis.text = element_text(size=13), axis.title = element_text(size=1.50)) 
 
 # Insect density (juveniles + adults)
 model.I = ggplot(data.model, aes(x=Time, y=I)) + 
-  geom_line(size=0.8, color="black") +
+  geom_line(size=1.5, color="black", linetype="dashed") +
   labs(x="Time", y="Density") +
   scale_x_continuous(limits=c(xmin, xmax)) +
   scale_y_continuous(limits=c(ymin, ymax)) +
@@ -198,12 +198,12 @@ model.I = ggplot(data.model, aes(x=Time, y=I)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
         axis.line = element_line(color = "black"), legend.position = "none", 
-        axis.text = element_text(size=13), axis.title = element_text(size=20))
+        axis.text = element_text(size=13), axis.title = element_text(size=1.50))
 
 # Future time period
 # Juvenile density
 model.J.CC = ggplot(data.model.CC, aes(x=Time, y=J)) + 
-  geom_line(size=0.8, color="#d1495b", linetype="longdash") + # red color
+  geom_line(size=1.5, color="#E69F00") + # orange color
   labs(x="Time", y="Density") +
   scale_x_continuous(limits=c(xmin.CC, xmax.CC)) +
   scale_y_continuous(limits=c(ymin.CC, ymax.CC)) +
@@ -211,11 +211,11 @@ model.J.CC = ggplot(data.model.CC, aes(x=Time, y=J)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
         axis.line = element_line(color = "black"), legend.position = "none", 
-        axis.text = element_text(size=13), axis.title = element_text(size=20))
+        axis.text = element_text(size=13), axis.title = element_text(size=1.50))
 
 # Adult density
 model.A.CC = ggplot(data.model.CC, aes(x=Time, y=A)) + 
-  geom_line(size=0.8, color="#30638e", linetype="longdash") + # blue color
+  geom_line(size=1.5, color="#009E73") + # green color
   labs(x="Time", y="Density") +
   scale_x_continuous(limits=c(xmin.CC, xmax.CC)) +
   scale_y_continuous(limits=c(ymin.CC, ymax.CC)) +
@@ -223,11 +223,11 @@ model.A.CC = ggplot(data.model.CC, aes(x=Time, y=A)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
         axis.line = element_line(color = "black"), legend.position = "none", 
-        axis.text = element_text(size=13), axis.title = element_text(size=20)) 
+        axis.text = element_text(size=13), axis.title = element_text(size=1.50)) 
 
 # Insect density (juveniles + adults)
 model.I.CC = ggplot(data.model.CC, aes(x=Time, y=I)) + 
-  geom_line(size=0.8, color="black", linetype="longdash") +
+  geom_line(size=1.5, color="black") +
   labs(x="Time", y="Density") +
   scale_x_continuous(limits=c(xmin.CC, xmax.CC)) +
   scale_y_continuous(limits=c(ymin.CC, ymax.CC)) +
@@ -235,15 +235,15 @@ model.I.CC = ggplot(data.model.CC, aes(x=Time, y=I)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
         axis.line = element_line(color = "black"), legend.position = "none", 
-        axis.text = element_text(size=13), axis.title = element_text(size=20))
+        axis.text = element_text(size=13), axis.title = element_text(size=1.50))
 
 
-# PLOT HABITAT TEMPERATURE FUNCTION
+# HABITAT TEMPERATURE
 # Historical time period
 # data table from Tmin and Tmax functions
 temp.fun.h <- data.frame(t=c(xmin:xmax))
-temp.fun.h$fun.min <- sapply(temp.fun.h$t, FUN = function(t) { (temp.data$meanT.h + temp.data$delta_mean.h*(t+time.shift))  - (temp.data$amplT.h + temp.data$delta_ampl.h*(t+time.shift)) * cos(2*pi*((t+time.shift) + temp.data$shiftT.h)/yr) - abs(temp.data$amplD.h) })
-temp.fun.h$fun.max <- sapply(temp.fun.h$t, FUN = function(t) { (temp.data$meanT.h + temp.data$delta_mean.h*(t+time.shift))  - (temp.data$amplT.h + temp.data$delta_ampl.h*(t+time.shift)) * cos(2*pi*((t+time.shift) + temp.data$shiftT.h)/yr) + abs(temp.data$amplD.h) })
+temp.fun.h$fun.min <- sapply(temp.fun.h$t, FUN = function(t) { (temp.data$meanT.h - 273.15 + temp.data$delta_mean.h*(t+time.shift))  - (temp.data$amplT.h + temp.data$delta_ampl.h*(t+time.shift)) * cos(2*pi*((t+time.shift) + temp.data$shiftT.h)/yr) - abs(temp.data$amplD.h) })
+temp.fun.h$fun.max <- sapply(temp.fun.h$t, FUN = function(t) { (temp.data$meanT.h - 273.15 + temp.data$delta_mean.h*(t+time.shift))  - (temp.data$amplT.h + temp.data$delta_ampl.h*(t+time.shift)) * cos(2*pi*((t+time.shift) + temp.data$shiftT.h)/yr) + abs(temp.data$amplD.h) })
 
 # day at which habitat temperature exceeds Tmin
 day1.h <- temp.fun.h[temp.fun.h$fun.min >= sp.data$Tmin, "t"][1]
@@ -251,30 +251,30 @@ day1.h <- temp.fun.h[temp.fun.h$fun.min >= sp.data$Tmin, "t"][1]
 # plot
 plot.temp <- ggplot(temp.fun.h, aes(x=t, y=fun.max)) +
   # Daily average temperature
-  geom_function(fun = function(t) (temp.data$meanT.h + temp.data$delta_mean.h*(t+time.shift))  - (temp.data$amplT.h + temp.data$delta_ampl.h*(t+time.shift)) * cos(2*pi*((t+time.shift) + temp.data$shiftT.h)/yr),
-                size=0.8, color="blue") +
+  geom_function(fun = function(t) (temp.data$meanT.h - 273.15 + temp.data$delta_mean.h*(t+time.shift))  - (temp.data$amplT.h + temp.data$delta_ampl.h*(t+time.shift)) * cos(2*pi*((t+time.shift) + temp.data$shiftT.h)/yr),
+                size=1.5, color="#30638e") + # blue color
   # Daily minimum temperature
-  #geom_function(fun = function(t) (temp.data$meanT.h + temp.data$delta_mean.h*(t+time.shift))  - (temp.data$amplT.h + temp.data$delta_ampl.h*(t+time.shift)) * cos(2*pi*((t+time.shift) + temp.data$shiftT.h)/yr) - temp.data$amplD.h,
-  #              size=0.8, linetype="longdash", color="blue") +
+  #geom_function(fun = function(t) (temp.data$meanT.h - 273.15 + temp.data$delta_mean.h*(t+time.shift))  - (temp.data$amplT.h + temp.data$delta_ampl.h*(t+time.shift)) * cos(2*pi*((t+time.shift) + temp.data$shiftT.h)/yr) - temp.data$amplD.h,
+  #              size=1.5, linetype="dashed", color="#30638e") +
   # Daily maximum temperature
-  #geom_function(fun = function(t) (temp.data$meanT.h + temp.data$delta_mean.h*(t+time.shift))  - (temp.data$amplT.h + temp.data$delta_ampl.h*(t+time.shift)) * cos(2*pi*((t+time.shift) + temp.data$shiftT.h)/yr) + temp.data$amplD.h,
-  #              size=0.8, linetype="longdash", color="blue") +
-  geom_ribbon(aes(ymin = fun.min, ymax = fun.max), fill = "blue", alpha = 0.2) +
+  #geom_function(fun = function(t) (temp.data$meanT.h - 273.15 + temp.data$delta_mean.h*(t+time.shift))  - (temp.data$amplT.h + temp.data$delta_ampl.h*(t+time.shift)) * cos(2*pi*((t+time.shift) + temp.data$shiftT.h)/yr) + temp.data$amplD.h,
+  #              size=1.5, linetype="dashed", color="#30638e") +
+  geom_ribbon(aes(ymin = fun.min, ymax = fun.max), fill = "#30638e", alpha = 0.2) +
   # Minimum developmental temperature
-  geom_function(fun = function(t) (sp.data$Tmin), size=0.8, color="black") +
+  geom_function(fun = function(t) (sp.data$Tmin), size=1.5, color="black") +
   labs(x="Time", y="T(K)") +
   scale_x_continuous(limits=c(xmin, xmax)) +
   scale_y_continuous(limits=c(temp.min, temp.max)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
         axis.line = element_line(color = "black"), legend.position = "none", 
-        axis.text = element_text(size=13), axis.title = element_text(size=20))
+        axis.text = element_text(size=13), axis.title = element_text(size=1.50))
 
 # Future time period
 # data table from Tmin and Tmax functions
 temp.fun.f <- data.frame(t=c(xmin:xmax))
-temp.fun.f$fun.min <- sapply(temp.fun.f$t, FUN = function(t) { (temp.data$meanT.f + temp.data$delta_mean.f*(t+time.shift))  - (temp.data$amplT.f + temp.data$delta_ampl.f*(t+time.shift)) * cos(2*pi*((t+time.shift) + temp.data$shiftT.f)/yr) - abs(temp.data$amplD.f) })
-temp.fun.f$fun.max <- sapply(temp.fun.f$t, FUN = function(t) { (temp.data$meanT.f + temp.data$delta_mean.f*(t+time.shift))  - (temp.data$amplT.f + temp.data$delta_ampl.f*(t+time.shift)) * cos(2*pi*((t+time.shift) + temp.data$shiftT.f)/yr) + abs(temp.data$amplD.f) })
+temp.fun.f$fun.min <- sapply(temp.fun.f$t, FUN = function(t) { (temp.data$meanT.f - 273.15 + temp.data$delta_mean.f*(t+time.shift))  - (temp.data$amplT.f + temp.data$delta_ampl.f*(t+time.shift)) * cos(2*pi*((t+time.shift) + temp.data$shiftT.f)/yr) - abs(temp.data$amplD.f) })
+temp.fun.f$fun.max <- sapply(temp.fun.f$t, FUN = function(t) { (temp.data$meanT.f - 273.15 + temp.data$delta_mean.f*(t+time.shift))  - (temp.data$amplT.f + temp.data$delta_ampl.f*(t+time.shift)) * cos(2*pi*((t+time.shift) + temp.data$shiftT.f)/yr) + abs(temp.data$amplD.f) })
 
 # day at which habitat temperature exceeds Tmin
 day1.f <- temp.fun.f[temp.fun.f$fun.min >= sp.data$Tmin, "t"][1]
@@ -282,24 +282,24 @@ day1.f <- temp.fun.f[temp.fun.f$fun.min >= sp.data$Tmin, "t"][1]
 # plot
 plot.temp.CC <- ggplot(temp.fun.f, aes(x=t, y=fun.max)) +
   # Daily average temperature
-  geom_function(fun = function(t) (temp.data$meanT.f + temp.data$delta_mean.f*(t+time.shift.CC))  - (temp.data$amplT.f + temp.data$delta_ampl.f*(t+time.shift.CC)) * cos(2*pi*((t+time.shift.CC) + temp.data$shiftT.f)/yr),
-                size=0.8, color="red") +
+  geom_function(fun = function(t) (temp.data$meanT.f - 273.15 + temp.data$delta_mean.f*(t+time.shift.CC))  - (temp.data$amplT.f + temp.data$delta_ampl.f*(t+time.shift.CC)) * cos(2*pi*((t+time.shift.CC) + temp.data$shiftT.f)/yr),
+                size=1.5, color="#d1495b") + # red color
   # Daily minimum temperature
-  #geom_function(fun = function(t) (temp.data$meanT.f + temp.data$delta_mean.f*(t+time.shift.CC))  - (temp.data$amplT.f + temp.data$delta_ampl.f*(t+time.shift.CC)) * cos(2*pi*((t+time.shift.CC) + temp.data$shiftT.f)/yr) - temp.data$amplD.f,
-  #              size=0.8, linetype="longdash", color="red") +
+  #geom_function(fun = function(t) (temp.data$meanT.f - 273.15 + temp.data$delta_mean.f*(t+time.shift.CC))  - (temp.data$amplT.f + temp.data$delta_ampl.f*(t+time.shift.CC)) * cos(2*pi*((t+time.shift.CC) + temp.data$shiftT.f)/yr) - temp.data$amplD.f,
+  #              size=1.5, linetype="dashed", color="#d1495b") +
   # Daily maximum temperature
-  #geom_function(fun = function(t) (temp.data$meanT.f + temp.data$delta_mean.f*(t+time.shift.CC))  - (temp.data$amplT.f + temp.data$delta_ampl.f*(t+time.shift.CC)) * cos(2*pi*((t+time.shift.CC) + temp.data$shiftT.f)/yr) + temp.data$amplD.f,
-  #              size=0.8, linetype="longdash", color="red") +
-  geom_ribbon(aes(ymin = fun.min, ymax = fun.max), fill = "red", alpha = 0.2) +
+  #geom_function(fun = function(t) (temp.data$meanT.f - 273.15 + temp.data$delta_mean.f*(t+time.shift.CC))  - (temp.data$amplT.f + temp.data$delta_ampl.f*(t+time.shift.CC)) * cos(2*pi*((t+time.shift.CC) + temp.data$shiftT.f)/yr) + temp.data$amplD.f,
+  #              size=1.5, linetype="dashed", color="#d1495b") +
+  geom_ribbon(aes(ymin = fun.min, ymax = fun.max), fill = "#d1495b", alpha = 0.2) +
   # Minimum developmental temperature
-  geom_function(fun = function(t) (sp.data$Tmin), size=0.8, color="black") +
+  geom_function(fun = function(t) (sp.data$Tmin), size=1.5, color="black") +
   labs(x="Time", y="T(K)") +
   scale_x_continuous(limits=c(xmin, xmax)) +
   scale_y_continuous(limits=c(temp.min, temp.max)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
         axis.line = element_line(color = "black"), legend.position = "none", 
-        axis.text = element_text(size=13), axis.title = element_text(size=20))
+        axis.text = element_text(size=13), axis.title = element_text(size=1.50))
 
 
 
@@ -358,12 +358,43 @@ if(str_split(location, boundary("word"), simplify = T)[,1] == "China") {
   plot.compare <- ggdraw()  +
     draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
     draw_plot(plot.temp.CC, x = 0, y = 0, width = 1, height = 0.3) +
-    draw_plot(model.I, x = 0, y = 0.3, width = 1, height = 0.7) +
-    draw_plot(model.I.CC, x = 0, y = 0.3, width = 1, height = 0.7)
+    draw_plot(model.J, x = 0, y = 0.3, width = 1, height = 0.7) +
+    draw_plot(model.A, x = 0, y = 0.3, width = 1, height = 0.7) +
+    #draw_plot(model.I, x = 0, y = 0.3, width = 1, height = 0.7) +
+    draw_plot(model.J.CC, x = 0, y = 0.3, width = 1, height = 0.7) +
+    draw_plot(model.A.CC, x = 0, y = 0.3, width = 1, height = 0.7)
+    #draw_plot(model.I.CC, x = 0, y = 0.3, width = 1, height = 0.7)
 }
 
 # PRINT PLOTS
+# View plot in RStudio
 plot
 #plot.CC
-#plot.compare
+plot.compare
+
+
+# OUTPUT PLOTS
+#dev.new()
+# Time-series plots
+# Nigeria
+# ggdraw() +
+#    draw_plot(plot.A, width = 1, height = 0.5) +
+#    draw_plot(model.A, width = 1, height = 0.5)
+# China
+# ggdraw() +
+#    draw_plot(plot.I, width = 1, height = 0.5) +
+#    draw_plot(model.I, width = 1, height = 0.5)
+
+# Climate change plots
+# ggdraw()  +
+#   draw_plot(model.J, width = 1, height = 0.4) +
+#   draw_plot(model.J.CC, width = 1, height = 0.4)
+# ggdraw()  +
+#   draw_plot(model.A, width = 1, height = 0.4) +
+#   draw_plot(model.A.CC, width = 1, height = 0.4)
+
+# Temperature plots
+# ggdraw()  +
+#    draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
+#    draw_plot(plot.temp.CC, x = 0, y = 0, width = 1, height = 0.3)
 

@@ -1,6 +1,6 @@
-#################################################################################
-#### This R script calculates a species' fecundity using TPCs and DDE model #####
-#################################################################################
+############################################################################
+#### This R script calculates species' traits using TPCs and DDE model #####
+############################################################################
 
 # Load packages and set working directory
 library(tidyr)
