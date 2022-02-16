@@ -40,13 +40,14 @@ temp.data <- as.data.frame(read_csv("Temperature parameters Tave.csv"))
 r.data <- r.data[-c(12,13,15,18),]
 R0.data <- R0.data[-c(12,13,15,18),]
 b.data <- b.data[-c(12,13,15,18),]
+tau.data$active.h <- pop.data$active.h # add activity period data to developmental data
+tau.data$active.f <- pop.data$active.f # add activity period data to developmental data
 tau.data <- tau.data[-c(12,13,15,18),]
 s.data <- s.data[-c(12,13,15,18),]
 L.data <- L.data[-c(12,13,15,18),]
 f.data <- f.data[-c(12,13,15,18),]
 R.data <- R.data[-c(12,13,15,18),]
 LH.data <- LH.data[-c(12,13,15,18),]
-temp.data <- temp.data[-c(12,13,15,18),]
 # Macrosiphum euphorbiae Canada and Brevicoryne brassicae (went extinct)
 pop.data <- pop.data[-c(12,13,15,18,20,25),]
 # results.m <- results.m[-c(12,13,15,18),]
@@ -148,7 +149,7 @@ sb.lat <- lm(sb ~ Latitude, data=LH.data)
 summary(sb.lat) # significant!
 plot(LH.data$Latitude,LH.data$sb)
 # Toptb - meanT vs Latitude
-LH.data$delta_b <- LH.data$Toptb - temp.data$meanT.f + temp.data$delta_mean.f*70*365
+LH.data$delta_b <- LH.data$Toptb - (temp.data$meanT.f + temp.data$delta_mean.f*75*365)
 delta.b.lat <- lm(delta_b ~ Latitude, data=LH.data)
 summary(delta.b.lat) # significant!
 plot(LH.data$Latitude,LH.data$delta_b)
@@ -187,9 +188,15 @@ Tmax.lat <- lm(Tmax ~ Latitude, data=LH.data)
 summary(Tmax.lat) # non-significant
 plot(LH.data$Latitude,LH.data$Tmax)
 # Topt - meanT vs Latitude
-LH.data$delta_Topt <- LH.data$Topt - temp.data$meanT.f  + temp.data$delta_mean.f*70*365
+LH.data$delta_Topt <- LH.data$Topt - (temp.data$meanT.f  + temp.data$delta_mean.f*75*365)
 delta.Topt.lat <- lm(delta_Topt ~ Latitude, data=LH.data)
 summary(delta.Topt.lat) # significant!
+plot(LH.data$Latitude,LH.data$delta_Topt)
+# Topt - meanT vs Latitude
+LH.data$delta_Topt <- LH.data$Topt - (temp.data$meanT.f  + temp.data$delta_mean.f*75*365 +
+                                        abs(temp.data$amplT.f)  + abs(temp.data$delta_ampl.f*75*365))
+delta.Topt.lat <- lm(delta_Topt ~ Latitude, data=LH.data)
+summary(delta.Topt.lat) # non-significant
 plot(LH.data$Latitude,LH.data$delta_Topt)
 
 # JUVENILE MORTALITY RATE
@@ -202,7 +209,7 @@ AdJ.lat <- lm(AdJ ~ Latitude, data=LH.data)
 summary(AdJ.lat) # non-significant
 plot(LH.data$Latitude,LH.data$AdJ)
 # dJ(Tmean) vs Latitude
-LH.data$dJ_Tmean <- LH.data$dJTR*exp(LH.data$AdJ*(1/LH.data$TR-1/(temp.data$meanT.f + temp.data$delta_mean.f*70*365)))
+LH.data$dJ_Tmean <- LH.data$dJTR*exp(LH.data$AdJ*(1/LH.data$TR-1/(temp.data$meanT.f + temp.data$delta_mean.f*75*365)))
 dJ.Tmean.lat <- lm(dJ_Tmean ~ Latitude, data=LH.data)
 summary(dJ.Tmean.lat) # significant
 plot(LH.data$Latitude,LH.data$dJ_Tmean)
@@ -217,10 +224,27 @@ AdA.lat <- lm(AdA ~ Latitude, data=LH.data)
 summary(AdA.lat) # non-significant
 plot(LH.data$Latitude,LH.data$AdA)
 # dA(Tmean) vs Latitude
-LH.data$dA_Tmean <- LH.data$dATR*exp(LH.data$AdA*(1/LH.data$TR-1/(temp.data$meanT.f + temp.data$delta_mean.f*70*365)))
+LH.data$dA_Tmean <- LH.data$dATR*exp(LH.data$AdA*(1/LH.data$TR-1/(temp.data$meanT.f + temp.data$delta_mean.f*75*365)))
 dA.Tmean.lat <- lm(dA_Tmean ~ Latitude, data=LH.data)
 summary(dA.Tmean.lat) # marginally-significant
 plot(LH.data$Latitude,LH.data$dA_Tmean)
+
+# NUMBER OF GENERATIONS
+# historical period
+LH.data$Gen.h <- (tau.data$active.h / tau.data$Model.h)
+Gen.h.lat <- lm(Gen.h ~ Latitude, data=LH.data)
+summary(Gen.h.lat) # non-significant
+#plot(LH.data$Latitude,LH.data$Gen.h)
+# future period
+LH.data$Gen.f <- (tau.data$active.f / tau.data$Model.f)
+Gen.f.lat <- lm(Gen.f ~ Latitude, data=LH.data)
+summary(Gen.f.lat) # non-significant
+#plot(LH.data$Latitude,LH.data$Gen.f)
+# change in number of generations
+LH.data$delta_Gen <- (LH.data$Gen.f - LH.data$Gen.h) / LH.data$Gen.h
+delta.Gen.lat <- lm(delta_Gen ~ Latitude, data=LH.data[-c(16,21),])
+summary(delta.Gen.lat) # non-significant
+plot(LH.data$Latitude[-c(16,21)],LH.data$delta_Gen[-c(16,21)])
 
 
 # TEMPERATURE
@@ -231,11 +255,11 @@ summary(Tmean.lat) # non-significant
 Tampl.lat <- lm(delta_ampl.f ~ Latitude, data=temp.data)
 summary(Tampl.lat) # significant!
 # Change in mean temperature vs Latitude
-temp.data$mean_ch <- (temp.data$meanT.f + temp.data$delta_mean.f*70*365)- temp.data$meanT.h
+temp.data$mean_ch <- (temp.data$meanT.f + temp.data$delta_mean.f*75*365)- temp.data$meanT.h
 mean.ch.lat <- lm(mean_ch ~ Latitude, data=temp.data)
 summary(mean.ch.lat) # non-significant
 # Change in ampl temperature vs Latitude
-temp.data$ampl_ch <- (temp.data$amplT.f + temp.data$delta_ampl.f*70*365)- temp.data$amplT.h
+temp.data$ampl_ch <- (temp.data$amplT.f + temp.data$delta_ampl.f*75*365)- temp.data$amplT.h
 ampl.ch.lat <- lm(ampl_ch ~ Latitude, data=temp.data)
 summary(ampl.ch.lat) # marginally-significant
 
@@ -396,8 +420,8 @@ points(seq(2*Xmin,2*Xmax,0.1), coef(tau.delta)[2]*seq(2*Xmin,2*Xmax,0.1)+coef(ta
 # Model vs latitude
 Xmin <- 0
 Xmax <- 60
-Ymin <- -0.3
-Ymax <- 0.1
+Ymin <- -0.6
+Ymax <- 0
 #dev.new(width=3, height=3, unit="in")
 plot(-100, xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="Latitude", ylab="Model")
 abline(0, 0, col="gray", lwd=3, lty="longdash")

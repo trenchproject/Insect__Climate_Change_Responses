@@ -26,10 +26,10 @@ if cwd != '/Users/johnson/Documents/Christopher/GitHub/Johnson_Insect_Responses'
 
 
 # USER: Enter species, location, and time period
-species = "Apolygus lucorum"
-location = "China Dafeng"
+species = "Hyadaphis pseudobrassicae"
+location = "US Columbia"
 period = "Historical"
-#period = "Future"
+period = "Future"
 
 # USER: Run model for all species?
 all_sp = False
@@ -50,7 +50,7 @@ comp = True
 daily = False
 
 # USER: Is model fit to census data?
-census = True
+census = False
 
 
 # INPUT TEMPERATURE RESPONSE PARAMETERS AND TEMPERATURE PARAMETERS
@@ -171,8 +171,8 @@ while(True):
     # maturation rates
     if left_skew == True:
         def mJ(x):
-            return conditional(mTR * T(x)/TR * exp(AmJ * (1/TR - 1/T(x))) / (1 + (exp(AL*(1/TL-1/T(x)))+exp(AH*(1/TH-1/T(x))))), 1e-5,
-                               1e-5, mTR * T(x)/TR * exp(AmJ * (1/TR - 1/T(x))) / (1 + (exp(AL*(1/TL-1/T(x)))+exp(AH*(1/TH-1/T(x)))))) # If mJ(T) < jitcdde min tolerance, then mJ(T) = 1e-5
+            return conditional(mTR * T(x)/TR * exp(AmJ * (1/TR - 1/T(x))) / (1 + 0*(exp(AL*(1/TL-1/T(x)))+exp(AH*(1/TH-1/T(x))))), 1e-5,
+                               1e-5, mTR * T(x)/TR * exp(AmJ * (1/TR - 1/T(x))) / (1 + 0*(exp(AL*(1/TL-1/T(x)))+exp(AH*(1/TH-1/T(x)))))) # If mJ(T) < jitcdde min tolerance, then mJ(T) = 1e-5
     else:
         def mJ(x):
             return conditional(mTR * T(x)/TR * exp(AmJ * (1/TR - 1/T(x))) / (1 + exp(AL*(1/TL-1/T(x)))), 1e-5, 1e-5, # If mJ(T) < jitcdde min tolerance, then mJ(T) = 1e-5
@@ -241,11 +241,11 @@ while(True):
     
     # SAVE DATA
     # array containing time and state variables (can add N(T(time)) to output temperature data, but with significantly longer run-time)
-    data = vstack([ hstack([time, DDE.integrate(time)]) for time in times ])
+    data = vstack([ hstack([time, N(T(time)), DDE.integrate(time)]) for time in times ])
     
     # set values below 1e-5 or NAN to 0
     data[data < 1e-5] = 0
-    data[isnan(data)] = 0
+    #data[isnan(data)] = 0
     
     # save data to csv 
     if save_data == True:
@@ -254,8 +254,8 @@ while(True):
                 filename = 'Time series data/' + period + ' time series ' + spData["Species"] + '.csv'
                 savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
             if comp == True and daily == False and left_skew == True:
-                filename = 'Time series data Tave/' + period + ' time series ' + spData["Species"] + '.csv'
-                savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
+                filename = 'Time series data Tave Mon/' + period + ' time series ' + spData["Species"] + '.csv'
+                savetxt(filename, data, fmt='%s', delimiter=",", header="Time,T,J,A,S,tau", comments='')
             if comp == False and daily == True and left_skew == True:
                 filename = 'Time series data DI/' + period + ' time series ' + spData["Species"] + '.csv'
                 savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
@@ -300,7 +300,7 @@ while(True):
     xlabel("time (days)")
     ylabel("population density")
     yscale("linear")
-    xlim((max_years-2)*yr,(max_years-0)*yr)
+    xlim((max_years-max_years)*yr,(max_years-0)*yr)
     ylim(0,100)
     #ylim(0,1e10)
     
