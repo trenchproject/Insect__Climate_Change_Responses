@@ -16,8 +16,8 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 
 # USER: enter species and location
-species <- "Apolygus lucorum"
-location <- "China Dafeng"
+species <- "Clavigralla tomentosicollis"
+location <- "Nigeria"
 field_plot <- "A" # for Nigeria, must specify plot "A", "B", or "C" 
                   # densities excluded during dry pods in plot A, B and harmattan in plot C
 
@@ -67,17 +67,28 @@ if(location == "Nigeria") {
 # READ IN TEMPERATURE RESPONSE PARAMETERS, TEMPERATURE PARAMETERS, AND DDE MODEL DYNAMICS
 sp.data <- data[data$Species == paste(species,location),]
 temp.data <- temp.data[temp.data$Species == paste(species,location),]
-if(daily == TRUE) {
-  data.model <- as.data.frame(read_csv(paste0("Time series data Census/Historical Time Series ",species," ",location,".csv")))
-  data.model.CC <- as.data.frame(read_csv(paste0("Time series data Census/Future Time Series ",species," ",location,".csv")))
-}
-if(daily == FALSE && left_skew == TRUE) {
-  data.model <- as.data.frame(read_csv(paste0("Time series data Census/Historical Time Series Tave ",species," ",location,".csv")))
-  data.model.CC <- as.data.frame(read_csv(paste0("Time series data Census/Future Time Series Tave ",species," ",location,".csv")))
-}
-if(daily == FALSE && left_skew == FALSE) {
-  data.model <- as.data.frame(read_csv(paste0("Time series data Census/Historical Time Series Tave Dev ",species," ",location,".csv")))
-  data.model.CC <- as.data.frame(read_csv(paste0("Time series data Census/Future Time Series Tave Dev ",species," ",location," .csv")))
+if((species == "Clavigralla shadabi" && location == "Nigeria") || (species == "Apolygus lucorum" && str_split(location, boundary("word"), simplify = T)[,1] == "China")) {
+  # For species with census data
+  if(daily == TRUE) {
+    data.model <- as.data.frame(read_csv(paste0("Time series data Census/Historical Time Series ",species," ",location,".csv")))
+    data.model.CC <- as.data.frame(read_csv(paste0("Time series data Census/Future Time Series ",species," ",location,".csv"))) }
+  if(daily == FALSE && left_skew == TRUE) {
+    data.model <- as.data.frame(read_csv(paste0("Time series data Census/Historical Time Series Tave ",species," ",location,".csv")))
+    data.model.CC <- as.data.frame(read_csv(paste0("Time series data Census/Future Time Series Tave ",species," ",location,".csv"))) }
+  if(daily == FALSE && left_skew == FALSE) {
+    data.model <- as.data.frame(read_csv(paste0("Time series data Census/Historical Time Series Tave Dev ",species," ",location,".csv")))
+    data.model.CC <- as.data.frame(read_csv(paste0("Time series data Census/Future Time Series Tave Dev ",species," ",location," .csv"))) }
+} else{
+  # For species without census data
+  if(daily == TRUE) {
+    data.model <- as.data.frame(read_csv(paste0("Time series data/Historical Time Series ",species," ",location,".csv")))
+    data.model.CC <- as.data.frame(read_csv(paste0("Time series data/Future Time Series ",species," ",location,".csv"))) }
+  if(daily == FALSE && left_skew == TRUE) {
+    data.model <- as.data.frame(read_csv(paste0("Time series data Tave/Historical Time Series ",species," ",location,".csv")))
+    data.model.CC <- as.data.frame(read_csv(paste0("Time series data Tave/Future Time Series ",species," ",location,".csv"))) }
+  if(daily == FALSE && left_skew == FALSE) {
+    data.model <- as.data.frame(read_csv(paste0("Time series data Tave Dev/Historical Time Series ",species," ",location,".csv")))
+    data.model.CC <- as.data.frame(read_csv(paste0("Time series data Tave Dev/Future Time Series ",species," ",location," .csv"))) }
 }
 
 
@@ -391,8 +402,8 @@ plot.compare
 #   draw_plot(model.J, width = 1, height = 0.4) +
 #   draw_plot(model.J.CC, width = 1, height = 0.4)
 # ggdraw()  +
-#    draw_plot(model.A, width = 1, height = 0.4) +
-#    draw_plot(model.A.CC, width = 1, height = 0.4)
+#    draw_plot(model.A, width = 1, height = 0.45) +
+#    draw_plot(model.A.CC, width = 1, height = 0.45)
 
 # Temperature plots
 # ggdraw()  +
