@@ -80,7 +80,7 @@ R0.delta <- lm(delta.model ~ delta.TPC, data=R0.data)
 summary(R0.delta) # significant!
 # Model vs Latitude
 R0.lat <- lm(delta.model ~ Latitude, data=R0.data)
-summary(R0.lat) # marginally-significant
+summary(R0.lat) # non-significant
 
 # BIRTH RATE
 # Model vs Latitude
@@ -106,7 +106,7 @@ summary(s.lat) # non-significant
 # ADULT LONGEVITY
 # Model vs Latitude
 L.lat <- lm(delta.model ~ Latitude, data=L.data)
-summary(L.lat) # significant!
+summary(L.lat) # marginally-significant
 
 # LIFETIME FECUNDITY
 # Model vs Latitude
@@ -300,16 +300,16 @@ Ymin <- -1
 Ymax <- 0.5
 #dev.new(width=3, height=3, unit="in")
 plot(-100, xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="TPC", ylab="Model")
-polygon(c(2*Xmin,0,2*Xmax,2*Xmax),c(2*Xmin,0,-2*Xmax,2*Ymin), col = "lightgray", border = NA)
-polygon(c(2*Xmin,0,2*Xmax),c(-2*Xmin,0,2*Xmax), col = "lightgray", border = NA)
+polygon(c(2*Xmin,0,2*Xmax,2*Xmax),c(2*Xmin,0,-2*Xmax,2*Ymin), col = "#E2E2E2", border = NA)
+polygon(c(2*Xmin,0,2*Xmax),c(-2*Xmin,0,2*Xmax), col = "#E2E2E2", border = NA)
 abline(0, 1, col="gray", lwd=3)
 abline(0, -1, col="gray", lwd=1)
 abline(0, 0, col="gray", lwd=3, lty="longdash")
 abline(v = 0, col="gray", lwd=3, lty="longdash")
-points(r.data[r.data$Habitat=="Tropical","delta.TPC"], r.data[r.data$Habitat=="Tropical","delta.model"], pch=19, cex=1.5, col="red")
-points(r.data[r.data$Habitat=="Subtropical","delta.TPC"], r.data[r.data$Habitat=="Subtropical","delta.model"], pch=19, cex=1.5, col="orange")
-points(r.data[r.data$Habitat=="Mediterranean","delta.TPC"], r.data[r.data$Habitat=="Mediterranean","delta.model"], pch=19, cex=1.5, col="orange")
-points(r.data[r.data$Habitat=="Temperate","delta.TPC"], r.data[r.data$Habitat=="Temperate","delta.model"], pch=19, cex=1.5, col="blue")
+points(r.data[r.data$Habitat=="Tropical","delta.TPC"], r.data[r.data$Habitat=="Tropical","delta.model"], pch=19, cex=1.5, col="#FFB000") # orange
+points(r.data[r.data$Habitat=="Subtropical","delta.TPC"], r.data[r.data$Habitat=="Subtropical","delta.model"], pch=19, cex=1.5, col="#40B0A6") # teal
+points(r.data[r.data$Habitat=="Mediterranean","delta.TPC"], r.data[r.data$Habitat=="Mediterranean","delta.model"], pch=19, cex=1.5, col="#40B0A6") # teal
+points(r.data[r.data$Habitat=="Temperate","delta.TPC"], r.data[r.data$Habitat=="Temperate","delta.model"], pch=19, cex=1.5, col="#785EF0") # purple
 points(seq(2*Xmin,2*Xmax,0.1), coef(r.delta)[2]*seq(2*Xmin,2*Xmax,0.1)+coef(r.delta)[1], type="l", lwd=3, col="black")
 
 # Model vs latitude
@@ -317,13 +317,13 @@ Xmin <- 0
 Xmax <- 60
 Ymin <- -1
 Ymax <- 0.5
-dev.new(width=3, height=3, unit="in")
+#dev.new(width=3, height=3, unit="in")
 plot(-100, xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="Latitude", ylab="Model")
 abline(0, 0, col="gray", lwd=3, lty="longdash")
-points(r.data[r.data$Habitat=="Tropical","Latitude"], r.data[r.data$Habitat=="Tropical","delta.model"], pch=19, cex=1.5, col="red")
-points(r.data[r.data$Habitat=="Subtropical","Latitude"], r.data[r.data$Habitat=="Subtropical","delta.model"], pch=19, cex=1.5, col="orange")
-points(r.data[r.data$Habitat=="Mediterranean","Latitude"], r.data[r.data$Habitat=="Mediterranean","delta.model"], pch=19, cex=1.5, col="orange")
-points(r.data[r.data$Habitat=="Temperate","Latitude"], r.data[r.data$Habitat=="Temperate","delta.model"], pch=19, cex=1.5, col="blue")
+points(r.data[r.data$Habitat=="Tropical","Latitude"], r.data[r.data$Habitat=="Tropical","delta.model"], pch=19, cex=1.5, col="#FFB000") # orange
+points(r.data[r.data$Habitat=="Subtropical","Latitude"], r.data[r.data$Habitat=="Subtropical","delta.model"], pch=19, cex=1.5, col="#6FD012") # green
+points(r.data[r.data$Habitat=="Mediterranean","Latitude"], r.data[r.data$Habitat=="Mediterranean","delta.model"], pch=19, cex=1.5, col="#6FD012") # green
+points(r.data[r.data$Habitat=="Temperate","Latitude"], r.data[r.data$Habitat=="Temperate","delta.model"], pch=19, cex=1.5, col="#785EF0") # purple
 points(seq(2*Xmin,2*Xmax,1), coef(r.lat)[2]*seq(2*Xmin,2*Xmax,1) + coef(r.lat)[1], type="l", lwd=3, col="black", lty="longdash")
 #points(seq(Xmin,Xmax,1), coef(r.lat2)[1] + coef(r.lat2)[2]*seq(Xmin,Xmax,1) + coef(r.lat2)[3]*seq(Xmin,Xmax,1)^2, type="l", lwd=3, col="black")
 
@@ -342,10 +342,10 @@ abline(0, 1, col="gray", lwd=3)
 abline(0, -1, col="gray", lwd=1)
 abline(0, 0, col="gray", lwd=3, lty="longdash")
 abline(v = 0, col="gray", lwd=3, lty="longdash")
-points(R0.data[R0.data$Habitat=="Tropical","delta.TPC"], R0.data[R0.data$Habitat=="Tropical","delta.model"], pch=19, cex=1.5, col="red")
-points(R0.data[R0.data$Habitat=="Subtropical","delta.TPC"], R0.data[R0.data$Habitat=="Subtropical","delta.model"], pch=19, cex=1.5, col="orange")
-points(R0.data[R0.data$Habitat=="Mediterranean","delta.TPC"], R0.data[R0.data$Habitat=="Mediterranean","delta.model"], pch=19, cex=1.5, col="orange")
-points(R0.data[R0.data$Habitat=="Temperate","delta.TPC"], R0.data[R0.data$Habitat=="Temperate","delta.model"], pch=19, cex=1.5, col="blue")
+points(R0.data[R0.data$Habitat=="Tropical","delta.TPC"], R0.data[R0.data$Habitat=="Tropical","delta.model"], pch=19, cex=1.5, col="#FFB000") # orange
+points(R0.data[R0.data$Habitat=="Subtropical","delta.TPC"], R0.data[R0.data$Habitat=="Subtropical","delta.model"], pch=19, cex=1.5, col="#6FD012") # green
+points(R0.data[R0.data$Habitat=="Mediterranean","delta.TPC"], R0.data[R0.data$Habitat=="Mediterranean","delta.model"], pch=19, cex=1.5, col="#6FD012") # green
+points(R0.data[R0.data$Habitat=="Temperate","delta.TPC"], R0.data[R0.data$Habitat=="Temperate","delta.model"], pch=19, cex=1.5, col="#785EF0") # purple
 points(seq(2*Xmin,2*Xmax,0.1), coef(R0.delta)[2]*seq(2*Xmin,2*Xmax,0.1)+coef(R0.delta)[1], type="l", lwd=3, col="black")
 
 # Model vs latitude
@@ -356,10 +356,10 @@ Ymax <- 0.2
 #dev.new(width=3, height=3, unit="in")
 plot(-100, xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="Latitude", ylab="Model")
 abline(0, 0, col="gray", lwd=3, lty="longdash")
-points(R0.data[R0.data$Habitat=="Tropical","Latitude"], R0.data[R0.data$Habitat=="Tropical","delta.model"], pch=19, cex=1.5, col="red")
-points(R0.data[R0.data$Habitat=="Subtropical","Latitude"], R0.data[R0.data$Habitat=="Subtropical","delta.model"], pch=19, cex=1.5, col="orange")
-points(R0.data[R0.data$Habitat=="Mediterranean","Latitude"], R0.data[R0.data$Habitat=="Mediterranean","delta.model"], pch=19, cex=1.5, col="orange")
-points(R0.data[R0.data$Habitat=="Temperate","Latitude"], R0.data[R0.data$Habitat=="Temperate","delta.model"], pch=19, cex=1.5, col="blue")
+points(R0.data[R0.data$Habitat=="Tropical","Latitude"], R0.data[R0.data$Habitat=="Tropical","delta.model"], pch=19, cex=1.5, col="#FFB000") # orange
+points(R0.data[R0.data$Habitat=="Subtropical","Latitude"], R0.data[R0.data$Habitat=="Subtropical","delta.model"], pch=19, cex=1.5, col="#6FD012") # green
+points(R0.data[R0.data$Habitat=="Mediterranean","Latitude"], R0.data[R0.data$Habitat=="Mediterranean","delta.model"], pch=19, cex=1.5, col="#6FD012") # green
+points(R0.data[R0.data$Habitat=="Temperate","Latitude"], R0.data[R0.data$Habitat=="Temperate","delta.model"], pch=19, cex=1.5, col="#785EF0") # purple
 points(seq(2*Xmin,2*Xmax,1), coef(R0.lat)[2]*seq(2*Xmin,2*Xmax,1) + coef(R0.lat)[1], type="l", lwd=3, col="black", lty="longdash")
 
 
@@ -377,10 +377,10 @@ abline(0, 1, col="gray", lwd=3)
 abline(0, -1, col="gray", lwd=1)
 abline(0, 0, col="gray", lwd=3, lty="longdash")
 abline(v = 0, col="gray", lwd=3, lty="longdash")
-points(b.data[b.data$Habitat=="Tropical","delta.TPC"], b.data[b.data$Habitat=="Tropical","delta.model"], pch=19, cex=1.5, col="red")
-points(b.data[b.data$Habitat=="Subtropical","delta.TPC"], b.data[b.data$Habitat=="Subtropical","delta.model"], pch=19, cex=1.5, col="orange")
-points(b.data[b.data$Habitat=="Mediterranean","delta.TPC"], b.data[b.data$Habitat=="Mediterranean","delta.model"], pch=19, cex=1.5, col="orange")
-points(b.data[b.data$Habitat=="Temperate","delta.TPC"], b.data[b.data$Habitat=="Temperate","delta.model"], pch=19, cex=1.5, col="blue")
+points(b.data[b.data$Habitat=="Tropical","delta.TPC"], b.data[b.data$Habitat=="Tropical","delta.model"], pch=19, cex=1.5, col="#FFB000") # orange
+points(b.data[b.data$Habitat=="Subtropical","delta.TPC"], b.data[b.data$Habitat=="Subtropical","delta.model"], pch=19, cex=1.5, col="#6FD012") # green
+points(b.data[b.data$Habitat=="Mediterranean","delta.TPC"], b.data[b.data$Habitat=="Mediterranean","delta.model"], pch=19, cex=1.5, col="#6FD012") # green
+points(b.data[b.data$Habitat=="Temperate","delta.TPC"], b.data[b.data$Habitat=="Temperate","delta.model"], pch=19, cex=1.5, col="#785EF0") # purple
 
 # Model vs latitude
 Xmin <- 0
@@ -390,10 +390,10 @@ Ymax <- 0.2
 #dev.new(width=3, height=3, unit="in")
 plot(-100, xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="Latitude", ylab="Model")
 abline(0, 0, col="gray", lwd=3, lty="longdash")
-points(b.data[b.data$Habitat=="Tropical","Latitude"], b.data[b.data$Habitat=="Tropical","delta.model"], pch=19, cex=1.5, col="red")
-points(b.data[b.data$Habitat=="Subtropical","Latitude"], b.data[b.data$Habitat=="Subtropical","delta.model"], pch=19, cex=1.5, col="orange")
-points(b.data[b.data$Habitat=="Mediterranean","Latitude"], b.data[b.data$Habitat=="Mediterranean","delta.model"], pch=19, cex=1.5, col="orange")
-points(b.data[b.data$Habitat=="Temperate","Latitude"], b.data[b.data$Habitat=="Temperate","delta.model"], pch=19, cex=1.5, col="blue")
+points(b.data[b.data$Habitat=="Tropical","Latitude"], b.data[b.data$Habitat=="Tropical","delta.model"], pch=19, cex=1.5, col="#FFB000") # orange
+points(b.data[b.data$Habitat=="Subtropical","Latitude"], b.data[b.data$Habitat=="Subtropical","delta.model"], pch=19, cex=1.5, col="#6FD012") # green
+points(b.data[b.data$Habitat=="Mediterranean","Latitude"], b.data[b.data$Habitat=="Mediterranean","delta.model"], pch=19, cex=1.5, col="#6FD012") # green
+points(b.data[b.data$Habitat=="Temperate","Latitude"], b.data[b.data$Habitat=="Temperate","delta.model"], pch=19, cex=1.5, col="#785EF0") # purple
 points(seq(2*Xmin,2*Xmax,1), coef(b.lat)[2]*seq(2*Xmin,2*Xmax,1) + coef(b.lat)[1], type="l", lwd=3, col="black", lty="longdash")
 
 
@@ -411,10 +411,10 @@ abline(0, 1, col="gray", lwd=3)
 abline(0, -1, col="gray", lwd=1)
 abline(0, 0, col="gray", lwd=3, lty="longdash")
 abline(v = 0, col="gray", lwd=3, lty="longdash")
-points(tau.data[tau.data$Habitat=="Tropical","delta.TPC"], tau.data[tau.data$Habitat=="Tropical","delta.model"], pch=19, cex=1.5, col="red")
-points(tau.data[tau.data$Habitat=="Subtropical","delta.TPC"], tau.data[tau.data$Habitat=="Subtropical","delta.model"], pch=19, cex=1.5, col="orange")
-points(tau.data[tau.data$Habitat=="Mediterranean","delta.TPC"], tau.data[tau.data$Habitat=="Mediterranean","delta.model"], pch=19, cex=1.5, col="orange")
-points(tau.data[tau.data$Habitat=="Temperate","delta.TPC"], tau.data[tau.data$Habitat=="Temperate","delta.model"], pch=19, cex=1.5, col="blue")
+points(tau.data[tau.data$Habitat=="Tropical","delta.TPC"], tau.data[tau.data$Habitat=="Tropical","delta.model"], pch=19, cex=1.5, col="#FFB000") # orange
+points(tau.data[tau.data$Habitat=="Subtropical","delta.TPC"], tau.data[tau.data$Habitat=="Subtropical","delta.model"], pch=19, cex=1.5, col="#6FD012") # green
+points(tau.data[tau.data$Habitat=="Mediterranean","delta.TPC"], tau.data[tau.data$Habitat=="Mediterranean","delta.model"], pch=19, cex=1.5, col="#6FD012") # green
+points(tau.data[tau.data$Habitat=="Temperate","delta.TPC"], tau.data[tau.data$Habitat=="Temperate","delta.model"], pch=19, cex=1.5, col="#785EF0") # purple
 points(seq(2*Xmin,2*Xmax,0.1), coef(tau.delta)[2]*seq(2*Xmin,2*Xmax,0.1)+coef(tau.delta)[1], type="l", lwd=3, col="black")
 
 # Model vs latitude
@@ -425,10 +425,10 @@ Ymax <- 0
 #dev.new(width=3, height=3, unit="in")
 plot(-100, xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="Latitude", ylab="Model")
 abline(0, 0, col="gray", lwd=3, lty="longdash")
-points(tau.data[tau.data$Habitat=="Tropical","Latitude"], tau.data[tau.data$Habitat=="Tropical","delta.model"], pch=19, cex=1.5, col="red")
-points(tau.data[tau.data$Habitat=="Subtropical","Latitude"], tau.data[tau.data$Habitat=="Subtropical","delta.model"], pch=19, cex=1.5, col="orange")
-points(tau.data[tau.data$Habitat=="Mediterranean","Latitude"], tau.data[tau.data$Habitat=="Mediterranean","delta.model"], pch=19, cex=1.5, col="orange")
-points(tau.data[tau.data$Habitat=="Temperate","Latitude"], tau.data[tau.data$Habitat=="Temperate","delta.model"], pch=19, cex=1.5, col="blue")
+points(tau.data[tau.data$Habitat=="Tropical","Latitude"], tau.data[tau.data$Habitat=="Tropical","delta.model"], pch=19, cex=1.5, col="#FFB000") # orange
+points(tau.data[tau.data$Habitat=="Subtropical","Latitude"], tau.data[tau.data$Habitat=="Subtropical","delta.model"], pch=19, cex=1.5, col="#6FD012") # green
+points(tau.data[tau.data$Habitat=="Mediterranean","Latitude"], tau.data[tau.data$Habitat=="Mediterranean","delta.model"], pch=19, cex=1.5, col="#6FD012") # green
+points(tau.data[tau.data$Habitat=="Temperate","Latitude"], tau.data[tau.data$Habitat=="Temperate","delta.model"], pch=19, cex=1.5, col="#785EF0") # purple
 points(seq(2*Xmin,2*Xmax,1), coef(tau.lat)[2]*seq(2*Xmin,2*Xmax,1) + coef(tau.lat)[1], type="l", lwd=3, col="black")
 
 
@@ -446,10 +446,10 @@ abline(0, 1, col="gray", lwd=3)
 abline(0, -1, col="gray", lwd=1)
 abline(0, 0, col="gray", lwd=3, lty="longdash")
 abline(v = 0, col="gray", lwd=3, lty="longdash")
-points(s.data[s.data$Habitat=="Tropical","delta.TPC"], s.data[s.data$Habitat=="Tropical","delta.model"], pch=19, cex=1.5, col="red")
-points(s.data[s.data$Habitat=="Subtropical","delta.TPC"], s.data[s.data$Habitat=="Subtropical","delta.model"], pch=19, cex=1.5, col="orange")
-points(s.data[s.data$Habitat=="Mediterranean","delta.TPC"], s.data[s.data$Habitat=="Mediterranean","delta.model"], pch=19, cex=1.5, col="orange")
-points(s.data[s.data$Habitat=="Temperate","delta.TPC"], s.data[s.data$Habitat=="Temperate","delta.model"], pch=19, cex=1.5, col="blue")
+points(s.data[s.data$Habitat=="Tropical","delta.TPC"], s.data[s.data$Habitat=="Tropical","delta.model"], pch=19, cex=1.5, col="#FFB000") # orange
+points(s.data[s.data$Habitat=="Subtropical","delta.TPC"], s.data[s.data$Habitat=="Subtropical","delta.model"], pch=19, cex=1.5, col="#6FD012") # green
+points(s.data[s.data$Habitat=="Mediterranean","delta.TPC"], s.data[s.data$Habitat=="Mediterranean","delta.model"], pch=19, cex=1.5, col="#6FD012") # green
+points(s.data[s.data$Habitat=="Temperate","delta.TPC"], s.data[s.data$Habitat=="Temperate","delta.model"], pch=19, cex=1.5, col="#785EF0") # purple
 points(seq(2*Xmin,2*Xmax,0.1), coef(s.delta)[2]*seq(2*Xmin,2*Xmax,0.1)+coef(s.delta)[1], type="l", lwd=3, col="black")
 
 # Model vs latitude
@@ -460,10 +460,10 @@ Ymax <- 0.2
 #dev.new(width=3, height=3, unit="in")
 plot(-100, xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="Latitude", ylab="Model")
 abline(0, 0, col="gray", lwd=3, lty="longdash")
-points(s.data[s.data$Habitat=="Tropical","Latitude"], s.data[s.data$Habitat=="Tropical","delta.model"], pch=19, cex=1.5, col="red")
-points(s.data[s.data$Habitat=="Subtropical","Latitude"], s.data[s.data$Habitat=="Subtropical","delta.model"], pch=19, cex=1.5, col="orange")
-points(s.data[s.data$Habitat=="Mediterranean","Latitude"], s.data[s.data$Habitat=="Mediterranean","delta.model"], pch=19, cex=1.5, col="orange")
-points(s.data[s.data$Habitat=="Temperate","Latitude"], s.data[s.data$Habitat=="Temperate","delta.model"], pch=19, cex=1.5, col="blue")
+points(s.data[s.data$Habitat=="Tropical","Latitude"], s.data[s.data$Habitat=="Tropical","delta.model"], pch=19, cex=1.5, col="#FFB000") # orange
+points(s.data[s.data$Habitat=="Subtropical","Latitude"], s.data[s.data$Habitat=="Subtropical","delta.model"], pch=19, cex=1.5, col="#6FD012") # green
+points(s.data[s.data$Habitat=="Mediterranean","Latitude"], s.data[s.data$Habitat=="Mediterranean","delta.model"], pch=19, cex=1.5, col="#6FD012") # green
+points(s.data[s.data$Habitat=="Temperate","Latitude"], s.data[s.data$Habitat=="Temperate","delta.model"], pch=19, cex=1.5, col="#785EF0") # purple
 points(seq(2*Xmin,2*Xmax,1), coef(s.lat)[2]*seq(2*Xmin,2*Xmax,1) + coef(s.lat)[1], type="l", lwd=3, col="black", lty="longdash")
 
 
@@ -481,23 +481,23 @@ abline(0, 1, col="gray", lwd=3)
 abline(0, -1, col="gray", lwd=1)
 abline(0, 0, col="gray", lwd=3, lty="longdash")
 abline(v = 0, col="gray", lwd=3, lty="longdash")
-points(L.data[L.data$Habitat=="Tropical","delta.TPC"], L.data[L.data$Habitat=="Tropical","delta.model"], pch=19, cex=1.5, col="red")
-points(L.data[L.data$Habitat=="Subtropical","delta.TPC"], L.data[L.data$Habitat=="Subtropical","delta.model"], pch=19, cex=1.5, col="orange")
-points(L.data[L.data$Habitat=="Mediterranean","delta.TPC"], L.data[L.data$Habitat=="Mediterranean","delta.model"], pch=19, cex=1.5, col="orange")
-points(L.data[L.data$Habitat=="Temperate","delta.TPC"], L.data[L.data$Habitat=="Temperate","delta.model"], pch=19, cex=1.5, col="blue")
+points(L.data[L.data$Habitat=="Tropical","delta.TPC"], L.data[L.data$Habitat=="Tropical","delta.model"], pch=19, cex=1.5, col="#FFB000") # orange
+points(L.data[L.data$Habitat=="Subtropical","delta.TPC"], L.data[L.data$Habitat=="Subtropical","delta.model"], pch=19, cex=1.5, col="#6FD012") # green
+points(L.data[L.data$Habitat=="Mediterranean","delta.TPC"], L.data[L.data$Habitat=="Mediterranean","delta.model"], pch=19, cex=1.5, col="#6FD012") # green
+points(L.data[L.data$Habitat=="Temperate","delta.TPC"], L.data[L.data$Habitat=="Temperate","delta.model"], pch=19, cex=1.5, col="#785EF0") # purple
 
 # Model vs latitude
 Xmin <- 0
 Xmax <- 60
-Ymin <- -0.4
-Ymax <- 0.1
+Ymin <- -1.5
+Ymax <- 0.5
 #dev.new(width=3, height=3, unit="in")
 plot(-100, xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="Latitude", ylab="Model")
 abline(0, 0, col="gray", lwd=3, lty="longdash")
-points(L.data[L.data$Habitat=="Tropical","Latitude"], L.data[L.data$Habitat=="Tropical","delta.model"], pch=19, cex=1.5, col="red")
-points(L.data[L.data$Habitat=="Subtropical","Latitude"], L.data[L.data$Habitat=="Subtropical","delta.model"], pch=19, cex=1.5, col="orange")
-points(L.data[L.data$Habitat=="Mediterranean","Latitude"], L.data[L.data$Habitat=="Mediterranean","delta.model"], pch=19, cex=1.5, col="orange")
-points(L.data[L.data$Habitat=="Temperate","Latitude"], L.data[L.data$Habitat=="Temperate","delta.model"], pch=19, cex=1.5, col="blue")
+points(L.data[L.data$Habitat=="Tropical","Latitude"], L.data[L.data$Habitat=="Tropical","delta.model"], pch=19, cex=1.5, col="#FFB000") # orange
+points(L.data[L.data$Habitat=="Subtropical","Latitude"], L.data[L.data$Habitat=="Subtropical","delta.model"], pch=19, cex=1.5, col="#6FD012") # green
+points(L.data[L.data$Habitat=="Mediterranean","Latitude"], L.data[L.data$Habitat=="Mediterranean","delta.model"], pch=19, cex=1.5, col="#6FD012") # green
+points(L.data[L.data$Habitat=="Temperate","Latitude"], L.data[L.data$Habitat=="Temperate","delta.model"], pch=19, cex=1.5, col="#785EF0") # purple
 points(seq(2*Xmin,2*Xmax,1), coef(L.lat)[2]*seq(2*Xmin,2*Xmax,1) + coef(L.lat)[1], type="l", lwd=3, col="black")
 
 
@@ -512,10 +512,10 @@ Ymax <- 0.6
 plot(-100, xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="Latitude", ylab="Model")
 abline(0, 0, col="gray", lwd=3, lty="longdash")
 points(seq(2*Xmin,2*Xmax,1), coef(mean.lat)[2]*seq(2*Xmin,2*Xmax,1) + coef(mean.lat)[1], type="l", lwd=3, col="black", lty="longdash")
-points(pop.data[pop.data$Habitat=="Tropical","Latitude"], pop.data[pop.data$Habitat=="Tropical","delta.mean"], pch=19, cex=1.5, col="red")
-points(pop.data[pop.data$Habitat=="Subtropical","Latitude"], pop.data[pop.data$Habitat=="Subtropical","delta.mean"], pch=19, cex=1.5, col="orange")
-points(pop.data[pop.data$Habitat=="Mediterranean","Latitude"], pop.data[pop.data$Habitat=="Mediterranean","delta.mean"], pch=19, cex=1.5, col="orange")
-points(pop.data[pop.data$Habitat=="Temperate","Latitude"], pop.data[pop.data$Habitat=="Temperate","delta.mean"], pch=19, cex=1.5, col="blue")
+points(pop.data[pop.data$Habitat=="Tropical","Latitude"], pop.data[pop.data$Habitat=="Tropical","delta.mean"], pch=19, cex=1.5, col="#FFB000") # orange
+points(pop.data[pop.data$Habitat=="Subtropical","Latitude"], pop.data[pop.data$Habitat=="Subtropical","delta.mean"], pch=19, cex=1.5, col="#6FD012") # green
+points(pop.data[pop.data$Habitat=="Mediterranean","Latitude"], pop.data[pop.data$Habitat=="Mediterranean","delta.mean"], pch=19, cex=1.5, col="#6FD012") # green
+points(pop.data[pop.data$Habitat=="Temperate","Latitude"], pop.data[pop.data$Habitat=="Temperate","delta.mean"], pch=19, cex=1.5, col="#785EF0") # purple
 
 # CV of density vs latitude
 Xmin <- 0
@@ -526,10 +526,10 @@ Ymax <- 0.8
 plot(-100, xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="Latitude", ylab="Model")
 abline(0, 0, col="gray", lwd=3, lty="longdash")
 points(seq(2*Xmin,2*Xmax,1), coef(CV.lat)[2]*seq(2*Xmin,2*Xmax,1) + coef(CV.lat)[1], type="l", lwd=3, col="black")
-points(pop.data[pop.data$Habitat=="Tropical","Latitude"], pop.data[pop.data$Habitat=="Tropical","delta.CV"], pch=19, cex=1.5, col="red")
-points(pop.data[pop.data$Habitat=="Subtropical","Latitude"], pop.data[pop.data$Habitat=="Subtropical","delta.CV"], pch=19, cex=1.5, col="orange")
-points(pop.data[pop.data$Habitat=="Mediterranean","Latitude"], pop.data[pop.data$Habitat=="Mediterranean","delta.CV"], pch=19, cex=1.5, col="orange")
-points(pop.data[pop.data$Habitat=="Temperate","Latitude"], pop.data[pop.data$Habitat=="Temperate","delta.CV"], pch=19, cex=1.5, col="blue")
+points(pop.data[pop.data$Habitat=="Tropical","Latitude"], pop.data[pop.data$Habitat=="Tropical","delta.CV"], pch=19, cex=1.5, col="#FFB000") # orange
+points(pop.data[pop.data$Habitat=="Subtropical","Latitude"], pop.data[pop.data$Habitat=="Subtropical","delta.CV"], pch=19, cex=1.5, col="#6FD012") # green
+points(pop.data[pop.data$Habitat=="Mediterranean","Latitude"], pop.data[pop.data$Habitat=="Mediterranean","delta.CV"], pch=19, cex=1.5, col="#6FD012") # green
+points(pop.data[pop.data$Habitat=="Temperate","Latitude"], pop.data[pop.data$Habitat=="Temperate","delta.CV"], pch=19, cex=1.5, col="#785EF0") # purple
 
 # Active period vs latitude
 Xmin <- 0
@@ -540,10 +540,10 @@ Ymax <- 0.6
 plot(-100, xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="Latitude", ylab="Model")
 abline(0, 0, col="gray", lwd=3, lty="longdash")
 points(seq(2*Xmin,2*Xmax,1), coef(active.lat)[2]*seq(2*Xmin,2*Xmax,1) + coef(active.lat)[1], type="l", lwd=3, col="black")
-points(pop.data[pop.data$Habitat=="Tropical","Latitude"], pop.data[pop.data$Habitat=="Tropical","delta.active"], pch=19, cex=1.5, col="red")
-points(pop.data[pop.data$Habitat=="Subtropical","Latitude"], pop.data[pop.data$Habitat=="Subtropical","delta.active"], pch=19, cex=1.5, col="orange")
-points(pop.data[pop.data$Habitat=="Mediterranean","Latitude"], pop.data[pop.data$Habitat=="Mediterranean","delta.active"], pch=19, cex=1.5, col="orange")
-points(pop.data[pop.data$Habitat=="Temperate","Latitude"], pop.data[pop.data$Habitat=="Temperate","delta.active"], pch=19, cex=1.5, col="blue")
+points(pop.data[pop.data$Habitat=="Tropical","Latitude"], pop.data[pop.data$Habitat=="Tropical","delta.active"], pch=19, cex=1.5, col="#FFB000") # orange
+points(pop.data[pop.data$Habitat=="Subtropical","Latitude"], pop.data[pop.data$Habitat=="Subtropical","delta.active"], pch=19, cex=1.5, col="#6FD012") # green
+points(pop.data[pop.data$Habitat=="Mediterranean","Latitude"], pop.data[pop.data$Habitat=="Mediterranean","delta.active"], pch=19, cex=1.5, col="#6FD012") # green
+points(pop.data[pop.data$Habitat=="Temperate","Latitude"], pop.data[pop.data$Habitat=="Temperate","delta.active"], pch=19, cex=1.5, col="#785EF0") # purple
 
 
 
@@ -558,10 +558,10 @@ points(pop.data[pop.data$Habitat=="Temperate","Latitude"], pop.data[pop.data$Hab
 # plot(-100, xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="TPC", ylab="Model")
 # polygon(c(-1,2*Xmax,2*Xmax),c(-1,-1,2*Xmax), col = "lightgray", border = NA)
 # abline(0, 1, col="gray", lwd=3)
-# points(results.m[results.m$Habitat=="Tropical","TPC"], results.m[results.m$Habitat=="Tropical","Model"], pch=19, cex=1.5, col="red")
-# points(results.m[results.m$Habitat=="Subtropical","TPC"], results.m[results.m$Habitat=="Subtropical","Model"], pch=19, cex=1.5, col="orange")
-# points(results.m[results.m$Habitat=="Mediterranean","TPC"], results.m[results.m$Habitat=="Mediterranean","Model"], pch=19, cex=1.5, col="orange")
-# points(results.m[results.m$Habitat=="Temperate","TPC"], results.m[results.m$Habitat=="Temperate","Model"], pch=19, cex=1.5, col="blue")
+# points(results.m[results.m$Habitat=="Tropical","TPC"], results.m[results.m$Habitat=="Tropical","Model"], pch=19, cex=1.5, col="#FFB000") # orange
+# points(results.m[results.m$Habitat=="Subtropical","TPC"], results.m[results.m$Habitat=="Subtropical","Model"], pch=19, cex=1.5, col="#6FD012") # green
+# points(results.m[results.m$Habitat=="Mediterranean","TPC"], results.m[results.m$Habitat=="Mediterranean","Model"], pch=19, cex=1.5, col="#6FD012") # green
+# points(results.m[results.m$Habitat=="Temperate","TPC"], results.m[results.m$Habitat=="Temperate","Model"], pch=19, cex=1.5, col="#785EF0") # purple
 # points(seq(2*Xmin,2*Xmax,0.1), coef(mean.delta)[2]*seq(2*Xmin,2*Xmax,0.1)+coef(mean.delta)[1], type="l", lwd=3, col="black")
 # 
 # # Model vs latitude
@@ -572,9 +572,9 @@ points(pop.data[pop.data$Habitat=="Temperate","Latitude"], pop.data[pop.data$Hab
 # #dev.new(width=3, height=3, unit="in")
 # plot(results.m[results.m$Habitat=="Tropical","Latitude"], results.m[results.m$Habitat=="Tropical","Model"], pch=19, cex=1.5, col="red",
 #      xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="Latitude", ylab="change in mean temperature")
-# points(results.m[results.m$Habitat=="Subtropical","Latitude"], results.m[results.m$Habitat=="Subtropical","Model"], pch=19, cex=1.5, col="orange")
-# points(results.m[results.m$Habitat=="Mediterranean","Latitude"], results.m[results.m$Habitat=="Mediterranean","Model"], pch=19, cex=1.5, col="orange")
-# points(results.m[results.m$Habitat=="Temperate","Latitude"], results.m[results.m$Habitat=="Temperate","Model"], pch=19, cex=1.5, col="blue")
+# points(results.m[results.m$Habitat=="Subtropical","Latitude"], results.m[results.m$Habitat=="Subtropical","Model"], pch=19, cex=1.5, col="#6FD012") # green
+# points(results.m[results.m$Habitat=="Mediterranean","Latitude"], results.m[results.m$Habitat=="Mediterranean","Model"], pch=19, cex=1.5, col="#6FD012") # green
+# points(results.m[results.m$Habitat=="Temperate","Latitude"], results.m[results.m$Habitat=="Temperate","Model"], pch=19, cex=1.5, col="#785EF0") # purple
 # points(seq(2*Xmin,2*Xmax,1), coef(mean.lat)[2]*seq(2*Xmin,2*Xmax,1) + coef(mean.lat)[1], type="l", lwd=3, col="black")
 # 
 # 
@@ -588,10 +588,10 @@ points(pop.data[pop.data$Habitat=="Temperate","Latitude"], pop.data[pop.data$Hab
 # plot(-100, xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="TPC", ylab="Model")
 # polygon(c(-10,2*Xmax,2*Xmax),c(-10,-10,2*Xmax), col = "lightgray", border = NA)
 # abline(0, 1, col="gray", lwd=3)
-# points(results.a[results.a$Habitat=="Tropical","TPC"], results.a[results.a$Habitat=="Tropical","Model"], pch=19, cex=1.5, col="red")
-# points(results.a[results.a$Habitat=="Subtropical","TPC"], results.a[results.a$Habitat=="Subtropical","Model"], pch=19, cex=1.5, col="orange")
-# points(results.a[results.a$Habitat=="Mediterranean","TPC"], results.a[results.a$Habitat=="Mediterranean","Model"], pch=19, cex=1.5, col="orange")
-# points(results.a[results.a$Habitat=="Temperate","TPC"], results.a[results.a$Habitat=="Temperate","Model"], pch=19, cex=1.5, col="blue")
+# points(results.a[results.a$Habitat=="Tropical","TPC"], results.a[results.a$Habitat=="Tropical","Model"], pch=19, cex=1.5, col="#FFB000") # orange
+# points(results.a[results.a$Habitat=="Subtropical","TPC"], results.a[results.a$Habitat=="Subtropical","Model"], pch=19, cex=1.5, col="#6FD012") # green
+# points(results.a[results.a$Habitat=="Mediterranean","TPC"], results.a[results.a$Habitat=="Mediterranean","Model"], pch=19, cex=1.5, col="#6FD012") # green
+# points(results.a[results.a$Habitat=="Temperate","TPC"], results.a[results.a$Habitat=="Temperate","Model"], pch=19, cex=1.5, col="#785EF0") # purple
 # points(seq(2*Xmin,2*Xmax,0.1), coef(ampl.delta)[2]*seq(2*Xmin,2*Xmax,0.1)+coef(ampl.delta)[1], type="l", lwd=3, col="black")
 # 
 # # Model vs latitude
@@ -602,9 +602,9 @@ points(pop.data[pop.data$Habitat=="Temperate","Latitude"], pop.data[pop.data$Hab
 # #dev.new(width=3, height=3, unit="in")
 # plot(results.a[results.a$Habitat=="Tropical","Latitude"], results.a[results.a$Habitat=="Tropical","Model"], pch=19, cex=1.5, col="red",
 #      xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="Latitude", ylab="increase in amplitude")
-# points(results.a[results.a$Habitat=="Subtropical","Latitude"], results.a[results.a$Habitat=="Subtropical","Model"], pch=19, cex=1.5, col="orange")
-# points(results.a[results.a$Habitat=="Mediterranean","Latitude"], results.a[results.a$Habitat=="Mediterranean","Model"], pch=19, cex=1.5, col="orange")
-# points(results.a[results.a$Habitat=="Temperate","Latitude"], results.a[results.a$Habitat=="Temperate","Model"], pch=19, cex=1.5, col="blue")
+# points(results.a[results.a$Habitat=="Subtropical","Latitude"], results.a[results.a$Habitat=="Subtropical","Model"], pch=19, cex=1.5, col="#6FD012") # green
+# points(results.a[results.a$Habitat=="Mediterranean","Latitude"], results.a[results.a$Habitat=="Mediterranean","Model"], pch=19, cex=1.5, col="#6FD012") # green
+# points(results.a[results.a$Habitat=="Temperate","Latitude"], results.a[results.a$Habitat=="Temperate","Model"], pch=19, cex=1.5, col="#785EF0") # purple
 # points(seq(2*Xmin,2*Xmax,1), coef(ampl.lat)[2]*seq(2*Xmin,2*Xmax,1) + coef(ampl.lat)[1], type="l", lwd=3, col="black", lty="longdash")
 # 
 # 
@@ -618,10 +618,10 @@ points(pop.data[pop.data$Habitat=="Temperate","Latitude"], pop.data[pop.data$Hab
 # plot(-100, xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="TPC", ylab="Model")
 # polygon(c(-10,2*Xmax,2*Xmax),c(-10,-10,2*Xmax), col = "lightgray", border = NA)
 # abline(0, 1, col="gray", lwd=3)
-# points(results.b[results.b$Habitat=="Tropical","TPC"], results.b[results.b$Habitat=="Tropical","Model"], pch=19, cex=1.5, col="red")
-# points(results.b[results.b$Habitat=="Subtropical","TPC"], results.b[results.b$Habitat=="Subtropical","Model"], pch=19, cex=1.5, col="orange")
-# points(results.b[results.b$Habitat=="Mediterranean","TPC"], results.b[results.b$Habitat=="Mediterranean","Model"], pch=19, cex=1.5, col="orange")
-# points(results.b[results.b$Habitat=="Temperate","TPC"], results.b[results.b$Habitat=="Temperate","Model"], pch=19, cex=1.5, col="blue")
+# points(results.b[results.b$Habitat=="Tropical","TPC"], results.b[results.b$Habitat=="Tropical","Model"], pch=19, cex=1.5, col="#FFB000") # orange
+# points(results.b[results.b$Habitat=="Subtropical","TPC"], results.b[results.b$Habitat=="Subtropical","Model"], pch=19, cex=1.5, col="#6FD012") # green
+# points(results.b[results.b$Habitat=="Mediterranean","TPC"], results.b[results.b$Habitat=="Mediterranean","Model"], pch=19, cex=1.5, col="#6FD012") # green
+# points(results.b[results.b$Habitat=="Temperate","TPC"], results.b[results.b$Habitat=="Temperate","Model"], pch=19, cex=1.5, col="#785EF0") # purple
 # points(seq(2*Xmin,2*Xmax,0.1), coef(both.delta)[2]*seq(2*Xmin,2*Xmax,0.1)+coef(both.delta)[1], type="l", lwd=3, col="black", lty="longdash")
 # 
 # # Model vs latitude
@@ -632,9 +632,9 @@ points(pop.data[pop.data$Habitat=="Temperate","Latitude"], pop.data[pop.data$Hab
 # #dev.new(width=3, height=3, unit="in")
 # plot(results.b[results.b$Habitat=="Tropical","Latitude"], results.b[results.b$Habitat=="Tropical","Model"], pch=19, cex=1.5, col="red",
 #      xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="Latitude", ylab="temperature increase")
-# points(results.b[results.b$Habitat=="Subtropical","Latitude"], results.b[results.b$Habitat=="Subtropical","Model"], pch=19, cex=1.5, col="orange")
-# points(results.b[results.b$Habitat=="Mediterranean","Latitude"], results.b[results.b$Habitat=="Mediterranean","Model"], pch=19, cex=1.5, col="orange")
-# points(results.b[results.b$Habitat=="Temperate","Latitude"], results.b[results.b$Habitat=="Temperate","Model"], pch=19, cex=1.5, col="blue")
+# points(results.b[results.b$Habitat=="Subtropical","Latitude"], results.b[results.b$Habitat=="Subtropical","Model"], pch=19, cex=1.5, col="#6FD012") # green
+# points(results.b[results.b$Habitat=="Mediterranean","Latitude"], results.b[results.b$Habitat=="Mediterranean","Model"], pch=19, cex=1.5, col="#6FD012") # green
+# points(results.b[results.b$Habitat=="Temperate","Latitude"], results.b[results.b$Habitat=="Temperate","Model"], pch=19, cex=1.5, col="#785EF0") # purple
 # points(seq(2*Xmin,2*Xmax,1), coef(both.lat)[2]*seq(2*Xmin,2*Xmax,1) + coef(both.lat)[1], type="l", lwd=3, col="black", lty="longdash")
 
 
@@ -789,9 +789,9 @@ points(pop.data[pop.data$Habitat=="Temperate","Latitude"], pop.data[pop.data$Hab
 # barplot(d.m.ave, col="#d1495b", xlim=c(0.2,2), ylim=c(-0.5,0.5), main=expression("Mean m(T)"))
 # barplot(d.dA.ave, col="#30638e", xlim=c(0.2,2), ylim=c(-0.5,0.5), main=expression("Mean dA(T)"))
 # # thermal performance curves
-# barplot(c(R0.period,R0.period.CC), col=c("purple","red"), ylim=c(0,100), main=expression("above R0"))
-# barplot(c(r.period,r.period.CC), col=c("purple","red"), ylim=c(0,100), main=expression("above r"))
-# barplot(c(TSM,TSM.CC), col=c("purple","red"), ylim=c(-20,20), main=expression("Thermal margin"))
+# barplot(c(R0.period,R0.period.CC), col=c("purple","#FFB000") # orange, ylim=c(0,100), main=expression("above R0"))
+# barplot(c(r.period,r.period.CC), col=c("purple","#FFB000") # orange, ylim=c(0,100), main=expression("above r"))
+# barplot(c(TSM,TSM.CC), col=c("purple","#FFB000") # orange, ylim=c(-20,20), main=expression("Thermal margin"))
 # # habitat temperatures
 # barplot((sp.data["ext_meanT"])[[1]], col="#30638e", xlim=c(0.2,2), ylim=c(0,30), main=expression("meanT"))
 # barplot((sp.data["ext_amplT"])[[1]], col="#30638e", xlim=c(0.2,2), ylim=c(0,30), main=expression("amplT"))

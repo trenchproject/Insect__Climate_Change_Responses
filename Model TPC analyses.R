@@ -14,11 +14,11 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 # USER: choose "Fitness", "R0", "Fecundity", "Survival",
 #               "Birth", "Development", "Longevity", or "Recruitment"
-trait <- "Development"
+trait <- "Fitness"
 
 # USER: enter species and location or set "all" to TRUE to run analysis for all species
-species <- "Rhopalosiphum rufiabdominalis"
-location <- "US Weston"
+species <- "Aulacorthum solani"
+location <- "US Ithaca"
 all <- FALSE
 
 # USER: include overwintering? (i.e., do not integrate over temperatures below Tmin)
@@ -45,8 +45,8 @@ if(all == FALSE) {
 
 # CREATE ARRAY FOR RESULTS
 if(all == TRUE) {
-  results <- data.frame(param.all[,1], param.all[,2], param.all[,3], param.all[,4], 1:nrow(param.all), 1:nrow(param.all), 1:nrow(param.all), 1:nrow(param.all), 1:nrow(param.all), 1:nrow(param.all), 1:nrow(param.all), 1:nrow(param.all))
-  names(results) <- c("Species","Latitude","Habitat","Subfamily","TPC.h","TPC.f","Model.h","Model.f","max.h","max.f","delta.TPC","delta.model")
+  results <- data.frame(param.all[,1], param.all[,2], param.all[,3], param.all[,4], 1:nrow(param.all), 1:nrow(param.all), 1:nrow(param.all), 1:nrow(param.all), 1:nrow(param.all), 1:nrow(param.all))
+  names(results) <- c("Species","Latitude","Habitat","Subfamily","TPC.h","TPC.f","Model.h","Model.f","delta.TPC","delta.model")
 }
 
 
@@ -90,9 +90,11 @@ for(s in 1:nrow(param.all)) {
   ################################## TPC: HISTORICAL CLIMATE ###################################
   # Integrate across life history traits
   if(overw == FALSE) {
-    # Fitness
+    # Fitness and R0
     r.h <- function(t) { ifelse(T.h(t) <= param$rTopt, param$rMax*exp(-1*((T.h(t)-param$rTopt)/(2*param$rs))^2),
                                 param$rMax*(1 - ((T.h(t)-param$rTopt)/(param$rTopt-param$rTmax))^2)) }
+    
+    R0.h <- function(t) { param$R0Topt*exp(-((T.h(t)-param$ToptR0)^2)/(2*param$sR0^2)) }
     # Life history traits
     b.h <- function(t) { param$bTopt*exp(-((T.h(t)-param$Toptb)^2)/(2*param$sb^2)) }
     #m.h <- function(t) { param$mTR*(T.h(t)/param$TR)*exp(param$AmJ*(1/param$TR-1/T.h(t)))/(1+exp(param$AL*(1/param$TL-1/T.h(t)))+exp(param$AH*(1/param$TH-1/T.h(t)))) }
@@ -101,8 +103,7 @@ for(s in 1:nrow(param.all)) {
     #m.h <- function(t) { param$mTR*(T.h(t)/param$TR)*exp(param$AmJ*(1/param$TR-1/T.h(t))) }
     dJ.h <- function(t) { param$dJTR*exp(param$AdJ*(1/param$TR-1/T.h(t))) }
     dA.h <- function(t) { param$dATR*exp(param$AdA*(1/param$TR-1/T.h(t))) }
-    # R0, lifetime fecundity, survivorship, and recruitment
-    R0.h <- function(t) { b.h(t)/dA.h(t) * m.h(t)/(m.h(t)+dJ.h(t)) }
+    # Lifetime fecundity, survivorship, and recruitment
     f.h <- function(t) { b.h(t)/dA.h(t) }
     s.h <- function(t) { exp(-dJ.h(t)/m.h(t)) }
     #R.h <- function(t) { m.h(t) * lambertW0(b.h(t)/m.h(t) * exp((dA.h(t)-dJ.h(t))/m.h(t))) }
@@ -121,9 +122,10 @@ for(s in 1:nrow(param.all)) {
     dA.TPC.h <- cubintegrate(dA.h, lower = start.h, upper = end.h, method = "pcubature")$integral/(end.h-start.h)
   }
   if(overw == TRUE) {
-    # Fitness
+    # Fitness and R0
     r.h <- function(t) { ifelse(T.h(t) < param$Tmin, 0, ifelse(T.h(t) <= param$rTopt, param$rMax*exp(-1*((T.h(t)-param$rTopt)/(2*param$rs))^2),
                     param$rMax*(1 - ((T.h(t)-param$rTopt)/(param$rTopt-param$rTmax))^2))) }
+    R0.h <- function(t) { ifelse(T.h(t) < param$Tmin, 0, param$R0Topt*exp(-((T.h(t)-param$ToptR0)^2)/(2*param$sR0^2))) }
     # Life history traits
     b.h <- function(t) { ifelse(T.h(t) < param$Tmin, 0, param$bTopt*exp(-((T.h(t)-param$Toptb)^2)/(2*param$sb^2))) }
     #m.h <- function(t) { param$mTR*(T.h(t)/param$TR)*exp(param$AmJ*(1/param$TR-1/T.h(t)))/(1+exp(param$AL*(1/param$TL-1/T.h(t)))+exp(param$AH*(1/param$TH-1/T.h(t)))) }
@@ -132,8 +134,7 @@ for(s in 1:nrow(param.all)) {
     #m.h <- function(t) { ifelse(T.h(t) < param$Tmin, 0, param$mTR*(T.h(t)/param$TR)*exp(param$AmJ*(1/param$TR-1/T.h(t)))) }
     dJ.h <- function(t) { ifelse(T.h(t) < param$Tmin, 0, param$dJTR*exp(param$AdJ*(1/param$TR-1/T.h(t)))) }
     dA.h <- function(t) { ifelse(T.h(t) < param$Tmin, 0, param$dATR*exp(param$AdA*(1/param$TR-1/T.h(t)))) }
-    # R0, lifetime fecundity, survivorship, and recruitment
-    R0.h <- function(t) { ifelse(T.h(t) < param$Tmin, 0, b.h(t)/dA.h(t) * m.h(t)/(m.h(t)+dJ.h(t))) }
+    # Lifetime fecundity, survivorship, and recruitment
     f.h <- function(t) { ifelse(T.h(t) < param$Tmin, 0, b.h(t)/dA.h(t)) }
     s.h <- function(t) { ifelse(T.h(t) < param$Tmin, 0, exp(-dJ.h(t)/m.h(t))) }
     #R.h <- function(t) { ifelse(T.h(t) < param$Tmin, 0, m.h(t) * lambertW0(b.h(t)/m.h(t) * exp((dA.h(t)-dJ.h(t))/m.h(t)))) }
@@ -161,9 +162,10 @@ for(s in 1:nrow(param.all)) {
   ##################################### TPC: FUTURE CLIMATE ####################################
   # Integrate across life history traits
   if(overw == FALSE) {
-    # Fitness
+    # Fitness and R0
     r.f <- function(t) { ifelse(T.f(t) <= param$rTopt, param$rMax*exp(-1*((T.f(t)-param$rTopt)/(2*param$rs))^2),
                                 param$rMax*(1 - ((T.f(t)-param$rTopt)/(param$rTopt-param$rTmax))^2)) }
+    R0.f <- function(t) { param$R0Topt*exp(-((T.f(t)-param$ToptR0)^2)/(2*param$sR0^2)) }
     # Life history traits
     b.f <- function(t) { param$bTopt*exp(-((T.f(t)-param$Toptb)^2)/(2*param$sb^2)) }
     #m.f <- function(t) { param$mTR*(T.f(t)/param$TR)*exp(param$AmJ*(1/param$TR-1/T.f(t)))/(1+exp(param$AL*(1/param$TL-1/T.f(t)))+exp(param$AH*(1/param$TH-1/T.f(t)))) }
@@ -192,9 +194,10 @@ for(s in 1:nrow(param.all)) {
     dA.TPC.f <- cubintegrate(dA.f, lower = start.f, upper = end.f, method = "pcubature")$integral/(end.f-start.f)
   }
   if(overw == TRUE) {
-    # Fitness
+    # Fitness and R0
     r.f <- function(t) { ifelse(T.f(t) < param$Tmin, 0, ifelse(T.f(t) <= param$rTopt, param$rMax*exp(-1*((T.f(t)-param$rTopt)/(2*param$rs))^2),
                                                                param$rMax*(1 - ((T.f(t)-param$rTopt)/(param$rTopt-param$rTmax))^2))) }
+    R0.f <- function(t) { ifelse(T.f(t) < param$Tmin, 0, param$R0Topt*exp(-((T.f(t)-param$ToptR0)^2)/(2*param$sR0^2))) }
     # Life history traits
     b.f <- function(t) { ifelse(T.f(t) < param$Tmin, 0, param$bTopt*exp(-((T.f(t)-param$Toptb)^2)/(2*param$sb^2))) }
     #m.f <- function(t) { param$mTR*(T.f(t)/param$TR)*exp(param$AmJ*(1/param$TR-1/T.f(t)))/(1+exp(param$AL*(1/param$TL-1/T.f(t)))+exp(param$AH*(1/param$TH-1/T.f(t)))) }
@@ -203,8 +206,7 @@ for(s in 1:nrow(param.all)) {
     #m.f <- function(t) { ifelse(T.f(t) < param$Tmin, 0, param$mTR*(T.f(t)/param$TR)*exp(param$AmJ*(1/param$TR-1/T.f(t)))) }
     dJ.f <- function(t) { ifelse(T.f(t) < param$Tmin, 0, param$dJTR*exp(param$AdJ*(1/param$TR-1/T.f(t)))) }
     dA.f <- function(t) { ifelse(T.f(t) < param$Tmin, 0, param$dATR*exp(param$AdA*(1/param$TR-1/T.f(t)))) }
-    # R0, lifetime fecundity, survivorship, and recruitment
-    R0.f <- function(t) { ifelse(T.f(t) < param$Tmin, 0, b.f(t)/dA.f(t) * m.f(t)/(m.f(t)+dJ.f(t))) }
+    # Lifetime fecundity, survivorship, and recruitment
     f.f <- function(t) { ifelse(T.f(t) < param$Tmin, 0, b.f(t)/dA.f(t)) }
     s.f <- function(t) { ifelse(T.f(t) < param$Tmin, 0, exp(-dJ.f(t)/m.f(t))) }
     #R.f <- function(t) { ifelse(T.f(t) < param$Tmin, 0, m.f(t) * lambertW0(b.f(t)/m.f(t) * exp((dA.f(t)-dJ.f(t))/m.f(t)))) }
@@ -294,12 +296,12 @@ for(s in 1:nrow(param.all)) {
   b.f <- function(t) { param$bTopt*exp(-((T.f(t)-param$Toptb)^2)/(2*param$sb^2)) }
   #m.f <- function(t) { param$mTR*(T.f(t)/param$TR)*exp(param$AmJ*(1/param$TR-1/T.f(t)))/(1+exp(param$AL*(1/param$TL-1/T.f(t)))+exp(param$AH*(1/param$TH-1/T.f(t)))) }
   m.f <- function(t) { ifelse(T.f(t) <= param$Topt, param$mTR*(T.f(t)/param$TR)*exp(param$AmJ*(1/param$TR-1/T.f(t)))/(1+exp(param$AL*(1/param$TL-1/T.f(t)))), # if T(t) < Topt, use monotonic mJ(T)
-                              ifelse(T.f(t) <= param$Tmax, param$mTR*(param$Topt/param$TR)*exp(param$AmJ*(1/param$TR-1/param$Topt))/(1+exp(param$AL*(1/param$TL-1/param$Topt))), 0)) } # If T(t) < Tmax, mJ(T) = mJ(Topt); otherwise, mJ(T) = 0
+                              ifelse(T.f(t) <= param$Tmax, param$mTR*(param$Topt/param$TR)*exp(param$AmJ*(1/param$TR-1/param$Topt))/(1+exp(param$AL*(1/param$TL-1/param$Topt))), 0.0000001)) } # If T(t) < Tmax, mJ(T) = mJ(Topt); otherwise, mJ(T) = 0
   #m.f <- function(t) { param$mTR*(T.f(t)/param$TR)*exp(param$AmJ*(1/param$TR-1/T.f(t))) }
   dJ.f <- function(t) { param$dJTR*exp(param$AdJ*(1/param$TR-1/T.f(t))) }
   dA.f <- function(t) { param$dATR*exp(param$AdA*(1/param$TR-1/T.f(t))) }
   # Add R0, fecundity, and recruitment at each time-step in DDE model
-  TS.f$R0 <- b.f(TS.f$Time)/dA.f(TS.f$Time)*TS.f$S
+  TS.f$R0 <- (b.f(TS.f$Time)/dA.f(TS.f$Time))*TS.f$S
   TS.f$f <- b.f(TS.f$Time)/dA.f(TS.f$Time)
   TS.f$R <- b.f(TS.f$Time - TS.f$tau) * m.f(TS.f$Time)/m.f(TS.f$Time - TS.f$tau) * TS.f$S
   # Add birth rate and adult mortality at each time-step in DDE model
@@ -357,80 +359,66 @@ for(s in 1:nrow(param.all)) {
       results[s,6] <- r.TPC.f/param$rMax
       results[s,7] <- r.model.h/param$rMax
       results[s,8] <- r.model.f/param$rMax
-      results[s,9] <- r.max.h
-      results[s,10] <- r.max.f
-      results[s,11] <- (r.TPC.f - r.TPC.h)/param$rMax
-      results[s,12] <- (r.model.f - r.model.h)/param$rMax
+      results[s,9] <- (r.TPC.f - r.TPC.h)/param$rMax
+      results[s,10] <- (r.model.f - r.model.h)/param$rMax
     }
     if(trait == "R0") {
-      results[s,5] <- R0.TPC.h
-      results[s,6] <- R0.TPC.f
-      results[s,7] <- R0.model.h
-      results[s,8] <- R0.model.f
-      results[s,9] <- max(TS.h[-c(1:start.h),"R0"])
-      results[s,10] <- max(TS.f[-c(1:start.f),"R0"])
-      results[s,11] <- (R0.TPC.f - R0.TPC.h)/results[s,9]
-      results[s,12] <- (R0.model.f - R0.model.h)/results[s,9]
+      results[s,5] <- R0.TPC.h/param$R0Topt
+      results[s,6] <- R0.TPC.f/param$R0Topt
+      results[s,7] <- R0.model.h/param$R0Topt
+      results[s,8] <- R0.model.f/param$R0Topt
+      results[s,9] <- (R0.TPC.f - R0.TPC.h)/param$R0Topt
+      results[s,10] <- (R0.model.f - R0.model.h)/param$R0Topt
     }
     if(trait == "Fecundity") {
-      results[s,5] <- f.TPC.h
-      results[s,6] <- f.TPC.f
-      results[s,7] <- f.model.h
-      results[s,8] <- f.model.f
-      results[s,9] <- max(TS.h[-c(1:start.h),"f"])
-      results[s,10] <- max(TS.f[-c(1:start.f),"f"])
-      results[s,11] <- (f.TPC.f - f.TPC.h)/results[s,9]
-      results[s,12] <- (f.model.f - f.model.h)/results[s,9]
+      results[s,5] <- f.TPC.h/param$bTopt
+      results[s,6] <- f.TPC.f/param$bTopt
+      results[s,7] <- f.model.h/param$bTopt
+      results[s,8] <- f.model.f/param$bTopt
+      results[s,9] <- (f.TPC.f - f.TPC.h)/param$bTopt
+      results[s,10] <- (f.model.f - f.model.h)/param$bTopt
     }
     if(trait == "Survival") {
       results[s,5] <- s.TPC.h
       results[s,6] <- s.TPC.f
       results[s,7] <- s.model.h
       results[s,8] <- s.model.f
-      results[s,9] <- max(TS.h[-c(1:start.h),"S"])
-      results[s,10] <- max(TS.f[-c(1:start.f),"S"])
-      results[s,11] <- s.TPC.f - s.TPC.h
-      results[s,12] <- s.model.f - s.model.h
+      results[s,9] <- s.TPC.f - s.TPC.h
+      results[s,10] <- s.model.f - s.model.h
     }
     if(trait == "Birth") {
       results[s,5] <- b.TPC.h/param$bTopt
       results[s,6] <- b.TPC.f/param$bTopt
       results[s,7] <- b.model.h/param$bTopt
       results[s,8] <- b.model.f/param$bTopt
-      results[s,9] <- max(TS.h[-c(1:start.h),"b"])
-      results[s,10] <- max(TS.f[-c(1:start.f),"b"])
-      results[s,11] <- (b.TPC.f - b.TPC.h)/param$bTopt
-      results[s,12] <- (b.model.f - b.model.h)/param$bTopt
+      results[s,9] <- (b.TPC.f - b.TPC.h)/param$bTopt
+      results[s,10] <- (b.model.f - b.model.h)/param$bTopt
     }
     if(trait == "Development") {
-      results[s,5] <- 1/m.TPC.h
-      results[s,6] <- 1/m.TPC.f
-      results[s,7] <- tau.model.h
-      results[s,8] <- tau.model.f
-      results[s,9] <- max(TS.h[-c(1:start.h),"tau"])
-      results[s,10] <- max(TS.f[-c(1:start.f),"tau"])
-      results[s,11] <- (1/m.TPC.f - 1/m.TPC.h)/(1/m.TPC.h)
-      results[s,12] <- (tau.model.f - tau.model.h)/tau.model.h
+      mTopt <- param$mTR*(param$Topt/param$TR)*exp(param$AmJ*(1/param$TR-1/param$Topt))/(1+exp(param$AL*(1/param$TL-1/param$Topt)))
+      results[s,5] <- 1/m.TPC.h/(1/mTopt)
+      results[s,6] <- 1/m.TPC.f/(1/mTopt)
+      results[s,7] <- tau.model.h/(1/mTopt)
+      results[s,8] <- tau.model.f/(1/mTopt)
+      results[s,9] <- (1/m.TPC.f - 1/m.TPC.h)/(1/mTopt)
+      results[s,10] <- (tau.model.f - tau.model.h)/(1/mTopt)
     }
     if(trait == "Longevity") {
-      results[s,5] <- 1/dA.TPC.h
-      results[s,6] <- 1/dA.TPC.f
-      results[s,7] <- 1/dA.model.h
-      results[s,8] <- 1/dA.model.f
-      results[s,9] <- 1/min(TS.h[-c(1:start.h),"dA"])
-      results[s,10] <- 1/min(TS.f[-c(1:start.f),"dA"])
-      results[s,11] <- (1/dA.TPC.f - 1/dA.TPC.h)/param$dATR
-      results[s,12] <- (1/dA.model.f - 1/dA.model.h)/param$dATR
+      lTopt <- 1/min(param$dATR*exp(param$AdA*(1/param$TR-1/T.h(TS.h$Time))))
+      results[s,5] <- (1/dA.TPC.h)/lTopt
+      results[s,6] <- (1/dA.TPC.f)/lTopt
+      results[s,7] <- (1/dA.model.h)/lTopt
+      results[s,8] <- (1/dA.model.f)/lTopt
+      results[s,9] <- (1/dA.TPC.f - 1/dA.TPC.h)/lTopt
+      results[s,10] <- (1/dA.model.f - 1/dA.model.h)/lTopt
     }
     if(trait == "Recruitment") {
       results[s,5] <- R.TPC.h/param$bTopt
       results[s,6] <- R.TPC.f/param$bTopt
       results[s,7] <- R.model.h/param$bTopt
       results[s,8] <- R.model.f/param$bTopt
-      results[s,9] <- max(TS.h[-c(1:start.h),"R"])
-      results[s,10] <- max(TS.f[-c(1:start.f),"R"])
-      results[s,11] <- (R.TPC.f - R.TPC.h)/param$bTopt
-      results[s,12] <- (R.model.f - R.model.h)/param$bTopt
+      results[s,9] <- (R.TPC.f - R.TPC.h)/param$bTopt
+      results[s,10] <- (R.model.f - R.model.h)/param$bTopt
     }
   }
 
@@ -544,64 +532,48 @@ if(trait == "Fitness") {
   print(paste("r.TPC.f:", r.TPC.f/param$rMax))
   print(paste("r.model.h:", r.model.h/param$rMax))
   print(paste("r.model.f:", r.model.f/param$rMax))
-  print(paste("r.max.h:", r.max.h))
-  print(paste("r.max.f:", r.max.f))
 }
 if(trait == "R0") { 
   print(paste("R0.TPC.h:", R0.TPC.h))
   print(paste("R0.TPC.f:", R0.TPC.f))
   print(paste("R0.model.h:", R0.model.h))
   print(paste("R0.model.f:", R0.model.f))
-  print(paste("R0.max.h:", max(TS.h[-c(1:start.h),"R0"])))
-  print(paste("R0.max.f:", max(TS.f[-c(1:start.f),"R0"])))
 }
 if(trait == "Fecundity") { 
   print(paste("f.TPC.h:", f.TPC.h))
   print(paste("f.TPC.f:", f.TPC.f))
   print(paste("f.model.h:", f.model.h))
   print(paste("f.model.f:", f.model.f))
-  print(paste("f.max.h:", max(TS.h[-c(1:start.h),"f"])))
-  print(paste("f.max.f:", max(TS.f[-c(1:start.f),"f"])))
 }
 if(trait == "Survival") { 
   print(paste("s.TPC.h:", s.TPC.h))
   print(paste("s.TPC.f:", s.TPC.f))
   print(paste("s.model.h:", s.model.h))
   print(paste("s.model.f:", s.model.f))
-  print(paste("s.max.h:", max(TS.h[-c(1:start.h),"S"])))
-  print(paste("s.max.f:", max(TS.f[-c(1:start.f),"S"])))
 }
 if(trait == "Birth") { 
   print(paste("b.TPC.h:", b.TPC.h))
   print(paste("b.TPC.f:", b.TPC.f))
   print(paste("b.model.h:", b.model.h))
   print(paste("b.model.f:", b.model.f))
-  print(paste("b.max.h:", max(TS.h[-c(1:start.h),"b"])))
-  print(paste("b.max.f:", max(TS.f[-c(1:start.f),"b"])))
 }
 if(trait == "Development") { 
   print(paste("tau.TPC.h:", 1/m.TPC.h))
   print(paste("tau.TPC.f:", 1/m.TPC.f))
   print(paste("tau.model.h:", tau.model.h))
   print(paste("tau.model.f:", tau.model.f))
-  print(paste("tau.max.h:", max(TS.h[-c(1:start.h),"tau"])))
-  print(paste("tau.max.f:", max(TS.f[-c(1:start.f),"tau"])))
 }
 if(trait == "Longevity") { 
   print(paste("1/dA.TPC.h:", 1/dA.TPC.h))
   print(paste("1/dA.TPC.f:", 1/dA.TPC.f))
   print(paste("1/dA.model.h:", 1/dA.model.h))
   print(paste("1/dA.model.f:", 1/dA.model.f))
-  print(paste("1/dA.max.h:", 1/max(TS.h[-c(1:start.h),"dA"])))
-  print(paste("1/dA.max.f:", 1/max(TS.f[-c(1:start.f),"dA"])))
 }
 if(trait == "Recruitment") { 
   print(paste("R.TPC.h:", R.TPC.h))
   print(paste("R.TPC.f:", R.TPC.f))
   print(paste("R.model.h:", R.model.h))
   print(paste("R.model.f:", R.model.f))
-  print(paste("R.max.h:", max(TS.h[-c(1:start.h),"R"])))
-  print(paste("R.max.f:", max(TS.f[-c(1:start.f),"R"])))
 }
 if(all == TRUE) { print(results) }
 
