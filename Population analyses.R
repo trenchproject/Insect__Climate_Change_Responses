@@ -161,7 +161,7 @@ if(all == FALSE) {
   print(paste("active.h:", active.h))
   print(paste("active.f:", active.f))
   print(paste("delta.mean:", (mean.f - mean.h)/mean.h))
-  print(paste("delta.CV:", cv.f - cv.h)
+  print(paste("delta.CV:", cv.f - cv.h))
   print(paste("delta.active:", (active.f - active.h)/active.h))
 }
 if(all == TRUE) { print(results) }
