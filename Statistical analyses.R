@@ -35,24 +35,25 @@ temp.data <- as.data.frame(read_csv("Temperature parameters Tave.csv"))
 
 
 # EXCLUDE DATA
+# Clavigralla tomentosicollis Nigeria (used data from Burkina Faso to parameterize birth rate and adult mortality)
 # Macrolophus pygmaeus (only predator and separate thermal responses for each prey)
 # Bemisia argentifollii and Diaphorina citri (different suborder)
-r.data <- r.data[-c(12,13,15,18),]
-R0.data <- R0.data[-c(12,13,15,18),]
-b.data <- b.data[-c(12,13,15,18),]
+r.data <- r.data[-c(3,12,13,15,18),]
+R0.data <- R0.data[-c(3,12,13,15,18),]
+b.data <- b.data[-c(3,12,13,15,18),]
 tau.data$active.h <- pop.data$active.h # add activity period data to developmental data
 tau.data$active.f <- pop.data$active.f # add activity period data to developmental data
-tau.data <- tau.data[-c(12,13,15,18),]
-s.data <- s.data[-c(12,13,15,18),]
-L.data <- L.data[-c(12,13,15,18),]
-f.data <- f.data[-c(12,13,15,18),]
-R.data <- R.data[-c(12,13,15,18),]
-LH.data <- LH.data[-c(12,13,15,18),]
+tau.data <- tau.data[-c(3,12,13,15,18),]
+s.data <- s.data[-c(3,12,13,15,18),]
+L.data <- L.data[-c(3,12,13,15,18),]
+f.data <- f.data[-c(3,12,13,15,18),]
+R.data <- R.data[-c(3,12,13,15,18),]
+LH.data <- LH.data[-c(3,12,13,15,18),]
 # Macrosiphum euphorbiae Canada and Brevicoryne brassicae (went extinct)
-pop.data <- pop.data[-c(12,13,15,18,20,25),]
-# results.m <- results.m[-c(12,13,15,18),]
-# results.a <- results.a[-c(12,13,15,18),]
-# results.b <- results.b[-c(12,13,15,18),]
+pop.data <- pop.data[-c(3,12,13,15,18),] #,20,25),]
+# results.m <- results.m[-c(3,12,13,15,18),]
+# results.a <- results.a[-c(3,12,13,15,18),]
+# results.b <- results.b[-c(3,12,13,15,18),]
 
 
 # SCALE LOWEST FITNESS CHANGE TO -1
@@ -506,8 +507,8 @@ points(seq(2*Xmin,2*Xmax,1), coef(L.lat)[2]*seq(2*Xmin,2*Xmax,1) + coef(L.lat)[1
 # Mean density vs latitude
 Xmin <- 0
 Xmax <- 60
-Ymin <- -0.6
-Ymax <- 0.6
+Ymin <- -20
+Ymax <- 20
 #dev.new(width=3, height=3, unit="in")
 plot(-100, xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="Latitude", ylab="Model")
 abline(0, 0, col="gray", lwd=3, lty="longdash")
@@ -535,7 +536,7 @@ points(pop.data[pop.data$Habitat=="Temperate","Latitude"], pop.data[pop.data$Hab
 Xmin <- 0
 Xmax <- 60
 Ymin <- 0
-Ymax <- 0.6
+Ymax <- 0.4
 #dev.new(width=3, height=3, unit="in")
 plot(-100, xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="Latitude", ylab="Model")
 abline(0, 0, col="gray", lwd=3, lty="longdash")

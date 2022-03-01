@@ -19,7 +19,7 @@ trait <- "Fitness"
 # USER: enter species and location or set "all" to TRUE to run analysis for all species
 species <- "Clavigralla shadabi"
 location <- "Benin"
-all <- FALSE
+all <- TRUE
 
 # USER: include overwintering? (i.e., do not integrate over temperatures below Tmin)
 overw <- TRUE
@@ -174,8 +174,7 @@ for(s in 1:nrow(param.all)) {
     #m.f <- function(t) { param$mTR*(T.f(t)/param$TR)*exp(param$AmJ*(1/param$TR-1/T.f(t))) }
     dJ.f <- function(t) { param$dJTR*exp(param$AdJ*(1/param$TR-1/T.f(t))) }
     dA.f <- function(t) { param$dATR*exp(param$AdA*(1/param$TR-1/T.f(t))) }
-    # R0, lifetime fecundity, survivorship, and recruitment
-    R0.f <- function(t) { b.f(t)/dA.f(t) * m.f(t)/(m.f(t)+dJ.f(t)) }
+    # Lifetime fecundity, survivorship, and recruitment
     f.f <- function(t) { b.f(t)/dA.f(t) }
     s.f <- function(t) { exp(-dJ.f(t)/m.f(t)) }
     #R.f <- function(t) { m.f(t) * lambertW0(b.f(t)/m.f(t) * exp((dA.f(t)-dJ.f(t))/m.f(t))) }
@@ -483,7 +482,7 @@ if(all == FALSE) {
   if(trait == "Development") { ymax1 <- round(param$mTR,2) + 0.1 }
   if(trait == "Longevity") { ymax1 <- 2*round(1/param$dATR,1) }
   if(trait == "Recruitment") { ymax1 <- round(param$bTopt,2) + 0.1 }
-  ymax2 <- 0.8 # for temperature histogram
+  ymax2 <- 0.6 # for temperature histogram
   
   # FUNCTIONS
   r <- ifelse(seq(Tmin,Tmax,0.1) <= param$rTopt, param$rMax*exp(-1*((seq(Tmin,Tmax,0.1)-param$rTopt)/(2*param$rs))^2),
@@ -500,7 +499,7 @@ if(all == FALSE) {
   # TPC PLOTS
   #dev.new(width=3, height=3, unit="in")
   # Fitness
-  plot(seq(Tmin,Tmax,0.1), r, type="l", lwd=4, col="black", xlim=c(Tmin,Tmax), ylim=c(ymin,ymax1), xaxt = "n", xlab="T", ylab="r(T)", cex.axis=2)
+  plot(seq(Tmin,Tmax,0.1), r/param$rMax, type="l", lwd=4, col="black", xlim=c(Tmin,Tmax), ylim=c(ymin,ymax1), xaxt = "n", xlab="T", ylab="r(T)", cex.axis=2)
   axis(1, at=seq(293,308,5), labels=seq(20,35,5), cex.axis=2)
   # R0
   #plot(seq(Tmin,Tmax,1), R0, type="l", lwd=4, col="black", xlim=c(Tmin,Tmax), ylim=c(ymin,ymax1), xlab="T", ylab="R0(T)")
@@ -525,8 +524,8 @@ if(all == FALSE) {
   abline(v = t.param$meanT.f + t.param$delta_mean.f*365*75 - abs(t.param$amplT.f) - t.param$delta_ampl.f*365*80 - t.param$amplD.f, col="#D55E00", lwd=3, lty=2)
   if(overw == TRUE) { abline(v = param$Tmin, col="black", lwd=3, lty=2) }
   # AVERAGE VALUES
-  # points(param$rTopt - 2*param$rs * sqrt(log(param$rMax/r.TPC.h)), r.TPC.h, pch=19, cex=3, col="#0072B2")
-  # points(1/param$rMax * (param$rMax*param$rTopt + (param$rTmax - param$rTopt)^2 * sqrt(param$rMax*(param$rMax-r.TPC.f)/(param$rTmax - param$rTopt)^2)), r.TPC.f, pch=19, cex=3, col="#D55E00")
+  #points(param$rTopt - 2*param$rs * sqrt(log(param$rMax/r.TPC.h)), r.TPC.h/param$rMax, pch=19, cex=3, col="#0072B2")
+  #points(1/param$rMax * (param$rMax*param$rTopt + (param$rTmax - param$rTopt)^2 * sqrt(param$rMax*(param$rMax-r.TPC.f)/(param$rTmax - param$rTopt)^2)), r.TPC.f/param$rMax, pch=19, cex=3, col="#D55E00")
   # TEMPERATURE HISTOGRAMS
   par(new = T)
   hist(temp.h$T, xlim=c(Tmin,Tmax), ylim=c(ymin,ymax2), axes=F, xlab=NA, ylab=NA, breaks=seq(from=Tmin, to=Tmax, by=0.5), col=rgb(0,114,178, max = 255, alpha = 80), border=rgb(0,114,178, max = 255, alpha = 80), freq=FALSE, main = NULL)

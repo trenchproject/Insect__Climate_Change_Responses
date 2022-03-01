@@ -13,7 +13,7 @@ from numpy import arange, hstack, vstack, savetxt, diff, isnan
 from sympy import N
 from jitcdde import jitcdde, y, t
 from symengine import exp, pi, cos, sin, asin
-from matplotlib.pyplot import subplots, xlabel, ylabel, xlim, ylim, yscale, plot, show
+from matplotlib.pyplot import subplots, xlabel, ylabel, xlim, ylim, yscale, plot
 from pandas import read_csv
 from jitcxde_common import conditional
 import os
@@ -26,10 +26,12 @@ if cwd != '/Users/johnson/Documents/Christopher/GitHub/Johnson_Insect_Responses'
 
 
 # USER: Enter species, location, and time period
-species = "Hyadaphis pseudobrassicae"
-location = "US Columbia"
+#species = "Adelphocoris suturalis"
+#location = "China Xinxiang"
+species = "Apolygus lucorum"
+location = "China Dafeng"
 period = "Historical"
-period = "Future"
+#period = "Future"
 
 # USER: Run model for all species?
 all_sp = False
@@ -41,7 +43,7 @@ save_data = True
 minT = True
 
 # USER: Use left-skewed function for development?
-left_skew = True #(if False, development plateaus between Topt and Tmax before going to zero above Tmax)
+left_skew = False # if False, development plateaus between Topt and Tmax before going to zero above Tmax
 
 # USER: Include competition (i.e., density-dependent population growth)?
 comp = True
@@ -50,7 +52,31 @@ comp = True
 daily = False
 
 # USER: Is model fit to census data?
-census = False
+census = True
+    
+
+# DEFINE MODEL PARAMETERS
+# Time parameters
+yr = 365 # days in year
+start_date = 5 # day on which to start model
+if comp == True:
+    init_years = 0 # how many years into climate change to start model
+    max_years = start_date + 75 # how long to run simulations
+else:
+    start_date = 0
+    init_years = 65
+    max_years = 10 # no model initialization because densities become too large before model begins due to unbounded population growth
+if census == True:
+    start_date = 0
+    census_start = 152 # for Apolygus lucorum, start date is June 1, ~2 weeks after fields were sowed and ~1 month before census
+    #census_start = 0 # for Clavigralla tomentosicollis
+    max_years = start_date + 10 # how long to run simulations
+tstep = 1 # time step = 1 day
+CC_years = max_years # how long before climate change "equilibrates"
+    
+# Initial abundances
+initJ = 100.
+initA = 100.
 
 
 # INPUT TEMPERATURE RESPONSE PARAMETERS AND TEMPERATURE PARAMETERS
@@ -74,29 +100,7 @@ while(True):
     # SELECT SPECIES
     spData = Sdata.iloc[sp]
     tempData = Tdata.iloc[sp]
-    
 
-    # DEFINE MODEL PARAMETERS
-    # Time parameters
-    yr = 365 # days in year
-    start_date = 0 # day on which to start model
-    if comp == True:
-        init_years = 0 # how many years into climate change to start model
-        max_years = init_years + 75 # how long to run simulations
-    else:
-        init_years = 65 # how many years into climate change to start model
-        max_years = 10 # how long to run simulations
-    if census == True:
-        start_date = 0 # day on which to start model
-        census_start = 135 # for Apolygus lucorum, fields were sown in mid-May (day = 135)
-        #census_start = 120 # for Clavigralla tomentosicollis (plot C)
-        max_years = 10 # how long to run simulations
-    tstep = 1 # time step = 1 day
-    CC_years = max_years # how long before climate change "equilibrates"
-    
-    # Initial abundances
-    initJ = 100.
-    initA = 100.
     
     # Temperature parameters
     if period == "Historical":
@@ -152,7 +156,7 @@ while(True):
     # FUNCTIONS
     # Seasonal temperature variation (K) over time
     def T(x):
-            return conditional(x, start_date, meanT, # during "pre-history", habitat temperature is constant at its mean
+            return conditional(x, start_date*yr, meanT, # during "pre-history", habitat temperature is constant at its mean
                                conditional(x, CC_years*yr, (meanT + delta_mean*(x+init_years*yr)) - (amplT + delta_ampl*(x+init_years*yr)) * cos(2*pi*(x + shiftT)/yr)  - amplD * cos(2*pi*x), # temperature regime during climate change
                                            (meanT + delta_mean*CC_years*yr) - (amplT + delta_ampl*CC_years*yr) * cos(2*pi*(x + shiftT)/yr)  - amplD * cos(2*pi*x))) # temperature regime after climate change "equilibriates"
     '''
@@ -160,7 +164,6 @@ while(True):
     xvals = arange(0,1*yr,0.1)
     yvals = vstack([(meanT + delta_mean*i) - (amplT + delta_ampl*i) * cos(2*pi*(i + shiftT)/yr)  - amplD * cos(2*pi*i) for i in xvals ])
     plot(xvals,yvals)
-    show()
     '''
     
     # Life history functions
@@ -181,15 +184,14 @@ while(True):
         
     # mortality rates
     def dJ(x):
-        return dJTR * exp(AdJ * (1/TR - 1/T(x)))
-    #def dA(x):
-    #    return dATR * exp(AdA * (1/TR - 1/T(x)))
+        return dJTR * exp(AdJ * (1/TR - 1/T(x)))  
     def dA(x):
-        return conditional(T(x), Tmin, 0.1 + dATR * exp(AdA * (1/TR - 1/T(x))), dATR * exp(AdA * (1/TR - 1/T(x)))) # if temperature < developmental min (Tmin), then dA = 1; otherwise, use dA(T(x))
-    
+        #return dATR * exp(AdA * (1/TR - 1/T(x)))
+        return conditional(T(x), Tmin, 0. + dATR * exp(AdA * (1/TR - 1/T(x))), dATR * exp(AdA * (1/TR - 1/T(x)))) # if temperature < developmental min (Tmin), then dA = dA + 0.1; otherwise, use dA(T(x))
+   
     # density-dependence due to competition
     def q(x):
-        return qTopt * exp(-(T(x)-Toptq)**2/2/sq**2)
+        return qTopt * exp(-(T(x)-Toptq)**2/(2*sq**2))
     
     
     # Minimum developmental temperature
@@ -197,18 +199,38 @@ while(True):
         if census == False:
             def M(x):
                 return conditional(T(x), Tmin, 0, 1) # if temperature < developmental min (Tmin) then development M = 0; otherwise, M = 1
+            def R(x):
+                return conditional(T(x), Tmin, 0, conditional(T(x-1), Tmin, 1, 0)) # all surviving juveniles recruit when only when temperature exceeds the developmental min (Tmin)
         else:
             if species == "Clavigralla tomentosicollis":
                 def M(x):
-                    #return conditional(T(x), Tmin, 0, conditional(sin(2*pi*(t - census_start)/(yr/2)), 0, 0, 1)) # development M = 0 before census_start or when T < Tmin
                     return 1
+                def R(x):
+                    return 0
             else:
-                if species == "Apolygus lucorum":
+                if species == "Apolygus lucorum" or species == "Adelphocoris suturalis":
                     def M(x):
-                        return conditional(T(x), Tmin, 0, conditional(sin(2*pi*(t - census_start)/yr), 0, 0, 1)) # development M = 0 before census_start or when T < Tmin
+                        #return conditional(T(x), Tmin, 0, 1) # if temperature < developmental min (Tmin) then development M = 0; otherwise, M = 1
+                        return conditional(T(x-1), T(x), conditional(T(x), T(census_start), 0, 1), conditional(T(x), Tmin, 0, 1)) # if temperature < developmental min (Tmin) then development M = 0; otherwise, M = 1
+                    def R(x):
+                        #return conditional(T(x), Tmin, 0, conditional(T(x-1), Tmin, 1, 0)) # all surviving juveniles recruit when only when temperature exceeds the developmental min (Tmin)
+                        return 0 #conditional(T(x), Tdum, 0, conditional(T(x-1), Tdum, 1, 0)) # if temperature < developmental min (Tmin) then development M = 0; otherwise, M = 1
     else:
         def M(x):
             return 1
+        def R(x):
+            return 0
+    '''
+    # Plot minimum development function, M(x)
+    xvals = arange((max_years-2)*yr,(max_years-0)*yr,0.1)
+    yvals = vstack([ M(i) for i in xvals ])
+    plot(xvals,yvals)
+    
+    # Plot recruitment from overwintering juveniles, R(x)
+    xvals = arange((max_years-max_years)*yr,(max_years-0)*yr,0.1)
+    yvals = vstack([ R(i) for i in xvals ])
+    plot(xvals,yvals)
+    '''
 
     
     # DDE MODEL
@@ -216,21 +238,32 @@ while(True):
     J,A,S,τ = [y(i) for i in range(4)]
     
     # DDE model
+    '''
     f = {
-        J: conditional(t, start_date, 0, M(t)*b(t)*A*exp(-q(t)*A) - M(t-τ)*b(t-τ)*y(1,t-τ)*exp(-q(t-τ)*y(1,t-τ))*mJ(t)/mJ(t-τ)*S - dJ(t)*J), # juveniles: y(0)
+        J: conditional(t, start_date, 0, M(t)*b(t)*A*exp(-q(t)*A) - R(t-τ)*y(0,t-τ)*mJ(t)/mJ(t-τ)*S - (1 - R(t-τ))*M(t)*M(t-τ)*b(t-τ)*y(1,t-τ)*exp(-q(t-τ)*y(1,t-τ))*mJ(t)/mJ(t-τ)*S - dJ(t)*J), # juveniles: y(0)
         
-        A: conditional(t, start_date, 0, M(t-τ)*b(t-τ)*y(1,t-τ)*exp(-q(t-τ)*y(1,t-τ))*mJ(t)/mJ(t-τ)*S - dA(t)*A), # Adults: y(1)
+        A: conditional(t, start_date, 0, R(t-τ)*y(0,t-τ)*mJ(t)/mJ(t-τ)*S + (1 - R(t-τ))*M(t)*M(t-τ)*b(t-τ)*y(1,t-τ)*exp(-q(t-τ)*y(1,t-τ))*mJ(t)/mJ(t-τ)*S - dA(t)*A), # Adults: y(1)
         
         S: conditional(t, start_date, 0, S*(mJ(t)/mJ(t-τ)*dJ(t-τ) - dJ(t))), # Through-stage survivorship: y(2)
         
         τ: conditional(t, start_date, 0, 1 - mJ(t)/mJ(t-τ)), # Developmental time-delay: y(3)
         }
-    
+    '''
+    f = {
+        J: conditional(t, start_date, 0, M(t)*b(t)*A*exp(-q(t)*A) - M(t)*M(t-τ)*b(t-τ)*y(1,t-τ)*exp(-q(t-τ)*y(1,t-τ))*mJ(t)/mJ(t-τ)*S - dJ(t)*J), # juveniles: y(0)
+        
+        A: conditional(t, start_date, 0, M(t)*M(t-τ)*b(t-τ)*y(1,t-τ)*exp(-q(t-τ)*y(1,t-τ))*mJ(t)/mJ(t-τ)*S - dA(t)*A), # Adults: y(1)
+        
+        S: conditional(t, start_date, 0, S*(mJ(t)/mJ(t-τ)*dJ(t-τ) - dJ(t))), # Through-stage survivorship: y(2)
+        
+        τ: conditional(t, start_date, 0, 1 - mJ(t)/mJ(t-τ)), # Developmental time-delay: y(3)
+        }
+
     
     # RUN DDE SOLVER
     # Time and initial conditions
     times = arange(0, max_years*yr, tstep)
-    init = [ initJ, initA, exp(-dJ(-1e-3)/mTR), 1./mTR]
+    init = [ initJ, initA, exp(-dJ(-1e-3)/mJ(-1e-3)), 1./mJ(-1e-3)]
     
     # Run DDE solver
     DDE = jitcdde(f, max_delay=1e5, verbose=False)
@@ -241,11 +274,11 @@ while(True):
     
     # SAVE DATA
     # array containing time and state variables (can add N(T(time)) to output temperature data, but with significantly longer run-time)
-    data = vstack([ hstack([time, N(T(time)), DDE.integrate(time)]) for time in times ])
+    data = vstack([ hstack([time, DDE.integrate(time)]) for time in times ])
     
     # set values below 1e-5 or NAN to 0
     data[data < 1e-5] = 0
-    #data[isnan(data)] = 0
+    data[isnan(data)] = 0
     
     # save data to csv 
     if save_data == True:
@@ -255,7 +288,7 @@ while(True):
                 savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
             if comp == True and daily == False and left_skew == True:
                 filename = 'Time series data Tave Mon/' + period + ' time series ' + spData["Species"] + '.csv'
-                savetxt(filename, data, fmt='%s', delimiter=",", header="Time,T,J,A,S,tau", comments='')
+                savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
             if comp == False and daily == True and left_skew == True:
                 filename = 'Time series data DI/' + period + ' time series ' + spData["Species"] + '.csv'
                 savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
@@ -294,15 +327,16 @@ while(True):
     fig,ax = subplots()
     ax.plot(data[:,0], data[:,1], label='J')
     ax.plot(data[:,0], data[:,2], label='A')
+    ax.plot(data[:,0], vstack([100*M(i) for i in arange(0,max_years*yr,1) ]), label='M')
+    ax.plot(data[:,0], vstack([T(i) - 273 for i in arange(0,max_years*yr,1) ]), label='T')
     #ax.plot(data[:,0], data[:,3], label='S')
     #ax.plot(data[:,0], data[:,4], label='τ')
     ax.legend(loc='best')
     xlabel("time (days)")
     ylabel("population density")
     yscale("linear")
-    xlim((max_years-max_years)*yr,(max_years-0)*yr)
-    ylim(0,100)
-    #ylim(0,1e10)
+    xlim((max_years-2)*yr,(max_years-0)*yr)
+    ylim(0,200)
     
     
     # END LOOP WHEN MODEL IS RUN FOR ALL SPECIES

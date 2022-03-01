@@ -12,26 +12,30 @@ library(tidyverse)
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 
-############# NOTE: RE-RUN ENTIRE SCRIPT IF ELAPSED TIME LIMIT ERROR OCCURS ##################
+# NOTE: CLEAR GLOBAL ENVIRONMENT IF ELAPSED TIME LIMIT ERROR OCCURS OR LINES ARE MISSING FROM PLOTS
 
 
 # USER: enter species and location
-species <- "Clavigralla tomentosicollis"
-location <- "Nigeria"
+species <- "Apolygus lucorum"
+location <- "China Dafeng"
 field_plot <- "A" # for Nigeria, must specify plot "A", "B", or "C" 
                   # densities excluded during dry pods in plot A, B and harmattan in plot C
 
-# USER: include diurnal variation?
+# USER: Include diurnal variation?
 daily <- FALSE
 
 # USER: Use left-skewed function for development?
-left_skew <- TRUE # if FALSE, development plateaus between Topt and Tmax before going to zero above Tmax
+left_skew <- FALSE # if FALSE, development plateaus between Topt and Tmax before going to zero above Tmax
+
+# USER: Fit to census data?
+census = TRUE
 
 # USER: SET PLOT OPTIONS
 xmin <- 0 # start date
-xmax <- 730 # end date
+xmax <- 2*365 # end date
+num_yrs <- (xmax - xmin)/365
 ymin <- 0 # min density
-ymax <- 200 # max density
+ymax <- 100 # max density
 temp.min <- 0 # min temperature
 temp.max <- 40 # max temperature
 
@@ -67,7 +71,7 @@ if(location == "Nigeria") {
 # READ IN TEMPERATURE RESPONSE PARAMETERS, TEMPERATURE PARAMETERS, AND DDE MODEL DYNAMICS
 sp.data <- data[data$Species == paste(species,location),]
 temp.data <- temp.data[temp.data$Species == paste(species,location),]
-if((species == "Clavigralla shadabi" && location == "Nigeria") || (species == "Apolygus lucorum" && str_split(location, boundary("word"), simplify = T)[,1] == "China")) {
+if(census == TRUE) {
   # For species with census data
   if(daily == TRUE) {
     data.model <- as.data.frame(read_csv(paste0("Time series data Census/Historical Time Series ",species," ",location,".csv")))
@@ -77,7 +81,7 @@ if((species == "Clavigralla shadabi" && location == "Nigeria") || (species == "A
     data.model.CC <- as.data.frame(read_csv(paste0("Time series data Census/Future Time Series Tave ",species," ",location,".csv"))) }
   if(daily == FALSE && left_skew == FALSE) {
     data.model <- as.data.frame(read_csv(paste0("Time series data Census/Historical Time Series Tave Dev ",species," ",location,".csv")))
-    data.model.CC <- as.data.frame(read_csv(paste0("Time series data Census/Future Time Series Tave Dev ",species," ",location," .csv"))) }
+    data.model.CC <- as.data.frame(read_csv(paste0("Time series data Census/Future Time Series Tave Dev ",species," ",location,".csv"))) }
 } else{
   # For species without census data
   if(daily == TRUE) {
@@ -88,7 +92,7 @@ if((species == "Clavigralla shadabi" && location == "Nigeria") || (species == "A
     data.model.CC <- as.data.frame(read_csv(paste0("Time series data Tave/Future Time Series ",species," ",location,".csv"))) }
   if(daily == FALSE && left_skew == FALSE) {
     data.model <- as.data.frame(read_csv(paste0("Time series data Tave Dev/Historical Time Series ",species," ",location,".csv")))
-    data.model.CC <- as.data.frame(read_csv(paste0("Time series data Tave Dev/Future Time Series ",species," ",location," .csv"))) }
+    data.model.CC <- as.data.frame(read_csv(paste0("Time series data Tave Dev/Future Time Series ",species," ",location,".csv"))) }
 }
 
 
@@ -99,7 +103,8 @@ xmax.CC <- xmax
 ymin.CC <- ymin
 ymax.CC <- ymax
 yr <- 365 # days in a year
-init_yrs <- 8 # number of years before taking time-series data
+start_date <- 0 # years to initialize model (see "DDE population dynamics.py")
+init_yrs <- start_date + 10 - num_yrs # number of years before taking time-series data
 TS.length <- xmax - xmin # length of time-series data
 end <- nrow(data.model)
 end.CC <- nrow(data.model.CC)
@@ -112,8 +117,8 @@ data.model <- data.model[-c(1:(init_yrs*yr + xmin)), ]
 # Remove all rows after xmax days
 if(xmax < end) { data.model <- data.model[-c(xmax+1:end), ] }
 
-# climate change period (remove all but last 2 years of data)
-if(xmax.CC < end.CC) { data.model.CC <- data.model.CC[-c(1:(end.CC-2*yr + xmin.CC)), ] }
+# climate change period (remove all but last num_yrs years of data)
+if(xmax.CC < end.CC) { data.model.CC <- data.model.CC[-c(1:(end.CC-num_yrs*yr + xmin.CC)), ] }
 
 # Re-scale time to start at xmin
 # historical period
@@ -135,6 +140,72 @@ data.model.CC$I <- data.model.CC$J + data.model.CC$A
 
 
 ########################################## PLOTS #############################################
+# HABITAT TEMPERATURE
+# Historical time period
+# data table from Tmin and Tmax functions
+temp.fun.h <- data.frame(t=c(xmin:xmax))
+temp.fun.h$fun.min <- sapply(temp.fun.h$t, FUN = function(t) { (temp.data$meanT.h - 273.15 + temp.data$delta_mean.h*(t+time.shift))  - (temp.data$amplT.h + temp.data$delta_ampl.h*(t+time.shift)) * cos(2*pi*((t+time.shift) + temp.data$shiftT.h)/yr) - abs(temp.data$amplD.h) })
+temp.fun.h$fun.max <- sapply(temp.fun.h$t, FUN = function(t) { (temp.data$meanT.h - 273.15 + temp.data$delta_mean.h*(t+time.shift))  - (temp.data$amplT.h + temp.data$delta_ampl.h*(t+time.shift)) * cos(2*pi*((t+time.shift) + temp.data$shiftT.h)/yr) + abs(temp.data$amplD.h) })
+
+# active season (when habitat temperature = Tmin)
+start.h <- temp.fun.h[temp.fun.h$fun.min + 273.15 >= sp.data$Tmin, "t"][1]
+end.h <- tail(temp.fun.h[temp.fun.h$fun.min + 273.15 >= sp.data$Tmin & temp.fun.h$t <= 365, "t"], n=1)
+
+# plot
+plot.temp <- ggplot(temp.fun.h, aes(x=t, y=fun.max)) +
+  # Daily average temperature
+  geom_function(fun = function(t) (temp.data$meanT.h - 273.15 + temp.data$delta_mean.h*(t+time.shift))  - (temp.data$amplT.h + temp.data$delta_ampl.h*(t+time.shift)) * cos(2*pi*((t+time.shift) + temp.data$shiftT.h)/yr),
+                size=1.5, color="#0072B2") + # blue color
+  # Daily minimum temperature
+  #geom_function(fun = function(t) (temp.data$meanT.h - 273.15 + temp.data$delta_mean.h*(t+time.shift))  - (temp.data$amplT.h + temp.data$delta_ampl.h*(t+time.shift)) * cos(2*pi*((t+time.shift) + temp.data$shiftT.h)/yr) - temp.data$amplD.h,
+  #              size=1.5, linetype="dashed", color="#0072B2") +
+  # Daily maximum temperature
+  #geom_function(fun = function(t) (temp.data$meanT.h - 273.15 + temp.data$delta_mean.h*(t+time.shift))  - (temp.data$amplT.h + temp.data$delta_ampl.h*(t+time.shift)) * cos(2*pi*((t+time.shift) + temp.data$shiftT.h)/yr) + temp.data$amplD.h,
+  #              size=1.5, linetype="dashed", color="#0072B2") +
+  geom_ribbon(aes(ymin = fun.min, ymax = fun.max), fill = "#0072B2", alpha = 0.2) +
+  # Minimum developmental temperature
+  geom_function(fun = function(t) (sp.data$Tmin), size=1.5, color="black") +
+  labs(x="", y="") +
+  scale_x_continuous(limits=c(xmin, xmax)) +
+  scale_y_continuous(limits=c(temp.min, temp.max)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
+        axis.line = element_line(color = "black"), legend.position = "none", 
+        axis.text = element_text(size=13), axis.title = element_text(size=1.50))
+
+# Future time period
+# data table from Tmin and Tmax functions
+temp.fun.f <- data.frame(t=c(xmin:xmax))
+temp.fun.f$fun.min <- sapply(temp.fun.f$t, FUN = function(t) { (temp.data$meanT.f - 273.15 + temp.data$delta_mean.f*(t+time.shift))  - (temp.data$amplT.f + temp.data$delta_ampl.f*(t+time.shift)) * cos(2*pi*((t+time.shift) + temp.data$shiftT.f)/yr) - abs(temp.data$amplD.f) })
+temp.fun.f$fun.max <- sapply(temp.fun.f$t, FUN = function(t) { (temp.data$meanT.f - 273.15 + temp.data$delta_mean.f*(t+time.shift))  - (temp.data$amplT.f + temp.data$delta_ampl.f*(t+time.shift)) * cos(2*pi*((t+time.shift) + temp.data$shiftT.f)/yr) + abs(temp.data$amplD.f) })
+
+# active season (when habitat temperature = Tmin)
+start.f <- temp.fun.f[temp.fun.f$fun.min + 273.15 >= sp.data$Tmin, "t"][1]
+end.f <- tail(temp.fun.f[temp.fun.f$fun.min + 273.15 >= sp.data$Tmin & temp.fun.f$t <= 365, "t"], n=1)
+
+# plot
+plot.temp.CC <- ggplot(temp.fun.f, aes(x=t, y=fun.max)) +
+  # Daily average temperature
+  geom_function(fun = function(t) (temp.data$meanT.f - 273.15 + temp.data$delta_mean.f*(t+time.shift.CC))  - (temp.data$amplT.f + temp.data$delta_ampl.f*(t+time.shift.CC)) * cos(2*pi*((t+time.shift.CC) + temp.data$shiftT.f)/yr),
+                size=1.5, color="#D55E00") + # red color
+  # Daily minimum temperature
+  #geom_function(fun = function(t) (temp.data$meanT.f - 273.15 + temp.data$delta_mean.f*(t+time.shift.CC))  - (temp.data$amplT.f + temp.data$delta_ampl.f*(t+time.shift.CC)) * cos(2*pi*((t+time.shift.CC) + temp.data$shiftT.f)/yr) - temp.data$amplD.f,
+  #              size=1.5, linetype="dashed", color="#D55E00") +
+  # Daily maximum temperature
+  #geom_function(fun = function(t) (temp.data$meanT.f - 273.15 + temp.data$delta_mean.f*(t+time.shift.CC))  - (temp.data$amplT.f + temp.data$delta_ampl.f*(t+time.shift.CC)) * cos(2*pi*((t+time.shift.CC) + temp.data$shiftT.f)/yr) + temp.data$amplD.f,
+  #              size=1.5, linetype="dashed", color="#D55E00") +
+  geom_ribbon(aes(ymin = fun.min, ymax = fun.max), fill = "#D55E00", alpha = 0.2) +
+  # Minimum developmental temperature
+  geom_function(fun = function(t) (sp.data$Tmin), size=1.5, color="black") +
+  labs(x="", y="") +
+  scale_x_continuous(limits=c(xmin, xmax)) +
+  scale_y_continuous(limits=c(temp.min, temp.max)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
+        axis.line = element_line(color = "black"), legend.position = "none", 
+        axis.text = element_text(size=13), axis.title = element_text(size=1.50))
+
+
 # TIME-SERIES DATA
 # Juvenile density
 plot.J = ggplot(data.TS, aes(x=time, y=J, ymin=J_SE_L, ymax=J_SE_H)) + 
@@ -161,7 +232,7 @@ plot.A = ggplot(data.TS, aes(x=time, y=A, ymin=A_SE_L, ymax=A_SE_H)) +
         axis.text = element_text(size=13), axis.title = element_text(size=1.50)) 
 
 # Insect density (Juveniles + Adults)
-plot.I = ggplot(data.TS, aes(x=time, y=A, ymin=A_SE_L, ymax=A_SE_H)) + # NOTE: data labelled "A", but are for all insect stages
+plot.I = ggplot(data.TS, aes(x=time, y=2*A, ymin=2*A_SE_L, ymax=2*A_SE_H)) + # NOTE: data labeled "A", but are for all insect stages
   geom_pointrange(size=0.5, color="black") +
   labs(x="", y="") +
   scale_x_continuous(limits=c(xmin, xmax)) +
@@ -177,7 +248,7 @@ plot.I = ggplot(data.TS, aes(x=time, y=A, ymin=A_SE_L, ymax=A_SE_H)) + # NOTE: d
 # Historical time period
 # Juvenile density
 model.J = ggplot(data.model, aes(x=Time, y=J)) + 
-  geom_line(size=1.5, color="#0072B2") + # blue color
+  geom_line(size=1.5, color="#0072B2", linetype="longdash") + # blue color
   labs(x="", y="") +
   scale_x_continuous(limits=c(xmin, xmax)) +
   scale_y_continuous(limits=c(ymin, ymax)) +
@@ -190,6 +261,10 @@ model.J = ggplot(data.model, aes(x=Time, y=J)) +
 # Adult density
 model.A = ggplot(data.model, aes(x=Time, y=A)) + 
   geom_line(size=1.5, color="#0072B2") + # blue color
+  #geom_vline(xintercept=start.h, size=1.5) +
+  #geom_vline(xintercept=end.h, size=1.5) +
+  #geom_vline(xintercept=start.h+365, size=1.5) +
+  #geom_vline(xintercept=end.h+365, size=1.5) +
   labs(x="", y="") +
   scale_x_continuous(limits=c(xmin, xmax)) +
   scale_y_continuous(limits=c(ymin, ymax)) +
@@ -214,7 +289,7 @@ model.I = ggplot(data.model, aes(x=Time, y=I)) +
 # Future time period
 # Juvenile density
 model.J.CC = ggplot(data.model.CC, aes(x=Time, y=J)) + 
-  geom_line(size=1.5, color="#D55E00") + # red color
+  geom_line(size=1.5, color="#D55E00", linetype="longdash") + # red color
   labs(x="", y="") +
   scale_x_continuous(limits=c(xmin.CC, xmax.CC)) +
   scale_y_continuous(limits=c(ymin.CC, ymax.CC)) +
@@ -249,70 +324,6 @@ model.I.CC = ggplot(data.model.CC, aes(x=Time, y=I)) +
         axis.text = element_text(size=13), axis.title = element_text(size=1.50))
 
 
-# HABITAT TEMPERATURE
-# Historical time period
-# data table from Tmin and Tmax functions
-temp.fun.h <- data.frame(t=c(xmin:xmax))
-temp.fun.h$fun.min <- sapply(temp.fun.h$t, FUN = function(t) { (temp.data$meanT.h - 273.15 + temp.data$delta_mean.h*(t+time.shift))  - (temp.data$amplT.h + temp.data$delta_ampl.h*(t+time.shift)) * cos(2*pi*((t+time.shift) + temp.data$shiftT.h)/yr) - abs(temp.data$amplD.h) })
-temp.fun.h$fun.max <- sapply(temp.fun.h$t, FUN = function(t) { (temp.data$meanT.h - 273.15 + temp.data$delta_mean.h*(t+time.shift))  - (temp.data$amplT.h + temp.data$delta_ampl.h*(t+time.shift)) * cos(2*pi*((t+time.shift) + temp.data$shiftT.h)/yr) + abs(temp.data$amplD.h) })
-
-# day at which habitat temperature exceeds Tmin
-day1.h <- temp.fun.h[temp.fun.h$fun.min >= sp.data$Tmin, "t"][1]
-
-# plot
-plot.temp <- ggplot(temp.fun.h, aes(x=t, y=fun.max)) +
-  # Daily average temperature
-  geom_function(fun = function(t) (temp.data$meanT.h - 273.15 + temp.data$delta_mean.h*(t+time.shift))  - (temp.data$amplT.h + temp.data$delta_ampl.h*(t+time.shift)) * cos(2*pi*((t+time.shift) + temp.data$shiftT.h)/yr),
-                size=1.5, color="#0072B2") + # blue color
-  # Daily minimum temperature
-  #geom_function(fun = function(t) (temp.data$meanT.h - 273.15 + temp.data$delta_mean.h*(t+time.shift))  - (temp.data$amplT.h + temp.data$delta_ampl.h*(t+time.shift)) * cos(2*pi*((t+time.shift) + temp.data$shiftT.h)/yr) - temp.data$amplD.h,
-  #              size=1.5, linetype="dashed", color="#0072B2") +
-  # Daily maximum temperature
-  #geom_function(fun = function(t) (temp.data$meanT.h - 273.15 + temp.data$delta_mean.h*(t+time.shift))  - (temp.data$amplT.h + temp.data$delta_ampl.h*(t+time.shift)) * cos(2*pi*((t+time.shift) + temp.data$shiftT.h)/yr) + temp.data$amplD.h,
-  #              size=1.5, linetype="dashed", color="#0072B2") +
-  geom_ribbon(aes(ymin = fun.min, ymax = fun.max), fill = "#0072B2", alpha = 0.2) +
-  # Minimum developmental temperature
-  geom_function(fun = function(t) (sp.data$Tmin), size=1.5, color="black") +
-  labs(x="", y="") +
-  scale_x_continuous(limits=c(xmin, xmax)) +
-  scale_y_continuous(limits=c(temp.min, temp.max)) +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-        panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
-        axis.line = element_line(color = "black"), legend.position = "none", 
-        axis.text = element_text(size=13), axis.title = element_text(size=1.50))
-
-# Future time period
-# data table from Tmin and Tmax functions
-temp.fun.f <- data.frame(t=c(xmin:xmax))
-temp.fun.f$fun.min <- sapply(temp.fun.f$t, FUN = function(t) { (temp.data$meanT.f - 273.15 + temp.data$delta_mean.f*(t+time.shift))  - (temp.data$amplT.f + temp.data$delta_ampl.f*(t+time.shift)) * cos(2*pi*((t+time.shift) + temp.data$shiftT.f)/yr) - abs(temp.data$amplD.f) })
-temp.fun.f$fun.max <- sapply(temp.fun.f$t, FUN = function(t) { (temp.data$meanT.f - 273.15 + temp.data$delta_mean.f*(t+time.shift))  - (temp.data$amplT.f + temp.data$delta_ampl.f*(t+time.shift)) * cos(2*pi*((t+time.shift) + temp.data$shiftT.f)/yr) + abs(temp.data$amplD.f) })
-
-# day at which habitat temperature exceeds Tmin
-day1.f <- temp.fun.f[temp.fun.f$fun.min >= sp.data$Tmin, "t"][1]
-
-# plot
-plot.temp.CC <- ggplot(temp.fun.f, aes(x=t, y=fun.max)) +
-  # Daily average temperature
-  geom_function(fun = function(t) (temp.data$meanT.f - 273.15 + temp.data$delta_mean.f*(t+time.shift.CC))  - (temp.data$amplT.f + temp.data$delta_ampl.f*(t+time.shift.CC)) * cos(2*pi*((t+time.shift.CC) + temp.data$shiftT.f)/yr),
-                size=1.5, color="#D55E00") + # red color
-  # Daily minimum temperature
-  #geom_function(fun = function(t) (temp.data$meanT.f - 273.15 + temp.data$delta_mean.f*(t+time.shift.CC))  - (temp.data$amplT.f + temp.data$delta_ampl.f*(t+time.shift.CC)) * cos(2*pi*((t+time.shift.CC) + temp.data$shiftT.f)/yr) - temp.data$amplD.f,
-  #              size=1.5, linetype="dashed", color="#D55E00") +
-  # Daily maximum temperature
-  #geom_function(fun = function(t) (temp.data$meanT.f - 273.15 + temp.data$delta_mean.f*(t+time.shift.CC))  - (temp.data$amplT.f + temp.data$delta_ampl.f*(t+time.shift.CC)) * cos(2*pi*((t+time.shift.CC) + temp.data$shiftT.f)/yr) + temp.data$amplD.f,
-  #              size=1.5, linetype="dashed", color="#D55E00") +
-  geom_ribbon(aes(ymin = fun.min, ymax = fun.max), fill = "#D55E00", alpha = 0.2) +
-  # Minimum developmental temperature
-  geom_function(fun = function(t) (sp.data$Tmin), size=1.5, color="black") +
-  labs(x="", y="") +
-  scale_x_continuous(limits=c(xmin, xmax)) +
-  scale_y_continuous(limits=c(temp.min, temp.max)) +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-        panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
-        axis.line = element_line(color = "black"), legend.position = "none", 
-        axis.text = element_text(size=13), axis.title = element_text(size=1.50))
-
-
 
 #################################### DRAW FINAL PLOTS #######################################
 # COMPILE PLOTS
@@ -335,8 +346,8 @@ if(str_split(location, boundary("word"), simplify = T)[,1] == "China") {
   plot <- ggdraw()  +
    draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
    draw_plot(plot.I, x = 0, y = 0.3, width = 1, height = 0.7) +
-   #draw_plot(model.J, x = 0, y = 0.3, width = 1, height = 0.7) +
-   #draw_plot(model.A, x = 0, y = 0.3, width = 1, height = 0.7) +
+   draw_plot(model.J, x = 0, y = 0.3, width = 1, height = 0.7) +
+   draw_plot(model.A, x = 0, y = 0.3, width = 1, height = 0.7) +
    draw_plot(model.I, x = 0, y = 0.3, width = 1, height = 0.7)
 }
 
@@ -381,7 +392,7 @@ if(str_split(location, boundary("word"), simplify = T)[,1] == "China") {
 # View plot in RStudio
 plot
 #plot.CC
-plot.compare
+#plot.compare
 
 
 # OUTPUT PLOTS

@@ -11,7 +11,7 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 
 # USER: enter species name (used in temperature response data.csv)
-name <- "Hyadaphis pseudobrassicae US"
+name <- "Apolygus lucorum China"
 
 
 # Read data
@@ -42,18 +42,12 @@ points(seq(Tmin,Tmax,1),coef(fec)[1]*exp(-((seq(Tmin,Tmax,1)-coef(fec)[2])^2)/(2
 ###################################### DEVELOPMENT ##########################################
 # estimate xTR and A
 # NOTE: removed data beyond max development
-dev.mon <- nls(Development ~ xTR*T_K/TR*exp(A*(1/TR-1/T_K)), data=sp.data[-c((nrow(sp.data)-1):nrow(sp.data)),],
+dev.mon <- nls(Development ~ xTR*T_K/TR*exp(A*(1/TR-1/T_K)), data=sp.data[-c((nrow(sp.data)-0):nrow(sp.data)),],
                start=list(xTR=0.1, A=1000))
 summary(dev.mon)
 # plot model fits
 plot(sp.data$T_K, sp.data$Development)
 points(seq(Tmin,Tmax,1), coef(dev.mon)[1]*(seq(Tmin,Tmax,1)/TR)*exp(coef(dev.mon)[2]*(1/TR-1/seq(Tmin,Tmax,1))), type="l", col="blue")
-
-
-# developmental temperature optima and maximum
-(sp.data[sp.data$Development == max(sp.data$Development, na.rm = T), "T_K"])
-(max(sp.data$T_K))
-
 
 # estimate AL and AH separately from TL and TH if needed
 xTR <- coef(dev.mon)[1]
@@ -72,22 +66,25 @@ summary(dev.T)
 plot(sp.data$T_K, sp.data$Development, xlim=c(Tmin,Tmax), ylim=c(0,max(sp.data$Development)+0.05))
 points(seq(Tmin,Tmax,1), xTR*(seq(Tmin,Tmax,1)/TR)*exp(A*(1/TR-1/seq(Tmin,Tmax,1)))/
          (1+(exp(AL*(1/coef(dev.T)[1]-1/seq(Tmin,Tmax,1)))+exp(AH*(1/coef(dev.T)[2]-1/seq(Tmin,Tmax,1))))), type="l", col="blue")
-points(seq(Tmin,Tmax,1), coef(dev.mon)[1]*(seq(Tmin,Tmax,1)/TR)*exp(coef(dev.mon)[2]*(1/TR-1/seq(Tmin,Tmax,1))), type="l", col="blue")
+
+
+# developmental temperature optima and maximum
+(sp.data[sp.data$Development == max(sp.data$Development, na.rm = T), "T_K"])
+(max(sp.data$T_K))
 
 
 # developmental temperature optima and maximum for all species
 # results array
-param.all <- as.data.frame(read_csv("Temperature response parameters.csv"))
-results <- data.frame(param.all[,1], 1:nrow(param.all), 1:nrow(param.all))
-results[4,] <- "Clavigralla tomentosicollis Burkina_Faso"
-names(results) <- c("Species","Topt","Tmax")
+# param.all <- as.data.frame(read_csv("Temperature response parameters.csv"))
+# results <- data.frame(param.all[,1], 1:nrow(param.all), 1:nrow(param.all))
+# results[4,] <- "Clavigralla tomentosicollis Burkina_Faso"
+# names(results) <- c("Species","Topt","Tmax")
 # get data
-for(s in 1:nrow(param.all)) {
-  param <- data[data$Species == str_extract(results[s,]$Species, "[^ ]+ [^ ]+ [^ ]+"),]
-  results[s,2] <- param[param$Development == max(param$Development), "T_K"]
-  results[s,3] <- max(param$T_K) }
-write_csv(results, "Development params.csv")
-
+# for(s in 1:nrow(param.all)) {
+#   param <- data[data$Species == str_extract(results[s,]$Species, "[^ ]+ [^ ]+ [^ ]+"),]
+#   results[s,2] <- param[param$Development == max(param$Development), "T_K"]
+#   results[s,3] <- max(param$T_K) }
+# write_csv(results, "Development params.csv")
 
 
 # estimate all parameters without TL and AL
@@ -125,7 +122,7 @@ points(seq(Tmin,Tmax,1), xTR*(seq(Tmin,Tmax,1)/TR)*exp(A*(1/TR-1/seq(Tmin,Tmax,1
 
 # Minimum developmental temperature
 # NOTE: removed data beyond max development
-dev.min <- nls(Development ~ m*T_K+b, data=sp.data[-c((nrow(sp.data)-1):nrow(sp.data)),],
+dev.min <- nls(Development ~ m*T_K+b, data=sp.data[-c((nrow(sp.data)-0):nrow(sp.data)),],
                start=list(m=0.01, b=0))
 summary(dev.min)
 # Plot model fits
@@ -189,48 +186,45 @@ coef(r)[1]
 
 
 
+########################### R0 (NET REPRODUCTIVE RATE) ##############################
+# NLS
+fit.R0 <- nls(R0 ~ R0Topt*exp(-((T_K-ToptR0)^2)/(2*sR0^2)), data=sp.data,
+              start=list(R0Topt=200, ToptR0=TR, sR0=10))
+summary(fit.R0)
+# Plot model fits
+plot(sp.data$T_K, sp.data$R0)
+points(seq(Tmin,Tmax,1),coef(fit.R0)[1]*exp(-((seq(Tmin,Tmax,1)-coef(fit.R0)[2])^2)/(2*coef(fit.R0)[3]^2)), type="l", col="blue")
+
+# calculate R0Tmax: temperature at which R0 = 1
+R0Tmax <- 0
+deltaT <- (5*coef(fit.R0)[3]/1000)[[1]] # temperature range = 5 sigma away from Topt
+for(i in 0:1000) {
+  if(coef(fit.R0)[1]*exp(-(((coef(fit.R0)[2] + i*deltaT) - coef(fit.R0)[2])^2)/(2*coef(fit.R0)[3])^2) <= 1 & R0Tmax == 0)
+  { R0Tmax <- (coef(fit.R0)[2] + i*deltaT)[[1]] }}
+R0Tmax
 
 
 
-##################################### EGG DEVELOPMENT ########################################
-# # estimate xTR and A
-# # NOTE: removed data beyond max development
-# dev.mon <- nls(Egg_Dev ~ xTR*T_K/TR*exp(A*(1/TR-1/T_K)), data=sp.data[-c((nrow(sp.data)-0):nrow(sp.data)),],
-#                start=list(xTR=0.1, A=1000))
-# summary(dev.mon)
-# # Plot model fits
-# plot(sp.data$T_K, sp.data$Egg_Dev)
-# points(seq(Tmin,Tmax,1), coef(dev.mon)[1]*(seq(Tmin,Tmax,1)/TR)*exp(coef(dev.mon)[2]*(1/TR-1/seq(Tmin,Tmax,1))), type="l", col="blue")
-# 
-# # estimate AL and AH separately from TL and TH if needed
-# kTL <- 297
-# kTH <- 311
-# dev.A <- nls(Egg_Dev ~ coef(dev.mon)[1]*(T_K/TR)*exp(coef(dev.mon)[2]*(1/TR-1/T_K))/(1+exp(AL*(1/kTL-1/T_K))+exp(AH*(1/kTH-1/T_K))),
-#              data=sp.data, start=list(AL=-50000, AH=50000))
-# summary(dev.A)
-# dev.T <- nls(Egg_Dev ~ coef(dev.mon)[1]*(T_K/TR)*exp(coef(dev.mon)[2]*(1/TR-1/T_K))/(1+exp(coef(dev.A)[1]*(1/TL-1/T_K))+exp(coef(dev.A)[2]*(1/TH-1/T_K))),
-#              data=sp.data, start=list(TL=kTL, TH=kTH))
-# summary(dev.T)
-# # Plot model fits
-# plot(sp.data$T_K, sp.data$Egg_Dev, xlim=c(Tmin,Tmax), ylim=c(0,0.4))
-# points(seq(Tmin,Tmax,1), coef(dev.mon)[1]*(seq(Tmin,Tmax,1)/TR)*exp(coef(dev.mon)[2]*(1/TR-1/seq(Tmin,Tmax,1)))/
-#          (1+(exp(coef(dev.A)[1]*(1/coef(dev.T)[1]-1/seq(Tmin,Tmax,1)))+exp(coef(dev.A)[2]*(1/coef(dev.T)[2]-1/seq(Tmin,Tmax,1))))), type="l", col="blue")
-# 
-# # estimate TH and AH separately from TL and AL if needed
-# kAL <- -100000
-# dev.H <- nls(Egg_Dev ~ coef(dev.mon)[1]*(T_K/TR)*exp(coef(dev.mon)[2]*(1/TR-1/T_K))/(1+exp(kAL*(1/kTL-1/T_K))+exp(AH*(1/TH-1/T_K))),
-#              data=sp.data, start=list(TH=kTH, AH=50000))
-# summary(dev.H)
-# dev.AL <- nls(Egg_Dev ~ coef(dev.mon)[1]*(T_K/TR)*exp(coef(dev.mon)[2]*(1/TR-1/T_K))/(1+exp(AL*(1/kTL-1/T_K))+exp(coef(dev.H)[2]*(1/coef(dev.H)[1]-1/T_K))),
-#               data=sp.data, start=list(AL=-100000))
-# summary(dev.AL)
-# dev.TL <- nls(Egg_Dev ~ coef(dev.mon)[1]*(T_K/TR)*exp(coef(dev.mon)[2]*(1/TR-1/T_K))/(1+exp(coef(dev.AL)[1]*(1/TL-1/T_K))+exp(coef(dev.H)[2]*(1/coef(dev.H)[1]-1/T_K))),
-#               data=sp.data, start=list(TL=kTL))
-# summary(dev.TL)
-# # Plot model fits
-# plot(sp.data$T_K, sp.data$Egg_Dev)
-# points(seq(Tmin,Tmax,1), coef(dev.mon)[1]*(seq(Tmin,Tmax,1)/TR)*exp(coef(dev.mon)[2]*(1/TR-1/seq(Tmin,Tmax,1)))/
-#          (1+(exp(coef(dev.AL)[1]*(1/coef(dev.TL)[1]-1/seq(Tmin,Tmax,1)))+exp(coef(dev.H)[2]*(1/coef(dev.H)[1]-1/seq(Tmin,Tmax,1))))), type="l", col="blue")
+#################### Mortality estimated using data at reference temperature ################
+dJTR <- sp.data[sp.data$T_K==TR,"Juv_Mortality"]
+dATR <- sp.data[sp.data$T_K==TR,"Adult_Mortality"]
+
+# NLS for juvenile mortality
+mort.J <- nls(Juv_Mortality ~ dJTR*exp(A*(1/TR-1/T_K)), data=sp.data,
+              start=list(A=10000))
+summary(mort.J)
+# Plot model fits
+plot(sp.data$T_K, sp.data$Juv_Mortality) #, ylim=c(0,0.2))
+points(seq(Tmin,Tmax,1), dJTR*exp(coef(mort.J)[1]*(1/TR-1/seq(Tmin,Tmax,1))), type="l", col="blue")
+
+
+# NLS for adult mortality
+mort.A <- nls(Adult_Mortality ~ dATR*exp(A*(1/TR-1/T_K)), data=sp.data,
+              start=list(A=1000))
+summary(mort.A)
+# Plot model fits
+plot(sp.data$T_K, sp.data$Adult_Mortality, ylim=c(0,1))
+points(seq(Tmin,Tmax,1), dATR*exp(coef(mort.A)[1]*(1/TR-1/seq(Tmin,Tmax,1))), type="l", col="blue")
 
 
 
@@ -284,60 +278,3 @@ coef(r)[1]
 # Plot model fits
 #plot(sp.data$T_K, sp.data$Development)
 #points(seq(Tmin,Tmax,1), exp(0.06*seq(Tmin,Tmax,1))-exp(0.06*305-(305-seq(Tmin,Tmax,1))/1) + 0.01, type="l", col="blue")
-
-
-
-#################################### EGG MORTALITY ######################################
-# # Mortality estimated using fit at reference temperature
-# # NLS for egg mortality
-# mort.J <- nls(Egg_Mortality ~ xTR*exp(A*(1/TR-1/T_K)), data=sp.data,
-#               start=list(xTR=0.01, A=10000))
-# summary(mort.J)
-# # Plot model fits
-# plot(sp.data$T_K, sp.data$Egg_Mortality, ylim=c(0,0.2))
-# points(seq(Tmin,Tmax,1), coef(mort.J)[1]*exp(coef(mort.J)[2]*(1/TR-1/seq(Tmin,Tmax,1))), type="l", col="blue")
-
-
-
-# Mortality estimated using data at reference temperature
-dJTR <- sp.data[sp.data$T_K==TR,"Juv_Mortality"]
-dATR <- sp.data[sp.data$T_K==TR,"Adult_Mortality"]
-
-# NLS for juvenile mortality
-mort.J <- nls(Juv_Mortality ~ dJTR*exp(A*(1/TR-1/T_K)), data=sp.data,
-              start=list(A=10000))
-summary(mort.J)
-# Plot model fits
-plot(sp.data$T_K, sp.data$Juv_Mortality) #, ylim=c(0,0.2))
-points(seq(Tmin,Tmax,1), dJTR*exp(coef(mort.J)[1]*(1/TR-1/seq(Tmin,Tmax,1))), type="l", col="blue")
-
-
-# NLS for adult mortality
-mort.A <- nls(Adult_Mortality ~ dATR*exp(A*(1/TR-1/T_K)), data=sp.data,
-              start=list(A=1000))
-summary(mort.A)
-# Plot model fits
-plot(sp.data$T_K, sp.data$Adult_Mortality, ylim=c(0,1))
-points(seq(Tmin,Tmax,1), dATR*exp(coef(mort.A)[1]*(1/TR-1/seq(Tmin,Tmax,1))), type="l", col="blue")
-
-
-
-########################### R0 (NET REPRODUCTIVE RATE) ##############################
-# NLS
-fit.R0 <- nls(R0 ~ R0Topt*exp(-((T_K-ToptR0)^2)/(2*sR0^2)), data=sp.data,
-              start=list(R0Topt=200, ToptR0=TR, sR0=10))
-summary(fit.R0)
-# Plot model fits
-plot(sp.data$T_K, sp.data$R0)
-points(seq(Tmin,Tmax,1),coef(fit.R0)[1]*exp(-((seq(Tmin,Tmax,1)-coef(fit.R0)[2])^2)/(2*coef(fit.R0)[3]^2)), type="l", col="blue")
-
-# calculate R0Tmax: temperature at which R0 = 1
-R0Tmax <- 0
-deltaT <- (5*coef(fit.R0)[3]/1000)[[1]] # temperature range = 5 sigma away from Topt
-for(i in 0:1000) {
-  if(coef(fit.R0)[1]*exp(-(((coef(fit.R0)[2] + i*deltaT) - coef(fit.R0)[2])^2)/(2*coef(fit.R0)[3])^2) <= 1 & R0Tmax == 0)
-  { R0Tmax <- (coef(fit.R0)[2] + i*deltaT)[[1]] }}
-R0Tmax
-
-
-
