@@ -29,13 +29,13 @@ if cwd != '/Users/johnson/Documents/Christopher/GitHub/Johnson_Insect_Responses'
 species = "Apolygus lucorum"
 location = "China Dafeng"
 period = "Historical"
-period = "Future"
+#period = "Future"
 
 # USER: Run model for all species?
 all_sp = False
 
 # USER: Save data to CSV file?
-save_data = True
+save_data = False
 
 # USER: Use minimum temperature threshold?
 minT = True
@@ -50,7 +50,7 @@ comp = True
 daily = False
 
 # USER: Is model fit to census data?
-census = True
+census = False
     
 
 # DEFINE MODEL PARAMETERS
