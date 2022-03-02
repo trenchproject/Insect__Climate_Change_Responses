@@ -26,10 +26,10 @@ if cwd != '/Users/johnson/Documents/Christopher/GitHub/Johnson_Insect_Responses'
 
 
 # USER: Enter species, location, and time period
-species = "Clavigralla tomentosicollis"
-location = "Nigeria"
+species = "Apolygus lucorum"
+location = "China Dafeng"
 period = "Historical"
-#period = "Future"
+period = "Future"
 
 # USER: Run model for all species?
 all_sp = False
@@ -62,7 +62,7 @@ if comp == True:
     max_years = start_date + 75 # how long to run simulations
 else:
     init_years = 65
-    max_years = 10 # no model initialization because densities become too large before model begins due to unbounded population growth
+    max_years = start_date + 10 # NOTE: no model initialization (start_date = 0) because densities become too large before model begins due to unbounded population growth
 if census == True:
     init_years = 65 # how many years into climate change to start model
     max_years = start_date + 10 # how long to run simulations
@@ -212,12 +212,11 @@ while(True):
                 def R(x):
                     return 1
                 if (species == "Apolygus lucorum" or species == "Adelphocoris suturalis") and period == "Historical":
-                    if period =="Current":
-                        def M(x):
-                            return conditional(T(x), T(census_start), 0, 1)
-                    else:
-                        def M(x):
-                            return conditional(T(x), Tmin, 0, 1)
+                    def M(x):
+                        return conditional(T(x), T(census_start), 0, 1)
+                else:
+                    def M(x):
+                        return conditional(T(x), Tmin, 0, 1)
 
     
     # DDE MODEL

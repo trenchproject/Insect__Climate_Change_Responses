@@ -16,8 +16,8 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 
 # USER: enter species and location
-species <- "Clavigralla tomentosicollis"
-location <- "Nigeria"
+species <- "Apolygus lucorum"
+location <- "China Dafeng"
 field_plot <- "Mean" # for Nigeria, must specify plot "A", "B", "C", "Mean", or "All"
 
 # USER: Include diurnal variation?
@@ -333,7 +333,7 @@ plot.compare
 #dev.new()
 # Time-series plots
 # Nigeria
-#ggdraw() +
+# ggdraw() +
 #  draw_plot(plot.A, width = 1, height = 0.4) +
 #  draw_plot(model.A, width = 1, height = 0.4)
 # China
