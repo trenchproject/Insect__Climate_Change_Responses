@@ -11,7 +11,7 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 
 # USER: enter species name (used in temperature response data.csv)
-name <- "Apolygus lucorum China"
+name <- "Clavigralla tomentosicollis Nigeria"
 
 
 # Read data
@@ -68,10 +68,23 @@ points(seq(Tmin,Tmax,1), xTR*(seq(Tmin,Tmax,1)/TR)*exp(A*(1/TR-1/seq(Tmin,Tmax,1
          (1+(exp(AL*(1/coef(dev.T)[1]-1/seq(Tmin,Tmax,1)))+exp(AH*(1/coef(dev.T)[2]-1/seq(Tmin,Tmax,1))))), type="l", col="blue")
 
 
-# developmental temperature optima and maximum
+# Minimum developmental temperature
+# NOTE: removed data beyond max development
+dev.min <- nls(Development ~ m*T_K+b, data=sp.data[-c((nrow(sp.data)-0):nrow(sp.data)),],
+               start=list(m=0.01, b=0))
+summary(dev.min)
+# Plot model fits
+plot(sp.data$T_K, sp.data$Development, xlim=c(280,Tmax))
+points(seq(280,Tmax,1), coef(dev.min)[1]*seq(280,Tmax,1)+coef(dev.min)[2], type="l", col="blue")
+
+# Calculate minimum development temperature (Tmin)
+Tmin <- (-coef(dev.min)[2]/coef(dev.min)[1])[[1]]
+Tmin
+
+
+# Calculate optimum (Topt) and maximum (Tmax) development temperature
 (sp.data[sp.data$Development == max(sp.data$Development, na.rm = T), "T_K"])
 (max(sp.data$T_K))
-
 
 # developmental temperature optima and maximum for all species
 # results array
@@ -85,7 +98,6 @@ points(seq(Tmin,Tmax,1), xTR*(seq(Tmin,Tmax,1)/TR)*exp(A*(1/TR-1/seq(Tmin,Tmax,1
 #   results[s,2] <- param[param$Development == max(param$Development), "T_K"]
 #   results[s,3] <- max(param$T_K) }
 # write_csv(results, "Development params.csv")
-
 
 # estimate all parameters without TL and AL
 dev.A <- nls(Development ~ xTR*(T_K/TR)*exp(A*(1/TR-1/T_K))/(1+exp(AH*(1/TH-1/T_K))),
@@ -118,20 +130,6 @@ summary(dev.TL)
 plot(sp.data$T_K, sp.data$Development)
 points(seq(Tmin,Tmax,1), xTR*(seq(Tmin,Tmax,1)/TR)*exp(A*(1/TR-1/seq(Tmin,Tmax,1)))/
          (1+(exp(coef(dev.AL)[1]*(1/coef(dev.TL)[1]-1/seq(Tmin,Tmax,1)))+exp(coef(dev.H)[2]*(1/coef(dev.H)[1]-1/seq(Tmin,Tmax,1))))), type="l", col="blue")
-
-
-# Minimum developmental temperature
-# NOTE: removed data beyond max development
-dev.min <- nls(Development ~ m*T_K+b, data=sp.data[-c((nrow(sp.data)-0):nrow(sp.data)),],
-               start=list(m=0.01, b=0))
-summary(dev.min)
-# Plot model fits
-plot(sp.data$T_K, sp.data$Development, xlim=c(280,Tmax))
-points(seq(280,Tmax,1), coef(dev.min)[1]*seq(280,Tmax,1)+coef(dev.min)[2], type="l", col="blue")
-
-# Calculate Tmin
-Tmin <- (-coef(dev.min)[2]/coef(dev.min)[1])[[1]]
-Tmin
 
 
 
