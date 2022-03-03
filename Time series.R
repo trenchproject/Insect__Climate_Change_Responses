@@ -61,8 +61,8 @@ temp.data <- temp.data[temp.data$Species == paste(species,location),]
 if(census == TRUE) {
   # For species with census data
   if(daily == TRUE) {
-    data.model <- as.data.frame(read_csv(paste0("Time series data Census/Historical Time Series ",species," ",location,".csv")))
-    data.model.CC <- as.data.frame(read_csv(paste0("Time series data Census/Future Time Series ",species," ",location,".csv"))) }
+    data.model <- as.data.frame(read_csv(paste0("Time series data Census/Historical Time Series Diurnal ",species," ",location,".csv")))
+    data.model.CC <- as.data.frame(read_csv(paste0("Time series data Census/Future Time Series Diurnal ",species," ",location,".csv"))) }
   if(daily == FALSE && left_skew == TRUE) {
     data.model <- as.data.frame(read_csv(paste0("Time series data Census/Historical Time Series Tave ",species," ",location,".csv")))
     data.model.CC <- as.data.frame(read_csv(paste0("Time series data Census/Future Time Series Tave ",species," ",location,".csv"))) }
@@ -72,7 +72,7 @@ if(census == TRUE) {
 } else{
   # For species without census data
   if(daily == TRUE) {
-    data.model <- as.data.frame(read_csv(paste0("Time series data/Historical Time Series ",species," ",location,".csv")))
+    data.model <- as.data.frame(read_csv(paste0("Time series data Diurnal/Historical Time Series ",species," ",location,".csv")))
     data.model.CC <- as.data.frame(read_csv(paste0("Time series data/Future Time Series ",species," ",location,".csv"))) }
   if(daily == FALSE && left_skew == TRUE) {
     data.model <- as.data.frame(read_csv(paste0("Time series data Tave/Historical Time Series ",species," ",location,".csv")))

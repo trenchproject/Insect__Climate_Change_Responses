@@ -14,12 +14,12 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 # USER: choose "Fitness", "R0", "Fecundity", "Survival",
 #               "Birth", "Development", "Longevity", or "Recruitment"
-trait <- "Fitness"
+trait <- "Fecundity"
 
 # USER: enter species and location or set "all" to TRUE to run analysis for all species
-species <- "Clavigralla shadabi"
+species <- "Clavigralla tomentosicollis"
 location <- "Benin"
-all <- TRUE
+all <- FALSE
 
 # USER: include overwintering? (i.e., do not integrate over temperatures below Tmin)
 overw <- TRUE
@@ -61,28 +61,28 @@ for(s in 1:nrow(param.all)) {
   
   # Read in DDE model data for selected insect
   if(all == FALSE) {
-    ifelse(daily == TRUE, TS.h <- as.data.frame(read_csv(paste0("Time series data/Historical time series ",species," ",location,".csv"))),
+    ifelse(daily == TRUE, TS.h <- as.data.frame(read_csv(paste0("Time series data DI Diurnal/Historical time series ",species," ",location,".csv"))),
            TS.h <- as.data.frame(read_csv(paste0("Time series data DI Tave Dev/Historical time series ",species," ",location,".csv"))))
-    ifelse(daily == TRUE, TS.f <- as.data.frame(read_csv(paste0("Time series data/Future time series ",species," ",location,".csv"))),
+    ifelse(daily == TRUE, TS.f <- as.data.frame(read_csv(paste0("Time series data DI Diurnal/Future time series ",species," ",location,".csv"))),
            TS.f <- as.data.frame(read_csv(paste0("Time series data DI Tave Dev/Future time series ",species," ",location,".csv"))))
   }
   if(all == TRUE) {
-    ifelse(daily == TRUE, TS.h <- as.data.frame(read_csv(paste0("Time series data/Historical time series ",param[1],".csv"))),
+    ifelse(daily == TRUE, TS.h <- as.data.frame(read_csv(paste0("Time series data DI Diurnal/Historical time series ",param[1],".csv"))),
            TS.h <- as.data.frame(read_csv(paste0("Time series data DI Tave Dev/Historical time series ",param[1],".csv"))))
-    ifelse(daily == TRUE, TS.f <- as.data.frame(read_csv(paste0("Time series data/Future time series ",param[1],".csv"))),
+    ifelse(daily == TRUE, TS.f <- as.data.frame(read_csv(paste0("Time series data DI Diurnal/Future time series ",param[1],".csv"))),
            TS.f <- as.data.frame(read_csv(paste0("Time series data DI Tave Dev/Future time series ",param[1],".csv"))))
   }
   
   # Define temperature function and the start and end dates for integration
   init_years <- 65 # from Python DDE model (NOTE: REMEMBER TO CHECK THIS VALUE!!!)
   # habitat temperature
-  T.h <- function(t) { (t.param$meanT.h + t.param$delta_mean.h*(t+init_years*365)) - (t.param$amplT.h + t.param$delta_ampl.h*(t+init_years*365))*cos(2*pi*(t + t.param$shiftT.h)/365) - t.param$amplD.h*cos(2*pi*t) }
-  T.f <- function(t) { (t.param$meanT.f + t.param$delta_mean.f*(t+init_years*365)) - (t.param$amplT.f + t.param$delta_ampl.f*(t+init_years*365))*cos(2*pi*(t + t.param$shiftT.f)/365) - t.param$amplD.f*cos(2*pi*t) }
+  T.h <- function(t) { (t.param$meanT.h + t.param$delta_mean.h*(t+init_years*365)) - (t.param$amplT.h + t.param$delta_ampl.h*(t+init_years*365))*cos(2*pi*(t + init_years*365 + t.param$shiftT.h)/365) - t.param$amplD.h*cos(2*pi*t) }
+  T.f <- function(t) { (t.param$meanT.f + t.param$delta_mean.f*(t+init_years*365)) - (t.param$amplT.f + t.param$delta_ampl.f*(t+init_years*365))*cos(2*pi*(t + init_years*365 + t.param$shiftT.f)/365) - t.param$amplD.f*cos(2*pi*t) }
   # start and end times for integration
   end.h <- nrow(TS.h)
   end.f <- nrow(TS.f)
-  start.h <- max(end.h - 365*5, end.h %% 365) # integrate over last 5 years of time-series (max number of years before end date if <5 years in data)
-  start.f <- max(end.f - 365*5, end.f %% 365) # integrate over last 5 years of time-series (max number of years before end date if <5 years in data)
+  start.h <- max(end.h - 365*5 + 1, end.h %% 365) # integrate over last 5 years of time-series (max number of years before end date if <5 years in data)
+  start.f <- max(end.f - 365*5 + 1, end.f %% 365) # integrate over last 5 years of time-series (max number of years before end date if <5 years in data)
   if(start.h == end.h) { start.h <- 31 } # if < 1 year, set start = 31 to avoid initial transients
   if(start.f == end.f) { start.f <- 31 } # if < 1 year, set start = 31 to avoid initial transients
   
@@ -281,6 +281,7 @@ for(s in 1:nrow(param.all)) {
   }
   # average across active season
   r.model.h <- r.model.h/count.h
+  if(s == 25) {r.max.h <- param$rMax} # NOTE: use rMax for Brevicoryne brassicae b/c r.max.h is biased by one extreme value 
   R0.model.h <- R0.model.h/count.h
   f.model.h <- f.model.h/count.h
   s.model.h <- s.model.h/count.h
@@ -288,7 +289,7 @@ for(s in 1:nrow(param.all)) {
   b.model.h <- b.model.h/count.h
   tau.model.h <- tau.model.h/(end.h-start.h)
   dA.model.h <- dA.model.h/count.h
-
+  
   
   ################################### MODEL: FUTURE CLIMATE ####################################
   # Life history traits
@@ -323,7 +324,7 @@ for(s in 1:nrow(param.all)) {
   for(i in start.f:end.f) {
     if(overw == FALSE || (overw == TRUE && (T.f(i) >= param$Tmin || trait == "Development"))) {
       # Fitness
-      if(TS.f$A[i] > 0 && TS.f$A[i-1] > 0) {
+      if(TS.f$A[i] > 0 && TS.f$A[i-1] > 0 && T.f(TS.f$Time[i-1] - TS.f$tau[i-1]) >= param$Tmin) {
         r.max.f <- max(r.max.f, log(TS.f$A[i]/TS.f$A[i-1]))
         r.model.f <- r.model.f + log(TS.f$A[i]/TS.f$A[i-1]) }
       # R0, fecundity, survivorship, and recruitment
@@ -341,6 +342,7 @@ for(s in 1:nrow(param.all)) {
   }
   # average across active season
   r.model.f <- r.model.f/count.f
+  if(s == 25) {r.max.f <- param$rMax} # NOTE: use rMax for Brevicoryne brassicae b/c r.max.f is biased by one extreme value 
   R0.model.f <- R0.model.f/count.f
   f.model.f <- f.model.f/count.f
   s.model.f <- s.model.f/count.f
@@ -356,18 +358,18 @@ for(s in 1:nrow(param.all)) {
     if(trait == "Fitness") {
       results[s,5] <- r.TPC.h/param$rMax
       results[s,6] <- r.TPC.f/param$rMax
-      results[s,7] <- r.model.h/param$rMax
-      results[s,8] <- r.model.f/param$rMax
+      results[s,7] <- r.model.h/r.max.h
+      results[s,8] <- r.model.f/r.max.h
       results[s,9] <- (r.TPC.f - r.TPC.h)/param$rMax
-      results[s,10] <- (r.model.f - r.model.h)/param$rMax
+      results[s,10] <- (r.model.f - r.model.h)/r.max.h
     }
     if(trait == "R0") {
       results[s,5] <- R0.TPC.h/param$R0Topt
       results[s,6] <- R0.TPC.f/param$R0Topt
-      results[s,7] <- R0.model.h/param$R0Topt
-      results[s,8] <- R0.model.f/param$R0Topt
+      results[s,7] <- R0.model.h/max(TS.h$R0)
+      results[s,8] <- R0.model.f/max(TS.h$R0)
       results[s,9] <- (R0.TPC.f - R0.TPC.h)/param$R0Topt
-      results[s,10] <- (R0.model.f - R0.model.h)/param$R0Topt
+      results[s,10] <- (R0.model.f - R0.model.h)/max(TS.h$R0)
     }
     if(trait == "Fecundity") {
       results[s,5] <- f.TPC.h/param$bTopt
@@ -474,47 +476,33 @@ if(all == FALSE) {
   Tmin <- round(min(temp.h$T,temp.f$T),0) - 3
   Tmax <- round(max(temp.h$T,temp.f$T),0) + 3
   ymin <- 0
-  if(trait == "Fitness") { ymax1 <- 1.5*round(param$rMax,1) }
-  if(trait == "R0") { ymax1 <- round(param$bTopt/param$dATR,0) }
-  if(trait == "Fecundity") { ymax1 <- round(param$bTopt/param$dATR,0) }
-  if(trait == "Survival") { ymax1 <- 1 }
-  if(trait == "Birth") { ymax1 <- round(param$bTopt,2) + 0.1 }
-  if(trait == "Development") { ymax1 <- round(param$mTR,2) + 0.1 }
-  if(trait == "Longevity") { ymax1 <- 2*round(1/param$dATR,1) }
-  if(trait == "Recruitment") { ymax1 <- round(param$bTopt,2) + 0.1 }
+  ymax1 <- 1
   ymax2 <- 0.6 # for temperature histogram
   
   # FUNCTIONS
   r <- ifelse(seq(Tmin,Tmax,0.1) <= param$rTopt, param$rMax*exp(-1*((seq(Tmin,Tmax,0.1)-param$rTopt)/(2*param$rs))^2),
               param$rMax*(1 - ((seq(Tmin,Tmax,0.1)-param$rTopt)/(param$rTopt-param$rTmax))^2))
-  b <- param$bTopt*exp(-((seq(Tmin,Tmax,1)-param$Toptb)^2)/(2*param$sb^2))
-  m <- param$mTR*(seq(Tmin,Tmax,1)/param$TR)*exp(param$AmJ*(1/param$TR-1/seq(Tmin,Tmax,1)))/(1+exp(param$AL*(1/param$TL-1/seq(Tmin,Tmax,1)))+exp(param$AH*(1/param$TH-1/seq(Tmin,Tmax,1))))
-  dJ <- param$dJTR*exp(param$AdJ*(1/param$TR-1/seq(Tmin,Tmax,1)))
-  dA <- param$dATR*exp(param$AdA*(1/param$TR-1/seq(Tmin,Tmax,1)))
-  R0 <- b/dA * m/(m+dJ)
+  R0 <- param$R0Topt*exp(-((seq(Tmin,Tmax,0.1)-param$ToptR0)^2)/(2*param$sR0^2))
+  b <- param$bTopt*exp(-((seq(Tmin,Tmax,0.1)-param$Toptb)^2)/(2*param$sb^2))
+  m <- param$mTR*(seq(Tmin,Tmax,0.1)/param$TR)*exp(param$AmJ*(1/param$TR-1/seq(Tmin,Tmax,0.1)))/(1+exp(param$AL*(1/param$TL-1/seq(Tmin,Tmax,0.1)))+exp(param$AH*(1/param$TH-1/seq(Tmin,Tmax,0.1))))
+  dJ <- param$dJTR*exp(param$AdJ*(1/param$TR-1/seq(Tmin,Tmax,0.1)))
+  dA <- param$dATR*exp(param$AdA*(1/param$TR-1/seq(Tmin,Tmax,0.1)))
   f <- b/dA
   s <- exp(-dJ/m)
   R <- b*s
   
   # TPC PLOTS
   #dev.new(width=3, height=3, unit="in")
-  # Fitness
-  plot(seq(Tmin,Tmax,0.1), r/param$rMax, type="l", lwd=4, col="black", xlim=c(Tmin,Tmax), ylim=c(ymin,ymax1), xaxt = "n", xlab="T", ylab="r(T)", cex.axis=2)
+  plot(-100, xlim=c(Tmin,Tmax), ylim=c(ymin,ymax1), xaxt = "n", xlab="", ylab="", cex.axis=2)
   axis(1, at=seq(293,308,5), labels=seq(20,35,5), cex.axis=2)
-  # R0
-  #plot(seq(Tmin,Tmax,1), R0, type="l", lwd=4, col="black", xlim=c(Tmin,Tmax), ylim=c(ymin,ymax1), xlab="T", ylab="R0(T)")
-  # Fecundity
-  #plot(seq(Tmin,Tmax,1), f, type="l", lwd=4, col="black", xlim=c(Tmin,Tmax), ylim=c(ymin,ymax1), xlab="T", ylab="f(T)")
-  # Survival
-  #plot(seq(Tmin,Tmax,1), s, type="l", lwd=4, col="black", xlim=c(Tmin,Tmax), ylim=c(ymin,ymax1), xlab="T", ylab="s(T)")
-  # Birth rate
-  #plot(seq(Tmin,Tmax,1), b, type="l", lwd=4, col="black", xlim=c(Tmin,Tmax), ylim=c(ymin,ymax1), xlab="T", ylab="b(T)")
-  # Development time (maturation rate)
-  #plot(seq(Tmin,Tmax,1), m, type="l", lwd=4, col="black", xlim=c(Tmin,Tmax), ylim=c(ymin,ymax1), xlab="T", ylab="m(T)")
-  # Adult longevity
-  #plot(seq(Tmin,Tmax,1), 1/dA, type="l", lwd=4, col="black", xlim=c(Tmin,Tmax), ylim=c(ymin,ymax1), xlab="T", ylab="1/dA(T)")
-  # Recruitment
-  #plot(seq(Tmin,Tmax,1), R, type="l", lwd=4, col="black", xlim=c(Tmin,Tmax), ylim=c(ymin,ymax1), xlab="T", ylab="R(T)")
+  if(trait == "Fitness") {  points(seq(Tmin,Tmax,0.1), r/param$rMax, type="l", lwd=4, col="black") }
+  if(trait == "R0") {  points(seq(Tmin,Tmax,0.1), R0/param$R0Topt, type="l", lwd=4, col="black") }
+  if(trait == "Fecundity") {  points(seq(Tmin,Tmax,0.1), f/param$bTopt, type="l", lwd=4, col="black") }
+  if(trait == "Survival") {  points(seq(Tmin,Tmax,0.1), s, type="l", lwd=4, col="black") }
+  if(trait == "Birth") {  points(seq(Tmin,Tmax,0.1), b/param$bTopt, type="l", lwd=4, col="black") }
+  if(trait == "Development") {  points(seq(Tmin,Tmax,0.1), m/mTopt, type="l", lwd=4, col="black") }
+  if(trait == "Longevity") {  points(seq(Tmin,Tmax,0.1), (1/dA)/lTopt, type="l", lwd=4, col="black") }
+  if(trait == "Recruitment") {  points(seq(Tmin,Tmax,0.1), R/param$bTopt, type="l", lwd=4, col="black") }
   # TEMPERATURE PARAMETERS
   abline(v = t.param$meanT.h, col="#0072B2", lwd=3, lty=1)
   abline(v = t.param$meanT.h + abs(t.param$amplT.h) + abs(t.param$amplD.h), col="#0072B2", lwd=3, lty=2)
@@ -538,20 +526,20 @@ if(all == FALSE) {
 if(trait == "Fitness") { 
   print(paste("r.TPC.h:", r.TPC.h/param$rMax))
   print(paste("r.TPC.f:", r.TPC.f/param$rMax))
-  print(paste("r.model.h:", r.model.h/param$rMax))
-  print(paste("r.model.f:", r.model.f/param$rMax))
+  print(paste("r.model.h:", r.model.h/r.max.h))
+  print(paste("r.model.f:", r.model.f/r.max.h))
 }
 if(trait == "R0") { 
-  print(paste("R0.TPC.h:", R0.TPC.h))
-  print(paste("R0.TPC.f:", R0.TPC.f))
-  print(paste("R0.model.h:", R0.model.h))
-  print(paste("R0.model.f:", R0.model.f))
+  print(paste("R0.TPC.h:", R0.TPC.h/param$R0Topt))
+  print(paste("R0.TPC.f:", R0.TPC.f/param$R0Topt))
+  print(paste("R0.model.h:", R0.model.h/max(TS.h$R0)))
+  print(paste("R0.model.f:", R0.model.f/max(TS.h$R0)))
 }
 if(trait == "Fecundity") { 
-  print(paste("f.TPC.h:", f.TPC.h))
-  print(paste("f.TPC.f:", f.TPC.f))
-  print(paste("f.model.h:", f.model.h))
-  print(paste("f.model.f:", f.model.f))
+  print(paste("f.TPC.h:", f.TPC.h/param$bTopt))
+  print(paste("f.TPC.f:", f.TPC.f/param$bTopt))
+  print(paste("f.model.h:", f.model.h/param$bTopt))
+  print(paste("f.model.f:", f.model.f/param$bTopt))
 }
 if(trait == "Survival") { 
   print(paste("s.TPC.h:", s.TPC.h))
@@ -560,28 +548,28 @@ if(trait == "Survival") {
   print(paste("s.model.f:", s.model.f))
 }
 if(trait == "Birth") { 
-  print(paste("b.TPC.h:", b.TPC.h))
-  print(paste("b.TPC.f:", b.TPC.f))
-  print(paste("b.model.h:", b.model.h))
-  print(paste("b.model.f:", b.model.f))
+  print(paste("b.TPC.h:", b.TPC.h/param$bTopt))
+  print(paste("b.TPC.f:", b.TPC.f/param$bTopt))
+  print(paste("b.model.h:", b.model.h/param$bTopt))
+  print(paste("b.model.f:", b.model.f/param$bTopt))
 }
 if(trait == "Development") { 
-  print(paste("tau.TPC.h:", 1/m.TPC.h))
-  print(paste("tau.TPC.f:", 1/m.TPC.f))
-  print(paste("tau.model.h:", tau.model.h))
-  print(paste("tau.model.f:", tau.model.f))
+  print(paste("tau.TPC.h:", (1/m.TPC.h)/mTopt))
+  print(paste("tau.TPC.f:", (1/m.TPC.f)/mTopt))
+  print(paste("tau.model.h:", tau.model.h/mTopt))
+  print(paste("tau.model.f:", tau.model.f/mTopt))
 }
 if(trait == "Longevity") { 
-  print(paste("1/dA.TPC.h:", 1/dA.TPC.h))
-  print(paste("1/dA.TPC.f:", 1/dA.TPC.f))
-  print(paste("1/dA.model.h:", 1/dA.model.h))
-  print(paste("1/dA.model.f:", 1/dA.model.f))
+  print(paste("1/dA.TPC.h:", (1/dA.TPC.h)/lTopt))
+  print(paste("1/dA.TPC.f:", (1/dA.TPC.f)/lTopt))
+  print(paste("1/dA.model.h:", (1/dA.model.h)/lTopt))
+  print(paste("1/dA.model.f:", (1/dA.model.f)/lTopt))
 }
 if(trait == "Recruitment") { 
-  print(paste("R.TPC.h:", R.TPC.h))
-  print(paste("R.TPC.f:", R.TPC.f))
-  print(paste("R.model.h:", R.model.h))
-  print(paste("R.model.f:", R.model.f))
+  print(paste("R.TPC.h:", R.TPC.h/param$bTopt))
+  print(paste("R.TPC.f:", R.TPC.f/param$bTopt))
+  print(paste("R.model.h:", R.model.h/param$bTopt))
+  print(paste("R.model.f:", R.model.f/param$bTopt))
 }
 if(all == TRUE) { print(results) }
 

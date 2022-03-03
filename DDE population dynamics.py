@@ -26,8 +26,8 @@ if cwd != '/Users/johnson/Documents/Christopher/GitHub/Johnson_Insect_Responses'
 
 
 # USER: Enter species, location, and time period
-species = "Apolygus lucorum"
-location = "China Dafeng"
+species = "Brevicoryne brassicae"
+location = "US Columbia"
 period = "Historical"
 #period = "Future"
 
@@ -259,25 +259,25 @@ while(True):
     if save_data == True:
         if census == False:
             if comp == True and daily == True and left_skew == True:
-                filename = 'Time series data/' + period + ' time series ' + spData["Species"] + '.csv'
+                filename = 'Time series data Diurnal/' + period + ' time series ' + spData["Species"] + '.csv'
                 savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
             if comp == True and daily == False and left_skew == True:
                 filename = 'Time series data Tave Mon/' + period + ' time series ' + spData["Species"] + '.csv'
                 savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
             if comp == False and daily == True and left_skew == True:
-                filename = 'Time series data DI/' + period + ' time series ' + spData["Species"] + '.csv'
+                filename = 'Time series data DI Diurnal/' + period + ' time series ' + spData["Species"] + '.csv'
                 savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
             if comp == False and daily == False and left_skew == True:
                 filename = 'Time series data DI Tave/' + period + ' time series ' + spData["Species"] + '.csv'
                 savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
             if comp == True and daily == True and left_skew == False:
-                filename = 'Time series data Dev/' + period + ' time series ' + spData["Species"] + '.csv'
+                filename = 'Time series data Diurnal Dev/' + period + ' time series ' + spData["Species"] + '.csv'
                 savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
             if comp == True and daily == False and left_skew == False:
                 filename = 'Time series data Tave Dev/' + period + ' time series ' + spData["Species"] + '.csv'
                 savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
             if comp == False and daily == True and left_skew == False:
-                filename = 'Time series data DI Dev/' + period + ' time series ' + spData["Species"] + '.csv'
+                filename = 'Time series data DI Diurnal Dev/' + period + ' time series ' + spData["Species"] + '.csv'
                 savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
             if comp == False and daily == False and left_skew == False:
                 filename = 'Time series data DI Tave Dev/' + period + ' time series ' + spData["Species"] + '.csv'
@@ -302,7 +302,7 @@ while(True):
     fig,ax = subplots()
     ax.plot(data[:,0], data[:,1], label='J')
     ax.plot(data[:,0], data[:,2], label='A')
-    ax.plot(data[:,0], vstack([100*R(i) for i in arange(0,max_years*yr,1) ]), label='R')
+    ax.plot(data[:,0], vstack([100*M(i) for i in arange(0,max_years*yr,1) ]), label='M')
     ax.plot(data[:,0], vstack([T(i) - 273 for i in arange(0,max_years*yr,1) ]), label='T')
     #ax.plot(data[:,0], data[:,3], label='S')
     #ax.plot(data[:,0], data[:,4], label='τ')

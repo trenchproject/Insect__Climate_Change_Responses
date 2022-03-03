@@ -66,11 +66,11 @@ r.data$delta.model <- pmax(-1, r.data$delta.model)
 # FITNESS
 # Change in relative fitness
 r.delta <- lm(delta.model ~ delta.TPC, data=r.data)
-summary(r.delta) # significant
+summary(r.delta) # significant!
 # Model vs Latitude
 # linear
 r.lat <- lm(delta.model ~ Latitude, data=r.data)
-summary(r.lat) # non-significant
+summary(r.lat) # significant!
 # non-linear
 #r.lat2 <- nls(delta.model ~ a + b*Latitude + c*Latitude^2, data=r.data, start=list(a=1, b=-0.1, c=1))
 #summary(r.lat2) # non-significant
@@ -81,7 +81,7 @@ R0.delta <- lm(delta.model ~ delta.TPC, data=R0.data)
 summary(R0.delta) # significant!
 # Model vs Latitude
 R0.lat <- lm(delta.model ~ Latitude, data=R0.data)
-summary(R0.lat) # non-significant
+summary(R0.lat) # marginally-significant
 
 # BIRTH RATE
 # Model vs Latitude
@@ -300,7 +300,7 @@ Xmax <- 0.5
 Ymin <- -1
 Ymax <- 0.5
 #dev.new(width=3, height=3, unit="in")
-plot(-100, xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="TPC", ylab="Model")
+plot(-100, xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="TPC", ylab="Model", cex.axis=2)
 polygon(c(2*Xmin,0,2*Xmax,2*Xmax),c(2*Xmin,0,-2*Xmax,2*Ymin), col = "#E2E2E2", border = NA)
 polygon(c(2*Xmin,0,2*Xmax),c(-2*Xmin,0,2*Xmax), col = "#E2E2E2", border = NA)
 abline(0, 1, col="gray", lwd=3)
@@ -313,30 +313,29 @@ points(r.data[r.data$Habitat=="Mediterranean","delta.TPC"], r.data[r.data$Habita
 points(r.data[r.data$Habitat=="Temperate","delta.TPC"], r.data[r.data$Habitat=="Temperate","delta.model"], pch=19, cex=1.5, col="#785EF0") # purple
 points(seq(2*Xmin,2*Xmax,0.1), coef(r.delta)[2]*seq(2*Xmin,2*Xmax,0.1)+coef(r.delta)[1], type="l", lwd=3, col="black")
 
-# Model vs latitude
+# Fitness vs latitude
 Xmin <- 0
 Xmax <- 60
 Ymin <- -1
 Ymax <- 0.5
 #dev.new(width=3, height=3, unit="in")
-plot(-100, xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="Latitude", ylab="Model")
+plot(-100, xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="Latitude", ylab="Model", cex.axis=2)
 abline(0, 0, col="gray", lwd=3, lty="longdash")
 points(r.data[r.data$Habitat=="Tropical","Latitude"], r.data[r.data$Habitat=="Tropical","delta.model"], pch=19, cex=1.5, col="#FFB000") # orange
 points(r.data[r.data$Habitat=="Subtropical","Latitude"], r.data[r.data$Habitat=="Subtropical","delta.model"], pch=19, cex=1.5, col="#6FD012") # green
 points(r.data[r.data$Habitat=="Mediterranean","Latitude"], r.data[r.data$Habitat=="Mediterranean","delta.model"], pch=19, cex=1.5, col="#6FD012") # green
 points(r.data[r.data$Habitat=="Temperate","Latitude"], r.data[r.data$Habitat=="Temperate","delta.model"], pch=19, cex=1.5, col="#785EF0") # purple
-points(seq(2*Xmin,2*Xmax,1), coef(r.lat)[2]*seq(2*Xmin,2*Xmax,1) + coef(r.lat)[1], type="l", lwd=3, col="black", lty="longdash")
-#points(seq(Xmin,Xmax,1), coef(r.lat2)[1] + coef(r.lat2)[2]*seq(Xmin,Xmax,1) + coef(r.lat2)[3]*seq(Xmin,Xmax,1)^2, type="l", lwd=3, col="black")
+points(seq(Xmin,Xmax,1), coef(r.lat)[2]*seq(Xmin,Xmax,1) + coef(r.lat)[1], type="l", lwd=3, col="black")
 
 
 # R0
 # Model vs TPCs
-Xmin <- -1
+Xmin <- -0.8
 Xmax <- 0.2
-Ymin <- -1
+Ymin <- -0.8
 Ymax <- 0.2
 #dev.new(width=3, height=3, unit="in")
-plot(-100, xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="TPC", ylab="Model")
+plot(-100, xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="TPC", ylab="Model", cex.axis=2)
 polygon(c(2*Xmin,0,2*Xmax,2*Xmax),c(2*Xmin,0,-2*Xmax,2*Ymin), col = "#E2E2E2", border = NA)
 polygon(c(2*Xmin,0,2*Xmax),c(-2*Xmin,0,2*Xmax), col = "#E2E2E2", border = NA)
 abline(0, 1, col="gray", lwd=3)
@@ -349,13 +348,13 @@ points(R0.data[R0.data$Habitat=="Mediterranean","delta.TPC"], R0.data[R0.data$Ha
 points(R0.data[R0.data$Habitat=="Temperate","delta.TPC"], R0.data[R0.data$Habitat=="Temperate","delta.model"], pch=19, cex=1.5, col="#785EF0") # purple
 points(seq(2*Xmin,2*Xmax,0.1), coef(R0.delta)[2]*seq(2*Xmin,2*Xmax,0.1)+coef(R0.delta)[1], type="l", lwd=3, col="black")
 
-# Model vs latitude
+# R0 vs latitude
 Xmin <- 0
 Xmax <- 60
 Ymin <- -0.8
 Ymax <- 0.2
 #dev.new(width=3, height=3, unit="in")
-plot(-100, xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="Latitude", ylab="Model")
+plot(-100, xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="Latitude", ylab="Model", cex.axis=2)
 abline(0, 0, col="gray", lwd=3, lty="longdash")
 points(R0.data[R0.data$Habitat=="Tropical","Latitude"], R0.data[R0.data$Habitat=="Tropical","delta.model"], pch=19, cex=1.5, col="#FFB000") # orange
 points(R0.data[R0.data$Habitat=="Subtropical","Latitude"], R0.data[R0.data$Habitat=="Subtropical","delta.model"], pch=19, cex=1.5, col="#6FD012") # green
