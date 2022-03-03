@@ -13,7 +13,7 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 # USER: enter species and location or set "all" to TRUE to run analysis for all species
 species <- "Macrosiphum euphorbiae"
 location <- "Canada"
-all <- TRUE
+all <- F
 
 # USER: include diurnal variation?
 daily <- FALSE
@@ -53,15 +53,15 @@ for(s in 1:nrow(param.all)) {
   
   # Read in DDE model data for selected insect
   if(all == FALSE) {
-    ifelse(daily == TRUE, TS.h <- as.data.frame(read_csv(paste0("Time series data/Historical time series ",species," ",location,".csv"))),
+    ifelse(daily == TRUE, TS.h <- as.data.frame(read_csv(paste0("Time series data Diurnal/Historical time series ",species," ",location,".csv"))),
            TS.h <- as.data.frame(read_csv(paste0("Time series data Tave Dev/Historical time series ",species," ",location,".csv"))))
-    ifelse(daily == TRUE, TS.f <- as.data.frame(read_csv(paste0("Time series data/Future time series ",species," ",location,".csv"))),
+    ifelse(daily == TRUE, TS.f <- as.data.frame(read_csv(paste0("Time series data Diurnal/Future time series ",species," ",location,".csv"))),
            TS.f <- as.data.frame(read_csv(paste0("Time series data Tave Dev/Future time series ",species," ",location,".csv"))))
   }
   if(all == TRUE) {
-    ifelse(daily == TRUE, TS.h <- as.data.frame(read_csv(paste0("Time series data/Historical time series ",param[1],".csv"))),
+    ifelse(daily == TRUE, TS.h <- as.data.frame(read_csv(paste0("Time series data Diurnal/Historical time series ",param[1],".csv"))),
            TS.h <- as.data.frame(read_csv(paste0("Time series data Tave Dev/Historical time series ",param[1],".csv"))))
-    ifelse(daily == TRUE, TS.f <- as.data.frame(read_csv(paste0("Time series data/Future time series ",param[1],".csv"))),
+    ifelse(daily == TRUE, TS.f <- as.data.frame(read_csv(paste0("Time series data Diurnal/Future time series ",param[1],".csv"))),
            TS.f <- as.data.frame(read_csv(paste0("Time series data Tave Dev/Future time series ",param[1],".csv"))))
   }
   

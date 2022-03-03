@@ -14,7 +14,7 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 # USER: choose "Fitness", "R0", "Fecundity", "Survival",
 #               "Birth", "Development", "Longevity", or "Recruitment"
-trait <- "Fecundity"
+trait <- "Fitness"
 
 # USER: enter species and location or set "all" to TRUE to run analysis for all species
 species <- "Clavigralla tomentosicollis"
@@ -281,7 +281,7 @@ for(s in 1:nrow(param.all)) {
   }
   # average across active season
   r.model.h <- r.model.h/count.h
-  if(s == 25) {r.max.h <- param$rMax} # NOTE: use rMax for Brevicoryne brassicae b/c r.max.h is biased by one extreme value 
+  if((all == FALSE && species == "Brevicoryne brassicae") || (all == TRUE && s == 25)) {r.max.h <- param$rMax} # NOTE: use rMax for Brevicoryne brassicae b/c r.max.h is biased by one extreme value 
   R0.model.h <- R0.model.h/count.h
   f.model.h <- f.model.h/count.h
   s.model.h <- s.model.h/count.h
@@ -340,9 +340,9 @@ for(s in 1:nrow(param.all)) {
       count.f <- count.f + 1
     }
   }
-  # average across active season
+  # Average across active season
   r.model.f <- r.model.f/count.f
-  if(s == 25) {r.max.f <- param$rMax} # NOTE: use rMax for Brevicoryne brassicae b/c r.max.f is biased by one extreme value 
+  if((all == FALSE && species == "Brevicoryne brassicae") || (all == TRUE && s == 25)) {r.max.f <- param$rMax} # NOTE: use rMax for Brevicoryne brassicae b/c r.max.f is biased by one extreme value 
   R0.model.f <- R0.model.f/count.f
   f.model.f <- f.model.f/count.f
   s.model.f <- s.model.f/count.f
@@ -353,7 +353,11 @@ for(s in 1:nrow(param.all)) {
 
   
   ################################# RECORD AND DISPLAY RESULTS ###############################
-  # INPUT RESUTS INTO ARRAY
+  # Calculate optimum and maximum values of key traits for scaling results
+  mTopt <- param$mTR*(param$Topt/param$TR)*exp(param$AmJ*(1/param$TR-1/param$Topt))/(1+exp(param$AL*(1/param$TL-1/param$Topt)))
+  lTopt <- 1/min(param$dATR*exp(param$AdA*(1/param$TR-1/T.h(TS.h$Time))))
+  
+  # Input results into arrays
   if(all == TRUE) {
     if(trait == "Fitness") {
       results[s,5] <- r.TPC.h/param$rMax
@@ -372,12 +376,12 @@ for(s in 1:nrow(param.all)) {
       results[s,10] <- (R0.model.f - R0.model.h)/max(TS.h$R0)
     }
     if(trait == "Fecundity") {
-      results[s,5] <- f.TPC.h/param$bTopt
-      results[s,6] <- f.TPC.f/param$bTopt
-      results[s,7] <- f.model.h/param$bTopt
-      results[s,8] <- f.model.f/param$bTopt
-      results[s,9] <- (f.TPC.f - f.TPC.h)/param$bTopt
-      results[s,10] <- (f.model.f - f.model.h)/param$bTopt
+      results[s,5] <- f.TPC.h/(param$bTopt*lTopt)
+      results[s,6] <- f.TPC.f/(param$bTopt*lTopt)
+      results[s,7] <- f.model.h/(param$bTopt*lTopt)
+      results[s,8] <- f.model.f/(param$bTopt*lTopt)
+      results[s,9] <- (f.TPC.f - f.TPC.h)/(param$bTopt*lTopt)
+      results[s,10] <- (f.model.f - f.model.h)/(param$bTopt*lTopt)
     }
     if(trait == "Survival") {
       results[s,5] <- s.TPC.h
@@ -396,16 +400,14 @@ for(s in 1:nrow(param.all)) {
       results[s,10] <- (b.model.f - b.model.h)/param$bTopt
     }
     if(trait == "Development") {
-      mTopt <- param$mTR*(param$Topt/param$TR)*exp(param$AmJ*(1/param$TR-1/param$Topt))/(1+exp(param$AL*(1/param$TL-1/param$Topt)))
-      results[s,5] <- 1/m.TPC.h/(1/mTopt)
-      results[s,6] <- 1/m.TPC.f/(1/mTopt)
+      results[s,5] <- (1/m.TPC.h)/(1/mTopt)
+      results[s,6] <- (1/m.TPC.f)/(1/mTopt)
       results[s,7] <- tau.model.h/(1/mTopt)
       results[s,8] <- tau.model.f/(1/mTopt)
       results[s,9] <- (1/m.TPC.f - 1/m.TPC.h)/(1/mTopt)
       results[s,10] <- (tau.model.f - tau.model.h)/(1/mTopt)
     }
     if(trait == "Longevity") {
-      lTopt <- 1/min(param$dATR*exp(param$AdA*(1/param$TR-1/T.h(TS.h$Time))))
       results[s,5] <- (1/dA.TPC.h)/lTopt
       results[s,6] <- (1/dA.TPC.f)/lTopt
       results[s,7] <- (1/dA.model.h)/lTopt
@@ -433,7 +435,7 @@ for(s in 1:nrow(param.all)) {
 if(output == TRUE && all == TRUE) {
   if(trait == "Fitness") { write_csv(results, "Predictions/Predictions Dev fitness.csv") }
   if(trait == "R0") { write_csv(results, "Predictions/Predictions Dev R0.csv") }
-  if(trait == "Fecundity") { write_csv(results, "Predictions/Predictions Dev fecundity.csv") }
+  if(trait == "Fecundity") { write_csv(results, "Predictions/Predictions Dev lifetime fecundity.csv") }
   if(trait == "Survival") { write_csv(results, "Predictions/Predictions Dev survival.csv") }
   if(trait == "Birth") { write_csv(results, "Predictions/Predictions Dev birth.csv") }
   if(trait == "Development") { write_csv(results, "Predictions/Predictions Dev development.csv") }
@@ -476,7 +478,7 @@ if(all == FALSE) {
   Tmin <- round(min(temp.h$T,temp.f$T),0) - 3
   Tmax <- round(max(temp.h$T,temp.f$T),0) + 3
   ymin <- 0
-  ymax1 <- 1
+  ifelse(trait == "Development", ymax1 <- 1.05, ymax1 <- 1)
   ymax2 <- 0.6 # for temperature histogram
   
   # FUNCTIONS
@@ -497,7 +499,7 @@ if(all == FALSE) {
   axis(1, at=seq(293,308,5), labels=seq(20,35,5), cex.axis=2)
   if(trait == "Fitness") {  points(seq(Tmin,Tmax,0.1), r/param$rMax, type="l", lwd=4, col="black") }
   if(trait == "R0") {  points(seq(Tmin,Tmax,0.1), R0/param$R0Topt, type="l", lwd=4, col="black") }
-  if(trait == "Fecundity") {  points(seq(Tmin,Tmax,0.1), f/param$bTopt, type="l", lwd=4, col="black") }
+  if(trait == "Fecundity") {  points(seq(Tmin,Tmax,0.1), f/(param$bTopt*lTopt), type="l", lwd=4, col="black") }
   if(trait == "Survival") {  points(seq(Tmin,Tmax,0.1), s, type="l", lwd=4, col="black") }
   if(trait == "Birth") {  points(seq(Tmin,Tmax,0.1), b/param$bTopt, type="l", lwd=4, col="black") }
   if(trait == "Development") {  points(seq(Tmin,Tmax,0.1), m/mTopt, type="l", lwd=4, col="black") }
@@ -536,10 +538,10 @@ if(trait == "R0") {
   print(paste("R0.model.f:", R0.model.f/max(TS.h$R0)))
 }
 if(trait == "Fecundity") { 
-  print(paste("f.TPC.h:", f.TPC.h/param$bTopt))
-  print(paste("f.TPC.f:", f.TPC.f/param$bTopt))
-  print(paste("f.model.h:", f.model.h/param$bTopt))
-  print(paste("f.model.f:", f.model.f/param$bTopt))
+  print(paste("f.TPC.h:", f.TPC.h/(param$bTopt*lTopt)))
+  print(paste("f.TPC.f:", f.TPC.f/(param$bTopt*lTopt)))
+  print(paste("f.model.h:", f.model.h/(param$bTopt*lTopt)))
+  print(paste("f.model.f:", f.model.f/(param$bTopt*lTopt)))
 }
 if(trait == "Survival") { 
   print(paste("s.TPC.h:", s.TPC.h))
@@ -554,10 +556,10 @@ if(trait == "Birth") {
   print(paste("b.model.f:", b.model.f/param$bTopt))
 }
 if(trait == "Development") { 
-  print(paste("tau.TPC.h:", (1/m.TPC.h)/mTopt))
-  print(paste("tau.TPC.f:", (1/m.TPC.f)/mTopt))
-  print(paste("tau.model.h:", tau.model.h/mTopt))
-  print(paste("tau.model.f:", tau.model.f/mTopt))
+  print(paste("tau.TPC.h:", (1/m.TPC.h)/(1/mTopt)))
+  print(paste("tau.TPC.f:", (1/m.TPC.f)/(1/mTopt)))
+  print(paste("tau.model.h:", tau.model.h/(1/mTopt)))
+  print(paste("tau.model.f:", tau.model.f/(1/mTopt)))
 }
 if(trait == "Longevity") { 
   print(paste("1/dA.TPC.h:", (1/dA.TPC.h)/lTopt))

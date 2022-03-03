@@ -32,10 +32,10 @@ period = "Historical"
 #period = "Future"
 
 # USER: Run model for all species?
-all_sp = False
+all_sp = True
 
 # USER: Save data to CSV file?
-save_data = False
+save_data = True
 
 # USER: Use minimum temperature threshold?
 minT = True
@@ -190,7 +190,7 @@ while(True):
         return qTopt * exp(-(T(x)-Toptq)**2/(2*sq**2))
     
     
-    # Minimum developmental temperature
+    # Overwintering in temperate habitats and seasonal resource variability in tropical and subtropical habitats
     if minT == False:
         def R(x):
             return 1
