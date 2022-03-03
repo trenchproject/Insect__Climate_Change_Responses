@@ -49,8 +49,7 @@ L.data <- L.data[-c(3,12,13,15,18),]
 f.data <- f.data[-c(3,12,13,15,18),]
 R.data <- R.data[-c(3,12,13,15,18),]
 LH.data <- LH.data[-c(3,12,13,15,18),]
-# Macrosiphum euphorbiae Canada and Brevicoryne brassicae (went extinct)
-pop.data <- pop.data[-c(3,12,13,15,18),] #,20,25),]
+pop.data <- pop.data[-c(3,12,13,15,18),]
 # results.m <- results.m[-c(3,12,13,15,18),]
 # results.a <- results.a[-c(3,12,13,15,18),]
 # results.b <- results.b[-c(3,12,13,15,18),]
@@ -128,7 +127,7 @@ summary(L.lat) # significant!
 mean.lat <- lm(delta.mean ~ Latitude, data=pop.data)
 summary(mean.lat) # non-significant
 # CV of density vs Latitude
-CV.lat <- lm(delta.CV ~ Latitude, data=pop.data)
+CV.lat <- lm(delta.CV ~ Latitude, data=pop.data[-c(15,20),]) # excluding Macrosiphum euphorbiae Canada and Brevicoryne brassicae (went extinct)
 summary(CV.lat) # significant!
 # Active period vs Latitude (NOTE: non-significant for temperate species only)
 active.lat <- lm(delta.active ~ Latitude, data=pop.data) #[pop.data$Habitat == "Temperate",])
@@ -350,10 +349,10 @@ points(seq(Xmin,Xmax,1), coef(L.lat)[2]*seq(Xmin,Xmax,1) + coef(L.lat)[1], type=
 # Mean density vs latitude
 Xmin <- 0
 Xmax <- 60
-Ymin <- -20
-Ymax <- 20
+Ymin <- -1
+Ymax <- 1
 #dev.new(width=3, height=3, unit="in")
-plot(-100, xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="Latitude", ylab="Model")
+plot(-100, xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="Latitude", ylab="Model", cex.axis=2)
 abline(0, 0, col="gray", lwd=3, lty="longdash")
 points(seq(2*Xmin,2*Xmax,1), coef(mean.lat)[2]*seq(2*Xmin,2*Xmax,1) + coef(mean.lat)[1], type="l", lwd=3, col="black", lty="longdash")
 points(pop.data[pop.data$Habitat=="Tropical","Latitude"], pop.data[pop.data$Habitat=="Tropical","delta.mean"], pch=19, cex=1.5, col="#FFB000") # orange
@@ -364,10 +363,10 @@ points(pop.data[pop.data$Habitat=="Subtropical","Latitude"], pop.data[pop.data$H
 # CV of density vs latitude
 Xmin <- 0
 Xmax <- 60
-Ymin <- -0.6
-Ymax <- 0.8
+Ymin <- -1
+Ymax <- 1
 #dev.new(width=3, height=3, unit="in")
-plot(-100, xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="Latitude", ylab="Model")
+plot(-100, xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="Latitude", ylab="Model", cex.axis=2)
 abline(0, 0, col="gray", lwd=3, lty="longdash")
 points(seq(2*Xmin,2*Xmax,1), coef(CV.lat)[2]*seq(2*Xmin,2*Xmax,1) + coef(CV.lat)[1], type="l", lwd=3, col="black")
 points(pop.data[pop.data$Habitat=="Tropical","Latitude"], pop.data[pop.data$Habitat=="Tropical","delta.CV"], pch=19, cex=1.5, col="#FFB000") # orange
@@ -381,9 +380,9 @@ Xmax <- 60
 Ymin <- 0
 Ymax <- 0.4
 #dev.new(width=3, height=3, unit="in")
-plot(-100, xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="Latitude", ylab="Model")
+plot(-100, xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="Latitude", ylab="Model", cex.axis=2)
 abline(0, 0, col="gray", lwd=3, lty="longdash")
-points(seq(2*Xmin,2*Xmax,1), coef(active.lat)[2]*seq(2*Xmin,2*Xmax,1) + coef(active.lat)[1], type="l", lwd=3, col="black")
+#points(seq(2*Xmin,2*Xmax,1), coef(active.lat)[2]*seq(2*Xmin,2*Xmax,1) + coef(active.lat)[1], type="l", lwd=3, col="black")
 points(pop.data[pop.data$Habitat=="Tropical","Latitude"], pop.data[pop.data$Habitat=="Tropical","delta.active"], pch=19, cex=1.5, col="#FFB000") # orange
 points(pop.data[pop.data$Habitat=="Subtropical","Latitude"], pop.data[pop.data$Habitat=="Subtropical","delta.active"], pch=19, cex=1.5, col="#6FD012") # green
 points(pop.data[pop.data$Habitat=="Mediterranean","Latitude"], pop.data[pop.data$Habitat=="Mediterranean","delta.active"], pch=19, cex=1.5, col="#6FD012") # green
