@@ -26,16 +26,16 @@ if cwd != '/Users/johnson/Documents/Christopher/GitHub/Johnson_Insect_Responses'
 
 
 # USER: Enter species, location, and time period
-species = "Brevicoryne brassicae"
-location = "US Columbia"
+species = "Apolygus lucorum"
+location = "China Dafeng"
 period = "Historical"
-#period = "Future"
+period = "Future"
 
 # USER: Run model for all species?
-all_sp = True
+all_sp = False
 
 # USER: Save data to CSV file?
-save_data = True
+save_data = False
 
 # USER: Use minimum temperature threshold?
 minT = True
@@ -50,7 +50,7 @@ comp = True
 daily = False
 
 # USER: Is model fit to census data?
-census = False
+census = True
     
 
 # DEFINE MODEL PARAMETERS
@@ -171,8 +171,8 @@ while(True):
     # maturation rates
     if left_skew == True:
         def mJ(x):
-            return conditional(mTR * T(x)/TR * exp(AmJ * (1/TR - 1/T(x))) / (1 + 0*(exp(AL*(1/TL-1/T(x)))+exp(AH*(1/TH-1/T(x))))), 1e-5,
-                               1e-5, mTR * T(x)/TR * exp(AmJ * (1/TR - 1/T(x))) / (1 + 0*(exp(AL*(1/TL-1/T(x)))+exp(AH*(1/TH-1/T(x)))))) # If mJ(T) < jitcdde min tolerance, then mJ(T) = 1e-5
+            return conditional(mTR * T(x)/TR * exp(AmJ * (1/TR - 1/T(x))) / (1 + (exp(AL*(1/TL-1/T(x)))+exp(AH*(1/TH-1/T(x))))), 1e-5,
+                               1e-5, mTR * T(x)/TR * exp(AmJ * (1/TR - 1/T(x))) / (1 + (exp(AL*(1/TL-1/T(x)))+exp(AH*(1/TH-1/T(x)))))) # If mJ(T) < jitcdde min tolerance, then mJ(T) = 1e-5
     else:
         def mJ(x):
             return conditional(mTR * T(x)/TR * exp(AmJ * (1/TR - 1/T(x))) / (1 + exp(AL*(1/TL-1/T(x)))), 1e-5, 1e-5, # If mJ(T) < jitcdde min tolerance, then mJ(T) = 1e-5
@@ -212,6 +212,11 @@ while(True):
                 def R(x):
                     return 1
                 if (species == "Apolygus lucorum" or species == "Adelphocoris suturalis") and period == "Historical":
+                    #if period == "Future": # for these species, census_start in the future period is the day when the temperature equals that of the start date in the historical period
+                    #    for i in range(0,110):
+                    #        if N(T(i)) >= 291.75: # Temperature on census_start in historical period  
+                    #            census_start = i
+                    #            break
                     def M(x):
                         return conditional(T(x), T(census_start), 0, 1)
                 else:

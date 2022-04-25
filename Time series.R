@@ -67,7 +67,7 @@ if(census == TRUE) {
     data.model <- as.data.frame(read_csv(paste0("Time series data Census/Historical Time Series Tave ",species," ",location,".csv")))
     data.model.CC <- as.data.frame(read_csv(paste0("Time series data Census/Future Time Series Tave ",species," ",location,".csv"))) }
   if(daily == FALSE && left_skew == FALSE) {
-    data.model <- as.data.frame(read_csv(paste0("Time series data Census/Historical Time Series Tave Dev ",species," ",location,".csv")))
+    data.model <- as.data.frame(read_csv(paste0("Time series data Census/Historical Time Series Tave Dev Census ",species," ",location,".csv")))
     data.model.CC <- as.data.frame(read_csv(paste0("Time series data Census/Future Time Series Tave Dev ",species," ",location,".csv"))) }
 } else{
   # For species without census data
@@ -183,6 +183,61 @@ plot.temp.CC <- ggplot(temp.fun.f, aes(x=t, y=fun.max)) +
         axis.text = element_text(size=13), axis.title = element_text(size=1.50))
 
 
+# PLOT BANDS
+# Hot season (warmest half of year) in tropical habitats
+# for temperature plots
+band.hot.temp = ggplot() +
+  geom_rect(aes(xmin=xmin, xmax=xmin + 3*yr/4 - temp.data$shiftT.h, ymin=0, ymax=Inf), fill="grey", alpha=0.5) +
+  geom_rect(aes(xmin=xmin + 5*yr/4 - temp.data$shiftT.h, xmax=xmin + 7*yr/4 - temp.data$shiftT.h, ymin=0, ymax=Inf), fill="grey", alpha=0.5) +
+  geom_rect(aes(xmin=xmin + 9*yr/4 - temp.data$shiftT.h, xmax=xmax, ymin=0, ymax=Inf), fill="grey", alpha=0.5) +
+  labs(x="", y="") +
+  scale_x_continuous(limits=c(xmin, xmax)) +
+  scale_y_continuous(limits=c(temp.min, temp.max)) +
+  #scale_y_log10(limits=c(ymin, ymax)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
+        axis.line = element_line(color = "black"), legend.position = "none", 
+        axis.text = element_text(size=13), axis.title = element_text(size=1.50))
+# for density plots
+band.hot.density = ggplot() +
+  geom_rect(aes(xmin=xmin, xmax=xmin + 3*yr/4 - temp.data$shiftT.h, ymin=0, ymax=Inf), fill="grey", alpha=0.5) +
+  geom_rect(aes(xmin=xmin + 5*yr/4 - temp.data$shiftT.h, xmax=xmin + 7*yr/4 - temp.data$shiftT.h, ymin=0, ymax=Inf), fill="grey", alpha=0.5) +
+  geom_rect(aes(xmin=xmin + 9*yr/4 - temp.data$shiftT.h, xmax=xmax, ymin=0, ymax=Inf), fill="grey", alpha=0.5) +
+  labs(x="", y="") +
+  scale_x_continuous(limits=c(xmin, xmax)) +
+  scale_y_continuous(limits=c(ymin, ymax)) +
+  #scale_y_log10(limits=c(ymin, ymax)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
+        axis.line = element_line(color = "black"), legend.position = "none", 
+        axis.text = element_text(size=13), axis.title = element_text(size=1.50))
+# Summer (warmest half of year) in temperate habitats
+# for temperature plots
+band.summer.temp = ggplot() +
+  geom_rect(aes(xmin=xmin + yr/4, xmax=xmin + 3*yr/4, ymin=0, ymax=Inf), fill="grey", alpha=0.5) +
+  geom_rect(aes(xmin=xmin + 5*yr/4, xmax=xmin + 7*yr/4, ymin=0, ymax=Inf), fill="grey", alpha=0.5) +
+  labs(x="", y="") +
+  scale_x_continuous(limits=c(xmin, xmax)) +
+  scale_y_continuous(limits=c(temp.min, temp.max)) +
+  #scale_y_log10(limits=c(ymin, ymax)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
+        axis.line = element_line(color = "black"), legend.position = "none", 
+        axis.text = element_text(size=13), axis.title = element_text(size=1.50))
+# for density plots
+band.summer.density = ggplot() +
+  geom_rect(aes(xmin=xmin + yr/4, xmax=xmin + 3*yr/4, ymin=0, ymax=Inf), fill="grey", alpha=0.5) +
+  geom_rect(aes(xmin=xmin + 5*yr/4, xmax=xmin + 7*yr/4, ymin=0, ymax=Inf), fill="grey", alpha=0.5) +
+  labs(x="", y="") +
+  scale_x_continuous(limits=c(xmin, xmax)) +
+  scale_y_continuous(limits=c(ymin, ymax)) +
+  #scale_y_log10(limits=c(ymin, ymax)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
+        axis.line = element_line(color = "black"), legend.position = "none", 
+        axis.text = element_text(size=13), axis.title = element_text(size=1.50))
+
+
 # TIME-SERIES DATA
 # Juvenile density
 plot.J = ggplot(data.TS, aes(x=time, y=J, ymin=J_SE_L, ymax=J_SE_H)) + 
@@ -268,88 +323,120 @@ model.A.CC = ggplot(data.model.CC, aes(x=Time, y=A)) +
 #################################### DRAW FINAL PLOTS #######################################
 # COMPILE PLOTS
 # Temperature plots
-plot.climate <- ggdraw()  +
-  draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
-  draw_plot(plot.temp.CC, x = 0, y = 0, width = 1, height = 0.3)
+if(location == "Nigeria" | sp.data$Habitat == "Tropical") {
+  plot.climate <- ggdraw()  +
+    draw_plot(band.hot.temp, x = 0, y = 0, width = 1, height = 0.3) +
+    draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
+    draw_plot(plot.temp.CC, x = 0, y = 0, width = 1, height = 0.3) }
+if(str_split(location, boundary("word"), simplify = T)[,1] == "China"  | sp.data$Habitat != "Tropical") { 
+  plot.climate <- ggdraw()  +
+    draw_plot(band.summer.temp, x = 0, y = 0, width = 1, height = 0.3) +
+    draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
+    draw_plot(plot.temp.CC, x = 0, y = 0, width = 1, height = 0.3) }
 
 # Historical time period
-if(location == "Nigeria") {
-  plot <- ggdraw()  +
-     draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
-     #draw_plot(plot.J, x = 0, y = 0.3, width = 1, height = 0.7) +
-     #draw_plot(model.J, x = 0, y = 0.3, width = 1, height = 0.7) +
-     draw_plot(model.A, x = 0, y = 0.3, width = 1, height = 0.7) +
-     draw_plot(plot.A, x = 0, y = 0.3, width = 1, height = 0.7)
-}
-if(str_split(location, boundary("word"), simplify = T)[,1] == "China") { 
-  plot <- ggdraw()  +
-   draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
-   #draw_plot(model.J, x = 0, y = 0.3, width = 1, height = 0.7) +
-   draw_plot(model.A, x = 0, y = 0.3, width = 1, height = 0.7) +
-   draw_plot(plot.A, x = 0, y = 0.3, width = 1, height = 0.7)
-}
+# if(location == "Nigeria" | sp.data$Habitat == "Tropical") {
+#   plot <- ggdraw()  +
+#     draw_plot(band.hot.temp, x = 0, y = 0, width = 1, height = 0.3) +
+#     draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
+#     draw_plot(band.hot.density, x = 0, y = 0.3, width = 1, height = 0.7) +
+#     #draw_plot(plot.J, x = 0, y = 0.3, width = 1, height = 0.7) +
+#     #draw_plot(model.J, x = 0, y = 0.3, width = 1, height = 0.7) +
+#     draw_plot(model.A, x = 0, y = 0.3, width = 1, height = 0.7) +
+#     draw_plot(plot.A, x = 0, y = 0.3, width = 1, height = 0.7) }
+# if(str_split(location, boundary("word"), simplify = T)[,1] == "China" | sp.data$Habitat != "Tropical") { 
+#   plot <- ggdraw()  +
+#     draw_plot(band.summer.temp, x = 0, y = 0, width = 1, height = 0.3) +
+#     draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
+#     draw_plot(band.summer.density, x = 0, y = 0.3, width = 1, height = 0.7) +
+#     #draw_plot(model.J, x = 0, y = 0.3, width = 1, height = 0.7) +
+#     draw_plot(model.A, x = 0, y = 0.3, width = 1, height = 0.7) +
+#     draw_plot(plot.A, x = 0, y = 0.3, width = 1, height = 0.7) }
 
 # Future time period
-if(location == "Nigeria") {
-  plot.CC <- ggdraw()  +
-    draw_plot(plot.temp.CC, x = 0, y = 0, width = 1, height = 0.3) +
-    draw_plot(model.J.CC, x = 0, y = 0.3, width = 1, height = 0.7) +
-    draw_plot(model.A.CC, x = 0, y = 0.3, width = 1, height = 0.7)
-}
-if(str_split(location, boundary("word"), simplify = T)[,1] == "China") { 
-  plot.CC <- ggdraw()  +
-    draw_plot(plot.temp.CC, x = 0, y = 0, width = 1, height = 0.3) +
-    draw_plot(model.J.CC, x = 0, y = 0.3, width = 1, height = 0.7) +
-    draw_plot(model.A.CC, x = 0, y = 0.3, width = 1, height = 0.7)
-}
+# if(location == "Nigeria" | sp.data$Habitat == "Tropical") {
+#   plot.CC <- ggdraw()  +
+#     draw_plot(band.hot.temp, x = 0, y = 0, width = 1, height = 0.3) +
+#     draw_plot(plot.temp.CC, x = 0, y = 0, width = 1, height = 0.3) +
+#     draw_plot(band.hot.density, x = 0, y = 0.3, width = 1, height = 0.7) +
+#     draw_plot(model.J.CC, x = 0, y = 0.3, width = 1, height = 0.7) +
+#     draw_plot(model.A.CC, x = 0, y = 0.3, width = 1, height = 0.7)
+# }
+# if(str_split(location, boundary("word"), simplify = T)[,1] == "China" | sp.data$Habitat != "Tropical") { 
+#   plot.CC <- ggdraw()  +
+#     draw_plot(band.summer.temp, x = 0, y = 0, width = 1, height = 0.3) +
+#     draw_plot(plot.temp.CC, x = 0, y = 0, width = 1, height = 0.3) +
+#     draw_plot(band.summer.density, x = 0, y = 0.3, width = 1, height = 0.7) +
+#     draw_plot(model.J.CC, x = 0, y = 0.3, width = 1, height = 0.7) +
+#     draw_plot(model.A.CC, x = 0, y = 0.3, width = 1, height = 0.7)
+# }
 
 # Compare historical and future time periods
-if(location == "Nigeria") {
+if(location == "Nigeria" | sp.data$Habitat == "Tropical") {
   plot.compare <- ggdraw()  +
-     draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
-     draw_plot(plot.temp.CC, x = 0, y = 0, width = 1, height = 0.3) +
-     #draw_plot(model.J, x = 0, y = 0.3, width = 1, height = 0.7) +
-     draw_plot(model.A, x = 0, y = 0.3, width = 1, height = 0.7) +
-     #draw_plot(model.J.CC, x = 0, y = 0.3, width = 1, height = 0.7) +
-     draw_plot(model.A.CC, x = 0, y = 0.3, width = 1, height = 0.7)
-}
-if(str_split(location, boundary("word"), simplify = T)[,1] == "China") { 
-  plot.compare <- ggdraw()  +
+    draw_plot(band.hot.temp, x = 0, y = 0, width = 1, height = 0.3) +
     draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
     draw_plot(plot.temp.CC, x = 0, y = 0, width = 1, height = 0.3) +
+    draw_plot(band.hot.density, x = 0, y = 0.3, width = 1, height = 0.7) +
     #draw_plot(model.J, x = 0, y = 0.3, width = 1, height = 0.7) +
     draw_plot(model.A, x = 0, y = 0.3, width = 1, height = 0.7) +
     #draw_plot(model.J.CC, x = 0, y = 0.3, width = 1, height = 0.7) +
-    draw_plot(model.A.CC, x = 0, y = 0.3, width = 1, height = 0.7)
+    draw_plot(model.A.CC, x = 0, y = 0.3, width = 1, height = 0.7) +
+    draw_plot(plot.A, x = 0, y = 0.3, width = 1, height = 0.7)
+}
+if(str_split(location, boundary("word"), simplify = T)[,1] == "China" | sp.data$Habitat != "Tropical") { 
+  plot.compare <- ggdraw()  +
+    draw_plot(band.summer.temp, x = 0, y = 0, width = 1, height = 0.3) +
+    draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
+    draw_plot(plot.temp.CC, x = 0, y = 0, width = 1, height = 0.3) +
+    draw_plot(band.summer.density, x = 0, y = 0.3, width = 1, height = 0.7) +
+    #draw_plot(model.J, x = 0, y = 0.3, width = 1, height = 0.7) +
+    draw_plot(model.A, x = 0, y = 0.3, width = 1, height = 0.7) +
+    #draw_plot(model.J.CC, x = 0, y = 0.3, width = 1, height = 0.7) +
+    draw_plot(model.A.CC, x = 0, y = 0.3, width = 1, height = 0.7) +
+    draw_plot(plot.A, x = 0, y = 0.3, width = 1, height = 0.7)
 }
 
 
 # VIEW IN RSTUDIO
-plot
+#plot
 plot.compare
 
 
 # OUTPUT PLOTS
 #dev.new()
-# Time-series plots
-# Nigeria
-# ggdraw() +
-#  draw_plot(plot.A, width = 1, height = 0.4) +
-#  draw_plot(model.A, width = 1, height = 0.4)
-# China
-#ggdraw() +
-#  draw_plot(plot.A, width = 1, height = 0.4) +
-#  draw_plot(model.A, width = 1, height = 0.4)
+# Temperature plots
+# if(location == "Nigeria" | sp.data$Habitat == "Tropical") {
+#   ggdraw()  +
+#     draw_plot(band.hot.temp, x = 0, y = 0, width = 1, height = 0.3) +
+#     draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
+#     draw_plot(plot.temp.CC, x = 0, y = 0, width = 1, height = 0.3) }
+# if(str_split(location, boundary("word"), simplify = T)[,1] == "China" | sp.data$Habitat != "Tropical") {
+#   ggdraw()  +
+#     draw_plot(band.summer.temp, x = 0, y = 0, width = 1, height = 0.3) +
+#     draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
+#     draw_plot(plot.temp.CC, x = 0, y = 0, width = 1, height = 0.3) }
 
 # Climate change plots
-# ggdraw()  +
-#   draw_plot(model.J, width = 1, height = 0.4) +
-#   draw_plot(model.J.CC, width = 1, height = 0.4)
-# ggdraw()  +
-#   draw_plot(model.A, width = 1, height = 0.4) +
-#   draw_plot(model.A.CC, width = 1, height = 0.4)
-
-# Temperature plots
-#ggdraw()  +
-#   draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
-#   draw_plot(plot.temp.CC, x = 0, y = 0, width = 1, height = 0.3)
+# if(location == "Nigeria" | sp.data$Habitat == "Tropical") {
+#   ggdraw()  +
+#     draw_plot(band.hot.density, width = 1, height = 0.4) +
+#     draw_plot(model.J, width = 1, height = 0.4) +
+#     draw_plot(model.J.CC, width = 1, height = 0.4) }
+# if(location == "Nigeria" | sp.data$Habitat == "Tropical") {
+#   ggdraw()  +
+#     draw_plot(band.hot.density, width = 1, height = 0.4) +
+#     draw_plot(model.A, width = 1, height = 0.4) +
+#     draw_plot(model.A.CC, width = 1, height = 0.4) +
+#     draw_plot(plot.A,width = 1, height = 0.4) }
+# if(str_split(location, boundary("word"), simplify = T)[,1] == "China" | sp.data$Habitat != "Tropical") {
+#   ggdraw()  +
+#     draw_plot(band.summer.density, width = 1, height = 0.4) +
+#     draw_plot(model.J, width = 1, height = 0.4) +
+#     draw_plot(model.J.CC, width = 1, height = 0.4) }
+# if(str_split(location, boundary("word"), simplify = T)[,1] == "China" | sp.data$Habitat != "Tropical") {
+#   ggdraw()  +
+#     draw_plot(band.summer.density, width = 1, height = 0.4) +
+#     draw_plot(model.A, width = 1, height = 0.4) +
+#     draw_plot(model.A.CC, width = 1, height = 0.4) +
+#     draw_plot(plot.A,width = 1, height = 0.4) }
