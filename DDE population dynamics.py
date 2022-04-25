@@ -32,7 +32,7 @@ period = "Historical"
 period = "Future"
 
 # USER: Run model for all species?
-all_sp = False
+all_sp = True
 
 # USER: Save data to CSV file?
 save_data = False
@@ -50,7 +50,7 @@ comp = True
 daily = False
 
 # USER: Is model fit to census data?
-census = True
+census = False
     
 
 # DEFINE MODEL PARAMETERS
