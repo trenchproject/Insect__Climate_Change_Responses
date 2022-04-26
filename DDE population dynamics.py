@@ -26,13 +26,13 @@ if cwd != '/Users/johnson/Documents/Christopher/GitHub/Johnson_Insect_Responses'
 
 
 # USER: Enter species, location, and time period
-species = "Apolygus lucorum"
-location = "China Dafeng"
+species = "Clavigralla shadabi"
+location = "Benin"
 period = "Historical"
-period = "Future"
+#period = "Future"
 
 # USER: Run model for all species?
-all_sp = True
+all_sp = False
 
 # USER: Save data to CSV file?
 save_data = False

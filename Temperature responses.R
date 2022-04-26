@@ -11,7 +11,7 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 
 # USER: enter species name (used in temperature response data.csv)
-name <- "Clavigralla tomentosicollis Nigeria"
+name <- "Clavigralla tomentosicollis Benin"
 
 
 # Read data

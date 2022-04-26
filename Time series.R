@@ -34,7 +34,7 @@ xmin <- 0 # start date
 xmax <- 2*365 # end date
 num_yrs <- (xmax - xmin)/365
 ymin <- 0 # min density
-ymax <- 100 # max density
+ymax <- 30 # max density
 temp.min <- 0 # min temperature
 temp.max <- 40 # max temperature
 
@@ -398,12 +398,12 @@ if(location == "Nigeria" | sp.data$Habitat == "Tropical") {
     draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
     draw_plot(plot.temp.CC, x = 0, y = 0, width = 1, height = 0.3) +
     draw_plot(band.hot.density, x = 0, y = 0.3, width = 1, height = 0.7) +
-    #draw_plot(model.J, x = 0, y = 0.3, width = 1, height = 0.7) +
+    draw_plot(model.J, x = 0, y = 0.3, width = 1, height = 0.7) +
     draw_plot(model.A, x = 0, y = 0.3, width = 1, height = 0.7) +
-    draw_plot(model.census, x = 0, y = 0.3, width = 1, height = 0.7) +
-    #draw_plot(model.J.CC, x = 0, y = 0.3, width = 1, height = 0.7) +
-    draw_plot(model.A.CC, x = 0, y = 0.3, width = 1, height = 0.7) +
-    draw_plot(plot.A, x = 0, y = 0.3, width = 1, height = 0.7)
+    #draw_plot(model.census, x = 0, y = 0.3, width = 1, height = 0.7) +
+    draw_plot(model.J.CC, x = 0, y = 0.3, width = 1, height = 0.7) +
+    draw_plot(model.A.CC, x = 0, y = 0.3, width = 1, height = 0.7) #+
+    #draw_plot(plot.A, x = 0, y = 0.3, width = 1, height = 0.7)
 }
 if(str_split(location, boundary("word"), simplify = T)[,1] == "China" | sp.data$Habitat != "Tropical") { 
   plot.compare <- ggdraw()  +
@@ -413,10 +413,10 @@ if(str_split(location, boundary("word"), simplify = T)[,1] == "China" | sp.data$
     draw_plot(band.summer.density, x = 0, y = 0.3, width = 1, height = 0.7) +
     #draw_plot(model.J, x = 0, y = 0.3, width = 1, height = 0.7) +
     draw_plot(model.A, x = 0, y = 0.3, width = 1, height = 0.7) +
-    draw_plot(model.census, x = 0, y = 0.3, width = 1, height = 0.7) +
+    #draw_plot(model.census, x = 0, y = 0.3, width = 1, height = 0.7) +
     #draw_plot(model.J.CC, x = 0, y = 0.3, width = 1, height = 0.7) +
-    draw_plot(model.A.CC, x = 0, y = 0.3, width = 1, height = 0.7) +
-    draw_plot(plot.A, x = 0, y = 0.3, width = 1, height = 0.7)
+    draw_plot(model.A.CC, x = 0, y = 0.3, width = 1, height = 0.7) #+
+    #draw_plot(plot.A, x = 0, y = 0.3, width = 1, height = 0.7)
 }
 
 
@@ -426,7 +426,7 @@ plot.compare
 
 
 # OUTPUT PLOTS
-#dev.new()
+dev.new()
 # Temperature plots
 # if(location == "Nigeria" | sp.data$Habitat == "Tropical") {
 #   ggdraw()  +
@@ -440,11 +440,11 @@ plot.compare
 #     draw_plot(plot.temp.CC, x = 0, y = 0, width = 1, height = 0.3) }
 
 # Climate change plots
-# if(location == "Nigeria" | sp.data$Habitat == "Tropical") {
-#   ggdraw()  +
-#     draw_plot(band.hot.density, width = 1, height = 0.4) +
-#     draw_plot(model.J, width = 1, height = 0.4) +
-#     draw_plot(model.J.CC, width = 1, height = 0.4) }
+if(location == "Nigeria" | sp.data$Habitat == "Tropical") {
+  ggdraw()  +
+    draw_plot(band.hot.density, width = 1, height = 0.4) +
+    draw_plot(model.J, width = 1, height = 0.4) +
+    draw_plot(model.J.CC, width = 1, height = 0.4) }
 # if(location == "Nigeria" | sp.data$Habitat == "Tropical") {
 #   ggdraw()  +
 #     draw_plot(band.hot.density, width = 1, height = 0.4) +
