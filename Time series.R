@@ -16,8 +16,8 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 
 # USER: enter species and location
-species <- "Clavigralla tomentosicollis"
-location <- "Nigeria"
+species <- "Apolygus lucorum"
+location <- "China Dafeng"
 field_plot <- "Mean" # for Nigeria, must specify plot "A", "B", "C", "Mean", or "All"
 
 # USER: Include diurnal variation?
@@ -34,7 +34,7 @@ xmin <- 0 # start date
 xmax <- 2*365 # end date
 num_yrs <- (xmax - xmin)/365
 ymin <- 0 # min density
-ymax <- 30 # max density
+ymax <- 100 # max density
 temp.min <- 0 # min temperature
 temp.max <- 40 # max temperature
 
@@ -398,12 +398,12 @@ if(location == "Nigeria" | sp.data$Habitat == "Tropical") {
     draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
     draw_plot(plot.temp.CC, x = 0, y = 0, width = 1, height = 0.3) +
     draw_plot(band.hot.density, x = 0, y = 0.3, width = 1, height = 0.7) +
-    draw_plot(model.J, x = 0, y = 0.3, width = 1, height = 0.7) +
-    draw_plot(model.A, x = 0, y = 0.3, width = 1, height = 0.7) +
-    #draw_plot(model.census, x = 0, y = 0.3, width = 1, height = 0.7) +
-    draw_plot(model.J.CC, x = 0, y = 0.3, width = 1, height = 0.7) +
-    draw_plot(model.A.CC, x = 0, y = 0.3, width = 1, height = 0.7) #+
-    #draw_plot(plot.A, x = 0, y = 0.3, width = 1, height = 0.7)
+    #draw_plot(model.J, x = 0, y = 0.3, width = 1, height = 0.7) +
+    #draw_plot(model.A, x = 0, y = 0.3, width = 1, height = 0.7) +
+    draw_plot(model.census, x = 0, y = 0.3, width = 1, height = 0.7) +
+    #draw_plot(model.J.CC, x = 0, y = 0.3, width = 1, height = 0.7) +
+    #draw_plot(model.A.CC, x = 0, y = 0.3, width = 1, height = 0.7) +
+    draw_plot(plot.A, x = 0, y = 0.3, width = 1, height = 0.7)
 }
 if(str_split(location, boundary("word"), simplify = T)[,1] == "China" | sp.data$Habitat != "Tropical") { 
   plot.compare <- ggdraw()  +
@@ -425,8 +425,18 @@ if(str_split(location, boundary("word"), simplify = T)[,1] == "China" | sp.data$
 plot.compare
 
 
+# STATISTICS
+# linear regression of field data and model data
+stats.data <- data.frame(Time = data.TS$time, Census = data.TS$A, Model = NA)
+for(i in seq(0:nrow(stats.data))) {
+  stats.data$Model[i] = data.model.census[data.model.census$Time == stats.data$Time[i],"A"]
+}
+summary(lm(stats.data$Model ~ 0 + stats.data$Census))
+plot(stats.data$Census,stats.data$Model)
+
+
 # OUTPUT PLOTS
-dev.new()
+#dev.new()
 # Temperature plots
 # if(location == "Nigeria" | sp.data$Habitat == "Tropical") {
 #   ggdraw()  +
@@ -440,11 +450,11 @@ dev.new()
 #     draw_plot(plot.temp.CC, x = 0, y = 0, width = 1, height = 0.3) }
 
 # Climate change plots
-if(location == "Nigeria" | sp.data$Habitat == "Tropical") {
-  ggdraw()  +
-    draw_plot(band.hot.density, width = 1, height = 0.4) +
-    draw_plot(model.J, width = 1, height = 0.4) +
-    draw_plot(model.J.CC, width = 1, height = 0.4) }
+# if(location == "Nigeria" | sp.data$Habitat == "Tropical") {
+#   ggdraw()  +
+#     draw_plot(band.hot.density, width = 1, height = 0.4) +
+#     draw_plot(model.J, width = 1, height = 0.4) +
+#     draw_plot(model.J.CC, width = 1, height = 0.4) }
 # if(location == "Nigeria" | sp.data$Habitat == "Tropical") {
 #   ggdraw()  +
 #     draw_plot(band.hot.density, width = 1, height = 0.4) +
