@@ -16,8 +16,8 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 
 # USER: enter species and location
-species <- "Apolygus lucorum"
-location <- "China Dafeng"
+species <- "Clavigralla tomentosicollis"
+location <- "Nigeria"
 field_plot <- "Mean" # for Nigeria, must specify plot "A", "B", "C", "Mean", or "All"
 
 # USER: Include diurnal variation?
@@ -61,25 +61,28 @@ temp.data <- temp.data[temp.data$Species == paste(species,location),]
 if(census == TRUE) {
   # For species with census data
   if(daily == TRUE) {
-    data.model <- as.data.frame(read_csv(paste0("Time series data Census/Historical Time Series Diurnal ",species," ",location,".csv")))
-    data.model.CC <- as.data.frame(read_csv(paste0("Time series data Census/Future Time Series Diurnal ",species," ",location,".csv"))) }
+    data.model <- as.data.frame(read_csv(paste0("Time series data Census/Historical time series Diurnal ",species," ",location,".csv")))
+    data.model.census <- as.data.frame(read_csv(paste0("Time series data Census/Historical time series Diurnal Census ",species," ",location,".csv")))
+    data.model.CC <- as.data.frame(read_csv(paste0("Time series data Census/Future time series Diurnal ",species," ",location,".csv"))) }
   if(daily == FALSE && left_skew == TRUE) {
-    data.model <- as.data.frame(read_csv(paste0("Time series data Census/Historical Time Series Tave ",species," ",location,".csv")))
-    data.model.CC <- as.data.frame(read_csv(paste0("Time series data Census/Future Time Series Tave ",species," ",location,".csv"))) }
+    data.model <- as.data.frame(read_csv(paste0("Time series data Census/Historical time series Tave ",species," ",location,".csv")))
+    data.model.census <- as.data.frame(read_csv(paste0("Time series data Census/Historical time series Tave Census ",species," ",location,".csv")))
+    data.model.CC <- as.data.frame(read_csv(paste0("Time series data Census/Future time series Tave ",species," ",location,".csv"))) }
   if(daily == FALSE && left_skew == FALSE) {
-    data.model <- as.data.frame(read_csv(paste0("Time series data Census/Historical Time Series Tave Dev Census ",species," ",location,".csv")))
-    data.model.CC <- as.data.frame(read_csv(paste0("Time series data Census/Future Time Series Tave Dev ",species," ",location,".csv"))) }
+    data.model <- as.data.frame(read_csv(paste0("Time series data Census/Historical time series Tave Dev ",species," ",location,".csv")))
+    data.model.census <- as.data.frame(read_csv(paste0("Time series data Census/Historical time series Tave Dev Census ",species," ",location,".csv")))
+    data.model.CC <- as.data.frame(read_csv(paste0("Time series data Census/Future time series Tave Dev ",species," ",location,".csv"))) }
 } else{
   # For species without census data
   if(daily == TRUE) {
-    data.model <- as.data.frame(read_csv(paste0("Time series data Diurnal/Historical Time Series ",species," ",location,".csv")))
-    data.model.CC <- as.data.frame(read_csv(paste0("Time series data/Future Time Series ",species," ",location,".csv"))) }
+    data.model <- as.data.frame(read_csv(paste0("Time series data Diurnal/Historical time series ",species," ",location,".csv")))
+    data.model.CC <- as.data.frame(read_csv(paste0("Time series data/Future time series ",species," ",location,".csv"))) }
   if(daily == FALSE && left_skew == TRUE) {
-    data.model <- as.data.frame(read_csv(paste0("Time series data Tave/Historical Time Series ",species," ",location,".csv")))
-    data.model.CC <- as.data.frame(read_csv(paste0("Time series data Tave/Future Time Series ",species," ",location,".csv"))) }
+    data.model <- as.data.frame(read_csv(paste0("Time series data Tave/Historical time series ",species," ",location,".csv")))
+    data.model.CC <- as.data.frame(read_csv(paste0("Time series data Tave/Future time series ",species," ",location,".csv"))) }
   if(daily == FALSE && left_skew == FALSE) {
-    data.model <- as.data.frame(read_csv(paste0("Time series data Tave Dev/Historical Time Series ",species," ",location,".csv")))
-    data.model.CC <- as.data.frame(read_csv(paste0("Time series data Tave Dev/Future Time Series ",species," ",location,".csv"))) }
+    data.model <- as.data.frame(read_csv(paste0("Time series data Tave Dev/Historical time series ",species," ",location,".csv")))
+    data.model.CC <- as.data.frame(read_csv(paste0("Time series data Tave Dev/Future time series ",species," ",location,".csv"))) }
 }
 
 
@@ -100,9 +103,11 @@ end.CC <- nrow(data.model.CC)
 # FORMAT MODEL OUTPUT TO ALIGN WITH TIME-SERIES DATA
 # Remove all rows before time-series data starts
 data.model <- data.model[-c(1:(start_date*yr + xmin)), ]
+if(census == TRUE) { data.model.census <- data.model.census[-c(1:(start_date*yr + xmin)), ] }
 
 # Remove all rows after xmax days
 if(xmax < end) { data.model <- data.model[-c(xmax+1:end), ] }
+if(census == TRUE & xmax < end) { data.model.census <- data.model.census[-c(xmax+1:end), ] }
 
 # climate change period (remove all but last num_yrs years of data)
 if(xmax.CC < end.CC) { data.model.CC <- data.model.CC[-c(1:(end.CC-num_yrs*yr + xmin.CC)), ] }
@@ -111,6 +116,10 @@ if(xmax.CC < end.CC) { data.model.CC <- data.model.CC[-c(1:(end.CC-num_yrs*yr + 
 # historical period
 time.shift <- data.model[[1,1]] - xmin
 data.model <- sweep(data.model, 2, c(time.shift,0,0,0,0))
+if(census == TRUE) {
+  time.shift.census <- data.model.census[[1,1]] - xmin
+  data.model.census <- sweep(data.model.census, 2, c(time.shift.census,0,0,0,0)) }
+
 # climate change period
 time.shift.CC <- data.model.CC[[1,1]] + xmin.CC
 data.model.CC <- sweep(data.model.CC, 2, c(time.shift.CC,0,0,0,0))
@@ -281,10 +290,6 @@ model.J = ggplot(data.model, aes(x=Time, y=J)) +
 # Adult density
 model.A = ggplot(data.model, aes(x=Time, y=A)) + 
   geom_line(size=1.5, color="#0072B2") + # blue color
-  #geom_vline(xintercept=start.h, size=1.5) +
-  #geom_vline(xintercept=end.h, size=1.5) +
-  #geom_vline(xintercept=start.h+365, size=1.5) +
-  #geom_vline(xintercept=end.h+365, size=1.5) +
   labs(x="", y="") +
   scale_x_continuous(limits=c(xmin, xmax)) +
   scale_y_continuous(limits=c(ymin, ymax)) +
@@ -292,7 +297,20 @@ model.A = ggplot(data.model, aes(x=Time, y=A)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
         axis.line = element_line(color = "black"), legend.position = "none", 
-        axis.text = element_text(size=13), axis.title = element_text(size=1.50)) 
+        axis.text = element_text(size=13), axis.title = element_text(size=1.50))
+
+# Adult density: census
+if(census == TRUE) {
+  model.census = ggplot(data.model.census, aes(x=Time, y=A)) + 
+    geom_line(size=1.5, color="#0072B2") + #, linetype = "longdash") + # blue color
+    labs(x="", y="") +
+    scale_x_continuous(limits=c(xmin, xmax)) +
+    scale_y_continuous(limits=c(ymin, ymax)) +
+    #scale_y_log10(limits=c(ymin, ymax)) +
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+          panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
+          axis.line = element_line(color = "black"), legend.position = "none", 
+          axis.text = element_text(size=13), axis.title = element_text(size=1.50)) }
 
 # Future time period
 # Juvenile density
@@ -343,6 +361,7 @@ if(str_split(location, boundary("word"), simplify = T)[,1] == "China"  | sp.data
 #     #draw_plot(plot.J, x = 0, y = 0.3, width = 1, height = 0.7) +
 #     #draw_plot(model.J, x = 0, y = 0.3, width = 1, height = 0.7) +
 #     draw_plot(model.A, x = 0, y = 0.3, width = 1, height = 0.7) +
+#     draw_plot(model.census, x = 0, y = 0.3, width = 1, height = 0.7) +
 #     draw_plot(plot.A, x = 0, y = 0.3, width = 1, height = 0.7) }
 # if(str_split(location, boundary("word"), simplify = T)[,1] == "China" | sp.data$Habitat != "Tropical") { 
 #   plot <- ggdraw()  +
@@ -351,6 +370,7 @@ if(str_split(location, boundary("word"), simplify = T)[,1] == "China"  | sp.data
 #     draw_plot(band.summer.density, x = 0, y = 0.3, width = 1, height = 0.7) +
 #     #draw_plot(model.J, x = 0, y = 0.3, width = 1, height = 0.7) +
 #     draw_plot(model.A, x = 0, y = 0.3, width = 1, height = 0.7) +
+#     draw_plot(model.census, x = 0, y = 0.3, width = 1, height = 0.7) +
 #     draw_plot(plot.A, x = 0, y = 0.3, width = 1, height = 0.7) }
 
 # Future time period
@@ -380,6 +400,7 @@ if(location == "Nigeria" | sp.data$Habitat == "Tropical") {
     draw_plot(band.hot.density, x = 0, y = 0.3, width = 1, height = 0.7) +
     #draw_plot(model.J, x = 0, y = 0.3, width = 1, height = 0.7) +
     draw_plot(model.A, x = 0, y = 0.3, width = 1, height = 0.7) +
+    draw_plot(model.census, x = 0, y = 0.3, width = 1, height = 0.7) +
     #draw_plot(model.J.CC, x = 0, y = 0.3, width = 1, height = 0.7) +
     draw_plot(model.A.CC, x = 0, y = 0.3, width = 1, height = 0.7) +
     draw_plot(plot.A, x = 0, y = 0.3, width = 1, height = 0.7)
@@ -392,6 +413,7 @@ if(str_split(location, boundary("word"), simplify = T)[,1] == "China" | sp.data$
     draw_plot(band.summer.density, x = 0, y = 0.3, width = 1, height = 0.7) +
     #draw_plot(model.J, x = 0, y = 0.3, width = 1, height = 0.7) +
     draw_plot(model.A, x = 0, y = 0.3, width = 1, height = 0.7) +
+    draw_plot(model.census, x = 0, y = 0.3, width = 1, height = 0.7) +
     #draw_plot(model.J.CC, x = 0, y = 0.3, width = 1, height = 0.7) +
     draw_plot(model.A.CC, x = 0, y = 0.3, width = 1, height = 0.7) +
     draw_plot(plot.A, x = 0, y = 0.3, width = 1, height = 0.7)
@@ -427,6 +449,7 @@ plot.compare
 #   ggdraw()  +
 #     draw_plot(band.hot.density, width = 1, height = 0.4) +
 #     draw_plot(model.A, width = 1, height = 0.4) +
+#     draw_plot(model.census, width = 1, height = 0.4) +
 #     draw_plot(model.A.CC, width = 1, height = 0.4) +
 #     draw_plot(plot.A,width = 1, height = 0.4) }
 # if(str_split(location, boundary("word"), simplify = T)[,1] == "China" | sp.data$Habitat != "Tropical") {
@@ -438,5 +461,6 @@ plot.compare
 #   ggdraw()  +
 #     draw_plot(band.summer.density, width = 1, height = 0.4) +
 #     draw_plot(model.A, width = 1, height = 0.4) +
+#     draw_plot(model.census, width = 1, height = 0.4) +
 #     draw_plot(model.A.CC, width = 1, height = 0.4) +
 #     draw_plot(plot.A,width = 1, height = 0.4) }
