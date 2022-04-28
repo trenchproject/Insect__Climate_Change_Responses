@@ -9,6 +9,7 @@ library(ggplot2)
 library(cowplot)
 library(dplyr)
 library(tidyverse)
+library(cvequality)
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 
@@ -16,8 +17,8 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 
 # USER: enter species and location
-species <- "Apolygus lucorum"
-location <- "China Dafeng"
+species <- "Clavigralla tomentosicollis"
+location <- "Nigeria"
 field_plot <- "Mean" # for Nigeria, must specify plot "A", "B", "C", "Mean", or "All"
 
 # USER: Include diurnal variation?
@@ -433,6 +434,20 @@ for(i in seq(0:nrow(stats.data))) {
 }
 summary(lm(stats.data$Model ~ 0 + stats.data$Census))
 plot(stats.data$Census,stats.data$Model)
+
+# mean and CV of historical versus future period
+density.data <- rbind(data.frame(period = rep("hist",nrow(data.model)), J = data.model$J, A = data.model$A),
+                      data.frame(period = rep("fut",nrow(data.model.CC)), J = data.model.CC$J, A = data.model.CC$A))
+# juvenile density
+#aggregate(density.data$J, list(density.data$period), function(x) c(mean = mean(x), sd = sd(x), cv = sd(x)/mean(x)))
+#summary(aov(J ~ period, data=density.data)) # mean
+#with(density.data, asymptotic_test(J, period)) # CV (asymptotic test)
+#with(density.data, mslr_test(nr = 1000, J, period)) # CV (modified signed-likelihood ratio test)
+# adult density
+aggregate(density.data$A, list(density.data$period), function(x) c(mean = mean(x), sd = sd(x), cv = sd(x)/mean(x)))
+summary(aov(A ~ period, data=density.data)) # mean
+#with(density.data, asymptotic_test(A, period)) # CV (asymptotic test)
+with(density.data, mslr_test(nr = 1000, A, period)) # CV (modified signed-likelihood ratio test)
 
 
 # OUTPUT PLOTS
