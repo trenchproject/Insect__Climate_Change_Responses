@@ -63,7 +63,7 @@ r.data$delta.model <- pmax(-1, r.data$delta.model)
 
 ######################################## STATISTICS #########################################
 # FITNESS
-# Change in relative fitness
+# Model vs TPC
 r.delta <- lm(delta.model ~ delta.TPC, data=r.data)
 summary(r.delta) # significant!
 # Model vs Latitude
@@ -73,40 +73,64 @@ summary(r.lat) # significant!
 # non-linear
 #r.lat2 <- nls(delta.model ~ a + b*Latitude + c*Latitude^2, data=r.data, start=list(a=1, b=-0.1, c=1))
 #summary(r.lat2) # non-significant
+# exact binomial test
+r.data$sign <- sign(r.data$delta.TPC) == sign(r.data$delta.model)
+r.data$under <- abs(r.data$delta.TPC) < 0.99*abs(r.data$delta.model)
+r.data$over <- abs(r.data$delta.TPC) > 1.01*abs(r.data$delta.model)
+binom.test(12, 21, p=0.5, alternative = "two.sided") # underestimated
 
 # R0
-# Change in relative R0
+# Model vs TPC
 R0.delta <- lm(delta.model ~ delta.TPC, data=R0.data)
 summary(R0.delta) # significant!
 # Model vs Latitude
 R0.lat <- lm(delta.model ~ Latitude, data=R0.data)
 summary(R0.lat) # marginally-significant
+# exact binomial test
+R0.data$sign <- sign(R0.data$delta.TPC) == sign(R0.data$delta.model)
+R0.data$under <- abs(R0.data$delta.TPC) < 0.99*abs(R0.data$delta.model)
+R0.data$over <- abs(R0.data$delta.TPC) > 1.01*abs(R0.data$delta.model)
+binom.test(15, 20, p=0.5, alternative = "two.sided") # underestimated
 
 # BIRTH RATE
 # Model vs Latitude
 b.lat <- lm(delta.model ~ Latitude, data=b.data)
 summary(b.lat) # non-significant
+# sign
+b.data$sign <- b.data$delta.TPC < 0
 
 # DEVELOPMENT TIME
-# Change in development time
+# Model vs TPC
 tau.delta <- lm(delta.model ~ delta.TPC, data=tau.data)
 summary(tau.delta)  # significant!
 # Model vs Latitude
 tau.lat <- lm(delta.model ~ Latitude, data=tau.data)
 summary(tau.lat) # significant!
+# exact binomial test
+tau.data$sign <- sign(tau.data$delta.TPC) == sign(tau.data$delta.model)
+tau.data$under <- abs(tau.data$delta.TPC) < 0.99*abs(tau.data$delta.model)
+tau.data$over <- abs(tau.data$delta.TPC) > 1.01*abs(tau.data$delta.model)
+binom.test(18, 20, p=0.5, alternative = "two.sided") # underestimated
 
 # SURVIVAL
-# Change in survival
+# Model vs TPC
 s.delta <- lm(delta.model ~ delta.TPC, data=s.data)
 summary(s.delta)  # significant!
 # Model vs Latitude
 s.lat <- lm(delta.model ~ Latitude, data=s.data)
 summary(s.lat) # non-significant
+# exact binomial test
+s.data$sign <- sign(s.data$delta.TPC) == sign(s.data$delta.model)
+s.data$under <- abs(s.data$delta.TPC) < 0.99*abs(s.data$delta.model)
+s.data$over <- abs(s.data$delta.TPC) > 1.01*abs(s.data$delta.model)
+binom.test(4, 12, p=0.5, alternative = "two.sided") # underestimated
 
 # ADULT LONGEVITY
 # Model vs Latitude
 L.lat <- lm(delta.model ~ Latitude, data=L.data)
 summary(L.lat) # significant!
+# sign
+L.data$sign <- L.data$delta.TPC < 0
 
 # LIFETIME FECUNDITY
 # Model vs Latitude
@@ -114,7 +138,7 @@ summary(L.lat) # significant!
 #summary(f.lat) # significant!
 
 # ADULT RECRUITMENT
-# Change in recruitment
+# Model vs TPC
 #R.delta <- lm(delta.model ~ delta.TPC, data=R.data)
 #summary(R.delta) # significant!
 # Model vs Latitude
