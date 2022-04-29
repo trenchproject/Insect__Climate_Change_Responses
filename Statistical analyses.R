@@ -155,7 +155,7 @@ CV.lat <- lm(delta.CV ~ Latitude, data=pop.data[-c(15,20),]) # excluding Macrosi
 summary(CV.lat) # significant!
 # Active period vs Latitude (NOTE: non-significant for temperate species only)
 active.lat <- lm(delta.active ~ Latitude, data=pop.data) #[pop.data$Habitat == "Temperate",])
-summary(active.lat) # significant!
+summary(active.lat) # non-significant
 
 
 
@@ -406,7 +406,7 @@ Ymax <- 0.4
 #dev.new(width=3, height=3, unit="in")
 plot(-100, xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="Latitude", ylab="Model", cex.axis=2)
 abline(0, 0, col="gray", lwd=3, lty="longdash")
-#points(seq(2*Xmin,2*Xmax,1), coef(active.lat)[2]*seq(2*Xmin,2*Xmax,1) + coef(active.lat)[1], type="l", lwd=3, col="black")
+points(seq(32,58,1), coef(active.lat)[2]*seq(32,58,1) + coef(active.lat)[1], type="l", lwd=3, col="black", lty="longdash")
 points(pop.data[pop.data$Habitat=="Tropical","Latitude"], pop.data[pop.data$Habitat=="Tropical","delta.active"], pch=19, cex=1.5, col="#FFB000") # orange
 points(pop.data[pop.data$Habitat=="Subtropical","Latitude"], pop.data[pop.data$Habitat=="Subtropical","delta.active"], pch=19, cex=1.5, col="#6FD012") # green
 points(pop.data[pop.data$Habitat=="Mediterranean","Latitude"], pop.data[pop.data$Habitat=="Mediterranean","delta.active"], pch=19, cex=1.5, col="#6FD012") # green
