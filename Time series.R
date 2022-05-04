@@ -17,8 +17,8 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 
 # USER: enter species and location
-species <- "Clavigralla tomentosicollis"
-location <- "Nigeria"
+species <- "Clavigralla shadabi"
+location <- "Benin"
 field_plot <- "Mean" # for Nigeria, must specify plot "A", "B", "C", "Mean", or "All"
 
 # USER: Include diurnal variation?
@@ -35,7 +35,7 @@ xmin <- 0 # start date
 xmax <- 2*365 # end date
 num_yrs <- (xmax - xmin)/365
 ymin <- 0 # min density
-ymax <- 100 # max density
+ymax <- 120 # max density
 temp.min <- 0 # min temperature
 temp.max <- 40 # max temperature
 
@@ -48,12 +48,14 @@ ifelse(daily == TRUE, temp.data <- as.data.frame(read_csv("Temperature parameter
        temp.data <- as.data.frame(read_csv("Temperature parameters Tave.csv")))
 
 # Time-series field data
-if(str_split(location, boundary("word"), simplify = T)[,1] == "China") { data.density <- read_csv("Population data China.csv") }
+if(location == "Benin") { data.density <- read_csv("Population data Benin.csv") }
 if(location == "Nigeria") { data.density <- read_csv("Population data Nigeria.csv") }
+if(str_split(location, boundary("word"), simplify = T)[,1] == "China") { data.density <- read_csv("Population data China.csv") }
 
 # Select time-series data
-if(str_split(location, boundary("word"), simplify = T)[,1] == "China") { data.TS <- data.density[data.density$location==str_split(location, boundary("word"), simplify = T)[,2] & data.density$species==species,] }
+if(location == "Benin") { data.TS <- data.density[data.density$Location=="Aborney",] }
 if(location == "Nigeria") { data.TS <- data.density[data.density$Plot==field_plot,] }
+if(str_split(location, boundary("word"), simplify = T)[,1] == "China") { data.TS <- data.density[data.density$location==str_split(location, boundary("word"), simplify = T)[,2] & data.density$species==species,] }
 
 
 # READ IN TEMPERATURE RESPONSE PARAMETERS, TEMPERATURE PARAMETERS, AND DDE MODEL DYNAMICS
@@ -342,19 +344,19 @@ model.A.CC = ggplot(data.model.CC, aes(x=Time, y=A)) +
 #################################### DRAW FINAL PLOTS #######################################
 # COMPILE PLOTS
 # Temperature plots
-if(location == "Nigeria" | sp.data$Habitat == "Tropical") {
+if(location == "Nigeria" || sp.data$Habitat == "Tropical") {
   plot.climate <- ggdraw()  +
     draw_plot(band.hot.temp, x = 0, y = 0, width = 1, height = 0.3) +
     draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
     draw_plot(plot.temp.CC, x = 0, y = 0, width = 1, height = 0.3) }
-if(str_split(location, boundary("word"), simplify = T)[,1] == "China"  | sp.data$Habitat != "Tropical") { 
+if(str_split(location, boundary("word"), simplify = T)[,1] == "China"  || sp.data$Habitat != "Tropical") { 
   plot.climate <- ggdraw()  +
     draw_plot(band.summer.temp, x = 0, y = 0, width = 1, height = 0.3) +
     draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
     draw_plot(plot.temp.CC, x = 0, y = 0, width = 1, height = 0.3) }
 
 # Historical time period
-# if(location == "Nigeria" | sp.data$Habitat == "Tropical") {
+# if(location == "Nigeria" || sp.data$Habitat == "Tropical") {
 #   plot <- ggdraw()  +
 #     draw_plot(band.hot.temp, x = 0, y = 0, width = 1, height = 0.3) +
 #     draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
@@ -364,7 +366,7 @@ if(str_split(location, boundary("word"), simplify = T)[,1] == "China"  | sp.data
 #     draw_plot(model.A, x = 0, y = 0.3, width = 1, height = 0.7) +
 #     draw_plot(model.census, x = 0, y = 0.3, width = 1, height = 0.7) +
 #     draw_plot(plot.A, x = 0, y = 0.3, width = 1, height = 0.7) }
-# if(str_split(location, boundary("word"), simplify = T)[,1] == "China" | sp.data$Habitat != "Tropical") { 
+# if(str_split(location, boundary("word"), simplify = T)[,1] == "China" || sp.data$Habitat != "Tropical") { 
 #   plot <- ggdraw()  +
 #     draw_plot(band.summer.temp, x = 0, y = 0, width = 1, height = 0.3) +
 #     draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
@@ -375,7 +377,7 @@ if(str_split(location, boundary("word"), simplify = T)[,1] == "China"  | sp.data
 #     draw_plot(plot.A, x = 0, y = 0.3, width = 1, height = 0.7) }
 
 # Future time period
-# if(location == "Nigeria" | sp.data$Habitat == "Tropical") {
+# if(location == "Nigeria" || sp.data$Habitat == "Tropical") {
 #   plot.CC <- ggdraw()  +
 #     draw_plot(band.hot.temp, x = 0, y = 0, width = 1, height = 0.3) +
 #     draw_plot(plot.temp.CC, x = 0, y = 0, width = 1, height = 0.3) +
@@ -383,7 +385,7 @@ if(str_split(location, boundary("word"), simplify = T)[,1] == "China"  | sp.data
 #     draw_plot(model.J.CC, x = 0, y = 0.3, width = 1, height = 0.7) +
 #     draw_plot(model.A.CC, x = 0, y = 0.3, width = 1, height = 0.7)
 # }
-# if(str_split(location, boundary("word"), simplify = T)[,1] == "China" | sp.data$Habitat != "Tropical") { 
+# if(str_split(location, boundary("word"), simplify = T)[,1] == "China" || sp.data$Habitat != "Tropical") { 
 #   plot.CC <- ggdraw()  +
 #     draw_plot(band.summer.temp, x = 0, y = 0, width = 1, height = 0.3) +
 #     draw_plot(plot.temp.CC, x = 0, y = 0, width = 1, height = 0.3) +
@@ -393,7 +395,7 @@ if(str_split(location, boundary("word"), simplify = T)[,1] == "China"  | sp.data
 # }
 
 # Compare historical and future time periods
-if(location == "Nigeria" | sp.data$Habitat == "Tropical") {
+if(location == "Nigeria" || sp.data$Habitat == "Tropical") {
   plot.compare <- ggdraw()  +
     draw_plot(band.hot.temp, x = 0, y = 0, width = 1, height = 0.3) +
     draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
@@ -406,7 +408,7 @@ if(location == "Nigeria" | sp.data$Habitat == "Tropical") {
     #draw_plot(model.A.CC, x = 0, y = 0.3, width = 1, height = 0.7) +
     draw_plot(plot.A, x = 0, y = 0.3, width = 1, height = 0.7)
 }
-if(str_split(location, boundary("word"), simplify = T)[,1] == "China" | sp.data$Habitat != "Tropical") { 
+if(str_split(location, boundary("word"), simplify = T)[,1] == "China" || sp.data$Habitat != "Tropical") { 
   plot.compare <- ggdraw()  +
     draw_plot(band.summer.temp, x = 0, y = 0, width = 1, height = 0.3) +
     draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
@@ -427,62 +429,69 @@ plot.compare
 
 
 # STATISTICS
-# linear regression of field data and model data
+#linear regression of field data and model data
 stats.data <- data.frame(Time = data.TS$time, Census = data.TS$A, Model = NA)
 for(i in seq(0:nrow(stats.data))) {
   stats.data$Model[i] = data.model.census[data.model.census$Time == stats.data$Time[i],"A"]
 }
 summary(lm(stats.data$Model ~ 0 + stats.data$Census))
-plot(stats.data$Census,stats.data$Model)
+plot(stats.data$Census,stats.data$Model, xlim = c(0,100), ylim = c(0,100))
 
 # mean and CV of historical versus future period
 density.data <- rbind(data.frame(period = rep("hist",nrow(data.model)), J = data.model$J, A = data.model$A),
-                      data.frame(period = rep("fut",nrow(data.model.CC)), J = data.model.CC$J, A = data.model.CC$A))
+                     data.frame(period = rep("fut",nrow(data.model.CC)), J = data.model.CC$J, A = data.model.CC$A))
 # juvenile density
-#aggregate(density.data$J, list(density.data$period), function(x) c(mean = mean(x), sd = sd(x), cv = sd(x)/mean(x)))
-#summary(aov(J ~ period, data=density.data)) # mean
-#with(density.data, asymptotic_test(J, period)) # CV (asymptotic test)
-#with(density.data, mslr_test(nr = 1000, J, period)) # CV (modified signed-likelihood ratio test)
+aggregate(density.data$J, list(density.data$period), function(x) c(mean = mean(x), sd = sd(x), cv = sd(x)/mean(x)))
+summary(aov(J ~ period, data=density.data)) # mean
+with(density.data, asymptotic_test(J, period)) # CV (asymptotic test)
+with(density.data, mslr_test(nr = 1000, J, period)) # CV (modified signed-likelihood ratio test)
 # adult density
 aggregate(density.data$A, list(density.data$period), function(x) c(mean = mean(x), sd = sd(x), cv = sd(x)/mean(x)))
 summary(aov(A ~ period, data=density.data)) # mean
-#with(density.data, asymptotic_test(A, period)) # CV (asymptotic test)
+with(density.data, asymptotic_test(A, period)) # CV (asymptotic test)
 with(density.data, mslr_test(nr = 1000, A, period)) # CV (modified signed-likelihood ratio test)
 
 
 # OUTPUT PLOTS
 #dev.new()
 # Temperature plots
-# if(location == "Nigeria" | sp.data$Habitat == "Tropical") {
+# if(location == "Nigeria" || sp.data$Habitat == "Tropical") {
 #   ggdraw()  +
 #     draw_plot(band.hot.temp, x = 0, y = 0, width = 1, height = 0.3) +
 #     draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
 #     draw_plot(plot.temp.CC, x = 0, y = 0, width = 1, height = 0.3) }
-# if(str_split(location, boundary("word"), simplify = T)[,1] == "China" | sp.data$Habitat != "Tropical") {
+# if(str_split(location, boundary("word"), simplify = T)[,1] == "China" || sp.data$Habitat != "Tropical") {
 #   ggdraw()  +
 #     draw_plot(band.summer.temp, x = 0, y = 0, width = 1, height = 0.3) +
 #     draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
 #     draw_plot(plot.temp.CC, x = 0, y = 0, width = 1, height = 0.3) }
 
 # Climate change plots
-# if(location == "Nigeria" | sp.data$Habitat == "Tropical") {
+# Tropical species
+# if(location == "Nigeria" || sp.data$Habitat == "Tropical") {
+# # juveniles
 #   ggdraw()  +
 #     draw_plot(band.hot.density, width = 1, height = 0.4) +
 #     draw_plot(model.J, width = 1, height = 0.4) +
 #     draw_plot(model.J.CC, width = 1, height = 0.4) }
-# if(location == "Nigeria" | sp.data$Habitat == "Tropical") {
-#   ggdraw()  +
-#     draw_plot(band.hot.density, width = 1, height = 0.4) +
-#     draw_plot(model.A, width = 1, height = 0.4) +
-#     draw_plot(model.census, width = 1, height = 0.4) +
-#     draw_plot(model.A.CC, width = 1, height = 0.4) +
-#     draw_plot(plot.A,width = 1, height = 0.4) }
-# if(str_split(location, boundary("word"), simplify = T)[,1] == "China" | sp.data$Habitat != "Tropical") {
+#if(location == "Nigeria" || sp.data$Habitat == "Tropical") {
+## adults
+  # ggdraw()  +
+  #   draw_plot(band.hot.density, width = 1, height = 0.4) +
+  #   draw_plot(model.A, width = 1, height = 0.4) +
+  #   #draw_plot(model.census, width = 1, height = 0.4) +
+  #   draw_plot(model.A.CC, width = 1, height = 0.4) } #+
+  #   #draw_plot(plot.A,width = 1, height = 0.4) }
+
+# Temperate species
+# if(str_split(location, boundary("word"), simplify = T)[,1] == "China" || sp.data$Habitat != "Tropical") {
+## juveniles
 #   ggdraw()  +
 #     draw_plot(band.summer.density, width = 1, height = 0.4) +
 #     draw_plot(model.J, width = 1, height = 0.4) +
 #     draw_plot(model.J.CC, width = 1, height = 0.4) }
-# if(str_split(location, boundary("word"), simplify = T)[,1] == "China" | sp.data$Habitat != "Tropical") {
+# if(str_split(location, boundary("word"), simplify = T)[,1] == "China" || sp.data$Habitat != "Tropical") {
+## adults
 #   ggdraw()  +
 #     draw_plot(band.summer.density, width = 1, height = 0.4) +
 #     draw_plot(model.A, width = 1, height = 0.4) +

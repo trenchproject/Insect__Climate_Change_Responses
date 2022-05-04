@@ -35,7 +35,7 @@ period = "Historical"
 all_sp = False
 
 # USER: Save data to CSV file?
-save_data = False
+save_data = True
 
 # USER: Use minimum temperature threshold?
 minT = True
@@ -50,7 +50,7 @@ comp = True
 daily = False
 
 # USER: Is model fit to census data?
-census = False
+census = True
     
 
 # DEFINE MODEL PARAMETERS
@@ -73,7 +73,7 @@ CC_years = max_years # how long before climate change "equilibrates"
     
 # Initial abundances
 initJ = 100.
-initA = 100.
+initA = 10.
 
 
 # INPUT TEMPERATURE RESPONSE PARAMETERS AND TEMPERATURE PARAMETERS
