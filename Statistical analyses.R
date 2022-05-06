@@ -60,12 +60,31 @@ r.data$delta.TPC <- pmax(-1, r.data$delta.TPC)
 r.data$delta.model <- pmax(-1, r.data$delta.model)
 
 
+# QUANTIFY RATIOS AND LOG RATIOS OF MODEL PREDICTIONS TO TPC ESTIMATES
+r.data$ratio <- abs(r.data$delta.TPC/r.data$delta.model)
+r.data$log.ratio <- log(r.data$ratio)
+R0.data$ratio <- abs(R0.data$delta.TPC/R0.data$delta.model)
+R0.data$log.ratio <- log(R0.data$ratio)
+s.data$ratio <- abs(s.data$delta.TPC/s.data$delta.model)
+s.data$log.ratio <- log(s.data$ratio)
+tau.data$ratio <- abs(tau.data$delta.TPC/tau.data$delta.model)
+tau.data$log.ratio <- log(tau.data$ratio)
+
+
 
 ######################################## STATISTICS #########################################
 # FITNESS
 # Model vs TPC
 r.delta <- lm(delta.model ~ delta.TPC, data=r.data)
 summary(r.delta) # significant!
+# Ratio of model to TPC
+# r.ratio <- lm(ratio ~ Latitude, data=r.data)
+# summary(r.ratio) # non-significant
+# t.test(r.data$ratio, mu=1) # non-significant
+# Log ratio of model to TPC
+r.log <- lm(log.ratio ~ Latitude, data=r.data)
+summary(r.log) # non-significant
+t.test(r.data$log.ratio, mu=0) # non-significant
 # Model vs Latitude
 # linear
 r.lat <- lm(delta.model ~ Latitude, data=r.data)
@@ -73,64 +92,76 @@ summary(r.lat) # significant!
 # non-linear
 #r.lat2 <- nls(delta.model ~ a + b*Latitude + c*Latitude^2, data=r.data, start=list(a=1, b=-0.1, c=1))
 #summary(r.lat2) # non-significant
-# exact binomial test
-r.data$sign <- sign(r.data$delta.TPC) == sign(r.data$delta.model)
-r.data$under <- abs(r.data$delta.TPC) < 0.99*abs(r.data$delta.model)
-r.data$over <- abs(r.data$delta.TPC) > 1.01*abs(r.data$delta.model)
-binom.test(12, 21, p=0.5, alternative = "two.sided") # underestimated
+# Exact binomial test
+# r.data$sign <- sign(r.data$delta.TPC) == sign(r.data$delta.model)
+# r.data$under <- abs(r.data$delta.TPC) < 0.99*abs(r.data$delta.model)
+# r.data$over <- abs(r.data$delta.TPC) > 1.01*abs(r.data$delta.model)
+# binom.test(12, 21, p=0.5, alternative = "two.sided") # underestimated
 
 # R0
 # Model vs TPC
 R0.delta <- lm(delta.model ~ delta.TPC, data=R0.data)
 summary(R0.delta) # significant!
+# Log ratio of model to TPC
+R0.log <- lm(log.ratio ~ Latitude, data=R0.data)
+summary(R0.log) # significant!
+t.test(R0.data$log.ratio, mu=0) # non-significant
 # Model vs Latitude
 R0.lat <- lm(delta.model ~ Latitude, data=R0.data)
 summary(R0.lat) # marginally-significant
-# exact binomial test
-R0.data$sign <- sign(R0.data$delta.TPC) == sign(R0.data$delta.model)
-R0.data$under <- abs(R0.data$delta.TPC) < 0.99*abs(R0.data$delta.model)
-R0.data$over <- abs(R0.data$delta.TPC) > 1.01*abs(R0.data$delta.model)
-binom.test(15, 20, p=0.5, alternative = "two.sided") # underestimated
+# Exact binomial test
+# R0.data$sign <- sign(R0.data$delta.TPC) == sign(R0.data$delta.model)
+# R0.data$under <- abs(R0.data$delta.TPC) < 0.99*abs(R0.data$delta.model)
+# R0.data$over <- abs(R0.data$delta.TPC) > 1.01*abs(R0.data$delta.model)
+# binom.test(15, 20, p=0.5, alternative = "two.sided") # underestimated
 
 # BIRTH RATE
 # Model vs Latitude
 b.lat <- lm(delta.model ~ Latitude, data=b.data)
 summary(b.lat) # non-significant
-# sign
-b.data$sign <- b.data$delta.TPC < 0
+# Sign
+#b.data$sign <- b.data$delta.TPC < 0
 
 # DEVELOPMENT TIME
 # Model vs TPC
 tau.delta <- lm(delta.model ~ delta.TPC, data=tau.data)
 summary(tau.delta)  # significant!
+# Log ratio of model to TPC
+tau.log <- lm(log.ratio ~ Latitude, data=tau.data)
+summary(tau.log) # significant!
+t.test(tau.data$log.ratio, mu=0) # significant!
 # Model vs Latitude
 tau.lat <- lm(delta.model ~ Latitude, data=tau.data)
 summary(tau.lat) # significant!
-# exact binomial test
-tau.data$sign <- sign(tau.data$delta.TPC) == sign(tau.data$delta.model)
-tau.data$under <- abs(tau.data$delta.TPC) < 0.99*abs(tau.data$delta.model)
-tau.data$over <- abs(tau.data$delta.TPC) > 1.01*abs(tau.data$delta.model)
-binom.test(18, 20, p=0.5, alternative = "two.sided") # underestimated
+# Exact binomial test
+# tau.data$sign <- sign(tau.data$delta.TPC) == sign(tau.data$delta.model)
+# tau.data$under <- abs(tau.data$delta.TPC) < 0.99*abs(tau.data$delta.model)
+# tau.data$over <- abs(tau.data$delta.TPC) > 1.01*abs(tau.data$delta.model)
+# binom.test(18, 20, p=0.5, alternative = "two.sided") # underestimated
 
 # SURVIVAL
 # Model vs TPC
 s.delta <- lm(delta.model ~ delta.TPC, data=s.data)
 summary(s.delta)  # significant!
+# Log ratio of model to TPC
+s.log <- lm(log.ratio ~ Latitude, data=s.data)
+summary(s.log) # non-significant
+t.test(s.data$log.ratio, mu=0) # non-significant
 # Model vs Latitude
 s.lat <- lm(delta.model ~ Latitude, data=s.data)
 summary(s.lat) # non-significant
-# exact binomial test
-s.data$sign <- sign(s.data$delta.TPC) == sign(s.data$delta.model)
-s.data$under <- abs(s.data$delta.TPC) < 0.99*abs(s.data$delta.model)
-s.data$over <- abs(s.data$delta.TPC) > 1.01*abs(s.data$delta.model)
-binom.test(4, 12, p=0.5, alternative = "two.sided") # underestimated
+# Exact binomial test
+# s.data$sign <- sign(s.data$delta.TPC) == sign(s.data$delta.model)
+# s.data$under <- abs(s.data$delta.TPC) < 0.99*abs(s.data$delta.model)
+# s.data$over <- abs(s.data$delta.TPC) > 1.01*abs(s.data$delta.model)
+# binom.test(4, 12, p=0.5, alternative = "two.sided") # underestimated
 
 # ADULT LONGEVITY
 # Model vs Latitude
 L.lat <- lm(delta.model ~ Latitude, data=L.data)
 summary(L.lat) # significant!
-# sign
-L.data$sign <- L.data$delta.TPC < 0
+# Sign
+#L.data$sign <- L.data$delta.TPC < 0
 
 # LIFETIME FECUNDITY
 # Model vs Latitude
@@ -180,6 +211,20 @@ points(r.data[r.data$Habitat=="Mediterranean","delta.TPC"], r.data[r.data$Habita
 points(r.data[r.data$Habitat=="Temperate","delta.TPC"], r.data[r.data$Habitat=="Temperate","delta.model"], pch=19, cex=1.5, col="#785EF0") # purple
 points(seq(2*Xmin,2*Xmax,0.1), coef(r.delta)[2]*seq(2*Xmin,2*Xmax,0.1)+coef(r.delta)[1], type="l", lwd=3, col="black")
 
+# Log ratio of model to TPC
+Xmin <- 0
+Xmax <- 60
+Ymin <- -3
+Ymax <- 3
+#dev.new(width=3, height=3, unit="in")
+plot(-100, xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="Latitude", ylab="Log ratio", cex.axis=2)
+abline(0, 0, col="gray", lwd=3, lty="longdash")
+points(r.data[r.data$Habitat=="Tropical","Latitude"], r.data[r.data$Habitat=="Tropical","log.ratio"], pch=19, cex=1.5, col="#FFB000") # orange
+points(r.data[r.data$Habitat=="Subtropical","Latitude"], r.data[r.data$Habitat=="Subtropical","log.ratio"], pch=19, cex=1.5, col="#40B0A6") # teal
+points(r.data[r.data$Habitat=="Mediterranean","Latitude"], r.data[r.data$Habitat=="Mediterranean","log.ratio"], pch=19, cex=1.5, col="#40B0A6") # teal
+points(r.data[r.data$Habitat=="Temperate","Latitude"], r.data[r.data$Habitat=="Temperate","log.ratio"], pch=19, cex=1.5, col="#785EF0") # purple
+points(seq(2*Xmin,2*Xmax,0.1), coef(r.log)[2]*seq(2*Xmin,2*Xmax,0.1)+coef(r.log)[1], type="l", lwd=3, col="black", lty="longdash")
+
 # Fitness vs latitude
 Xmin <- 0
 Xmax <- 60
@@ -214,6 +259,20 @@ points(R0.data[R0.data$Habitat=="Subtropical","delta.TPC"], R0.data[R0.data$Habi
 points(R0.data[R0.data$Habitat=="Mediterranean","delta.TPC"], R0.data[R0.data$Habitat=="Mediterranean","delta.model"], pch=19, cex=1.5, col="#6FD012") # green
 points(R0.data[R0.data$Habitat=="Temperate","delta.TPC"], R0.data[R0.data$Habitat=="Temperate","delta.model"], pch=19, cex=1.5, col="#785EF0") # purple
 points(seq(2*Xmin,2*Xmax,0.1), coef(R0.delta)[2]*seq(2*Xmin,2*Xmax,0.1)+coef(R0.delta)[1], type="l", lwd=3, col="black")
+
+# Log ratio of model to TPC
+Xmin <- 0
+Xmax <- 60
+Ymin <- -2
+Ymax <- 2
+#dev.new(width=3, height=3, unit="in")
+plot(-100, xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="Latitude", ylab="Log ratio", cex.axis=2)
+abline(0, 0, col="gray", lwd=3, lty="longdash")
+points(R0.data[R0.data$Habitat=="Tropical","Latitude"], R0.data[R0.data$Habitat=="Tropical","log.ratio"], pch=19, cex=1.5, col="#FFB000") # orange
+points(R0.data[R0.data$Habitat=="Subtropical","Latitude"], R0.data[R0.data$Habitat=="Subtropical","log.ratio"], pch=19, cex=1.5, col="#40B0A6") # teal
+points(R0.data[R0.data$Habitat=="Mediterranean","Latitude"], R0.data[R0.data$Habitat=="Mediterranean","log.ratio"], pch=19, cex=1.5, col="#40B0A6") # teal
+points(R0.data[R0.data$Habitat=="Temperate","Latitude"], R0.data[R0.data$Habitat=="Temperate","log.ratio"], pch=19, cex=1.5, col="#785EF0") # purple
+points(seq(2*Xmin,2*Xmax,0.1), coef(R0.log)[2]*seq(2*Xmin,2*Xmax,0.1)+coef(R0.log)[1], type="l", lwd=3, col="black")
 
 # R0 vs latitude
 Xmin <- 0
@@ -284,6 +343,20 @@ points(tau.data[tau.data$Habitat=="Mediterranean","delta.TPC"], tau.data[tau.dat
 points(tau.data[tau.data$Habitat=="Temperate","delta.TPC"], tau.data[tau.data$Habitat=="Temperate","delta.model"], pch=19, cex=1.5, col="#785EF0") # purple
 points(seq(2*Xmin,2*Xmax,0.1), coef(tau.delta)[2]*seq(2*Xmin,2*Xmax,0.1)+coef(tau.delta)[1], type="l", lwd=3, col="black")
 
+# Log ratio of model to TPC
+Xmin <- 0
+Xmax <- 60
+Ymin <- -2.5
+Ymax <- 0.5
+#dev.new(width=3, height=3, unit="in")
+plot(-100, xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="Latitude", ylab="Log ratio", cex.axis=2)
+abline(0, 0, col="gray", lwd=3, lty="longdash")
+points(tau.data[tau.data$Habitat=="Tropical","Latitude"], tau.data[tau.data$Habitat=="Tropical","log.ratio"], pch=19, cex=1.5, col="#FFB000") # orange
+points(tau.data[tau.data$Habitat=="Subtropical","Latitude"], tau.data[tau.data$Habitat=="Subtropical","log.ratio"], pch=19, cex=1.5, col="#40B0A6") # teal
+points(tau.data[tau.data$Habitat=="Mediterranean","Latitude"], tau.data[tau.data$Habitat=="Mediterranean","log.ratio"], pch=19, cex=1.5, col="#40B0A6") # teal
+points(tau.data[tau.data$Habitat=="Temperate","Latitude"], tau.data[tau.data$Habitat=="Temperate","log.ratio"], pch=19, cex=1.5, col="#785EF0") # purple
+points(seq(2*Xmin,2*Xmax,0.1), coef(tau.log)[2]*seq(2*Xmin,2*Xmax,0.1)+coef(tau.log)[1], type="l", lwd=3, col="black")
+
 # Development time vs latitude
 Xmin <- 0
 Xmax <- 60
@@ -318,6 +391,20 @@ points(s.data[s.data$Habitat=="Subtropical","delta.TPC"], s.data[s.data$Habitat=
 points(s.data[s.data$Habitat=="Mediterranean","delta.TPC"], s.data[s.data$Habitat=="Mediterranean","delta.model"], pch=19, cex=1.5, col="#6FD012") # green
 points(s.data[s.data$Habitat=="Temperate","delta.TPC"], s.data[s.data$Habitat=="Temperate","delta.model"], pch=19, cex=1.5, col="#785EF0") # purple
 points(seq(2*Xmin,2*Xmax,0.1), coef(s.delta)[2]*seq(2*Xmin,2*Xmax,0.1)+coef(s.delta)[1], type="l", lwd=3, col="black")
+
+# Log ratio of model to TPC
+Xmin <- 0
+Xmax <- 60
+Ymin <- -2
+Ymax <- 2
+#dev.new(width=3, height=3, unit="in")
+plot(-100, xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="Latitude", ylab="Log ratio", cex.axis=2)
+abline(0, 0, col="gray", lwd=3, lty="longdash")
+points(s.data[s.data$Habitat=="Tropical","Latitude"], s.data[s.data$Habitat=="Tropical","log.ratio"], pch=19, cex=1.5, col="#FFB000") # orange
+points(s.data[s.data$Habitat=="Subtropical","Latitude"], s.data[s.data$Habitat=="Subtropical","log.ratio"], pch=19, cex=1.5, col="#40B0A6") # teal
+points(s.data[s.data$Habitat=="Mediterranean","Latitude"], s.data[s.data$Habitat=="Mediterranean","log.ratio"], pch=19, cex=1.5, col="#40B0A6") # teal
+points(s.data[s.data$Habitat=="Temperate","Latitude"], s.data[s.data$Habitat=="Temperate","log.ratio"], pch=19, cex=1.5, col="#785EF0") # purple
+points(seq(2*Xmin,2*Xmax,0.1), coef(s.log)[2]*seq(2*Xmin,2*Xmax,0.1)+coef(s.log)[1], type="l", lwd=3, col="black", lty="longdash")
 
 # Survival vs latitude
 Xmin <- 0
