@@ -17,7 +17,7 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 trait <- "Fitness"
 
 # USER: enter species and location or set "all" to TRUE to run analysis for all species
-species <- "Clavigralla tomentosicollis"
+species <- "Clavigralla shadabi"
 location <- "Benin"
 all <- FALSE
 
@@ -477,9 +477,11 @@ if(all == FALSE) {
   # PLOT OPTIONS
   Tmin <- round(min(temp.h$T,temp.f$T),0) - 3
   Tmax <- round(max(temp.h$T,temp.f$T),0) + 3
+  deltaT <- 5 # tick marks for x-axis
   ymin <- 0
   ifelse(trait == "Development", ymax1 <- 1.05, ymax1 <- 1)
-  ymax2 <- 0.6 # for temperature histogram
+  ymax2 <- 0.4 # for temperature histogram
+  Tbin  <- 0.5 # bin size for temperature histogram
   
   # FUNCTIONS
   r <- ifelse(seq(Tmin,Tmax,0.1) <= param$rTopt, param$rMax*exp(-1*((seq(Tmin,Tmax,0.1)-param$rTopt)/(2*param$rs))^2),
@@ -496,7 +498,7 @@ if(all == FALSE) {
   # TPC PLOTS
   #dev.new(width=3, height=3, unit="in")
   plot(-100, xlim=c(Tmin,Tmax), ylim=c(ymin,ymax1), xaxt = "n", xlab="", ylab="", cex.axis=2)
-  axis(1, at=seq(293,308,5), labels=seq(20,35,5), cex.axis=2)
+  axis(1, at=seq(Tmin,Tmax,deltaT), labels=seq(Tmin-273,Tmax-273,deltaT), cex.axis=2)
   if(trait == "Fitness") {  points(seq(Tmin,Tmax,0.1), r/param$rMax, type="l", lwd=4, col="black") }
   if(trait == "R0") {  points(seq(Tmin,Tmax,0.1), R0/param$R0Topt, type="l", lwd=4, col="black") }
   if(trait == "Fecundity") {  points(seq(Tmin,Tmax,0.1), f/(param$bTopt*lTopt), type="l", lwd=4, col="black") }
@@ -506,20 +508,46 @@ if(all == FALSE) {
   if(trait == "Longevity") {  points(seq(Tmin,Tmax,0.1), (1/dA)/lTopt, type="l", lwd=4, col="black") }
   if(trait == "Recruitment") {  points(seq(Tmin,Tmax,0.1), R/param$bTopt, type="l", lwd=4, col="black") }
   # TEMPERATURE PARAMETERS
-  abline(v = t.param$meanT.h, col="#0072B2", lwd=3, lty=1)
-  abline(v = t.param$meanT.h + abs(t.param$amplT.h) + abs(t.param$amplD.h), col="#0072B2", lwd=3, lty=2)
-  abline(v = t.param$meanT.h - abs(t.param$amplT.h) - abs(t.param$amplD.h), col="#0072B2", lwd=3, lty=2)
-  abline(v = t.param$meanT.f + t.param$delta_mean.f*365*75 , col="#D55E00", lwd=3, lty=1)
-  abline(v = t.param$meanT.f + t.param$delta_mean.f*365*75 + abs(t.param$amplT.f) + t.param$delta_ampl.f*365*80 + t.param$amplD.f, col="#D55E00", lwd=3, lty=2)
-  abline(v = t.param$meanT.f + t.param$delta_mean.f*365*75 - abs(t.param$amplT.f) - t.param$delta_ampl.f*365*80 - t.param$amplD.f, col="#D55E00", lwd=3, lty=2)
-  if(overw == TRUE) { abline(v = param$Tmin, col="black", lwd=3, lty=2) }
+  #abline(v = t.param$meanT.h, col="#0072B2", lwd=3, lty=1)
+  #abline(v = t.param$meanT.h + abs(t.param$amplT.h) + abs(t.param$amplD.h), col="#0072B2", lwd=3, lty=2)
+  #abline(v = t.param$meanT.h - abs(t.param$amplT.h) - abs(t.param$amplD.h), col="#0072B2", lwd=3, lty=2)
+  #abline(v = t.param$meanT.f + t.param$delta_mean.f*365*75 , col="#D55E00", lwd=3, lty=1)
+  #abline(v = t.param$meanT.f + t.param$delta_mean.f*365*75 + abs(t.param$amplT.f) + t.param$delta_ampl.f*365*80 + t.param$amplD.f, col="#D55E00", lwd=3, lty=2)
+  #abline(v = t.param$meanT.f + t.param$delta_mean.f*365*75 - abs(t.param$amplT.f) - t.param$delta_ampl.f*365*80 - t.param$amplD.f, col="#D55E00", lwd=3, lty=2)
+  #if(overw == TRUE) { abline(v = param$Tmin, col="black", lwd=3, lty=2) }
   # AVERAGE VALUES
-  #points(param$rTopt - 2*param$rs * sqrt(log(param$rMax/r.TPC.h)), r.TPC.h/param$rMax, pch=19, cex=3, col="#0072B2")
-  #points(1/param$rMax * (param$rMax*param$rTopt + (param$rTmax - param$rTopt)^2 * sqrt(param$rMax*(param$rMax-r.TPC.f)/(param$rTmax - param$rTopt)^2)), r.TPC.f/param$rMax, pch=19, cex=3, col="#D55E00")
+  # Fitness (careful on which side of curve for loop starts, may have to swap Tmin and Tmax and add - to seq)
+  if(trait == "Fitness") {
+    for(i in seq(Tmax,Tmin,-0.1)) { if(ifelse(i <= param$rTopt, param$rMax*exp(-1*((i-param$rTopt)/(2*param$rs))^2),
+                                              param$rMax*(1 - ((i-param$rTopt)/(param$rTopt-param$rTmax))^2)) > r.TPC.h) { break } }
+    xvalue.h <- i
+    for(i in seq(Tmax,Tmin,-0.1)) { if(ifelse(i <= param$rTopt, param$rMax*exp(-1*((i-param$rTopt)/(2*param$rs))^2),
+                                              param$rMax*(1 - ((i-param$rTopt)/(param$rTopt-param$rTmax))^2)) > r.TPC.f) { break } }
+    xvalue.f <- i
+    points(xvalue.h, r.TPC.h/param$rMax, pch=19, cex=3, col="#0072B2")
+    points(xvalue.f, r.TPC.f/param$rMax, pch=19, cex=3, col="#D55E00") }
+  # Fecundity (careful on which side of curve for loop starts, may have to swap Tmin and Tmax and add - to seq)
+  if(trait == "Fecundity") {
+    for(i in seq(Tmax,Tmin,-0.1)) { if(exp(-((i-param$Toptb)^2)/(2*param$sb^2))/(lTopt*param$dATR*exp(param$AdA*(1/param$TR-1/i))) > f.TPC.h/(param$bTopt*lTopt)) { break } }
+    xvalue.h <- i
+    for(i in seq(Tmax,Tmin,-0.1)) { if(exp(-((i-param$Toptb)^2)/(2*param$sb^2))/(lTopt*param$dATR*exp(param$AdA*(1/param$TR-1/i))) > f.TPC.f/(param$bTopt*lTopt)) { break } }
+    xvalue.f <- i
+    points(xvalue.h, f.TPC.h/(param$bTopt*lTopt), pch=19, cex=3, col="#0072B2")
+    points(xvalue.f, f.TPC.f/(param$bTopt*lTopt), pch=19, cex=3, col="#D55E00") }
+  # Survival (careful on which side of curve for loop starts, may have to swap Tmin and Tmax and add - to seq)
+  if(trait == "Survival") {
+    for(i in seq(Tmax,Tmin,-0.1)) { if(exp(-param$dJTR*exp(param$AdJ*(1/param$TR-1/i))/(ifelse(i <= param$Topt, param$mTR*(i/param$TR)*exp(param$AmJ*(1/param$TR-1/i))/(1+exp(param$AL*(1/param$TL-1/i))),
+                                                                                               ifelse(i <= param$Tmax, param$mTR*(param$Topt/param$TR)*exp(param$AmJ*(1/param$TR-1/param$Topt))/(1+exp(param$AL*(1/param$TL-1/param$Topt))), 0)))) > s.TPC.h) { break } }
+    xvalue.h <- i
+    for(i in seq(Tmax,Tmin,-0.1)) { if(exp(-param$dJTR*exp(param$AdJ*(1/param$TR-1/i))/(ifelse(i <= param$Topt, param$mTR*(i/param$TR)*exp(param$AmJ*(1/param$TR-1/i))/(1+exp(param$AL*(1/param$TL-1/i))),
+                                                                                               ifelse(i <= param$Tmax, param$mTR*(param$Topt/param$TR)*exp(param$AmJ*(1/param$TR-1/param$Topt))/(1+exp(param$AL*(1/param$TL-1/param$Topt))), 0)))) > s.TPC.f) { break } }
+    xvalue.f <- i
+    points(xvalue.h, s.TPC.h, pch=19, cex=3, col="#0072B2")
+    points(xvalue.f, s.TPC.f, pch=19, cex=3, col="#D55E00") }
   # TEMPERATURE HISTOGRAMS
   par(new = T)
-  hist(temp.h$T, xlim=c(Tmin,Tmax), ylim=c(ymin,ymax2), axes=F, xlab=NA, ylab=NA, breaks=seq(from=Tmin, to=Tmax, by=0.5), col=rgb(0,114,178, max = 255, alpha = 80), border=rgb(0,114,178, max = 255, alpha = 80), freq=FALSE, main = NULL)
-  hist(temp.f[temp.f$day>365*65,"T"], xlim=c(Tmin,Tmax), ylim=c(ymin,ymax2), breaks=seq(from=Tmin, to=Tmax, by=0.5), ylab="r", col=rgb(213,94,0, max = 255, alpha = 80), border=rgb(213,94,0, max = 255, alpha = 80), freq=FALSE, main = NULL, add=TRUE)
+  hist(temp.h$T, xlim=c(Tmin,Tmax), ylim=c(ymin,ymax2), axes=F, xlab=NA, ylab=NA, breaks=seq(from=Tmin, to=Tmax, by=Tbin), col=rgb(0,114,178, max = 255, alpha = 80), border=rgb(0,114,178, max = 255, alpha = 80), freq=FALSE, main = NULL)
+  hist(temp.f[temp.f$day>365*65,"T"], xlim=c(Tmin,Tmax), ylim=c(ymin,ymax2), breaks=seq(from=Tmin, to=Tmax, by=Tbin), ylab="r", col=rgb(213,94,0, max = 255, alpha = 80), border=rgb(213,94,0, max = 255, alpha = 80), freq=FALSE, main = NULL, add=TRUE)
   axis(side = 4, cex.axis=2)
 }
 
