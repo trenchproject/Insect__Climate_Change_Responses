@@ -431,7 +431,7 @@ plot.compare
 # STATISTICS
 #linear regression of field data and model data
 stats.data <- data.frame(Time = data.TS$time, Census = data.TS$A, Model = NA)
-for(i in seq(0:nrow(stats.data))) {
+for(i in seq(1:nrow(stats.data))) {
   stats.data$Model[i] = data.model.census[data.model.census$Time == stats.data$Time[i],"A"]
 }
 summary(lm(stats.data$Model ~ 0 + stats.data$Census))

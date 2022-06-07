@@ -375,54 +375,54 @@ for(s in 1:nrow(param.all)) {
       results[s,9] <- (R0.TPC.f - R0.TPC.h)/param$R0Topt
       results[s,10] <- (R0.model.f - R0.model.h)/max(TS.h$R0)
     }
-    if(trait == "Fecundity") {
-      results[s,5] <- f.TPC.h/(param$bTopt*lTopt)
-      results[s,6] <- f.TPC.f/(param$bTopt*lTopt)
-      results[s,7] <- f.model.h/(param$bTopt*lTopt)
-      results[s,8] <- f.model.f/(param$bTopt*lTopt)
-      results[s,9] <- (f.TPC.f - f.TPC.h)/(param$bTopt*lTopt)
-      results[s,10] <- (f.model.f - f.model.h)/(param$bTopt*lTopt)
-    }
+    # if(trait == "Fecundity") {
+    #   results[s,5] <- f.TPC.h/(param$bTopt*lTopt)
+    #   results[s,6] <- f.TPC.f/(param$bTopt*lTopt)
+    #   results[s,7] <- f.model.h/(param$bTopt*lTopt)
+    #   results[s,8] <- f.model.f/(param$bTopt*lTopt)
+    #   results[s,9] <- (f.TPC.f - f.TPC.h)/(param$bTopt*lTopt)
+    #   results[s,10] <- (f.model.f - f.model.h)/(param$bTopt*lTopt)
+    # }
     if(trait == "Survival") {
       results[s,5] <- s.TPC.h
       results[s,6] <- s.TPC.f
       results[s,7] <- s.model.h
       results[s,8] <- s.model.f
-      results[s,9] <- s.TPC.f - s.TPC.h
-      results[s,10] <- s.model.f - s.model.h
+      results[s,9] <- (s.TPC.f - s.TPC.h)
+      results[s,10] <- (s.model.f - s.model.h)
     }
     if(trait == "Birth") {
       results[s,5] <- b.TPC.h/param$bTopt
       results[s,6] <- b.TPC.f/param$bTopt
-      results[s,7] <- b.model.h/param$bTopt
-      results[s,8] <- b.model.f/param$bTopt
+      results[s,7] <- b.model.h/max(TS.h$b)
+      results[s,8] <- b.model.f/max(TS.h$b)
       results[s,9] <- (b.TPC.f - b.TPC.h)/param$bTopt
-      results[s,10] <- (b.model.f - b.model.h)/param$bTopt
+      results[s,10] <- (b.model.f - b.model.h)/max(TS.h$b)
     }
     if(trait == "Development") {
       results[s,5] <- (1/m.TPC.h)/(1/mTopt)
       results[s,6] <- (1/m.TPC.f)/(1/mTopt)
-      results[s,7] <- tau.model.h/(1/mTopt)
-      results[s,8] <- tau.model.f/(1/mTopt)
+      results[s,7] <- tau.model.h/min(TS.h$tau)
+      results[s,8] <- tau.model.f/min(TS.h$tau)
       results[s,9] <- (1/m.TPC.f - 1/m.TPC.h)/(1/mTopt)
-      results[s,10] <- (tau.model.f - tau.model.h)/(1/mTopt)
+      results[s,10] <- (tau.model.f - tau.model.h)/min(TS.h$tau)
     }
     if(trait == "Longevity") {
       results[s,5] <- (1/dA.TPC.h)/lTopt
       results[s,6] <- (1/dA.TPC.f)/lTopt
-      results[s,7] <- (1/dA.model.h)/lTopt
-      results[s,8] <- (1/dA.model.f)/lTopt
+      results[s,7] <- (1/dA.model.h)/(1/min(TS.h$dA))
+      results[s,8] <- (1/dA.model.f)/(1/min(TS.h$dA))
       results[s,9] <- (1/dA.TPC.f - 1/dA.TPC.h)/lTopt
-      results[s,10] <- (1/dA.model.f - 1/dA.model.h)/lTopt
+      results[s,10] <- (1/dA.model.f - 1/dA.model.h)/(1/min(TS.h$dA))
     }
-    if(trait == "Recruitment") {
-      results[s,5] <- R.TPC.h/param$bTopt
-      results[s,6] <- R.TPC.f/param$bTopt
-      results[s,7] <- R.model.h/param$bTopt
-      results[s,8] <- R.model.f/param$bTopt
-      results[s,9] <- (R.TPC.f - R.TPC.h)/param$bTopt
-      results[s,10] <- (R.model.f - R.model.h)/param$bTopt
-    }
+    # if(trait == "Recruitment") {
+    #   results[s,5] <- R.TPC.h/param$bTopt
+    #   results[s,6] <- R.TPC.f/param$bTopt
+    #   results[s,7] <- R.model.h/param$bTopt
+    #   results[s,8] <- R.model.f/param$bTopt
+    #   results[s,9] <- (R.TPC.f - R.TPC.h)/param$bTopt
+    #   results[s,10] <- (R.model.f - R.model.h)/param$bTopt
+    # }
   }
 
   
@@ -435,12 +435,12 @@ for(s in 1:nrow(param.all)) {
 if(output == TRUE && all == TRUE) {
   if(trait == "Fitness") { write_csv(results, "Predictions/Predictions Dev fitness.csv") }
   if(trait == "R0") { write_csv(results, "Predictions/Predictions Dev R0.csv") }
-  if(trait == "Fecundity") { write_csv(results, "Predictions/Predictions Dev lifetime fecundity.csv") }
+  #if(trait == "Fecundity") { write_csv(results, "Predictions/Predictions Dev lifetime fecundity.csv") }
   if(trait == "Survival") { write_csv(results, "Predictions/Predictions Dev survival.csv") }
   if(trait == "Birth") { write_csv(results, "Predictions/Predictions Dev birth.csv") }
   if(trait == "Development") { write_csv(results, "Predictions/Predictions Dev development.csv") }
   if(trait == "Longevity") { write_csv(results, "Predictions/Predictions Dev longevity.csv") }
-  if(trait == "Recruitment") { write_csv(results, "Predictions/Predictions Dev recruitment.csv") }
+  #if(trait == "Recruitment") { write_csv(results, "Predictions/Predictions Dev recruitment.csv") }
 }
 
 
@@ -565,12 +565,12 @@ if(trait == "R0") {
   print(paste("R0.model.h:", R0.model.h/max(TS.h$R0)))
   print(paste("R0.model.f:", R0.model.f/max(TS.h$R0)))
 }
-if(trait == "Fecundity") { 
-  print(paste("f.TPC.h:", f.TPC.h/(param$bTopt*lTopt)))
-  print(paste("f.TPC.f:", f.TPC.f/(param$bTopt*lTopt)))
-  print(paste("f.model.h:", f.model.h/(param$bTopt*lTopt)))
-  print(paste("f.model.f:", f.model.f/(param$bTopt*lTopt)))
-}
+# if(trait == "Fecundity") { 
+#   print(paste("f.TPC.h:", f.TPC.h/(param$bTopt*lTopt)))
+#   print(paste("f.TPC.f:", f.TPC.f/(param$bTopt*lTopt)))
+#   print(paste("f.model.h:", f.model.h/(param$bTopt*lTopt)))
+#   print(paste("f.model.f:", f.model.f/(param$bTopt*lTopt)))
+# }
 if(trait == "Survival") { 
   print(paste("s.TPC.h:", s.TPC.h))
   print(paste("s.TPC.f:", s.TPC.f))
@@ -580,27 +580,27 @@ if(trait == "Survival") {
 if(trait == "Birth") { 
   print(paste("b.TPC.h:", b.TPC.h/param$bTopt))
   print(paste("b.TPC.f:", b.TPC.f/param$bTopt))
-  print(paste("b.model.h:", b.model.h/param$bTopt))
-  print(paste("b.model.f:", b.model.f/param$bTopt))
+  print(paste("b.model.h:", b.model.h/max(TS.h$b)))
+  print(paste("b.model.f:", b.model.f/max(TS.h$b)))
 }
 if(trait == "Development") { 
   print(paste("tau.TPC.h:", (1/m.TPC.h)/(1/mTopt)))
   print(paste("tau.TPC.f:", (1/m.TPC.f)/(1/mTopt)))
-  print(paste("tau.model.h:", tau.model.h/(1/mTopt)))
-  print(paste("tau.model.f:", tau.model.f/(1/mTopt)))
+  print(paste("tau.model.h:", tau.model.h/min(TS.h$tau)))
+  print(paste("tau.model.f:", tau.model.f/min(TS.h$tau)))
 }
 if(trait == "Longevity") { 
   print(paste("1/dA.TPC.h:", (1/dA.TPC.h)/lTopt))
   print(paste("1/dA.TPC.f:", (1/dA.TPC.f)/lTopt))
-  print(paste("1/dA.model.h:", (1/dA.model.h)/lTopt))
-  print(paste("1/dA.model.f:", (1/dA.model.f)/lTopt))
+  print(paste("1/dA.model.h:", (1/dA.model.h)/(1/min(TS.h$dA))))
+  print(paste("1/dA.model.f:", (1/dA.model.f)/(1/min(TS.h$dA))))
 }
-if(trait == "Recruitment") { 
-  print(paste("R.TPC.h:", R.TPC.h/param$bTopt))
-  print(paste("R.TPC.f:", R.TPC.f/param$bTopt))
-  print(paste("R.model.h:", R.model.h/param$bTopt))
-  print(paste("R.model.f:", R.model.f/param$bTopt))
-}
+# if(trait == "Recruitment") { 
+#   print(paste("R.TPC.h:", R.TPC.h/param$bTopt))
+#   print(paste("R.TPC.f:", R.TPC.f/param$bTopt))
+#   print(paste("R.model.h:", R.model.h/param$bTopt))
+#   print(paste("R.model.f:", R.model.f/param$bTopt))
+# }
 if(all == TRUE) { print(results) }
 
 # Plot changes in life history traits
