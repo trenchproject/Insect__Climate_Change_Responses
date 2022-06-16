@@ -350,7 +350,7 @@ Ymax <- 1
 #dev.new(width=3, height=3, unit="in")
 plot(-100, xlim=c(Xmin,Xmax), ylim=c(Ymin,Ymax), xlab="Latitude", ylab="Model", cex.axis=2)
 abline(0, 0, col="gray", lwd=3, lty="longdash")
-points(seq(2*Xmin,2*Xmax,1), coef(mean.lat)[2]*seq(2*Xmin,2*Xmax,1) + coef(mean.lat)[1], type="l", lwd=3, col="black", lty="longdash")
+#points(seq(2*Xmin,2*Xmax,1), coef(mean.lat)[2]*seq(2*Xmin,2*Xmax,1) + coef(mean.lat)[1], type="l", lwd=3, col="black", lty="longdash")
 points(pop.data[pop.data$Habitat=="Tropical","Latitude"], pop.data[pop.data$Habitat=="Tropical","delta.mean"], pch=19, cex=1.5, col="#FFB000") # orange
 points(pop.data[pop.data$Habitat=="Mediterranean","Latitude"], pop.data[pop.data$Habitat=="Mediterranean","delta.mean"], pch=19, cex=1.5, col="#6FD012") # green
 points(pop.data[pop.data$Habitat=="Temperate","Latitude"], pop.data[pop.data$Habitat=="Temperate","delta.mean"], pch=19, cex=1.5, col="#785EF0") # purple
