@@ -3,17 +3,37 @@
 #####################################################################################
 
 # Load packages and set working directory
+library(readxl)
+library(lubridate)
+# need to check if libraries below are needed in this script
 library(tidyr)
 library(ggplot2)
 library(dplyr)
 library(tidyverse)
 library(ncdf4)
-library(lubridate)
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
-# USER: enter location and start date YYYY-MM-DD (see "Climate station data.xlxs")
-loc <- "Benin"
-date <- yday("1941-01-02")
+# Read climate station datasheet and present user with list of species
+clim.data <- read_xlsx("Climate station data.xlsx")
+clim.data$Species
+
+# USER: enter species and start date YYYY-MM-DD (see "Climate station data.xlxs")
+found <- F
+while(found == F) {
+  sp.num <- readline("Please enter number associated with species and location: ") # must run lines 17-18 to see options
+  #sp.num <- 1 # this line is only for checking the code, remove when everything is working
+  if(sp.num >= 1 & sp.num <= nrow(clim.data)) {
+    found <- T
+  } else { print("Species not found, please try again")}
+}
+sp.num <- as.numeric(sp.num)
+print(paste("Species selected is: ", sp.num, clim.data[sp.num,]$Species))
+
+# Set location (loc) and first day of year (date) for climate record for user-selected species above
+loc <- clim.data[sp.num,]$Location
+date <- yday(paste0(clim.data[sp.num,]$Start_yr,"-",
+                    if(clim.data[sp.num,]$Start_mo < 10) {"0"}, clim.data[sp.num,]$Start_mo,"-", # add 0 before months < 10
+                    if(clim.data[sp.num,]$Start_day < 10) {"0"}, clim.data[sp.num,]$Start_day)) # add 0 before days < 10
 
 
 ################################## HISTORICAL CLIMATE DATA ##################################
