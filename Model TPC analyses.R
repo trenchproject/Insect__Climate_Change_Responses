@@ -28,7 +28,7 @@ overw <- TRUE
 daily <- FALSE
 
 # USER: output results in csv (only if all == TRUE)?
-output <- TRUE
+output <- FALSE
 
 
 # READ LIFE HISTORY AND TEMPERATURE PARAMETERS
@@ -479,7 +479,9 @@ if(all == FALSE) {
   Tmax <- round(max(temp.h$T,temp.f$T),0) + 3
   deltaT <- 5 # tick marks for x-axis
   ymin <- 0
-  ifelse(trait == "Development", ymax1 <- 1.05, ymax1 <- 1)
+  ymax1 <- 1
+  if(trait == "Development") {ymin <- 1; ymax1 <- 5}
+  if(trait == "Longevity") {ymin <- 0; ymax1 <- 2}
   ymax2 <- 0.4 # for temperature histogram
   Tbin  <- 0.5 # bin size for temperature histogram
   
@@ -496,7 +498,7 @@ if(all == FALSE) {
   R <- b*s
   
   # TPC PLOTS
-  #dev.new(width=3, height=3, unit="in")
+  dev.new(width=3, height=3, unit="in")
   plot(-100, xlim=c(Tmin,Tmax), ylim=c(ymin,ymax1), xaxt = "n", xlab="", ylab="", cex.axis=2)
   axis(1, at=seq(Tmin,Tmax,deltaT), labels=seq(Tmin-273,Tmax-273,deltaT), cex.axis=2)
   if(trait == "Fitness") {  points(seq(Tmin,Tmax,0.1), r/param$rMax, type="l", lwd=4, col="black") }
@@ -504,7 +506,7 @@ if(all == FALSE) {
   if(trait == "Fecundity") {  points(seq(Tmin,Tmax,0.1), f/(param$bTopt*lTopt), type="l", lwd=4, col="black") }
   if(trait == "Survival") {  points(seq(Tmin,Tmax,0.1), s, type="l", lwd=4, col="black") }
   if(trait == "Birth") {  points(seq(Tmin,Tmax,0.1), b/param$bTopt, type="l", lwd=4, col="black") }
-  if(trait == "Development") {  points(seq(Tmin,Tmax,0.1), m/mTopt, type="l", lwd=4, col="black") }
+  if(trait == "Development") {  points(seq(Tmin,Tmax,0.1), 1/(m/mTopt), type="l", lwd=4, col="black") }
   if(trait == "Longevity") {  points(seq(Tmin,Tmax,0.1), (1/dA)/lTopt, type="l", lwd=4, col="black") }
   if(trait == "Recruitment") {  points(seq(Tmin,Tmax,0.1), R/param$bTopt, type="l", lwd=4, col="black") }
   # TEMPERATURE PARAMETERS
