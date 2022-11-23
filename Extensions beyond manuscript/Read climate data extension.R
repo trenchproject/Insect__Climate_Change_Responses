@@ -14,7 +14,7 @@ library(ncdf4)
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 # Read climate station datasheet and present user with list of species
-clim.data <- read_xlsx("Climate station data.xlsx")
+clim.data <- read_xlsx("Climate station data extension.xlsx")
 clim.data$Species
 
 # USER: enter species and start date YYYY-MM-DD (see "Climate station data.xlxs")
