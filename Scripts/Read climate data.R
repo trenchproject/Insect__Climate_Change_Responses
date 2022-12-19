@@ -2,35 +2,41 @@
 #### This R script reads climate data from netCDF files and converts them to CSV ####
 #####################################################################################
 
-# Load packages and set working directory
+# Load packages
 library(readxl)
 library(lubridate)
-# need to check if libraries below are needed in this script
-library(tidyr)
-library(ggplot2)
-library(dplyr)
-library(tidyverse)
 library(ncdf4)
+library(tidyverse)
+
+# Set working directory
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+setwd('..')
 
-# Read climate station datasheet and present user with list of species
+# Read climate station data
+# NOTE: To analyze populations beyond the manuscript, update line 17 to "Extensions beyond manuscript/Climate station data extension.xlsx"
 clim.data <- read_xlsx("Climate station data.xlsx")
-clim.data$Species
 
-# USER: enter species and start date YYYY-MM-DD (see "Climate station data.xlxs")
-found <- F
-while(found == F) {
-  sp.num <- readline("Please enter number associated with species and location: ") # must run lines 17-18 to see options
-  #sp.num <- 1 # this line is only for checking the code, remove when everything is working
-  if(sp.num >= 1 & sp.num <= nrow(clim.data)) {
-    found <- T
-  } else { print("Species not found, please try again")}
-}
-sp.num <- as.numeric(sp.num)
-print(paste("Species selected is: ", sp.num, clim.data[sp.num,]$Species))
+# USER: Enter location of climate data (see "Climate station data.xlsx")
+loc <- "Benin"
 
-# Set location (loc) and first day of year (date) for climate record for user-selected species above
-loc <- clim.data[sp.num,]$Location
+# USER: Save climate data?
+save <- FALSE
+
+# USER: Save remove climate netCDF files?
+remove <- FALSE
+
+# Find information for selected species in "Climate station data.xlsx"
+sp.num <- -1
+for(i in 1:nrow(clim.data)) {
+  if(clim.data[i,]$Location == loc) {
+    sp.num <- i
+    break }
+  }
+if(sp.num == -1) {
+  print("Location not found in Climate station data.xlsx, please update line 20")
+  }
+
+# Assign day number for the first date in which there is climate data
 date <- yday(paste0(clim.data[sp.num,]$Start_yr,"-",
                     if(clim.data[sp.num,]$Start_mo < 10) {"0"}, clim.data[sp.num,]$Start_mo,"-", # add 0 before months < 10
                     if(clim.data[sp.num,]$Start_day < 10) {"0"}, clim.data[sp.num,]$Start_day)) # add 0 before days < 10
@@ -38,9 +44,9 @@ date <- yday(paste0(clim.data[sp.num,]$Start_yr,"-",
 
 ################################## HISTORICAL CLIMATE DATA ##################################
 # Open netCDF files
-###### NOTE: Must first run "Read download climate nc files, please read "Project overview.docx" under the "Protocols" section
-nc.max <- nc_open(paste0("Historical Tmax ",loc,".nc"))
-nc.min <- nc_open(paste0("Historical Tmin ",loc,".nc"))
+# NOTE: Must first run "Read download climate nc files, please read "ReadME download historical data.docx"
+nc.max <- nc_open(paste0("Climate data/Historical Tmax ",loc,".nc"))
+nc.min <- nc_open(paste0("Climate data/Historical Tmin ",loc,".nc"))
 
 # Get variables and data from netCDF files
 t.max <- ncvar_get(nc.max, "time") # time in Tmax data frame
@@ -52,9 +58,7 @@ data.min <- data.frame(date + t.min,  273.15 + Tmin)
 names(data.max) <- c("day", "T")
 names(data.min) <- c("day", "T")
 
-# Enter data into R data frame
-data <- as.data.frame(0) # create empty data frame
-data <- data[FALSE,]
+# Enter climate data into R data frame
 data <- rbind(data.min, data.max)
 data <- data[order(data$day),]
 
@@ -62,26 +66,26 @@ data <- data[order(data$day),]
 data <- na.omit(data)
 
 # Save data in CSV file
-write.csv(data, paste0("Historical climate data ",loc,".csv"), row.names = FALSE)
+if(save == TRUE) { write.csv(data, paste0("Climate Data/Historical climate data ",loc,".csv"), row.names = FALSE) }
 
 # Close and delete netCDF files
 nc_close(nc.max)
 nc_close(nc.min)
-file.remove(paste0("Historical Tmax ",loc,".nc"))
-file.remove(paste0("Historical Tmin ",loc,".nc"))
+if(remove == TRUE) {
+  file.remove(paste0("Climate Data/Historical Tmax ",loc,".nc"))
+  file.remove(paste0("Climate Data/Historical Tmin ",loc,".nc"))
+}
 
 
 #################################### FUTURE CLIMATE DATA ####################################
 # Get variables and data from CSV files created by climate data.py
-data.max <- as.data.frame(read_csv(paste0("Future Tmax ",loc,".csv")))
-data.min <- as.data.frame(read_csv(paste0("Future Tmin ",loc,".csv")))
+data.max <- as.data.frame(read_csv(paste0("Climate Data/Future Tmax ",loc,".csv")))
+data.min <- as.data.frame(read_csv(paste0("Climate Data/Future Tmin ",loc,".csv")))
 names(data.max) <- c("day", "time", "latitude", "longitude", "T")
 names(data.min) <- c("day", "time", "latitude", "longitude", "T")
 data.max$day <- data.max$day + 0.5  # offset Tmax 0.5 days from Tmin
 
 # Combine data into R data frame
-data <- as.data.frame(0) # create empty data frame
-data <- data[FALSE,]
 data <- rbind(data.min, data.max)
 data <- data[order(data$day),]
 
@@ -89,11 +93,10 @@ data <- data[order(data$day),]
 data <- na.omit(data)
 
 # Save data in CSV file
-write.csv(data, paste0("Future climate data ",loc,".csv"), row.names = FALSE)
+if(save == TRUE) { write.csv(data, paste0("Climate Data/Future climate data ",loc,".csv"), row.names = FALSE) }
 
 # Remove Tmax and Tmin CSV files
-file.remove(paste0("Future Tmax ",loc,".csv"))
-file.remove(paste0("Future Tmin ",loc,".csv"))
-
-
-
+if(remove == TRUE) {
+  file.remove(paste0("Climate Data/Future Tmax ",loc,".csv"))
+  file.remove(paste0("Climate Data/Future Tmin ",loc,".csv"))
+}

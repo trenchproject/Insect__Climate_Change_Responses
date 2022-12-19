@@ -1,6 +1,13 @@
-#!/usr/bin/python3
- 
-import cdsapi
+###############################################################################
+########## This script downloads CMIP6 climate data for a population ##########
+###############################################################################
+
+# Install required packages
+import cdsapi # please read "ReadMe install python.docx" to learn how to download the CDS API module
+import sys # needed to download netCDF4
+import subprocess # needed to download netCDF4
+if not 'netCDF4' in sys.modules:
+    subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'netCDF4']) # install netCDF4 if not installed
 import netCDF4 # For more info: https://unidata.github.io/netcdf4-python/
 from netCDF4 import num2date
 import numpy as np
@@ -9,17 +16,23 @@ import pandas as pd
 from zipfile import ZipFile
 
 
-# USER: enter desired latitude and longitude and name of location
-lat = 6.45
-lon = 2.35
-loc = "Benin"
-# USER: must also update line 51 after netCDF file downloaded
+# USER: please set path to desired folder for downloaded climate files
+dir_path = '/Users/c.johnson/Documents/GitHub/Johnson_Insect_Responses/Climate data'
+
+# USER: please enter desired latitude and longitude and name of location from "Climate station data.xlsx"
+lat = -21.23 #6.45 # from "Lat" column of "Climate station data.xlsx" (NOT "Latitude" column)
+lon = -43.35 #2.35 # from "Lon" column of "Climate station data.xlsx"
+loc = "Brazil" # from "Location" column of "Climate station data.xlsx"
 
 
 # Set working directory to the same as the python code
 cwd = os.getcwd()
-if cwd != '/Users/johnson/Documents/Christopher/Washington/Research/Climate data analyses':
-    os.chdir('/Users/johnson/Documents/Christopher/Washington/Research/Climate data analyses')
+if cwd != dir_path:
+    os.chdir(dir_path)
+
+# Get names of downloaded files
+nc_max = "tasmax_day_CESM2_ssp370_r4i1p1f1_gn_20150101-21010101_v20200528.nc"
+nc_min = nc_max.replace("tasmax","tasmin")
 
 
 # FOR DAILY MAXIMUM TEMPERATURE
@@ -46,15 +59,8 @@ with ZipFile(file_name + '.zip', 'r') as zip:
     zip.extractall()
 os.remove(file_name + '.zip')
 
-
-# USER: enter netcdf file name:
-nc_max = "tasmax_day_CESM2_ssp370_r4i1p1f1_gn_20150101-21010101_v20200528.nc"
-nc_min = nc_max.replace("tasmax","tasmin")
-
-
-# Open netCDF4 file (USER: must update file name)
-# Naming convention: <variable_id>_<table_id>_<source_id>_<experiment_id>_<variant_label>_<grid_label>_<time_range>_<version updata>.nc
-f = netCDF4.Dataset(nc_max)
+# Open netCDF4 file
+f = netCDF4.Dataset(nc_max) # naming convention: <variable_id>_<table_id>_<source_id>_<experiment_id>_<variant_label>_<grid_label>_<time_range>_<version updata>.nc
 
 # Extract variable
 var = f.variables['tasmax']
@@ -78,10 +84,12 @@ df.to_csv(file_name + ".csv")
 f.close()
 
 # Delete Climate Store data files
-os.rename(nc_max, file_name + ".nc")
-#os.remove("adaptor.esgf_wps.retrieve-1632876778.2203593-19762-16-63dfaacc-2e6c-4f07-87b5-975b6152e747_provenance.json")
-#os.remove("adaptor.esgf_wps.retrieve-1632876778.2203593-19762-16-63dfaacc-2e6c-4f07-87b5-975b6152e747_provenance.png")
-
+os.remove(nc_max) # remove NC file
+for item in os.listdir(dir_path): # remove JSON and PNG files associated with NC file
+    if item.endswith(".json"):
+        os.remove(os.path.join(dir_path, item))
+    if item.endswith(".png"):
+        os.remove(os.path.join(dir_path, item))
 
 
 # FOR DAILY MINIMUM TEMPERATURE
@@ -108,9 +116,8 @@ with ZipFile(file_name2 + '.zip', 'r') as zip:
     zip.extractall()
 os.remove(file_name2 + '.zip')
 
-# Open netCDF4 file (USER: must update file name)
-# Naming convention: <variable_id>_<table_id>_<source_id>_<experiment_id>_<variant_label>_<grid_label>_<time_range>_<version updata>.nc
-f = netCDF4.Dataset(nc_min)
+# Open netCDF4 file
+f = netCDF4.Dataset(nc_min) # naming convention: <variable_id>_<table_id>_<source_id>_<experiment_id>_<variant_label>_<grid_label>_<time_range>_<version updata>.nc
 
 # Extract variable
 var = f.variables['tasmin']
@@ -134,39 +141,9 @@ df.to_csv(file_name2 + ".csv")
 f.close()
 
 # Delete Climate Store data files
-os.rename(nc_min, file_name2 + ".nc")
-#os.remove("adaptor.esgf_wps.retrieve-1633011791.616639-15237-12-8103cbb3-333e-44f0-84ff-0e5a6f994590_provenance.json")
-#os.remove("adaptor.esgf_wps.retrieve-1633011791.616639-15237-12-8103cbb3-333e-44f0-84ff-0e5a6f994590_provenance.png")
-
-
-
-'''
-# SUPPLEMENTARY CODES: DO NOT RUN THIS CODE OR IT WILL CREATE 1000s OF .CSV FILES AND CRASH THE COMPUTER!!!!!!
-output_dir = './'
-
-# =============================== METHOD 1 ============================
-# Extract each time as a 2D pandas DataFrame and write it to CSV
-# =====================================================================
-os.makedirs(output_dir, exist_ok=True)
-for i, t in enumerate(times):
-    filename = os.path.join(output_dir, f'{t.isoformat()}.csv')
-    print(f'Writing time {t} to {filename}')
-    df = pd.DataFrame(var[i, :, :], index=latitudes, columns=longitudes)
-    df.to_csv(filename)
-print('Done')
-
-# =============================== METHOD 2 ============================
-# Write data as a table with 4 columns: time, latitude, longitude, value
-# =====================================================================
-filename = os.path.join(output_dir, 'table.csv')
-print(f'Writing data in tabular form to {filename} (this may take some time)...')
-times_grid, latitudes_grid, longitudes_grid = [
-    x.flatten() for x in np.meshgrid(times, latitudes, longitudes, indexing='ij')]
-df = pd.DataFrame({
-    'time': [t.isoformat() for t in times_grid],
-    'latitude': latitudes_grid,
-    'longitude': longitudes_grid,
-    'var': var[:].flatten()})
-df.to_csv(filename, index=False)
-print('Done')
-'''
+os.remove(nc_min) # remove NC file
+for item in os.listdir(dir_path): # remove JSON and PNG files associated with NC file
+    if item.endswith(".json"):
+        os.remove(os.path.join(dir_path, item))
+    if item.endswith(".png"):
+        os.remove(os.path.join(dir_path, item))
