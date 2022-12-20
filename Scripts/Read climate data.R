@@ -14,7 +14,7 @@ setwd('..')
 
 # Read climate station data
 # NOTE: To analyze populations beyond the manuscript, update line 17 to "Extensions beyond manuscript/Climate station data extension.xlsx"
-clim.data <- read_xlsx("Climate station data.xlsx")
+clim.data <- read_xlsx("Climate data/Climate station data.xlsx")
 
 # USER: Enter location of climate data (see "Climate station data.xlsx")
 loc <- "Benin"
