@@ -1,7 +1,7 @@
 "Species","Location","Latitude","Habitat","subfamily","meanT.h","amplT.h","shiftT.h","delta_mean.h","delta_ampl.h","meanT.f","amplT.f","shiftT.f","delta_mean.f","delta_ampl.f"
 "Clavigralla shadabi Benin","Benin",6.45,"Tropical","Heteroptera",300.6,1.41,120.6,0,0,301.5,1.03,117.2,0.000123,2e-06
 "Clavigralla tomentosicollis Benin","Benin",6.45,"Tropical","Heteroptera",300.6,1.41,120.6,0,0,301.5,1.03,117.2,0.000123,2e-06
-"Clavigralla tomentosicollis Nigeria","Nigeria",7.45,"Tropical","Heteroptera",301,1.66,126.6,0,0,301.3,1.17,109.7,0.000151,0
+"Clavigralla tomentosicollis Burkina Faso","Burkina Faso",12.38,"Tropical","Heteroptera",302,2.53,44.3,0,0,303.1,-3.42,316.5,0.000177,-2.3e-05
 "Apolygus lucorum China Dafeng","China Dafeng",33.33,"Temperate","Heteroptera",288.5,-12.55,151.9,0,0,291.4,12.77,344.4,0.000125,2e-05
 "Adelphocoris suturalis China Dafeng","China Dafeng",33.33,"Temperate","Heteroptera",288.5,-12.55,151.9,0,0,291.4,12.77,344.4,0.000125,2e-05
 "Apolygus lucorum China Langfang","China Langfang",39.88,"Temperate","Heteroptera",285.7,15.12,342.9,0,0,284.5,15.69,354.3,0.000156,0

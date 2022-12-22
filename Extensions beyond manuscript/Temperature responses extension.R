@@ -11,11 +11,11 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 
 # USER: enter species name (used in temperature response data.csv)
-name <- "Clavigralla tomentosicollis Benin"
+name <- "Clavigralla shadabi Benin"
 
 
 # Read data
-data <- as.data.frame(read_csv("Temperature response data.csv"))
+data <- as.data.frame(read_csv("../Biological data/Temperature response data.csv"))
 
 # Assign species
 sp.data <- data[data$Species == name,]

@@ -31,7 +31,7 @@ for(s in 1:nrow(params)) {
     data.f <- as.data.frame(read_csv(paste0("Climate data/Future climate data ",params[s,]$Location,".csv")))
   }
     
-  # Find model fits for climate in selected location (line 13) or move interatively through rows of “Habitat temperature parameters.csv”
+  # Find model parameters for climate in selected location (line 13) or move iteratively through rows of “Habitat temperature parameters.csv”
   if(all == FALSE) {
     sp.num <- -1
     for(i in 1:nrow(params)) {
@@ -72,14 +72,14 @@ for(s in 1:nrow(params)) {
   if(fit.f[["coefficients"]][5,4] > 0.05) { fit.f[["coefficients"]][5,1] <- 0 } # delta_ampl
   
   # Assign model parameters
-  params[sp.num,]$meanT.h <- round(fit.h[["coefficients"]][1,1], 1)
-  params[sp.num,]$amplT.h <- round(fit.h[["coefficients"]][2,1], 2)
-  params[sp.num,]$shiftT.h <- round(fit.h[["coefficients"]][3,1], 1) %% 365 # take modulo to quantify day of year for shift
-  params[sp.num,]$meanT.f <- round(fit.f[["coefficients"]][1,1], 1)
-  params[sp.num,]$amplT.f <- round(fit.f[["coefficients"]][2,1], 2)
-  params[sp.num,]$shiftT.f <- round(fit.f[["coefficients"]][3,1], 1) %% 365 # take modulo to quantify day of year for shift
-  params[sp.num,]$delta_mean.f <- round(fit.f[["coefficients"]][4,1], 6)
-  params[sp.num,]$delta_ampl.f <- round(fit.f[["coefficients"]][5,1], 6)
+  params[sp.num,]$meanT.h <- round(coef(fit.h)[1], 1)
+  params[sp.num,]$amplT.h <- round(coef(fit.h)[2], 2)
+  params[sp.num,]$shiftT.h <- round(coef(fit.h)[3], 1) %% 365 # take modulo to quantify day of year for shift
+  params[sp.num,]$meanT.f <- round(coef(fit.f)[1], 1)
+  params[sp.num,]$amplT.f <- round(coef(fit.f)[2], 2)
+  params[sp.num,]$shiftT.f <- round(coef(fit.f)[3], 1) %% 365 # take modulo to quantify day of year for shift
+  params[sp.num,]$delta_mean.f <- round(coef(fit.f)[4], 6)
+  params[sp.num,]$delta_ampl.f <- round(coef(fit.f)[5], 6)
 
   # Break for loop (line 23) if analyses are run for a specified species (all <- FALSE in line 14)
   if(all == FALSE) { break }
