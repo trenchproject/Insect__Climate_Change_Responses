@@ -1,4 +1,4 @@
-# Johnson_Insect_Responses
+# Insect_Responses_Climate_Change
 This is a repo containing the data and scripts for the submitted manuscript "Temperature sensitivity of fitness components across life cycles drives insect responses to climate change"
 
 [Computational pipeline](https://github.com/trenchproject/Johnson_Insect_Responses/blob/main/Computational_pipeline.png)
