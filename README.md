@@ -1,11 +1,9 @@
 # Johnson_Insect_Responses
-This is a repo for data and codes for my (Chris Johnson) research on the temperature responses of hemipteran insects
-
-See "Project overview.docx" for more up-to-date information, I will update this README at a later date
+This is a repo containing the data and scripts for the submitted manuscript "Temperature sensitivity of fitness components across life cycles drives insect responses to climate change"
 
 [Computational pipeline](https://github.com/trenchproject/Johnson_Insect_Responses/blob/main/Computational_pipeline.png)
 
-Files (needs to be updated):
+Folder Structure:
 * DDE population dynamics.py (Python code for modeling dynamics using delay differential equations)
 * Habitat temperatures.R (R code for fitting habitat temperature function)
 * ODE population dynamics.R (R code for modelling population dynamics using ordinary differential equations)
