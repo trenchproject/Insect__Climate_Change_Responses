@@ -11,7 +11,7 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 
 # USER: enter species name (used in temperature response data.csv)
-name <- "Clavigralla shadabi Benin"
+name <- "Aphis nasturtii US Weston"
 
 
 # Read data
@@ -42,7 +42,7 @@ points(seq(Tmin,Tmax,1),coef(fec)[1]*exp(-((seq(Tmin,Tmax,1)-coef(fec)[2])^2)/(2
 ###################################### DEVELOPMENT ##########################################
 # estimate xTR and A
 # NOTE: removed data beyond max development
-dev.mon <- nls(Development ~ xTR*T_K/TR*exp(A*(1/TR-1/T_K)), data=sp.data[-c((nrow(sp.data)-0):nrow(sp.data)),],
+dev.mon <- nls(Development ~ xTR*T_K/TR*exp(A*(1/TR-1/T_K)), data=sp.data[1:(nrow(sp.data)-0),],
                start=list(xTR=0.1, A=1000))
 summary(dev.mon)
 # plot model fits

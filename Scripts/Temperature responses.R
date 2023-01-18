@@ -4,6 +4,7 @@
 
 # Load packages
 library(tidyverse)
+library(stringr)
 
 # Set working directory
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
@@ -21,7 +22,8 @@ data <- as.data.frame(read_csv("Biological data/Temperature response data.csv"))
 params <- as.data.frame(read_csv("Model parameters/Temperature response parameters.csv"))
   
 # Run analyses for all species
-for(s in 3:3) { #nrow(params)) {
+x <- 1
+for(s in x:22) { #nrow(params)) {
 
   # Find model parameters for selected species (line 13) or move iteratively through rows of “Temperature response parameters.csv”
   if(all == FALSE) {
@@ -36,19 +38,20 @@ for(s in 3:3) { #nrow(params)) {
     }
   } else { sp.num <- s }
   
-  # Assign species
-  sp.data <- data[data$Species == params[sp.num,1],]
+  # Assign species (need to set location for Apolygus lucorum and Adelphocoris saturalis to "China" as in "Temperature response data.csv")
+  if(word(params[sp.num,2],1) != "China") { sp.data <- data[data$Species == params[sp.num,1],] # find population in "Temperature response data.csv"
+  } else { sp.data <- data[data$Species == word(params[sp.num,1], 1,3),] }
   
   # Remove columns that do not contain temperature data
   sp.data <- sp.data[-c(1:8,12,14,16,18,20,21,23,24,26,27,29,31,32,34,36,37,38)]
   
-  # Set minimum, maximum, and reference temperature (TR) for nls and plotting
+  # Set minimum and maximum for x-axes, and reference temperature (TR) for nls
   if(params[sp.num,]$Habitat == "Tropical") {
-    Tmin <- 285
-    Tmax <- 315
+    Xmin <- 285
+    Xmax <- 315
   } else {
-    Tmin <- 275
-    Tmax <- 305
+    Xmin <- 275
+    Xmax <- 305
   }
   if(params[sp.num,]$Species == "Clavigralla tomentosicollis Burkina Faso") { TR <- 300 # must use a higher TR for this species
   } else { TR <- 293 }
@@ -72,39 +75,24 @@ for(s in 3:3) { #nrow(params)) {
     params[sp.num,]$Toptr <- round(coef(r.nls)[2], 1)
     params[sp.num,]$Tmaxr <- round(coef(r.nls)[3], 1)
     params[sp.num,]$sr <- round(coef(r.nls)[4], 2)
-  } else { # If nls returns an error, then try alternative method of splitting data and fitting each part of the piecewise function separately
-    # # Split data at maximum value (which goes to both piecewise parts)
-    # for(i in nrow(sp.data):1) {
-    #     if(sp.data[i,"r"] == max(sp.data[,"r"])) { break }
-    # }
-    # data1 <- sp.data[1:i,]
-    # data2 <- sp.data[i:nrow(sp.data),]
-    # 
-    # # Estimate first part of piecewise function
-    # r.nls1 <- nls(r ~ rMax*exp(-(T_K-Toptr)^2/(2*sr^2)), data=data1,
-    #              start=list(rMax=params[sp.num,]$rMax, Toptr=params[sp.num,]$Toptr, sr=params[sp.num,]$sr))
-    # summary(r.nls1)
-    # 
-    # # Set Topt and rMax (NOTE: Topt cannot equal Tmax in nls)
-    # #rMax <- max(sp.data[,"r"])
-    # #Toptr <- sp.data[sp.data$r==rMax,"T_K"]
-    # 
-    # # Estimate all other parameters
-    # r.nls <- nls(r ~ ifelse(T_K <= Toptr, rMax*exp(-(T_K-Toptr)^2/(2*sr^2)), rMax*(1 - ((T_K-Toptr)/(Toptr-Tmaxr))^2)),
-    #          data=sp.data, start=list(Tmaxr=params[sp.num,]$Tmaxr, sr=params[sp.num,]$sr))
-    # summary(r.nls)
-    # 
-    # # Assign parameters
-    # params[sp.num,]$rMax <- round(coef(r.nls)[1], 3)
-    # params[sp.num,]$Toptr <- round(coef(r.nls)[2], 1)
-    # params[sp.num,]$Tmaxr <- round(coef(r.nls)[3], 1)
-    # params[sp.num,]$sr <- round(coef(r.nls)[4], 2)
+  } else { # If nls returns an error, then set rMax and Toptr to data and use nls to estimate Tmaxr and sr
+    rMax.test <- max(na.omit(sp.data[,"r"]))
+    Toptr.test <- sp.data[which.max(sp.data$r), "T_K"]
+    r.nls1 <- nls(r ~ ifelse(T_K <= Toptr.test, rMax.test*exp(-(T_K-Toptr.test)^2/(2*sr^2)), rMax.test*(1 - ((T_K-Toptr.test)/(Toptr.test-Tmaxr))^2)),
+                 data=sp.data, start=list(Tmaxr=params[sp.num,]$Tmaxr, sr=params[sp.num,]$sr))
+    summary(r.nls1)
+    
+    # Assign parameters
+    params[sp.num,]$rMax <- round(rMax.test, 3)
+    params[sp.num,]$Toptr <- round(Toptr.test, 1)
+    params[sp.num,]$Tmaxr <- round(coef(r.nls1)[1], 1)
+    params[sp.num,]$sr <- round(coef(r.nls1)[2], 2)
   }
   
   # Plot model fit
   plot(sp.data$T_K, sp.data$r)
-  points(seq(Tmin,Tmax,1), ifelse(seq(Tmin,Tmax,1) <= params[sp.num,]$Toptr, params[sp.num,]$rMax*exp(-(seq(Tmin,Tmax,1)-params[sp.num,]$Toptr)^2/(2*params[sp.num,]$sr^2)),
-                                  params[sp.num,]$rMax*(1 - ((seq(Tmin,Tmax,1)-params[sp.num,]$Toptr)/(params[sp.num,]$Toptr-params[sp.num,]$Tmaxr))^2)), type="l", col="blue")
+  points(seq(Xmin,Xmax,1), ifelse(seq(Xmin,Xmax,1) <= params[sp.num,]$Toptr, params[sp.num,]$rMax*exp(-(seq(Xmin,Xmax,1)-params[sp.num,]$Toptr)^2/(2*params[sp.num,]$sr^2)),
+                                  params[sp.num,]$rMax*(1 - ((seq(Xmin,Xmax,1)-params[sp.num,]$Toptr)/(params[sp.num,]$Toptr-params[sp.num,]$Tmaxr))^2)), type="l", col="blue")
   
   
   ##################### NET REPRODUCTIVE RATE, R0 (Eq. 1b) #######################
@@ -120,7 +108,7 @@ for(s in 3:3) { #nrow(params)) {
   
   # Plot model fit
   plot(sp.data$T_K, sp.data$R0)
-  points(seq(Tmin,Tmax,1), params[sp.num,]$R0Topt*exp(-(seq(Tmin,Tmax,1)-params[sp.num,]$ToptR0)^2/(2*params[sp.num,]$sR0^2)), type="l", col="blue")
+  points(seq(Xmin,Xmax,1), params[sp.num,]$R0Topt*exp(-(seq(Xmin,Xmax,1)-params[sp.num,]$ToptR0)^2/(2*params[sp.num,]$sR0^2)), type="l", col="blue")
   
   
   ################### PER CAPITA BIRTH RATE, b[T] (Eq. 2a) #######################
@@ -136,99 +124,99 @@ for(s in 3:3) { #nrow(params)) {
   
   # Plot model fit
   plot(sp.data$T_K, sp.data$Birth_Rate)
-  points(seq(Tmin,Tmax,1), params[sp.num,]$bTopt*exp(-(seq(Tmin,Tmax,1)-params[sp.num,]$Toptb)^2/(2*params[sp.num,]$sb^2)), type="l", col="blue")
+  points(seq(Xmin,Xmax,1), params[sp.num,]$bTopt*exp(-(seq(Xmin,Xmax,1)-params[sp.num,]$Toptb)^2/(2*params[sp.num,]$sb^2)), type="l", col="blue")
   
   
   ################ STAGE-SPECIFIC MORTALITY RATE, d_i[T] (Eq. 2b) ################
   # Juvenile per capita mortality rate
   # Nonlinear regression
-  error <- tryCatch({
-    dJ.nls <- nls(Juv_Mortality ~ dJTR*exp(AdJ*(1/TR-1/T_K)), data=sp.data,
-                  start=list(dJTR=params[sp.num,]$dJTR, AdJ=params[sp.num,]$AdJ))
-    print(summary(dJ.nls))
-  
-    # Function nls does not return an error
-    error <- FALSE
-    
-    # If mortality estimate has high p-value (> 0.6), then return error
-    if(dJ.nls[["coefficients"]][1,4] > 0.6) { error <- TRUE }
-  }, error = function(err) { error <- TRUE; return(error) })
-  
-  # If there are no errors, then assign parameters
-  if(error == FALSE) {
-    params[sp.num,]$dJTR <- round(coef(dJ.nls)[1], 4)
-    params[sp.num,]$AdJ <- round(coef(dJ.nls)[2], 0)
-  } else { # If nls returns an error, then try alternative method of setting dJTR to the data at TR and fitting AdJ
-    dJTR <- sp.data[sp.data$T_K==TR,"Juv_Mortality"]
-  
-    # Nonlinear regression
-    dJ.nls <- nls(Juv_Mortality ~ dJTR*exp(AdJ*(1/TR-1/T_K)), data=sp.data,
-                  start=list(AdJ=params[sp.num,]$AdJ))
+  if(params[sp.num,2] != "Australia Acton") { 
+    dJ.nls <- nls(Juv_Mortality ~ dJTR*exp(AdJ*(1/TR-1/T_K)), data=sp.data, start=list(dJTR=params[sp.num,]$dJTR, AdJ=params[sp.num,]$AdJ))
     print(summary(dJ.nls))
     
     # Assign parameters
-    params[sp.num,]$dJTR <- round(dJTR, 4)
+    params[sp.num,]$dJTR <- round(coef(dJ.nls)[1], 4)
+    params[sp.num,]$AdJ <- round(coef(dJ.nls)[2], 0)
+  } else { dJTR.test <- round(sp.data[1,"Juv_Mortality"],4) # For population in Australia Acton, must set dJTR to data and fit AdJ via nls
+    dJ.nls <- nls(Juv_Mortality ~ dJTR.test*exp(AdJ*(1/TR-1/T_K)), data=sp.data, start=list(AdJ=params[sp.num,]$AdJ))
+    print(summary(dJ.nls))
+  
+    # Assign parameters
+    params[sp.num,]$dJTR <- round(dJTR.test, 4)
     params[sp.num,]$AdJ <- round(coef(dJ.nls)[1], 0)
   }
   
+  # If dJTR has high p-value (> 0.4), then try alternative method of setting dJTR to the data at TR and fitting AdJ
+  # if(summary(dJ.nls)[["coefficients"]][1,4] <= 0.4) {
+  #   params[sp.num,]$dJTR <- round(coef(dJ.nls)[1], 4)
+  #   params[sp.num,]$AdJ <- round(coef(dJ.nls)[2], 0)
+  # } else {
+  #   dJTR <- sp.data[sp.data$T_K<=TR,"Juv_Mortality"][1]
+  # 
+  #   # Nonlinear regression
+  #   dJ.nls <- nls(Juv_Mortality ~ dJTR*exp(AdJ*(1/TR-1/T_K)), data=sp.data, start=list(AdJ=params[sp.num,]$AdJ))
+  #   print(summary(dJ.nls))
+  #   
+  #   # Assign parameters
+  #   params[sp.num,]$dJTR <- round(dJTR, 4)
+  #   params[sp.num,]$AdJ <- round(coef(dJ.nls)[1], 0)
+  # }
+  
   # Plot model fit
   plot(sp.data$T_K, sp.data$Juv_Mortality)
-  points(seq(Tmin,Tmax,1), params[sp.num,]$dJTR*exp(params[sp.num,]$AdJ*(1/TR-1/seq(Tmin,Tmax,1))), type="l", col="blue")
+  points(seq(Xmin,Xmax,1), params[sp.num,]$dJTR*exp(params[sp.num,]$AdJ*(1/TR-1/seq(Xmin,Xmax,1))), type="l", col="blue")
   
   
   # Adult per capita mortality rate
   # Nonlinear regression
-  error <- tryCatch({
-    dA.nls <- nls(Adult_Mortality ~ dATR*exp(AdA*(1/TR-1/T_K)), data=sp.data,
-                  start=list(dATR=params[sp.num,]$dATR, AdA=params[sp.num,]$AdA))
-    print(summary(dA.nls))
-    
-    # Function nls does not return an error
-    error <- FALSE
-  }, error = function(err) { error <- TRUE; return(error) })
+  dA.nls <- nls(Adult_Mortality ~ dATR*exp(AdA*(1/TR-1/T_K)), data=sp.data, start=list(dATR=params[sp.num,]$dATR, AdA=params[sp.num,]$AdA))
+  print(summary(dA.nls))
   
-  # If there are no errors, then assign parameters
-  if(error == FALSE) {
-    params[sp.num,]$dATR <- round(coef(dA.nls)[1], 4)
-    params[sp.num,]$AdA <- round(coef(dA.nls)[2], 0)
-  } else { # If nls returns an error, then try alternative method of setting dATR to the data at TR and fitting AdA
-    dATR <- sp.data[sp.data$T_K==TR,"Adult_Mortality"]
-    
-    # Nonlinear regression
-    dA.nls <- nls(Adult_Mortality ~ dATR*exp(AdA*(1/TR-1/T_K)), data=sp.data,
-                  start=list(AdA=params[sp.num,]$AdA))
-    print(summary(dA.nls))
-    
-    # Assign parameters
-    params[sp.num,]$dATR <- round(dATR, 4)
-    params[sp.num,]$AdA <- round(coef(dA.nls)[1], 0)
-  }
+  # Assign parameters
+  params[sp.num,]$dATR <- round(coef(dA.nls)[1], 4)
+  params[sp.num,]$AdA <- round(coef(dA.nls)[2], 0)
+  
+  # If dATR has high p-value (> 0.4), then try alternative method of setting dATR to the data at TR and fitting AdA
+  # if(summary(dA.nls)[["coefficients"]][1,4] <= 0.4) {
+  #   params[sp.num,]$dATR <- round(coef(dA.nls)[1], 4)
+  #   params[sp.num,]$AdA <- round(coef(dA.nls)[2], 0)
+  # } else {
+  #   dATR <- sp.data[sp.data$T_K<=TR,"Adult_Mortality"][1]
+  #   
+  #   # Nonlinear regression
+  #   dA.nls <- nls(Adult_Mortality ~ dATR*exp(AdA*(1/TR-1/T_K)), data=sp.data, start=list(AdA=params[sp.num,]$AdA))
+  #   print(summary(dA.nls))
+  #   
+  #   # Assign parameters
+  #   params[sp.num,]$dATR <- round(dATR, 4)
+  #   params[sp.num,]$AdA <- round(coef(dA.nls)[1], 0)
+  # }
   
   # Plot model fit
   plot(sp.data$T_K, sp.data$Adult_Mortality)
-  points(seq(Tmin,Tmax,1), params[sp.num,]$dATR*exp(params[sp.num,]$AdA*(1/TR-1/seq(Tmin,Tmax,1))), type="l", col="blue")
+  points(seq(Xmin,Xmax,1), params[sp.num,]$dATR*exp(params[sp.num,]$AdA*(1/TR-1/seq(Xmin,Xmax,1))), type="l", col="blue")
   
   
   ####################### DEVELOPMENT RATE, g[T] (Eq. 2c) ########################
-  # Quantify gMax, Toptg, Tmaxg directly from data
-  # gMax
-  gMax <- max(sp.data[,"Development"])
-  # Toptg
-  for(i in nrow(sp.data):1) {
-       if(sp.data[i,"Development"] == gMax) { break }
-    }
-  Toptg <- sp.data[i,"T_K"]
-  # Tmaxg
-  Tmaxg <- sp.data[nrow(sp.data),"T_K"]
-  for(j in nrow(sp.data):i) {
-    if(sp.data[j,"Development"] == 0) { Tmaxg <- sp.data[j,"T_K"] }
-  }
+  # Quantify Toptg directly from data (descend down temperature treatments until the maximum development rate is reached, then exit the for loop)
+  for(i in nrow(sp.data):1) { if(sp.data[i,"Development"] == max(na.omit(sp.data[,"Development"]))) { break } }
+  if(word(params[sp.num,2],1) == "Brazil") { Toptg <- sp.data[nrow(sp.data),"T_K"] # For Brazil populations, Topt is set to maximum laboratory temperature
+  } else { Toptg <- sp.data[i,"T_K"] }
   
+  # Quantify Tmaxg directly from data (set Tmaxg above the highest temperature treatment, then descend until the development rate is above zero and exit the for loop)
+  Tmaxg <- sp.data[nrow(sp.data),"T_K"] + 2 # set Tmaxg to 2 degrees above highest temperature as default 
+  for(j in nrow(sp.data):i) { if(sp.data[j,"Development"] == 0) { Tmaxg <- sp.data[j,"T_K"] } }
+
+  # For Brazil populations and Apolygus lucorum, set i index to maximum laboratory temperature for nls below
+  if(word(params[sp.num,2],1) == "Brazil" || word(params[sp.num,1],1,2) == "Apolygus lucorum") {
+    for(i in nrow(sp.data):1) { if(sp.data[i,"Development"] != 0) { break } } # NOTE: for Brazil populations, i = 3 for parameters used in the manuscript
+  }
+
   # Assign Toptg and Tmaxg parameters
   params[sp.num,]$Toptg <- round(Toptg, 1)
   params[sp.num,]$Tmaxg <- round(Tmaxg, 1)
   
-  # Try to fit remaining parameters to data (excluding data beyond Toptg)
+  # Try to fit remaining parameters to data (excluding data at which the development rate is zero)
   error1 <- tryCatch({
     g.nls <- nls(Development ~ gTR*(T_K/TR)*exp(Ag*(1/TR-1/T_K))/(1+exp(AL*(1/TL-1/T_K))), data=sp.data[1:i,],
                               start=list(gTR=params[sp.num,]$gTR, Ag=params[sp.num,]$Ag, AL=params[sp.num,]$AL, TL=params[sp.num,]$TL))
@@ -247,17 +235,19 @@ for(s in 3:3) { #nrow(params)) {
     params[sp.num,]$gMax <- round(params[sp.num,]$gTR*(params[sp.num,]$Toptg/TR)*exp(params[sp.num,]$Ag*(1/TR-1/params[sp.num,]$Toptg))/
                                     (1+exp(params[sp.num,]$AL*(1/params[sp.num,]$TL-1/params[sp.num,]$Toptg))), 3)
   } else { # If nls returns an error, then try alternative method of first fitting gTR and Ag and then fitting AL and TL afterwards
+    # Nonlinear regression for gTR and Ag
+    g.nls1 <- nls(Development ~ gTR*(T_K/TR)*exp(Ag*(1/TR-1/T_K)), data=sp.data[1:i,],
+                  start=list(gTR=params[sp.num,]$gTR, Ag=params[sp.num,]$Ag))
+    print(summary(g.nls1))
+    
+    # Assign parameters for next nonlinear regression and update params
+    gTR.test <- coef(g.nls1)[1]
+    Ag.test <- coef(g.nls1)[2]
+    params[sp.num,]$gTR <- round(gTR.test, 3)
+    params[sp.num,]$Ag <- round(Ag.test, 0)
+    
+    # Nonlinear regression for AL and TL
     error2 <- tryCatch({
-      # Nonlinear regression for gTR and Ag
-      g.nls1 <- nls(Development ~ gTR*(T_K/TR)*exp(Ag*(1/TR-1/T_K)), data=sp.data[1:i,],
-                   start=list(gTR=params[sp.num,]$gTR, Ag=params[sp.num,]$Ag))
-      print(summary(g.nls1))
-      
-      # Assign parameters for next nonlinear regression
-      gTR.test <- coef(g.nls1)[1]
-      Ag.test <- coef(g.nls1)[2]
-      
-      # Nonlinear regression for AL and TL
       g.nls2 <- nls(Development ~ gTR.test*(T_K/TR)*exp(Ag.test*(1/TR-1/T_K))/(1+exp(AL*(1/TL-1/T_K))), data=sp.data[1:i,],
                    start=list(AL=params[sp.num,]$AL, TL=params[sp.num,]$TL))
       print(summary(g.nls2))
@@ -269,27 +259,29 @@ for(s in 3:3) { #nrow(params)) {
     # If there are no errors in the alternative method above, then assign parameters
     if(error2 == FALSE) {  
       # Assign parameters
-      params[sp.num,]$gTR <- round(gTR.test, 3)
-      params[sp.num,]$Ag <- round(Ag.test, 0)
       params[sp.num,]$AL <- round(coef(g.nls2)[1], 0)
       params[sp.num,]$TL <- round(coef(g.nls2)[2], 1)
       params[sp.num,]$gMax <- round(params[sp.num,]$gTR*(params[sp.num,]$Toptg/TR)*exp(params[sp.num,]$Ag*(1/TR-1/params[sp.num,]$Toptg))/
                                       (1+exp(params[sp.num,]$AL*(1/params[sp.num,]$TL-1/params[sp.num,]$Toptg))), 3)
-    } else { # If nls still returns an error, then try alternative method of first fitting gTR and Ag and then fitting AL and then TL
-      # Nonlinear regression for gTR and Ag
-      g.nls1 <- nls(Development ~ gTR*(T_K/TR)*exp(Ag*(1/TR-1/T_K)), data=sp.data[1:i,],
-                    start=list(gTR=params[sp.num,]$gTR, Ag=params[sp.num,]$Ag))
-      print(summary(g.nls1))
-      
-      # Assign parameters for next nonlinear regression
-      gTR.test <- coef(g.nls1)[1]
-      Ag.test <- coef(g.nls1)[2]
-      
+    } else { # If nls still returns an error, then try alternative method of first fitting AL and then TL
       # Set TL to just below the coldest laboratory temperature and nonlinear regression for AL
-      TL.test <- min(sp.data[,"T_K"]) - 1
-      g.nls2 <- nls(Development ~ gTR.test*(T_K/TR)*exp(Ag.test*(1/TR-1/T_K))/(1+exp(AL*(1/TL.test-1/T_K))), data=sp.data[1:i,],
-                    start=list(AL=params[sp.num,]$AL))
-      print(summary(g.nls2))
+      error3 <- tryCatch({
+        TL.test <- min(sp.data[,"T_K"]) - 1
+        g.nls2 <- nls(Development ~ gTR.test*(T_K/TR)*exp(Ag.test*(1/TR-1/T_K))/(1+exp(AL*(1/TL.test-1/T_K))), data=sp.data[1:i,],
+                      start=list(AL=params[sp.num,]$AL))
+        print(summary(g.nls2))
+        
+        # Function nls does not return an error
+        error3 <- FALSE
+      }, error = function(err) { error3 <- TRUE; return(error3) })
+      
+      # If nls still fails for AL, assign TL to the coldest laboratory temperature and try nonlinear regression for AL again
+      if(error3 == TRUE) {
+        TL.test <- ifelse(sp.data[1,"Development"] !=0 || is.na(sp.data[1,"Development"]) == TRUE, min(sp.data[,"T_K"]), sp.data[2,"T_K"]) # if development rate is zero (or NA) at the coldest lab temperature, then set TL to next highest temperature
+        g.nls2 <- nls(Development ~ gTR.test*(T_K/TR)*exp(Ag.test*(1/TR-1/T_K))/(1+exp(AL*(1/TL.test-1/T_K))), data=sp.data[1:i,],
+                      start=list(AL=params[sp.num,]$AL))
+        print(summary(g.nls2))
+      }
       
       # Assign AL and nonlinear regression for TL
       AL.test <- coef(g.nls2)[1]
@@ -298,8 +290,6 @@ for(s in 3:3) { #nrow(params)) {
       print(summary(g.nls3))
       
       # Assign parameters
-      params[sp.num,]$gTR <- round(gTR.test, 3)
-      params[sp.num,]$Ag <- round(Ag.test, 0)
       params[sp.num,]$AL <- round(AL.test, 0)
       params[sp.num,]$TL <- round(coef(g.nls3)[1], 1)
       params[sp.num,]$gMax <- round(params[sp.num,]$gTR*(params[sp.num,]$Toptg/TR)*exp(params[sp.num,]$Ag*(1/TR-1/params[sp.num,]$Toptg))/
@@ -308,26 +298,30 @@ for(s in 3:3) { #nrow(params)) {
   }
 
   # plot model fit
-  plot(sp.data$T_K, sp.data$Development, xlim=c(Tmin,Tmax))
+  plot(sp.data$T_K, sp.data$Development, xlim=c(Xmin,Tmaxg + 2), ylim=c(0, 1.5*round(params[sp.num,]$gMax, 2)))
   g.funct <- function(T) { ifelse(T <= params[sp.num,]$Toptg, params[sp.num,]$gTR*(T/TR)*exp(params[sp.num,]$Ag*(1/TR-1/T))/
                                     (1+exp(params[sp.num,]$AL*(1/params[sp.num,]$TL-1/T))),
                                   ifelse(T <= params[sp.num,]$Tmaxg, params[sp.num,]$gMax, 0)) }
-  points(seq(Tmin,Tmax,0.1), g.funct(seq(Tmin,Tmax,0.1)), type="l", col="blue")
+  points(seq(Xmin,Tmaxg + 2,0.1), g.funct(seq(Xmin,Tmaxg + 2,0.1)), type="l", col="blue")
   
   
   # Minimum developmental temperature (for overwintering in DDE model)
+  if(word(params[sp.num,2],1) == "Brazil" || params[sp.num,2] == "UK Sand Hutton") { i <- 3 } # For these populations, exclude high temperatures at which development rate declines
+
+  # Linear regression of linear portion of development rate TPC
   Tmin.nls <- nls(Development ~ m*T_K+b, data=sp.data[1:i,], start=list(m=params[sp.num,]$gTR, b=0))
   summary(Tmin.nls)
   
   # Plot model fit
-  plot(sp.data$T_K, sp.data$Development, xlim=c(Tmin,Tmax))
-  points(seq(Tmin,Tmax,1), coef(Tmin.nls)[1]*seq(Tmin,Tmax,1)+coef(Tmin.nls)[2], type="l", col="blue")
+  plot(sp.data$T_K, sp.data$Development, xlim=c(Xmin,Xmax))
+  points(seq(Xmin,Xmax,1), coef(Tmin.nls)[1]*seq(Xmin,Xmax,1)+coef(Tmin.nls)[2], type="l", col="blue")
   
   # Calculate minimum development temperature (Tmin)
   (Tmin <- (-coef(Tmin.nls)[2]/coef(Tmin.nls)[1])[[1]])
-  params[sp.num,]$Tmin <- round(Tmin, 1)
+  if(word(params[sp.num,1],1,2) == "Apolygus lucorum") { params[sp.num,]$Tmin <- 283.1 # for this species, Tmin was reported to be 283.1 in Lu et al. 2010
+  } else { params[sp.num,]$Tmin <- round(Tmin, 1) }
   
-  # Break for loop (line 23) if analyses are run for a specified species (all <- FALSE in line 14)
+  # Break for loop (line 23) if analyses are run for a specified species (all <- FALSE)
   if(all == FALSE) { break }
 }
 
@@ -336,4 +330,4 @@ if(save == TRUE) { write.csv(params, "Model parameters/Temperature response para
 
 # Print model fit
 if(all == FALSE) { params[sp.num,]
-} else { params }
+} else { params[x:s,] }
