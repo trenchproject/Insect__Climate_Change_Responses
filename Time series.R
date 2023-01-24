@@ -2,160 +2,104 @@
 #### This R script fits model outputs to empirical time-series data ####
 ########################################################################
 
-
 # Load packages and set working directory
-library(tidyr)
-library(ggplot2)
-library(cowplot)
-library(dplyr)
 library(tidyverse)
-library(cvequality)
-setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+library(ggplot2) # for plotting
+library(cowplot) # for combining plots
+library(stringr) # for manipulating strings
 
+# Set working directory
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+#setwd('..')
 
 # NOTE: CLEAR GLOBAL ENVIRONMENT IF ELAPSED TIME LIMIT ERROR OCCURS OR LINES ARE MISSING FROM PLOTS
 
+#old <- as.data.frame(read_csv("Time series data Census/Historical time series Clavigralla tomentosicollis Benin.csv"))
+#new <- as.data.frame(read_csv("Time series data Census new/Historical time series Clavigralla tomentosicollis Benin.csv"))
+#identical(old, new)
+
 
 # USER: enter species and location
-species <- "Clavigralla shadabi"
+species <- "Clavigralla tomentosicollis"
 location <- "Benin"
-field_plot <- "Mean" # for Nigeria, must specify plot "A", "B", "C", "Mean", or "All"
-
-# USER: Include diurnal variation?
-daily <- FALSE
-
-# USER: Use left-skewed function for development?
-left_skew <- FALSE # if FALSE, development plateaus between Topt and Tmax before going to zero above Tmax
 
 # USER: Fit to census data?
-census = TRUE
-
-# USER: SET PLOT OPTIONS
-xmin <- 0 # start date
-xmax <- 2*365 # end date
-num_yrs <- (xmax - xmin)/365
-ymin <- 0 # min density
-ymax <- 120 # max density
-temp.min <- 0 # min temperature
-temp.max <- 40 # max temperature
+census <- TRUE
 
 
-# READ IN TEMPERATURE RESPONSE PARAMETERS AND TIME-SERIES DATA
-# Temperature response parameters
-data <- as.data.frame(read_csv("Temperature response parameters.csv"))
-# Temperature parameters
-ifelse(daily == TRUE, temp.data <- as.data.frame(read_csv("Temperature parameters.csv")),
-       temp.data <- as.data.frame(read_csv("Temperature parameters Tave.csv")))
+# READ IN HABITAT TEMPERATURE PARAMETERS, FIELD CENSUS DATA, AND MODEL TIME-SERIES DATA
+# Habitat temperature parameters
+temp.param <- as.data.frame(read_csv("Model parameters/Habitat temperature parameters.csv"))
+temp.param <- temp.param[temp.param$Species == paste(species,location),]
 
-# Time-series field data
-if(location == "Benin") { data.density <- read_csv("Population data Benin.csv") }
-if(location == "Nigeria") { data.density <- read_csv("Population data Nigeria.csv") }
-if(str_split(location, boundary("word"), simplify = T)[,1] == "China") { data.density <- read_csv("Population data China.csv") }
+# Field census data
+if(census == TRUE && location == "Benin") { data.census <- as.data.frame(read_csv("Biological data/Census data Benin.csv")) }
+if(location == "China Dafeng") {
+  data.census <- as.data.frame(read_csv("Biological data/Census data China.csv"))
+  data.census <- data.census %>% filter(Location = "Dafeng", species = "Apolygus lucorum") }
 
-# Select time-series data
-if(location == "Benin") { data.TS <- data.density[data.density$Location=="Aborney",] }
-if(location == "Nigeria") { data.TS <- data.density[data.density$Plot==field_plot,] }
-if(str_split(location, boundary("word"), simplify = T)[,1] == "China") { data.TS <- data.density[data.density$location==str_split(location, boundary("word"), simplify = T)[,2] & data.density$species==species,] }
-
-
-# READ IN TEMPERATURE RESPONSE PARAMETERS, TEMPERATURE PARAMETERS, AND DDE MODEL DYNAMICS
-sp.data <- data[data$Species == paste(species,location),]
-temp.data <- temp.data[temp.data$Species == paste(species,location),]
+# Model time-series data
 if(census == TRUE) {
-  # For species with census data
-  if(daily == TRUE) {
-    data.model <- as.data.frame(read_csv(paste0("Time series data Census/Historical time series Diurnal ",species," ",location,".csv")))
-    data.model.census <- as.data.frame(read_csv(paste0("Time series data Census/Historical time series Diurnal Census ",species," ",location,".csv")))
-    data.model.CC <- as.data.frame(read_csv(paste0("Time series data Census/Future time series Diurnal ",species," ",location,".csv"))) }
-  if(daily == FALSE && left_skew == TRUE) {
-    data.model <- as.data.frame(read_csv(paste0("Time series data Census/Historical time series Tave ",species," ",location,".csv")))
-    data.model.census <- as.data.frame(read_csv(paste0("Time series data Census/Historical time series Tave Census ",species," ",location,".csv")))
-    data.model.CC <- as.data.frame(read_csv(paste0("Time series data Census/Future time series Tave ",species," ",location,".csv"))) }
-  if(daily == FALSE && left_skew == FALSE) {
-    data.model <- as.data.frame(read_csv(paste0("Time series data Census/Historical time series Tave Dev ",species," ",location,".csv")))
-    data.model.census <- as.data.frame(read_csv(paste0("Time series data Census/Historical time series Tave Dev Census ",species," ",location,".csv")))
-    data.model.CC <- as.data.frame(read_csv(paste0("Time series data Census/Future time series Tave Dev ",species," ",location,".csv"))) }
-} else{
-  # For species without census data
-  if(daily == TRUE) {
-    data.model <- as.data.frame(read_csv(paste0("Time series data Diurnal/Historical time series ",species," ",location,".csv")))
-    data.model.CC <- as.data.frame(read_csv(paste0("Time series data/Future time series ",species," ",location,".csv"))) }
-  if(daily == FALSE && left_skew == TRUE) {
-    data.model <- as.data.frame(read_csv(paste0("Time series data Tave/Historical time series ",species," ",location,".csv")))
-    data.model.CC <- as.data.frame(read_csv(paste0("Time series data Tave/Future time series ",species," ",location,".csv"))) }
-  if(daily == FALSE && left_skew == FALSE) {
-    data.model <- as.data.frame(read_csv(paste0("Time series data Tave Dev/Historical time series ",species," ",location,".csv")))
-    data.model.CC <- as.data.frame(read_csv(paste0("Time series data Tave Dev/Future time series ",species," ",location,".csv"))) }
+  model.his <- as.data.frame(read_csv(paste0("Time series data Census new/Census time series ",species," ",location,".csv")))
+} else {
+  model.his <- as.data.frame(read_csv(paste0("Time series data new/Historical time series ",species," ",location,".csv")))
 }
+model.fut <- as.data.frame(read_csv(paste0("Time series data new/Future time series ",species," ",location,".csv")))
 
 
-# PLOT OPTIONS
-# for climate change time period
-xmin.CC <- xmin
-xmax.CC <- xmax
-ymin.CC <- ymin
-ymax.CC <- ymax
-yr <- 365 # days in a year
-init_yrs <- 65 # years to initialize model (see init_yrs in "DDE population dynamics.py")
-start_date <- 10 - num_yrs # number of years before taking time-series data
-TS.length <- xmax - xmin # length of time-series data
-end <- nrow(data.model)
-end.CC <- nrow(data.model.CC)
+# SET PARAMETERS AND PLOT OPTIONS
+# Parameters for time-series data
+yr <- 365 # days per year
+# historical time-series
+start.his <- 0 # how many years into climate change period to start population dynamics model (see "start_yr" in "DDE population dynamics.py")
+num.his <- 10 # how long to run model (see "num_yrs" in "DDE population dynamics.py")
+plot.his <- 2 # how many years to plot (i.e., last X years)
+start.his <- start.his + num.his - plot.his # recalculate start year for extracting time-series data
+end.his <- min(start.his + plot.his, start.his + num.his) # calculate end year for extracting time-series data
+length.his <- nrow(model.his)
+# future time-series
+start.fut <- 0 # how many years into climate change period to start population dynamics model (see "start_yr" in "DDE population dynamics.py")
+num.fut <- 75 # how long to run model (see "num_yrs" in "DDE population dynamics.py")
+plot.fut <- 2 # how many years to plot (i.e., last X years)
+start.fut <- start.fut + num.fut - plot.fut # recalculate start year for extracting time-series data
+end.fut <- min(start.fut + plot.fut, start.fut + num.fut) # calculate end year for extracting time-series data
+length.fut <- nrow(model.fut)
+
+# Plotting parameters
+xmin.his <- 0 # start time for plots (may differ from "start.his" above)
+xmax.his <- plot.his*yr # end time for plots (may differ from "end.his" above)
+xmin.fut <- 0 # start time for plots (may differ from "start.fut" above)
+xmax.fut <- plot.fut*yr # end time for plots (may differ from "end.fut" above)
+ymin <- 0 # min density for plots (same for historical and future periods)
+ymax <- 120 # max density for plots (same for historical and future periods)
+temp.min <- 0 # min temperature for plots (same for historical and future periods)
+temp.max <- 40 # max temperature for plots (same for historical and future periods)
+TS.length <- xmax.his - xmin.his # length of time-series data for plots
 
 
 # FORMAT MODEL OUTPUT TO ALIGN WITH TIME-SERIES DATA
-# Remove all rows before time-series data starts
-data.model <- data.model[-c(1:(start_date*yr + xmin)), ]
-if(census == TRUE) { data.model.census <- data.model.census[-c(1:(start_date*yr + xmin)), ] }
+# Extract time-series data for plotting
+model.his <- model.his[(start.his*yr+1):(end.his*yr),]
+model.fut <- model.fut[(start.fut*yr+1):(end.fut*yr),]
 
-# Remove all rows after xmax days
-if(xmax < end) { data.model <- data.model[-c(xmax+1:end), ] }
-if(census == TRUE & xmax < end) { data.model.census <- data.model.census[-c(xmax+1:end), ] }
-
-# climate change period (remove all but last num_yrs years of data)
-if(xmax.CC < end.CC) { data.model.CC <- data.model.CC[-c(1:(end.CC-num_yrs*yr + xmin.CC)), ] }
-
-# Re-scale time to start at xmin
+# Re-scale time in model time-series data to start at xmin.his
 # historical period
-time.shift <- data.model[[1,1]] - xmin
-data.model <- sweep(data.model, 2, c(time.shift,0,0,0,0))
-if(census == TRUE) {
-  time.shift.census <- data.model.census[[1,1]] - xmin
-  data.model.census <- sweep(data.model.census, 2, c(time.shift.census,0,0,0,0)) }
+time.shift.his <- max(model.his[[1,1]] - xmin.his, 0) # number of days to "shift" time-series
+model.his <- sweep(model.his, 2, c(time.shift.his,0,0,0,0)) # shift "Time" column to align with x-axis of plots
 
-# climate change period
-time.shift.CC <- data.model.CC[[1,1]] + xmin.CC
-data.model.CC <- sweep(data.model.CC, 2, c(time.shift.CC,0,0,0,0))
+# future period
+time.shift.fut <- max(model.fut[[1,1]] + xmin.fut, 0) # number of days to "shift" time-series
+model.fut <- sweep(model.fut, 2, c(time.shift.fut,0,0,0,0)) # shift "Time" column to align with x-axis of plots
 
 
-########################################## PLOTS #############################################
+################################ CONSTRUCT PLOTS ################################
 # HABITAT TEMPERATURE
 # Historical time period
-# data table from Tmin and Tmax functions
-temp.fun.h <- data.frame(t=c(xmin:xmax))
-temp.fun.h$fun.min <- sapply(temp.fun.h$t, FUN = function(t) { (temp.data$meanT.h - 273.15 + temp.data$delta_mean.h*(t+time.shift+init_yrs*yr))  - (temp.data$amplT.h + temp.data$delta_ampl.h*(t+time.shift+init_yrs*yr)) * cos(2*pi*((t+time.shift+init_yrs*yr) + temp.data$shiftT.h)/yr) - abs(temp.data$amplD.h) })
-temp.fun.h$fun.max <- sapply(temp.fun.h$t, FUN = function(t) { (temp.data$meanT.h - 273.15 + temp.data$delta_mean.h*(t+time.shift+init_yrs*yr))  - (temp.data$amplT.h + temp.data$delta_ampl.h*(t+time.shift+init_yrs*yr)) * cos(2*pi*((t+time.shift+init_yrs*yr) + temp.data$shiftT.h)/yr) + abs(temp.data$amplD.h) })
-
-# active season (when habitat temperature = Tmin)
-start.h <- temp.fun.h[temp.fun.h$fun.min + 273.15 >= sp.data$Tmin, "t"][1]
-end.h <- tail(temp.fun.h[temp.fun.h$fun.min + 273.15 >= sp.data$Tmin & temp.fun.h$t <= 365, "t"], n=1)
-
-# plot
-plot.temp <- ggplot(temp.fun.h, aes(x=t, y=fun.max)) +
-  # Daily average temperature
-  geom_function(fun = function(t) (temp.data$meanT.h - 273.15 + temp.data$delta_mean.h*(t+time.shift+init_yrs*yr))  - (temp.data$amplT.h + temp.data$delta_ampl.h*(t+time.shift+init_yrs*yr)) * cos(2*pi*((t+time.shift+init_yrs*yr) + temp.data$shiftT.h)/yr),
-                size=1.5, color="#0072B2") + # blue color
-  # Daily minimum temperature
-  #geom_function(fun = function(t) (temp.data$meanT.h - 273.15 + temp.data$delta_mean.h*(t+time.shift+init_yrs*yr))  - (temp.data$amplT.h + temp.data$delta_ampl.h*(t+time.shift+init_yrs*yr)) * cos(2*pi*((t+time.shift+init_yrs*yr) + temp.data$shiftT.h)/yr) - temp.data$amplD.h,
-  #              size=1.5, linetype="dashed", color="#0072B2") +
-  # Daily maximum temperature
-  #geom_function(fun = function(t) (temp.data$meanT.h - 273.15 + temp.data$delta_mean.h*(t+time.shift+init_yrs*yr))  - (temp.data$amplT.h + temp.data$delta_ampl.h*(t+time.shift+init_yrs*yr)) * cos(2*pi*((t+time.shift+init_yrs*yr) + temp.data$shiftT.h)/yr) + temp.data$amplD.h,
-  #              size=1.5, linetype="dashed", color="#0072B2") +
-  geom_ribbon(aes(ymin = fun.min, ymax = fun.max), fill = "#0072B2", alpha = 0.2) +
-  # Minimum developmental temperature
-  geom_function(fun = function(t) (sp.data$Tmin), size=1.5, color="black") +
+temp.his <- ggplot() +
+  geom_function(fun = function(t) (temp.param$meanT.h - 273.15 + temp.param$delta_mean.h*(t+start.his*yr))  - (temp.param$amplT.h + temp.param$delta_ampl.h*(t+start.his*yr)) * cos(2*pi*((t+start.his*yr) + temp.param$shiftT.h)/yr),
+                linewidth=1.5, color="#0072B2") +
   labs(x="", y="") +
-  scale_x_continuous(limits=c(xmin, xmax)) +
+  scale_x_continuous(limits=c(xmin.his, xmax.his)) +
   scale_y_continuous(limits=c(temp.min, temp.max)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
@@ -163,31 +107,11 @@ plot.temp <- ggplot(temp.fun.h, aes(x=t, y=fun.max)) +
         axis.text = element_text(size=13), axis.title = element_text(size=1.50))
 
 # Future time period
-# data table from Tmin and Tmax functions
-temp.fun.f <- data.frame(t=c(xmin:xmax))
-temp.fun.f$fun.min <- sapply(temp.fun.f$t, FUN = function(t) { (temp.data$meanT.f - 273.15 + temp.data$delta_mean.f*(t+time.shift.CC+init_yrs*yr))  - (temp.data$amplT.f + temp.data$delta_ampl.f*(t+time.shift.CC+init_yrs*yr)) * cos(2*pi*((t+time.shift.CC+init_yrs*yr) + temp.data$shiftT.f)/yr) - abs(temp.data$amplD.f) })
-temp.fun.f$fun.max <- sapply(temp.fun.f$t, FUN = function(t) { (temp.data$meanT.f - 273.15 + temp.data$delta_mean.f*(t+time.shift.CC+init_yrs*yr))  - (temp.data$amplT.f + temp.data$delta_ampl.f*(t+time.shift.CC+init_yrs*yr)) * cos(2*pi*((t+time.shift.CC+init_yrs*yr) + temp.data$shiftT.f)/yr) + abs(temp.data$amplD.f) })
-
-# active season (when habitat temperature = Tmin)
-start.f <- temp.fun.f[temp.fun.f$fun.min + 273.15 >= sp.data$Tmin, "t"][1]
-end.f <- tail(temp.fun.f[temp.fun.f$fun.min + 273.15 >= sp.data$Tmin & temp.fun.f$t <= 365, "t"], n=1)
-
-# plot
-plot.temp.CC <- ggplot(temp.fun.f, aes(x=t, y=fun.max)) +
-  # Daily average temperature
-  geom_function(fun = function(t) (temp.data$meanT.f - 273.15 + temp.data$delta_mean.f*(t+time.shift.CC+init_yrs*yr))  - (temp.data$amplT.f + temp.data$delta_ampl.f*(t+time.shift.CC+init_yrs*yr)) * cos(2*pi*((t+time.shift.CC+init_yrs*yr) + temp.data$shiftT.f)/yr),
-                size=1.5, color="#D55E00") + # red color
-  # Daily minimum temperature
-  #geom_function(fun = function(t) (temp.data$meanT.f - 273.15 + temp.data$delta_mean.f*(t+time.shift.CC+init_yrs*yr))  - (temp.data$amplT.f + temp.data$delta_ampl.f*(t+time.shift.CC+init_yrs*yr)) * cos(2*pi*((t+time.shift.CC+init_yrs*yr) + temp.data$shiftT.f)/yr) - temp.data$amplD.f,
-  #              size=1.5, linetype="dashed", color="#D55E00") +
-  # Daily maximum temperature
-  #geom_function(fun = function(t) (temp.data$meanT.f - 273.15 + temp.data$delta_mean.f*(t+time.shift.CC+init_yrs*yr))  - (temp.data$amplT.f + temp.data$delta_ampl.f*(t+time.shift.CC+init_yrs*yr)) * cos(2*pi*((t+time.shift.CC+init_yrs*yr) + temp.data$shiftT.f)/yr) + temp.data$amplD.f,
-  #              size=1.5, linetype="dashed", color="#D55E00") +
-  geom_ribbon(aes(ymin = fun.min, ymax = fun.max), fill = "#D55E00", alpha = 0.2) +
-  # Minimum developmental temperature
-  geom_function(fun = function(t) (sp.data$Tmin), size=1.5, color="black") +
+temp.fut <- ggplot() +
+  geom_function(fun = function(t) (temp.param$meanT.f - 273.15 + temp.param$delta_mean.f*(t+start.fut*yr))  - (temp.param$amplT.f + temp.param$delta_ampl.f*(t+start.fut*yr)) * cos(2*pi*((t+start.fut*yr) + temp.param$shiftT.f)/yr),
+                linewidth=1.5, color="#D55E00") +
   labs(x="", y="") +
-  scale_x_continuous(limits=c(xmin, xmax)) +
+  scale_x_continuous(limits=c(xmin.fut, xmax.fut)) +
   scale_y_continuous(limits=c(temp.min, temp.max)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
@@ -195,53 +119,56 @@ plot.temp.CC <- ggplot(temp.fun.f, aes(x=t, y=fun.max)) +
         axis.text = element_text(size=13), axis.title = element_text(size=1.50))
 
 
-# PLOT BANDS
-# Hot season (warmest half of year) in tropical habitats
+# PLOT TEMPERATURE BANDS AROUND WARMEST HALF OF YEAR
+# Tropical habitats
 # for temperature plots
-band.hot.temp = ggplot() +
-  geom_rect(aes(xmin=xmin, xmax=xmin + 3*yr/4 - temp.data$shiftT.h, ymin=0, ymax=Inf), fill="grey", alpha=0.5) +
-  geom_rect(aes(xmin=xmin + 5*yr/4 - temp.data$shiftT.h, xmax=xmin + 7*yr/4 - temp.data$shiftT.h, ymin=0, ymax=Inf), fill="grey", alpha=0.5) +
-  geom_rect(aes(xmin=xmin + 9*yr/4 - temp.data$shiftT.h, xmax=xmax, ymin=0, ymax=Inf), fill="grey", alpha=0.5) +
+band.hot.temp <- ggplot() +
+  geom_rect(aes(xmin=xmin.his, xmax=xmin.his + 3*yr/4 - temp.param$shiftT.h, ymin=0, ymax=Inf), fill="grey", alpha=0.5) +
+  geom_rect(aes(xmin=xmin.his + 5*yr/4 - temp.param$shiftT.h, xmax=xmin.his + 7*yr/4 - temp.param$shiftT.h, ymin=0, ymax=Inf), fill="grey", alpha=0.5) +
+  geom_rect(aes(xmin=xmin.his + 9*yr/4 - temp.param$shiftT.h, xmax=xmax.his, ymin=0, ymax=Inf), fill="grey", alpha=0.5) +
   labs(x="", y="") +
-  scale_x_continuous(limits=c(xmin, xmax)) +
+  scale_x_continuous(limits=c(xmin.his, xmax.his)) +
   scale_y_continuous(limits=c(temp.min, temp.max)) +
   #scale_y_log10(limits=c(ymin, ymax)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
         axis.line = element_line(color = "black"), legend.position = "none", 
         axis.text = element_text(size=13), axis.title = element_text(size=1.50))
-# for density plots
-band.hot.density = ggplot() +
-  geom_rect(aes(xmin=xmin, xmax=xmin + 3*yr/4 - temp.data$shiftT.h, ymin=0, ymax=Inf), fill="grey", alpha=0.5) +
-  geom_rect(aes(xmin=xmin + 5*yr/4 - temp.data$shiftT.h, xmax=xmin + 7*yr/4 - temp.data$shiftT.h, ymin=0, ymax=Inf), fill="grey", alpha=0.5) +
-  geom_rect(aes(xmin=xmin + 9*yr/4 - temp.data$shiftT.h, xmax=xmax, ymin=0, ymax=Inf), fill="grey", alpha=0.5) +
+
+# for insect density plots
+band.hot.density <- ggplot() +
+  geom_rect(aes(xmin=xmin.his, xmax=xmin.his + 3*yr/4 - temp.param$shiftT.h, ymin=0, ymax=Inf), fill="grey", alpha=0.5) +
+  geom_rect(aes(xmin=xmin.his + 5*yr/4 - temp.param$shiftT.h, xmax=xmin.his + 7*yr/4 - temp.param$shiftT.h, ymin=0, ymax=Inf), fill="grey", alpha=0.5) +
+  geom_rect(aes(xmin=xmin.his + 9*yr/4 - temp.param$shiftT.h, xmax=xmax.his, ymin=0, ymax=Inf), fill="grey", alpha=0.5) +
   labs(x="", y="") +
-  scale_x_continuous(limits=c(xmin, xmax)) +
+  scale_x_continuous(limits=c(xmin.his, xmax.his)) +
   scale_y_continuous(limits=c(ymin, ymax)) +
   #scale_y_log10(limits=c(ymin, ymax)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
         axis.line = element_line(color = "black"), legend.position = "none", 
         axis.text = element_text(size=13), axis.title = element_text(size=1.50))
-# Summer (warmest half of year) in temperate habitats
+
+# Temperate habitats
 # for temperature plots
-band.summer.temp = ggplot() +
-  geom_rect(aes(xmin=xmin + yr/4, xmax=xmin + 3*yr/4, ymin=0, ymax=Inf), fill="grey", alpha=0.5) +
-  geom_rect(aes(xmin=xmin + 5*yr/4, xmax=xmin + 7*yr/4, ymin=0, ymax=Inf), fill="grey", alpha=0.5) +
+band.summer.temp <- ggplot() +
+  geom_rect(aes(xmin=xmin.his + yr/4, xmax=xmin.his + 3*yr/4, ymin=0, ymax=Inf), fill="grey", alpha=0.5) +
+  geom_rect(aes(xmin=xmin.his + 5*yr/4, xmax=xmin.his + 7*yr/4, ymin=0, ymax=Inf), fill="grey", alpha=0.5) +
   labs(x="", y="") +
-  scale_x_continuous(limits=c(xmin, xmax)) +
+  scale_x_continuous(limits=c(xmin.his, xmax.his)) +
   scale_y_continuous(limits=c(temp.min, temp.max)) +
   #scale_y_log10(limits=c(ymin, ymax)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
         axis.line = element_line(color = "black"), legend.position = "none", 
         axis.text = element_text(size=13), axis.title = element_text(size=1.50))
-# for density plots
-band.summer.density = ggplot() +
-  geom_rect(aes(xmin=xmin + yr/4, xmax=xmin + 3*yr/4, ymin=0, ymax=Inf), fill="grey", alpha=0.5) +
-  geom_rect(aes(xmin=xmin + 5*yr/4, xmax=xmin + 7*yr/4, ymin=0, ymax=Inf), fill="grey", alpha=0.5) +
+
+# for insect density plots
+band.summer.density <- ggplot() +
+  geom_rect(aes(xmin=xmin.his + yr/4, xmax=xmin.his + 3*yr/4, ymin=0, ymax=Inf), fill="grey", alpha=0.5) +
+  geom_rect(aes(xmin=xmin.his + 5*yr/4, xmax=xmin.his + 7*yr/4, ymin=0, ymax=Inf), fill="grey", alpha=0.5) +
   labs(x="", y="") +
-  scale_x_continuous(limits=c(xmin, xmax)) +
+  scale_x_continuous(limits=c(xmin.his, xmax.his)) +
   scale_y_continuous(limits=c(ymin, ymax)) +
   #scale_y_log10(limits=c(ymin, ymax)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
@@ -250,24 +177,11 @@ band.summer.density = ggplot() +
         axis.text = element_text(size=13), axis.title = element_text(size=1.50))
 
 
-# TIME-SERIES DATA
-# Juvenile density
-plot.J = ggplot(data.TS, aes(x=time, y=J, ymin=J_SE_L, ymax=J_SE_H)) + 
+# FIELD CENSUS DATA
+plot.census <- ggplot(data.census, aes(x=day, y=Adults, ymin=A_SE_L, ymax=A_SE_H)) + 
   geom_pointrange(size=0.5, color="#0072B2") + # blue color
   labs(x="", y="") +
-  scale_x_continuous(limits=c(xmin, xmax)) +
-  scale_y_continuous(limits=c(ymin, ymax)) +
-  #scale_y_log10(limits=c(ymin, ymax)) +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-        panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
-        axis.line = element_line(color = "black"), legend.position = "none", 
-        axis.text = element_text(size=13), axis.title = element_text(size=1.50))
-
-# Adult density
-plot.A = ggplot(data.TS, aes(x=time, y=A, ymin=A_SE_L, ymax=A_SE_H)) + 
-  geom_pointrange(size=0.5, color="#0072B2") + # blue color
-  labs(x="", y="") +
-  scale_x_continuous(limits=c(xmin, xmax)) +
+  scale_x_continuous(limits=c(xmin.his, xmax.his)) +
   scale_y_continuous(limits=c(ymin, ymax)) +
   #scale_y_log10(limits=c(ymin, ymax)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
@@ -276,13 +190,13 @@ plot.A = ggplot(data.TS, aes(x=time, y=A, ymin=A_SE_L, ymax=A_SE_H)) +
         axis.text = element_text(size=13), axis.title = element_text(size=1.50)) 
 
 
-# DDE MODEL DATA
+# DDE POPULATION MODEL DATA
 # Historical time period
 # Juvenile density
-model.J = ggplot(data.model, aes(x=Time, y=J)) + 
+model.J.his <- ggplot(model.his, aes(x=Time, y=J)) + 
   geom_line(size=1.5, color="#0072B2") + # blue color
   labs(x="", y="") +
-  scale_x_continuous(limits=c(xmin, xmax)) +
+  scale_x_continuous(limits=c(xmin.his, xmax.his)) +
   scale_y_continuous(limits=c(ymin, ymax)) +
   #scale_y_log10(limits=c(ymin, ymax)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
@@ -291,10 +205,10 @@ model.J = ggplot(data.model, aes(x=Time, y=J)) +
         axis.text = element_text(size=13), axis.title = element_text(size=1.50))
 
 # Adult density
-model.A = ggplot(data.model, aes(x=Time, y=A)) + 
+model.A.his <- ggplot(model.his, aes(x=Time, y=A)) + 
   geom_line(size=1.5, color="#0072B2") + # blue color
   labs(x="", y="") +
-  scale_x_continuous(limits=c(xmin, xmax)) +
+  scale_x_continuous(limits=c(xmin.his, xmax.his)) +
   scale_y_continuous(limits=c(ymin, ymax)) +
   #scale_y_log10(limits=c(ymin, ymax)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
@@ -302,199 +216,148 @@ model.A = ggplot(data.model, aes(x=Time, y=A)) +
         axis.line = element_line(color = "black"), legend.position = "none", 
         axis.text = element_text(size=13), axis.title = element_text(size=1.50))
 
-# Adult density: census
+# Future time period
+# Juvenile density
+model.J.fut <- ggplot(model.fut, aes(x=Time, y=J)) + 
+  geom_line(size=1.5, color="#D55E00") + # red color
+  labs(x="", y="") +
+  scale_x_continuous(limits=c(xmin.fut, xmax.fut)) +
+  scale_y_continuous(limits=c(ymin, ymax)) +
+  #scale_y_log10(limits=c(ymin, ymax)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
+        axis.line = element_line(color = "black"), legend.position = "none", 
+        axis.text = element_text(size=13), axis.title = element_text(size=1.50))
+
+# Adult density
+model.A.fut <- ggplot(model.fut, aes(x=Time, y=A)) + 
+  geom_line(size=1.5, color="#D55E00") + # red color
+  labs(x="", y="") +
+  scale_x_continuous(limits=c(xmin.fut, xmax.fut)) +
+  scale_y_continuous(limits=c(ymin, ymax)) +
+  #scale_y_log10(limits=c(ymin, ymax)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
+        axis.line = element_line(color = "black"), legend.position = "none", 
+        axis.text = element_text(size=13), axis.title = element_text(size=1.50)) 
+
+
+################################# DRAW PLOTS ####################################
+# Habitat temperature plot (Fig. 1A,B)
+if(temp.param$Habitat == "Tropical") {
+  ggdraw()  +
+    draw_plot(band.hot.temp, x = 0, y = 0, width = 1, height = 0.3) +
+    draw_plot(temp.his, x = 0, y = 0, width = 1, height = 0.3) +
+    draw_plot(temp.fut, x = 0, y = 0, width = 1, height = 0.3)
+} else { 
+  ggdraw()  +
+    draw_plot(band.summer.temp, x = 0, y = 0, width = 1, height = 0.3) +
+    draw_plot(temp.his, x = 0, y = 0, width = 1, height = 0.3) +
+    draw_plot(temp.fut, x = 0, y = 0, width = 1, height = 0.3) }
+
+# Model and field census data plot (Fig. 1C,D)
 if(census == TRUE) {
-  model.census = ggplot(data.model.census, aes(x=Time, y=A)) + 
-    geom_line(size=1.5, color="#0072B2") + #, linetype = "longdash") + # blue color
-    labs(x="", y="") +
-    scale_x_continuous(limits=c(xmin, xmax)) +
-    scale_y_continuous(limits=c(ymin, ymax)) +
-    #scale_y_log10(limits=c(ymin, ymax)) +
-    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-          panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
-          axis.line = element_line(color = "black"), legend.position = "none", 
-          axis.text = element_text(size=13), axis.title = element_text(size=1.50)) }
-
-# Future time period
-# Juvenile density
-model.J.CC = ggplot(data.model.CC, aes(x=Time, y=J)) + 
-  geom_line(size=1.5, color="#D55E00") + # red color
-  labs(x="", y="") +
-  scale_x_continuous(limits=c(xmin.CC, xmax.CC)) +
-  scale_y_continuous(limits=c(ymin.CC, ymax.CC)) +
-  #scale_y_log10(limits=c(ymin.CC, ymax.CC)) +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-        panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
-        axis.line = element_line(color = "black"), legend.position = "none", 
-        axis.text = element_text(size=13), axis.title = element_text(size=1.50))
-
-# Adult density
-model.A.CC = ggplot(data.model.CC, aes(x=Time, y=A)) + 
-  geom_line(size=1.5, color="#D55E00") + # red color
-  labs(x="", y="") +
-  scale_x_continuous(limits=c(xmin.CC, xmax.CC)) +
-  scale_y_continuous(limits=c(ymin.CC, ymax.CC)) +
-  #scale_y_log10(limits=c(ymin.CC, ymax.CC)) +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-        panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
-        axis.line = element_line(color = "black"), legend.position = "none", 
-        axis.text = element_text(size=13), axis.title = element_text(size=1.50)) 
+  if(temp.param$Habitat == "Tropical") {
+    ggdraw()  +
+      draw_plot(band.hot.density, x = 0, y = 0, width = 1, height = 0.4) +
+      draw_plot(model.A.his, x = 0, y = 0, width = 1, height = 0.4) +
+      draw_plot(plot.census, x = 0, y = 0, width = 1, height = 0.4)
+  } else {
+    ggdraw()  +
+      draw_plot(band.summer.density, x = 0, y = 0, width = 1, height = 0.4) +
+      draw_plot(model.A.his, x = 0, y = 0, width = 1, height = 0.4) +
+      draw_plot(plot.census, x = 0, y = 0, width = 1, height = 0.4) }
+}
 
 
-#################################### DRAW FINAL PLOTS #######################################
-# COMPILE PLOTS
-# Temperature plots
-if(location == "Nigeria" || sp.data$Habitat == "Tropical") {
-  plot.climate <- ggdraw()  +
-    draw_plot(band.hot.temp, x = 0, y = 0, width = 1, height = 0.3) +
-    draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
-    draw_plot(plot.temp.CC, x = 0, y = 0, width = 1, height = 0.3) }
-if(str_split(location, boundary("word"), simplify = T)[,1] == "China"  || sp.data$Habitat != "Tropical") { 
-  plot.climate <- ggdraw()  +
-    draw_plot(band.summer.temp, x = 0, y = 0, width = 1, height = 0.3) +
-    draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
-    draw_plot(plot.temp.CC, x = 0, y = 0, width = 1, height = 0.3) }
 
-# Historical time period
-# if(location == "Nigeria" || sp.data$Habitat == "Tropical") {
-#   plot <- ggdraw()  +
+# # Compare historical and future time periods
+# if(location == "Nigeria" || temp.param$Habitat == "Tropical") {
+#   plot.compare <- ggdraw()  +
 #     draw_plot(band.hot.temp, x = 0, y = 0, width = 1, height = 0.3) +
 #     draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
+#     draw_plot(plot.temp.fut, x = 0, y = 0, width = 1, height = 0.3) +
 #     draw_plot(band.hot.density, x = 0, y = 0.3, width = 1, height = 0.7) +
-#     #draw_plot(plot.J, x = 0, y = 0.3, width = 1, height = 0.7) +
 #     #draw_plot(model.J, x = 0, y = 0.3, width = 1, height = 0.7) +
-#     draw_plot(model.A, x = 0, y = 0.3, width = 1, height = 0.7) +
+#     #draw_plot(model.A, x = 0, y = 0.3, width = 1, height = 0.7) +
 #     draw_plot(model.census, x = 0, y = 0.3, width = 1, height = 0.7) +
-#     draw_plot(plot.A, x = 0, y = 0.3, width = 1, height = 0.7) }
-# if(str_split(location, boundary("word"), simplify = T)[,1] == "China" || sp.data$Habitat != "Tropical") { 
-#   plot <- ggdraw()  +
+#     #draw_plot(model.J.fut, x = 0, y = 0.3, width = 1, height = 0.7) +
+#     #draw_plot(model.A.fut, x = 0, y = 0.3, width = 1, height = 0.7) +
+#     draw_plot(plot.census, x = 0, y = 0.3, width = 1, height = 0.7)
+# }
+# if(str_split(location, boundary("word"), simplify = T)[,1] == "China" || temp.param$Habitat != "Tropical") { 
+#   plot.compare <- ggdraw()  +
 #     draw_plot(band.summer.temp, x = 0, y = 0, width = 1, height = 0.3) +
 #     draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
+#     draw_plot(plot.temp.fut, x = 0, y = 0, width = 1, height = 0.3) +
 #     draw_plot(band.summer.density, x = 0, y = 0.3, width = 1, height = 0.7) +
 #     #draw_plot(model.J, x = 0, y = 0.3, width = 1, height = 0.7) +
 #     draw_plot(model.A, x = 0, y = 0.3, width = 1, height = 0.7) +
-#     draw_plot(model.census, x = 0, y = 0.3, width = 1, height = 0.7) +
-#     draw_plot(plot.A, x = 0, y = 0.3, width = 1, height = 0.7) }
-
-# Future time period
-# if(location == "Nigeria" || sp.data$Habitat == "Tropical") {
-#   plot.CC <- ggdraw()  +
-#     draw_plot(band.hot.temp, x = 0, y = 0, width = 1, height = 0.3) +
-#     draw_plot(plot.temp.CC, x = 0, y = 0, width = 1, height = 0.3) +
-#     draw_plot(band.hot.density, x = 0, y = 0.3, width = 1, height = 0.7) +
-#     draw_plot(model.J.CC, x = 0, y = 0.3, width = 1, height = 0.7) +
-#     draw_plot(model.A.CC, x = 0, y = 0.3, width = 1, height = 0.7)
-# }
-# if(str_split(location, boundary("word"), simplify = T)[,1] == "China" || sp.data$Habitat != "Tropical") { 
-#   plot.CC <- ggdraw()  +
-#     draw_plot(band.summer.temp, x = 0, y = 0, width = 1, height = 0.3) +
-#     draw_plot(plot.temp.CC, x = 0, y = 0, width = 1, height = 0.3) +
-#     draw_plot(band.summer.density, x = 0, y = 0.3, width = 1, height = 0.7) +
-#     draw_plot(model.J.CC, x = 0, y = 0.3, width = 1, height = 0.7) +
-#     draw_plot(model.A.CC, x = 0, y = 0.3, width = 1, height = 0.7)
+#     #draw_plot(model.census, x = 0, y = 0.3, width = 1, height = 0.7) +
+#     #draw_plot(model.J.fut, x = 0, y = 0.3, width = 1, height = 0.7) +
+#     draw_plot(model.A.fut, x = 0, y = 0.3, width = 1, height = 0.7) #+
+#     #draw_plot(plot.census, x = 0, y = 0.3, width = 1, height = 0.7)
 # }
 
-# Compare historical and future time periods
-if(location == "Nigeria" || sp.data$Habitat == "Tropical") {
-  plot.compare <- ggdraw()  +
-    draw_plot(band.hot.temp, x = 0, y = 0, width = 1, height = 0.3) +
-    draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
-    draw_plot(plot.temp.CC, x = 0, y = 0, width = 1, height = 0.3) +
-    draw_plot(band.hot.density, x = 0, y = 0.3, width = 1, height = 0.7) +
-    #draw_plot(model.J, x = 0, y = 0.3, width = 1, height = 0.7) +
-    #draw_plot(model.A, x = 0, y = 0.3, width = 1, height = 0.7) +
-    draw_plot(model.census, x = 0, y = 0.3, width = 1, height = 0.7) +
-    #draw_plot(model.J.CC, x = 0, y = 0.3, width = 1, height = 0.7) +
-    #draw_plot(model.A.CC, x = 0, y = 0.3, width = 1, height = 0.7) +
-    draw_plot(plot.A, x = 0, y = 0.3, width = 1, height = 0.7)
-}
-if(str_split(location, boundary("word"), simplify = T)[,1] == "China" || sp.data$Habitat != "Tropical") { 
-  plot.compare <- ggdraw()  +
-    draw_plot(band.summer.temp, x = 0, y = 0, width = 1, height = 0.3) +
-    draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
-    draw_plot(plot.temp.CC, x = 0, y = 0, width = 1, height = 0.3) +
-    draw_plot(band.summer.density, x = 0, y = 0.3, width = 1, height = 0.7) +
-    #draw_plot(model.J, x = 0, y = 0.3, width = 1, height = 0.7) +
-    draw_plot(model.A, x = 0, y = 0.3, width = 1, height = 0.7) +
-    #draw_plot(model.census, x = 0, y = 0.3, width = 1, height = 0.7) +
-    #draw_plot(model.J.CC, x = 0, y = 0.3, width = 1, height = 0.7) +
-    draw_plot(model.A.CC, x = 0, y = 0.3, width = 1, height = 0.7) #+
-    #draw_plot(plot.A, x = 0, y = 0.3, width = 1, height = 0.7)
-}
 
-
-# VIEW IN RSTUDIO
-#plot
-plot.compare
-
-
-# STATISTICS
-#linear regression of field data and model data
-stats.data <- data.frame(Time = data.TS$time, Census = data.TS$A, Model = NA)
-for(i in seq(1:nrow(stats.data))) {
-  stats.data$Model[i] = data.model.census[data.model.census$Time == stats.data$Time[i],"A"]
-}
-summary(lm(stats.data$Model ~ 0 + stats.data$Census))
-plot(stats.data$Census,stats.data$Model, xlim = c(0,100), ylim = c(0,100))
-
-# mean and CV of historical versus future period
-density.data <- rbind(data.frame(period = rep("hist",nrow(data.model)), J = data.model$J, A = data.model$A),
-                     data.frame(period = rep("fut",nrow(data.model.CC)), J = data.model.CC$J, A = data.model.CC$A))
-# juvenile density
-aggregate(density.data$J, list(density.data$period), function(x) c(mean = mean(x), sd = sd(x), cv = sd(x)/mean(x)))
-summary(aov(J ~ period, data=density.data)) # mean
-with(density.data, asymptotic_test(J, period)) # CV (asymptotic test)
-with(density.data, mslr_test(nr = 1000, J, period)) # CV (modified signed-likelihood ratio test)
-# adult density
-aggregate(density.data$A, list(density.data$period), function(x) c(mean = mean(x), sd = sd(x), cv = sd(x)/mean(x)))
-summary(aov(A ~ period, data=density.data)) # mean
-with(density.data, asymptotic_test(A, period)) # CV (asymptotic test)
-with(density.data, mslr_test(nr = 1000, A, period)) # CV (modified signed-likelihood ratio test)
+# # VIEW IN RSTUDIO
+# #plot
+# plot.compare
+# 
+# 
+# # STATISTICS
+# #linear regression of field data and model data
+# stats.data <- data.frame(Time = data.census$time, Census = data.census$A, Model = NA)
+# for(i in seq(1:nrow(stats.data))) {
+#   stats.data$Model[i] = model.his.census[model.his.census$Time == stats.data$Time[i],"A"]
+# }
+# summary(lm(stats.data$Model ~ 0 + stats.data$Census))
+# plot(stats.data$Census,stats.data$Model, xlim = c(0,100), ylim = c(0,100))
 
 
 # OUTPUT PLOTS
 #dev.new()
 # Temperature plots
-# if(location == "Nigeria" || sp.data$Habitat == "Tropical") {
+# if(location == "Nigeria" || temp.param$Habitat == "Tropical") {
 #   ggdraw()  +
 #     draw_plot(band.hot.temp, x = 0, y = 0, width = 1, height = 0.3) +
 #     draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
-#     draw_plot(plot.temp.CC, x = 0, y = 0, width = 1, height = 0.3) }
-# if(str_split(location, boundary("word"), simplify = T)[,1] == "China" || sp.data$Habitat != "Tropical") {
+#     draw_plot(plot.temp.fut, x = 0, y = 0, width = 1, height = 0.3) }
+# if(str_split(location, boundary("word"), simplify = T)[,1] == "China" || temp.param$Habitat != "Tropical") {
 #   ggdraw()  +
 #     draw_plot(band.summer.temp, x = 0, y = 0, width = 1, height = 0.3) +
 #     draw_plot(plot.temp, x = 0, y = 0, width = 1, height = 0.3) +
-#     draw_plot(plot.temp.CC, x = 0, y = 0, width = 1, height = 0.3) }
+#     draw_plot(plot.temp.fut, x = 0, y = 0, width = 1, height = 0.3) }
 
 # Climate change plots
 # Tropical species
-# if(location == "Nigeria" || sp.data$Habitat == "Tropical") {
+# if(location == "Nigeria" || temp.param$Habitat == "Tropical") {
 # # juveniles
 #   ggdraw()  +
 #     draw_plot(band.hot.density, width = 1, height = 0.4) +
 #     draw_plot(model.J, width = 1, height = 0.4) +
-#     draw_plot(model.J.CC, width = 1, height = 0.4) }
-#if(location == "Nigeria" || sp.data$Habitat == "Tropical") {
+#     draw_plot(model.J.fut, width = 1, height = 0.4) }
+#if(location == "Nigeria" || temp.param$Habitat == "Tropical") {
 ## adults
   # ggdraw()  +
   #   draw_plot(band.hot.density, width = 1, height = 0.4) +
   #   draw_plot(model.A, width = 1, height = 0.4) +
   #   #draw_plot(model.census, width = 1, height = 0.4) +
-  #   draw_plot(model.A.CC, width = 1, height = 0.4) } #+
-  #   #draw_plot(plot.A,width = 1, height = 0.4) }
+  #   draw_plot(model.A.fut, width = 1, height = 0.4) } #+
+  #   #draw_plot(plot.census,width = 1, height = 0.4) }
 
 # Temperate species
-# if(str_split(location, boundary("word"), simplify = T)[,1] == "China" || sp.data$Habitat != "Tropical") {
+# if(str_split(location, boundary("word"), simplify = T)[,1] == "China" || temp.param$Habitat != "Tropical") {
 ## juveniles
 #   ggdraw()  +
 #     draw_plot(band.summer.density, width = 1, height = 0.4) +
 #     draw_plot(model.J, width = 1, height = 0.4) +
-#     draw_plot(model.J.CC, width = 1, height = 0.4) }
-# if(str_split(location, boundary("word"), simplify = T)[,1] == "China" || sp.data$Habitat != "Tropical") {
+#     draw_plot(model.J.fut, width = 1, height = 0.4) }
+# if(str_split(location, boundary("word"), simplify = T)[,1] == "China" || temp.param$Habitat != "Tropical") {
 ## adults
 #   ggdraw()  +
 #     draw_plot(band.summer.density, width = 1, height = 0.4) +
 #     draw_plot(model.A, width = 1, height = 0.4) +
 #     draw_plot(model.census, width = 1, height = 0.4) +
-#     draw_plot(model.A.CC, width = 1, height = 0.4) +
-#     draw_plot(plot.A,width = 1, height = 0.4) }
+#     draw_plot(model.A.fut, width = 1, height = 0.4) +
+#     draw_plot(plot.census,width = 1, height = 0.4) }
