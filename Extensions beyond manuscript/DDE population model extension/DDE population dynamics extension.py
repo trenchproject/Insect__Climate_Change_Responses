@@ -26,7 +26,7 @@ import os
 
 
 # USER: Enter species, location, and time period
-species = "Clavigralla tomentosicollis"
+species = "Clavigralla shadabi"
 location = "Benin"
 period = "Historical"
 #period = "Future"
@@ -35,7 +35,7 @@ period = "Historical"
 all_sp = False
 
 # USER: Save data to CSV file?
-save_data = True
+save_data = False
 
 # USER: Use minimum temperature threshold?
 minT = True
@@ -50,7 +50,7 @@ comp = True
 daily = False
 
 # USER: Is model fit to census data?
-census = False
+census = True
     
 
 # DEFINE MODEL PARAMETERS
@@ -142,7 +142,7 @@ while(True):
     if comp == True:
         qTopt = spData["qTopt"]
     else:
-        qTopt = 0
+        qTopt = 1e-10
     Toptq = Toptb #spData["Toptq"]
     sq = sb #spData["sq"]
     #Aq = spData["Aq"]
@@ -156,6 +156,7 @@ while(True):
             return conditional(x, start_date*yr, meanT, # during "pre-history", habitat temperature is constant at its mean
                                conditional(x, CC_years*yr, (meanT + delta_mean*(x+init_years*yr)) - (amplT + delta_ampl*(x+init_years*yr)) * cos(2*pi*(x + shiftT)/yr)  - amplD * cos(2*pi*x), # temperature regime during climate change
                                            (meanT + delta_mean*CC_years*yr) - (amplT + delta_ampl*CC_years*yr) * cos(2*pi*(x + shiftT)/yr)  - amplD * cos(2*pi*x))) # temperature regime after climate change "equilibriates"
+
     '''
     # Plot temperature function
     xvals = arange(0,1*yr,0.1)
@@ -178,7 +179,7 @@ while(True):
             return conditional(mTR * T(x)/TR * exp(AmJ * (1/TR - 1/T(x))) / (1 + exp(AL*(1/TL-1/T(x)))), 1e-5, 1e-5, # If mJ(T) < jitcdde min tolerance, then mJ(T) = 1e-5
                                conditional(T(x), Topt, mTR * T(x)/TR * exp(AmJ * (1/TR - 1/T(x))) / (1 + exp(AL*(1/TL-1/T(x)))), # If temperature < developmental optima (Topt), then use monotonic mJ(T)
                                conditional(T(x), Tmax, mTR * Topt/TR * exp(AmJ * (1/TR - 1/Topt)) / (1 + exp(AL*(1/TL-1/Topt))), 1e-5)))  # If temperature < developmental maximum (Tmax), then mJ(T) = mJ(Topt); otherwise, mJ(T) = 1e-5
-        
+    
     # mortality rates
     def dJ(x):
         return dJTR * exp(AdJ * (1/TR - 1/T(x)))  
@@ -207,7 +208,7 @@ while(True):
                 def R(x):
                     return 1 #conditional(sin(2*pi*(x-rainy_season)/365), 0, 0, 1)
                 def M(x):
-                    return 1
+                    return conditional(T(x), Tmin, 0, 1)
             else:
                 def R(x):
                     return 1
@@ -262,9 +263,8 @@ while(True):
     
     # save data to csv 
     if save_data == True:
-        filename = 'Census time series ' + spData["Species"] + '.csv'
+        filename = 'Census Time series ' + spData["Species"] + '.csv'
         savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
-    
     '''
         if census == False:
             if comp == True and daily == True and left_skew == True:
@@ -320,7 +320,7 @@ while(True):
     ylabel("population density")
     yscale("linear")
     xlim((max_years-2)*yr,(max_years-0)*yr)
-    ylim(0,200)
+    ylim(0,100)
     
     
     # END LOOP WHEN MODEL IS RUN FOR ALL SPECIES

@@ -1,0 +1,29 @@
+Species,Location,Latitude,Habitat,Subfamily,TPC.h,TPC.f,Model.h,Model.f,delta.TPC,delta.model
+Clavigralla shadabi Benin,Benin,6.45,Tropical,Heteroptera,1.428,1.035,1.127,0.813,-0.393,-0.314
+Clavigralla tomentosicollis Benin,Benin,6.45,Tropical,Heteroptera,1.725,1.207,1.136,0.792,-0.518,-0.344
+Clavigralla tomentosicollis Burkina Faso,Burkina Faso,12.38,Tropical,Heteroptera,2.064,1.255,1.319,0.804,-0.809,-0.515
+Apolygus lucorum China Dafeng,China Dafeng,33.33,Temperate,Heteroptera,2.29,1.651,3.603,2.183,-0.639,-1.421
+Adelphocoris suturalis China Dafeng,China Dafeng,33.33,Temperate,Heteroptera,2.713,1.819,3.988,2.526,-0.895,-1.462
+Apolygus lucorum China Langfang,China Langfang,39.88,Temperate,Heteroptera,2.622,2.17,4.304,3.644,-0.452,-0.66
+Adelphocoris suturalis China Xinxiang,China Xinxiang,35.53,Temperate,Heteroptera,2.783,2.018,4.341,3.211,-0.766,-1.131
+Macrosiphum euphorbiae Brazil,Brazil,21.23,Tropical,Sternorrhyncha,1.02,1.001,1.021,1.001,-0.019,-0.019
+Aulacorthum solani Brazil,Brazil,21.23,Tropical,Sternorrhyncha,1.197,1.017,1.226,1.018,-0.179,-0.207
+Uroleucon ambrosiae Brazil,Brazil,21.23,Tropical,Sternorrhyncha,1.031,1,1.034,1.001,-0.031,-0.032
+Acyrthosiphon pisum UK Sand Hutton,UK Sand Hutton,54.02,Temperate,Sternorrhyncha,3.296,2.25,4.071,2.225,-1.046,-1.846
+Rhopalosiphum rufiabdominalis US Naples,US Naples,26.14,Subtropical,Sternorrhyncha,1.407,1.431,1.384,2.749,0.024,1.366
+Aphis nasturtii US Weston,US Weston,26.14,Subtropical,Sternorrhyncha,1.332,1.097,1.299,1.044,-0.235,-0.255
+Eriosoma lanigerum Australia Yathroo,Australia Yathroo,30.9,Subtropical,Sternorrhyncha,1.65,1.595,1.739,1.79,-0.055,0.051
+Macrosiphum euphorbiae Canada,Canada,42.81,Temperate,Sternorrhyncha,2.57,2.962,10.54,7.578,0.392,-2.962
+Myzus persicae Canada,Canada,42.81,Temperate,Sternorrhyncha,2.777,2.984,6.062,4.478,0.207,-1.585
+Hyperomyzus lactucae Australia Acton,Australia Acton,35.27,Subtropical,Sternorrhyncha,2.572,1.597,4.645,1.651,-0.975,-2.994
+Aphis gossypii China Henan,China Henan,36.07,Temperate,Sternorrhyncha,2.752,2.145,7.417,5.326,-0.607,-2.091
+Aulacorthum solani US Ithaca,US Ithaca,42.42,Temperate,Sternorrhyncha,3.204,2.28,7.825,3.971,-0.925,-3.854
+Brevicoryne brassicae US Columbia,US Columbia,38.93,Temperate,Sternorrhyncha,2.221,2.147,5.5,4.554,-0.074,-0.946
+Myzus persicae US Columbia,US Columbia,38.93,Temperate,Sternorrhyncha,1.94,2.154,4.358,3.766,0.214,-0.592
+Hyadaphis pseudobrassicae US Columbia,US Columbia,38.93,Temperate,Sternorrhyncha,2.252,2.525,5.795,4.593,0.274,-1.202
+Toxoptera citricidus on Citrus unshiu Japan Chiba,Japan Chiba,35.38,Subtropical,Sternorrhyncha,2.442,2.129,6.982,3.013,-0.313,-3.969
+Toxoptera citricidus on Citrus aurantium Japan Chiba,Japan Chiba,35.38,Subtropical,Sternorrhyncha,2.412,1.737,4.448,2.187,-0.675,-2.261
+Aphis citricola Japan Chiba,Japan Chiba,35.38,Subtropical,Sternorrhyncha,2.498,1.587,6.871,1.904,-0.911,-4.967
+Aphis gossypii Japan Chiba,Japan Chiba,35.38,Subtropical,Sternorrhyncha,2.412,1.782,6.489,2.075,-0.63,-4.414
+Aphis gossypii US Lubbock,US Lubbock,33.69,Subtropical,Sternorrhyncha,1.971,1.57,3.745,2.064,-0.401,-1.681
+Aphis gossypii Iran,Iran,35.57,Subtropical,Sternorrhyncha,2.088,2.086,6.29,5.657,-0.001,-0.633

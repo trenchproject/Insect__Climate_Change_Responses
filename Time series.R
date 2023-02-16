@@ -14,16 +14,13 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 # NOTE: CLEAR GLOBAL ENVIRONMENT IF ELAPSED TIME LIMIT ERROR OCCURS OR LINES ARE MISSING FROM PLOTS
 
-#old <- as.data.frame(read_csv("Time series data Census/Historical time series Clavigralla tomentosicollis Benin.csv"))
-#new <- as.data.frame(read_csv("Time series data Census new/Historical time series Clavigralla tomentosicollis Benin.csv"))
-#identical(old, new)
-
-
 # USER: enter species and location
-species <- "Clavigralla tomentosicollis"
+species <- "Apolygus lucorum"
+location <- "China Dafeng"
+species <- "Clavigralla shadabi"
 location <- "Benin"
 
-# USER: Fit to census data?
+# USER: Fit model prediction to field census data?
 census <- TRUE
 
 
@@ -33,63 +30,44 @@ temp.param <- as.data.frame(read_csv("Model parameters/Habitat temperature param
 temp.param <- temp.param[temp.param$Species == paste(species,location),]
 
 # Field census data
-if(census == TRUE && location == "Benin") { data.census <- as.data.frame(read_csv("Biological data/Census data Benin.csv")) }
-if(location == "China Dafeng") {
+if(census == TRUE && location == "Benin") {
+  data.census <- as.data.frame(read_csv("Biological data/Census data Benin.csv"))
+  start.his <- 1982 }
+if(census == TRUE && location == "China Dafeng") {
   data.census <- as.data.frame(read_csv("Biological data/Census data China.csv"))
-  data.census <- data.census %>% filter(Location = "Dafeng", species = "Apolygus lucorum") }
+  data.census <- data.census %>% filter(location == "Dafeng", species == "Apolygus lucorum")
+  start.his <- 1996 }
 
 # Model time-series data
 if(census == TRUE) {
-  model.his <- as.data.frame(read_csv(paste0("Time series data Census new/Census time series ",species," ",location,".csv")))
-} else {
-  model.his <- as.data.frame(read_csv(paste0("Time series data new/Historical time series ",species," ",location,".csv")))
-}
+  model.his <- as.data.frame(read_csv(paste0("Time series data new/Census time series ",species," ",location,".csv")))
+} else { model.his <- as.data.frame(read_csv(paste0("Time series data new/Historical time series ",species," ",location,".csv"))) }
 model.fut <- as.data.frame(read_csv(paste0("Time series data new/Future time series ",species," ",location,".csv")))
 
 
 # SET PARAMETERS AND PLOT OPTIONS
 # Parameters for time-series data
 yr <- 365 # days per year
-# historical time-series
-start.his <- 0 # how many years into climate change period to start population dynamics model (see "start_yr" in "DDE population dynamics.py")
-num.his <- 10 # how long to run model (see "num_yrs" in "DDE population dynamics.py")
-plot.his <- 2 # how many years to plot (i.e., last X years)
-start.his <- start.his + num.his - plot.his # recalculate start year for extracting time-series data
-end.his <- min(start.his + plot.his, start.his + num.his) # calculate end year for extracting time-series data
-length.his <- nrow(model.his)
-# future time-series
-start.fut <- 0 # how many years into climate change period to start population dynamics model (see "start_yr" in "DDE population dynamics.py")
-num.fut <- 75 # how long to run model (see "num_yrs" in "DDE population dynamics.py")
-plot.fut <- 2 # how many years to plot (i.e., last X years)
-start.fut <- start.fut + num.fut - plot.fut # recalculate start year for extracting time-series data
-end.fut <- min(start.fut + plot.fut, start.fut + num.fut) # calculate end year for extracting time-series data
-length.fut <- nrow(model.fut)
+if(census == FALSE) { start.his <- 0 } # how many years before starting population dynamics model (see "start_yr" in "DDE population dynamics.py")
+start.fut <- 65 # how many years into climate change period to start population dynamics model (see "start_yr" in "DDE population dynamics.py")
 
 # Plotting parameters
-xmin.his <- 0 # start time for plots (may differ from "start.his" above)
-xmax.his <- plot.his*yr # end time for plots (may differ from "end.his" above)
-xmin.fut <- 0 # start time for plots (may differ from "start.fut" above)
-xmax.fut <- plot.fut*yr # end time for plots (may differ from "end.fut" above)
-ymin <- 0 # min density for plots (same for historical and future periods)
-ymax <- 120 # max density for plots (same for historical and future periods)
-temp.min <- 0 # min temperature for plots (same for historical and future periods)
-temp.max <- 40 # max temperature for plots (same for historical and future periods)
-TS.length <- xmax.his - xmin.his # length of time-series data for plots
+xmin <- 0 # always plot model starting at time zero
+xmax <- 2*yr # plot 2 years of population dynamics
+ymin <- 0 # min density for plots
+ymax <- 125 # max density for plots
+temp.min <- 0 # min temperature in C for plots
+temp.max <- 40 # max temperature in C for plots
 
 
 # FORMAT MODEL OUTPUT TO ALIGN WITH TIME-SERIES DATA
 # Extract time-series data for plotting
-model.his <- model.his[(start.his*yr+1):(end.his*yr),]
-model.fut <- model.fut[(start.fut*yr+1):(end.fut*yr),]
+model.his <- model.his[(nrow(model.his) - 2*yr + 1):nrow(model.his),]
+model.fut <- model.fut[(nrow(model.fut) - 2*yr + 1):nrow(model.fut),]
 
-# Re-scale time in model time-series data to start at xmin.his
-# historical period
-time.shift.his <- max(model.his[[1,1]] - xmin.his, 0) # number of days to "shift" time-series
-model.his <- sweep(model.his, 2, c(time.shift.his,0,0,0,0)) # shift "Time" column to align with x-axis of plots
-
-# future period
-time.shift.fut <- max(model.fut[[1,1]] + xmin.fut, 0) # number of days to "shift" time-series
-model.fut <- sweep(model.fut, 2, c(time.shift.fut,0,0,0,0)) # shift "Time" column to align with x-axis of plots
+# Re-scale time in model time-series data to start at xmin
+model.his <- sweep(model.his, 2, c(model.his[[1,1]],0,0,0,0)) # shift "Time" column to align with x-axis of plots
+model.fut <- sweep(model.fut, 2, c(model.fut[[1,1]],0,0,0,0)) # shift "Time" column to align with x-axis of plots
 
 
 ################################ CONSTRUCT PLOTS ################################
@@ -99,7 +77,7 @@ temp.his <- ggplot() +
   geom_function(fun = function(t) (temp.param$meanT.h - 273.15 + temp.param$delta_mean.h*(t+start.his*yr))  - (temp.param$amplT.h + temp.param$delta_ampl.h*(t+start.his*yr)) * cos(2*pi*((t+start.his*yr) + temp.param$shiftT.h)/yr),
                 linewidth=1.5, color="#0072B2") +
   labs(x="", y="") +
-  scale_x_continuous(limits=c(xmin.his, xmax.his)) +
+  scale_x_continuous(limits=c(xmin, xmax)) +
   scale_y_continuous(limits=c(temp.min, temp.max)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
@@ -111,7 +89,7 @@ temp.fut <- ggplot() +
   geom_function(fun = function(t) (temp.param$meanT.f - 273.15 + temp.param$delta_mean.f*(t+start.fut*yr))  - (temp.param$amplT.f + temp.param$delta_ampl.f*(t+start.fut*yr)) * cos(2*pi*((t+start.fut*yr) + temp.param$shiftT.f)/yr),
                 linewidth=1.5, color="#D55E00") +
   labs(x="", y="") +
-  scale_x_continuous(limits=c(xmin.fut, xmax.fut)) +
+  scale_x_continuous(limits=c(xmin, xmax)) +
   scale_y_continuous(limits=c(temp.min, temp.max)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_rect(fill="transparent"), plot.background = element_rect(fill="transparent"),
@@ -123,11 +101,11 @@ temp.fut <- ggplot() +
 # Tropical habitats
 # for temperature plots
 band.hot.temp <- ggplot() +
-  geom_rect(aes(xmin=xmin.his, xmax=xmin.his + 3*yr/4 - temp.param$shiftT.h, ymin=0, ymax=Inf), fill="grey", alpha=0.5) +
-  geom_rect(aes(xmin=xmin.his + 5*yr/4 - temp.param$shiftT.h, xmax=xmin.his + 7*yr/4 - temp.param$shiftT.h, ymin=0, ymax=Inf), fill="grey", alpha=0.5) +
-  geom_rect(aes(xmin=xmin.his + 9*yr/4 - temp.param$shiftT.h, xmax=xmax.his, ymin=0, ymax=Inf), fill="grey", alpha=0.5) +
+  geom_rect(aes(xmin=xmin, xmax=xmin + 3*yr/4 - temp.param$shiftT.h, ymin=0, ymax=Inf), fill="grey", alpha=0.5) +
+  geom_rect(aes(xmin=xmin + 5*yr/4 - temp.param$shiftT.h, xmax=xmin + 7*yr/4 - temp.param$shiftT.h, ymin=0, ymax=Inf), fill="grey", alpha=0.5) +
+  geom_rect(aes(xmin=xmin + 9*yr/4 - temp.param$shiftT.h, xmax=xmax, ymin=0, ymax=Inf), fill="grey", alpha=0.5) +
   labs(x="", y="") +
-  scale_x_continuous(limits=c(xmin.his, xmax.his)) +
+  scale_x_continuous(limits=c(xmin, xmax)) +
   scale_y_continuous(limits=c(temp.min, temp.max)) +
   #scale_y_log10(limits=c(ymin, ymax)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
@@ -137,11 +115,11 @@ band.hot.temp <- ggplot() +
 
 # for insect density plots
 band.hot.density <- ggplot() +
-  geom_rect(aes(xmin=xmin.his, xmax=xmin.his + 3*yr/4 - temp.param$shiftT.h, ymin=0, ymax=Inf), fill="grey", alpha=0.5) +
-  geom_rect(aes(xmin=xmin.his + 5*yr/4 - temp.param$shiftT.h, xmax=xmin.his + 7*yr/4 - temp.param$shiftT.h, ymin=0, ymax=Inf), fill="grey", alpha=0.5) +
-  geom_rect(aes(xmin=xmin.his + 9*yr/4 - temp.param$shiftT.h, xmax=xmax.his, ymin=0, ymax=Inf), fill="grey", alpha=0.5) +
+  geom_rect(aes(xmin=xmin, xmax=xmin + 3*yr/4 - temp.param$shiftT.h, ymin=0, ymax=Inf), fill="grey", alpha=0.5) +
+  geom_rect(aes(xmin=xmin + 5*yr/4 - temp.param$shiftT.h, xmax=xmin + 7*yr/4 - temp.param$shiftT.h, ymin=0, ymax=Inf), fill="grey", alpha=0.5) +
+  geom_rect(aes(xmin=xmin + 9*yr/4 - temp.param$shiftT.h, xmax=xmax, ymin=0, ymax=Inf), fill="grey", alpha=0.5) +
   labs(x="", y="") +
-  scale_x_continuous(limits=c(xmin.his, xmax.his)) +
+  scale_x_continuous(limits=c(xmin, xmax)) +
   scale_y_continuous(limits=c(ymin, ymax)) +
   #scale_y_log10(limits=c(ymin, ymax)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
@@ -152,10 +130,10 @@ band.hot.density <- ggplot() +
 # Temperate habitats
 # for temperature plots
 band.summer.temp <- ggplot() +
-  geom_rect(aes(xmin=xmin.his + yr/4, xmax=xmin.his + 3*yr/4, ymin=0, ymax=Inf), fill="grey", alpha=0.5) +
-  geom_rect(aes(xmin=xmin.his + 5*yr/4, xmax=xmin.his + 7*yr/4, ymin=0, ymax=Inf), fill="grey", alpha=0.5) +
+  geom_rect(aes(xmin=xmin + yr/4, xmax=xmin + 3*yr/4, ymin=0, ymax=Inf), fill="grey", alpha=0.5) +
+  geom_rect(aes(xmin=xmin + 5*yr/4, xmax=xmin + 7*yr/4, ymin=0, ymax=Inf), fill="grey", alpha=0.5) +
   labs(x="", y="") +
-  scale_x_continuous(limits=c(xmin.his, xmax.his)) +
+  scale_x_continuous(limits=c(xmin, xmax)) +
   scale_y_continuous(limits=c(temp.min, temp.max)) +
   #scale_y_log10(limits=c(ymin, ymax)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
@@ -165,10 +143,10 @@ band.summer.temp <- ggplot() +
 
 # for insect density plots
 band.summer.density <- ggplot() +
-  geom_rect(aes(xmin=xmin.his + yr/4, xmax=xmin.his + 3*yr/4, ymin=0, ymax=Inf), fill="grey", alpha=0.5) +
-  geom_rect(aes(xmin=xmin.his + 5*yr/4, xmax=xmin.his + 7*yr/4, ymin=0, ymax=Inf), fill="grey", alpha=0.5) +
+  geom_rect(aes(xmin=xmin + yr/4, xmax=xmin + 3*yr/4, ymin=0, ymax=Inf), fill="grey", alpha=0.5) +
+  geom_rect(aes(xmin=xmin + 5*yr/4, xmax=xmin + 7*yr/4, ymin=0, ymax=Inf), fill="grey", alpha=0.5) +
   labs(x="", y="") +
-  scale_x_continuous(limits=c(xmin.his, xmax.his)) +
+  scale_x_continuous(limits=c(xmin, xmax)) +
   scale_y_continuous(limits=c(ymin, ymax)) +
   #scale_y_log10(limits=c(ymin, ymax)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
@@ -181,7 +159,7 @@ band.summer.density <- ggplot() +
 plot.census <- ggplot(data.census, aes(x=day, y=Adults, ymin=A_SE_L, ymax=A_SE_H)) + 
   geom_pointrange(size=0.5, color="#0072B2") + # blue color
   labs(x="", y="") +
-  scale_x_continuous(limits=c(xmin.his, xmax.his)) +
+  scale_x_continuous(limits=c(xmin, xmax)) +
   scale_y_continuous(limits=c(ymin, ymax)) +
   #scale_y_log10(limits=c(ymin, ymax)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
@@ -196,7 +174,7 @@ plot.census <- ggplot(data.census, aes(x=day, y=Adults, ymin=A_SE_L, ymax=A_SE_H
 model.J.his <- ggplot(model.his, aes(x=Time, y=J)) + 
   geom_line(size=1.5, color="#0072B2") + # blue color
   labs(x="", y="") +
-  scale_x_continuous(limits=c(xmin.his, xmax.his)) +
+  scale_x_continuous(limits=c(xmin, xmax)) +
   scale_y_continuous(limits=c(ymin, ymax)) +
   #scale_y_log10(limits=c(ymin, ymax)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
@@ -208,7 +186,7 @@ model.J.his <- ggplot(model.his, aes(x=Time, y=J)) +
 model.A.his <- ggplot(model.his, aes(x=Time, y=A)) + 
   geom_line(size=1.5, color="#0072B2") + # blue color
   labs(x="", y="") +
-  scale_x_continuous(limits=c(xmin.his, xmax.his)) +
+  scale_x_continuous(limits=c(xmin, xmax)) +
   scale_y_continuous(limits=c(ymin, ymax)) +
   #scale_y_log10(limits=c(ymin, ymax)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
@@ -221,7 +199,7 @@ model.A.his <- ggplot(model.his, aes(x=Time, y=A)) +
 model.J.fut <- ggplot(model.fut, aes(x=Time, y=J)) + 
   geom_line(size=1.5, color="#D55E00") + # red color
   labs(x="", y="") +
-  scale_x_continuous(limits=c(xmin.fut, xmax.fut)) +
+  scale_x_continuous(limits=c(xmin, xmax)) +
   scale_y_continuous(limits=c(ymin, ymax)) +
   #scale_y_log10(limits=c(ymin, ymax)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
@@ -233,7 +211,7 @@ model.J.fut <- ggplot(model.fut, aes(x=Time, y=J)) +
 model.A.fut <- ggplot(model.fut, aes(x=Time, y=A)) + 
   geom_line(size=1.5, color="#D55E00") + # red color
   labs(x="", y="") +
-  scale_x_continuous(limits=c(xmin.fut, xmax.fut)) +
+  scale_x_continuous(limits=c(xmin, xmax)) +
   scale_y_continuous(limits=c(ymin, ymax)) +
   #scale_y_log10(limits=c(ymin, ymax)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),

@@ -11,7 +11,7 @@ setwd('..')
 
 # USER: enter location of climate data (see "Climate station data.xlsx") OR set "all" to TRUE to run analysis for all species
 location <- "Benin"
-all <- FALSE
+all <- TRUE
 
 # USER: Save model fits?
 save <- FALSE
