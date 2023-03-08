@@ -7,61 +7,27 @@
 library(tidyverse)
 library(ggplot2)
 library(cowplot)
-setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
+# Set working directory (if neccessary)
+#setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+#setwd('..')
 
-# READ IN DATA
-# Fitness metrics and components
-# r.data <- as.data.frame(read_csv("Predictions/Predictions Dev fitness 2.csv"))
-# R0.data <- as.data.frame(read_csv("Predictions/Predictions Dev R0 2.csv"))
-# b.data <- as.data.frame(read_csv("Predictions/Predictions Dev birth 2.csv"))
-# g.data <- as.data.frame(read_csv("Predictions/Predictions Dev development 2.csv"))
-# s.data <- as.data.frame(read_csv("Predictions/Predictions Dev survival 2.csv"))
-# l.data <- as.data.frame(read_csv("Predictions/Predictions Dev longevity 2.csv"))
-
-r.data <- as.data.frame(read_csv("Predictions new/Predictions rm.csv"))
-R0.data <- as.data.frame(read_csv("Predictions new/Predictions R0.csv"))
-b.data <- as.data.frame(read_csv("Predictions new/Predictions birth.csv"))
-g.data <- as.data.frame(read_csv("Predictions new/Predictions development.csv"))
-s.data <- as.data.frame(read_csv("Predictions new/Predictions survival.csv"))
-l.data <- as.data.frame(read_csv("Predictions new/Predictions longevity.csv"))
+# Read in predictions from "Model TPC analyses.R"
+r.data <- as.data.frame(read_csv("Predictions/Predictions rm.csv"))
+R0.data <- as.data.frame(read_csv("Predictions/Predictions R0.csv"))
+b.data <- as.data.frame(read_csv("Predictions/Predictions birth.csv"))
+g.data <- as.data.frame(read_csv("Predictions/Predictions development.csv"))
+s.data <- as.data.frame(read_csv("Predictions/Predictions survival.csv"))
+l.data <- as.data.frame(read_csv("Predictions/Predictions longevity.csv"))
 # Population dynamics
 pop.data <- as.data.frame(read_csv("Predictions/Predictions population dynamics.csv"))
-
-r.data <- r.data[1:22,]
-R0.data <- R0.data[1:22,]
-b.data <- b.data[1:22,]
-g.data <- g.data[1:22,]
-s.data <- s.data[1:22,]
-l.data <- l.data[1:22,]
-
-# COMPARE OUTPUTS
-old <- as.data.frame(read_csv("Predictions/Predictions Dev longevity.csv"))
-old <- old[-c(3,12,13,15,18),]
-old <- old[,-(2:4)]
-rnd <- 2
-old$TPC.h <- round(old$TPC.h,rnd)
-old$TPC.f <- round(old$TPC.f,rnd)
-old$Model.h <- round(old$Model.h,rnd)
-old$Model.f <- round(old$Model.f,rnd)
-old$delta.TPC <- round(old$delta.TPC,rnd)
-old$delta.model <- round(old$delta.model,rnd)
-new <- as.data.frame(read_csv("Predictions new/Predictions longevity.csv"))
-new <- new[,-(2:5)]
-new$TPC.h <- round(new$TPC.h,rnd)
-new$TPC.f <- round(new$TPC.f,rnd)
-new$Model.h <- round(new$Model.h,rnd)
-new$Model.f <- round(new$Model.f,rnd)
-new$delta.TPC <- round(new$delta.TPC,rnd)
-new$delta.model <- round(new$delta.model,rnd)
-summary(arsenal::comparedf(old,new))
 
 
 ######################################## STATISTICS #########################################
 # FITNESS
 # Model vs Latitude (Fig. 3a)
 r.lat <- lm(delta.model ~ Latitude, data=r.data)
-summary(r.lat) # marginally-significant
+summary(r.lat) # significant!
 # Correlation (Fig. 4a)
 r.delta <- lm(delta.TPC ~ delta.model, data=r.data)
 summary(r.delta) # significant!
@@ -77,7 +43,7 @@ summary(R0.delta) # significant!
 # SURVIVAL
 # Model vs Latitude (Fig. 3c)
 s.lat <- lm(delta.model ~ Latitude, data=s.data)
-summary(s.lat) # non-significant (previous mix-up between Clavigralla species)
+summary(s.lat) # marginally-significant
 # Correlation (Fig. 4c)
 s.delta <- lm(delta.TPC ~ delta.model, data=s.data)
 summary(s.delta)  # significant!
@@ -93,7 +59,7 @@ g.lat <- lm(delta.model ~ Latitude, data=g.data)
 summary(g.lat) # significant!
 # Correlation (Fig. 4d)
 g.delta <- lm(delta.TPC ~ delta.model, data=g.data)
-summary(g.delta)  # marginally-significant
+summary(g.delta)  # non-significant
 
 # ADULT LONGEVITY
 # Model vs Latitude (Fig. 3f)

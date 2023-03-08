@@ -29,11 +29,11 @@ import os
 
 
 # USER: Enter species, location, and time period (i.e., "Historical" or "Future") or set all_sp to True
-species = "Myzus persicae"
-location = "US Columbia"
+species = "Aphis gossypii"
+location = "China Henan"
 period = "Historical"
 #period = "Future"
-all_sp = True
+all_sp = False
 
 # USER: Save population dynamics data to CSV file?
 save_data = True
@@ -134,7 +134,7 @@ while(True):
     sq = sb
     
     
-    # FUNCTIONS (where x is time)
+    # FUNCTIONS (where x is time because t is reserved for the state variable time in the DDE model)
     # Seasonal temperature variation (Eq. 5)
     def T(x):
             return conditional(x, 0, meanT, # during DDE "pre-history", habitat temperature is constant at its mean
@@ -164,9 +164,9 @@ while(True):
    
     # development rate (Eq. 2c)
     def g(x):
-        return conditional(gTR * T(x)/TR * exp(Ag * (1/TR - 1/T(x))) / (1 + exp(AL*(1/TL-1/T(x)))), 1e-8, 1e-8, # If g(T) < jitcdde min tolerance, then g(T) = 1e-5
+        return conditional(gTR * T(x)/TR * exp(Ag * (1/TR - 1/T(x))) / (1 + exp(AL*(1/TL-1/T(x)))), 1e-7, 1e-7, # If g(T) < jitcdde min tolerance, then g(T) = 1e-5
                            conditional(T(x), Toptg, gTR * T(x)/TR * exp(Ag * (1/TR - 1/T(x))) / (1 + exp(AL*(1/TL-1/T(x)))), # If habitat temperature < developmental optima (Toptg), then use monotonic g(T)
-                                       conditional(T(x), Tmaxg, gMax, 1e-8)))  # If habitat temperature < developmental maximum (Tmaxg), then g(T) = gMax; otherwise, g(T) = 1e-5
+                                       conditional(T(x), Tmaxg, gMax, 1e-7)))  # If habitat temperature < developmental maximum (Tmaxg), then g(T) = gMax; otherwise, g(T) = 1e-5
         
     # density-dependence due to competition
     def q(x):
@@ -211,13 +211,13 @@ while(True):
     if save_data == True:
         if census == False:
             if comp == True:
-                filename = 'Time series data new/' + period + ' time series ' + sp_params["Species"] + '.csv'
+                filename = 'Time series data/' + period + ' time series ' + sp_params["Species"] + '.csv'
                 savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
             else:
                 filename = 'Time series data DI/' + period + ' time series ' + sp_params["Species"] + '.csv'
                 savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
         else:
-            filename = 'Time series data new/Census time series ' + sp_params["Species"] + '.csv'
+            filename = 'Time series data/Census time series ' + sp_params["Species"] + '.csv'
             savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
     
     

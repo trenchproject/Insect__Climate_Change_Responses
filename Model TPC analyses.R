@@ -5,8 +5,10 @@
 # Load packages and set working directory
 library(tidyverse)
 library(cubature) # for integrating over TPC and model predictions
-setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
+# Set working directory (if necessary)
+#setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+#setwd('..')
 
 # USER: enter species and location or set "all" to TRUE to run analysis for all species
 species <- "Clavigralla shadabi"
@@ -47,8 +49,8 @@ for(s in 1:nrow(tr.param)) {
   TS.r.h <- as.data.frame(read_csv(paste0("Time series data DI/Historical time series ",param[1],".csv")))
   TS.r.f <- as.data.frame(read_csv(paste0("Time series data DI/Future time series ",param[1],".csv")))
   # Use density-dependent model data for quantifying all other traits
-  TS.h <- as.data.frame(read_csv(paste0("Time series data new/Historical time series ",param[1],".csv")))
-  TS.f <- as.data.frame(read_csv(paste0("Time series data new/Future time series ",param[1],".csv")))
+  TS.h <- as.data.frame(read_csv(paste0("Time series data/Historical time series ",param[1],".csv")))
+  TS.f <- as.data.frame(read_csv(paste0("Time series data/Future time series ",param[1],".csv")))
 
   # Determine if the population is extinct and remove any data after extinction
   ext <- FALSE
@@ -248,16 +250,17 @@ for(s in 1:nrow(tr.param)) {
   b.model.f <- b.model.f/season.f
   tau.model.f <- tau.model.f/(end.f-start.f)  # different denominator b/c development time does not stop during overwintering
   dA.model.f <- dA.model.f/season.f
-  s.model.f <- s.model.f/season.f
+  if(ext == FALSE) { s.model.f <- s.model.f/season.f
+  } else { s.model.f <- 0 } # if population goes extinct, set survival to zero
 
   
 ################################# RECORD AND DISPLAY RESULTS ###############################
   # Calculate optimum development rate, maximum adult longevity, and survival at mean habitat temperature for scaling results
   gTopt <- param$gTR*(param$Toptg/param$TR)*exp(param$Ag*(1/param$TR-1/param$Toptg))/(1+exp(param$AL*(1/param$TL-1/param$Toptg))) #optimum development rate
   Lmax <- 1/min(param$dATR*exp(param$AdA*(1/param$TR-1/T.h(TS.h$Time)))) # maximum adult longevity
-  g.h <- function(t) { ifelse(T.h(t) <= param$Toptg, param$gTR*(T.h(t)/param$TR)*exp(param$Ag*(1/param$TR-1/T.h(t)))/(1+exp(param$AL*(1/param$TL-1/T.h(t)))), # if T(t) < Toptg, use monotonic g(T)
-                                                             ifelse(T.h(t) <= param$Tmaxg, param$gMax, 0)) } # If T(t) < Tmaxg, g(T) = gMax; otherwise, g(T) = 0
-  dJ.h <- function(t) { param$dJTR*exp(param$AdJ*(1/param$TR-1/T.h(t))) }
+  # g.h <- function(t) { ifelse(T.h(t) <= param$Toptg, param$gTR*(T.h(t)/param$TR)*exp(param$Ag*(1/param$TR-1/T.h(t)))/(1+exp(param$AL*(1/param$TL-1/T.h(t)))), # if T(t) < Toptg, use monotonic g(T)
+  #                                                            ifelse(T.h(t) <= param$Tmaxg, param$gMax, 0)) } # If T(t) < Tmaxg, g(T) = gMax; otherwise, g(T) = 0
+  # dJ.h <- function(t) { param$dJTR*exp(param$AdJ*(1/param$TR-1/T.h(t))) }
   # Smean <- exp(-dJ.h(t.param$meanT.h)*g.h(t.param$meanT.h))
   # Shot <- exp(-dJ.h(t.param$meanT.h+t.param$amplT.h)*g.h(t.param$meanT.h+t.param$amplT.h))
   # Smax <- max(exp(-dJ.h(TS.h$Time)*g.h(TS.h$Time)))
@@ -322,12 +325,12 @@ for(s in 1:nrow(tr.param)) {
 
 # OUTPUT RESULTS IN CSV FILE
 if(save == TRUE && all == TRUE) {
-  write_csv(r.data, "Predictions new/Predictions rm.csv")
-  write_csv(R0.data, "Predictions new/Predictions R0.csv")
-  write_csv(birth.data, "Predictions new/Predictions birth.csv")
-  write_csv(dev.data, "Predictions new/Predictions development.csv")
-  write_csv(long.data, "Predictions new/Predictions longevity.csv")
-  write_csv(surv.data, "Predictions new/Predictions survival.csv")
+  write_csv(r.data, "Predictions/Predictions rm.csv")
+  write_csv(R0.data, "Predictions/Predictions R0.csv")
+  write_csv(birth.data, "Predictions/Predictions birth.csv")
+  write_csv(dev.data, "Predictions/Predictions development.csv")
+  write_csv(long.data, "Predictions/Predictions longevity.csv")
+  write_csv(surv.data, "Predictions/Predictions survival.csv")
 }
 
 
