@@ -20,9 +20,9 @@ from zipfile import ZipFile
 dir_path = '/Users/c.johnson/Documents/GitHub/Johnson_Insect_Responses/Climate data'
 
 # USER: please enter desired latitude and longitude and name of location from "Climate station data.xlsx"
-lat = 6.45 # from "Lat" column of "Climate station data.xlsx" (NOT "Latitude" column)
-lon = 2.35 # from "Lon" column of "Climate station data.xlsx"
-loc = "Benin" # from "Location" column of "Climate station data.xlsx"
+lat = 12.35 #6.45 # from "Lat" column of "Climate station data.xlsx" (NOT "Latitude" column)
+lon = -1.51 #2.35 # from "Lon" column of "Climate station data.xlsx"
+loc = "Burkina Faso" #"Benin" # from "Location" column of "Climate station data.xlsx"
 
 
 # Set working directory to the same as the python code

@@ -5,13 +5,13 @@
 # Load packages
 library(tidyverse)
 
-# Set working directory
-setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
-setwd('..')
+# Set working directory (if necessary)
+#setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+#setwd('..')
 
 # USER: enter location of climate data (see "Climate station data.xlsx") OR set "all" to TRUE to run analysis for all species
 location <- "Benin"
-all <- TRUE
+all <- FALSE
 
 # USER: Save model fits?
 save <- FALSE
@@ -31,7 +31,7 @@ for(s in 1:nrow(params)) {
     data.f <- as.data.frame(read_csv(paste0("Climate data/Future climate data ",params[s,]$Location,".csv")))
   }
     
-  # Find model parameters for climate in selected location (line 13) or move iteratively through rows of “Habitat temperature parameters.csv”
+  # Find model parameters for climate in selected location or move iteratively through rows of “Habitat temperature parameters.csv”
   if(all == FALSE) {
     sp.num <- -1
     for(i in 1:nrow(params)) {
@@ -40,7 +40,7 @@ for(s in 1:nrow(params)) {
         break }
     }
     if(sp.num == -1) {
-      print("Location not found in Habitat temperature parameters.csv, please update line 13")
+      print("Location not found in Habitat temperature parameters.csv, please update location")
     }
   } else { sp.num <- s }
   
@@ -81,7 +81,7 @@ for(s in 1:nrow(params)) {
   params[sp.num,]$delta_mean.f <- round(coef(fit.f)[4], 6)
   params[sp.num,]$delta_ampl.f <- round(coef(fit.f)[5], 6)
 
-  # Break for loop (line 23) if analyses are run for a specified species (all <- FALSE in line 14)
+  # Break for loop if analyses are run for a specified species (if all == FALSE)
   if(all == FALSE) { break }
 }
 
