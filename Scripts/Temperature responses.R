@@ -40,15 +40,14 @@ for(s in 1:nrow(params)) {
     }
   } else(found <- TRUE)
   
-  # Assign species (need to set location for "Apolygus lucorum China Dafeng" to "China Langfang" and "Adelphocoris saturalis China Dafeng" to "China Xinxiang" as in "Temperature response data.csv")
+  # Obtain data for selected population (NOTE: location for "Apolygus lucorum China Dafeng" set to "China Langfang" as in "Temperature response data.csv")
   if(params[s,1] == "Apolygus lucorum China Dafeng") { sp.data <- data[data$Population == "Apolygus lucorum China Langfang",]
-  } else if(params[s,1] == "Adelphocoris suturalis China Dafeng") { sp.data <- data[data$Population == "Adelphocoris suturalis China Xinxiang",]
   } else { sp.data <- data[data$Population == params[s,1],] } # find population in "Temperature response data.csv"
   
   # Remove columns that do not contain temperature data
   sp.data <- sp.data[-c(1:8,11,13,15,17,19,21,23,25)]
   
-  # Set minimum and maximum for x-axes, and reference temperature (TR) for nls
+  # Set minimum and maximum values for x-axes and reference temperature (TR) for nls
   if(params[s,]$Habitat == "Tropical") {
     Xmin <- 285
     Xmax <- 315
