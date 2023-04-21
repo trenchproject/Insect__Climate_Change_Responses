@@ -9,8 +9,7 @@ library(ncdf4)
 library(tidyverse)
 
 # Set working directory (if necessary)
-#setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
-#setwd('..')
+#setwd() # enter working directory of main downloaded file (containing R project file)
 
 # Read climate station data
 clim.data <- read_xlsx("Climate data/Climate station data.xlsx")
@@ -24,7 +23,7 @@ save <- FALSE
 # USER: Save remove climate netCDF files?
 remove <- FALSE
 
-# Find information for selected species in "Climate station data.xlsx"
+# Find information for selected location in "Climate station data.xlsx"
 sp.num <- -1
 for(i in 1:nrow(clim.data)) {
   if(clim.data[i,]$Location == loc) {
@@ -55,7 +54,7 @@ Tmin <- ncvar_get(nc.min, "TMIN")
 if(is.na(Tmax[1]) == FALSE) { data.max <- data.frame(start.date + Tmax.time + 0.5,  273.15 + Tmax) # add start.date to Tmax.time and offset Tmax by 0.5 days from Tmin (e.g., on day 10, the temperature is at Tmin at day 10.0 and at Tmax at day 10.5)
 } else { data.max <- data.frame(Tmax.time + 0.5,  273.15 + Tmax) } # offset Tmax.time by 0.5 days from Tmin.time (e.g., on day 10, the temperature is at Tmin at day 10.0 and at Tmax at day 10.5)
 if(is.na(Tmin[1]) == FALSE) { data.min <- data.frame(start.date + Tmin.time,  273.15 + Tmin) # add start.date to Tmin.time
-} else { data.min <- data.frame(Tmin.time,  273.15 + Tmax) }
+} else { data.min <- data.frame(Tmin.time,  273.15 + Tmin) }
 names(data.max) <- c("day", "T")
 names(data.min) <- c("day", "T")
 

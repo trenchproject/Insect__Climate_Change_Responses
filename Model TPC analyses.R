@@ -7,8 +7,7 @@ library(tidyverse)
 library(cubature) # for integrating over TPC and model predictions
 
 # Set working directory (if necessary)
-#setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
-#setwd('..')
+#setwd() # enter working directory of main downloaded file (containing R project file)
 
 # USER: enter species and location or set "all" to TRUE to run analysis for all species
 species <- "Clavigralla shadabi"
@@ -16,7 +15,7 @@ location <- "Benin"
 all <- TRUE
 
 # USER: save results in csv file? (only if all == TRUE)
-save <- TRUE
+save <- FALSE
 
 
 # READ IN TEMPERTURE RESPONSE PARAMETERS AND HABITAT TEMPERATURE PARAMETERS AND CREATE DATA FRAME FOR RESULTS
@@ -45,10 +44,10 @@ for(s in 1:nrow(tr.param)) {
     t.param <- temp.param[temp.param$Species == paste(species,location),]
   }
   
-  # Use density-independent model data for quantifying r_m
+  # Use density-independent model (DI) time-series data for quantifying r_m (TS.r) for historical (.h) and future (.f) time periods
   TS.r.h <- as.data.frame(read_csv(paste0("Time series data DI/Historical time series ",param[1],".csv")))
   TS.r.f <- as.data.frame(read_csv(paste0("Time series data DI/Future time series ",param[1],".csv")))
-  # Use density-dependent model data for quantifying all other traits
+  # Use density-dependent model time-series (TS) data for quantifying all other traits for historical (.h) and future (.f) time periods
   TS.h <- as.data.frame(read_csv(paste0("Time series data/Historical time series ",param[1],".csv")))
   TS.f <- as.data.frame(read_csv(paste0("Time series data/Future time series ",param[1],".csv")))
 
@@ -63,9 +62,9 @@ for(s in 1:nrow(tr.param)) {
     extinctions[nrow(extinctions) + 1,] <- param[,1] # record name of population that went extinct in the population model
     TS.f <- TS.f[1:min(TS.f[TS.f$J == 0 & TS.f$A == 0, "Time"]),] # remove any data after extinction
   }
-  if(length(TS.r.f[TS.r.f$J == 0 & TS.r.f$A == 0,"Time"]) > 0) { TS.r.f <- TS.r.f[1:min(TS.r.f[TS.r.f$J == 0 & TS.r.f$A == 0, "Time"]),] } # remove any data after extinction
+  if(length(TS.r.f[TS.r.f$J == 0 & TS.r.f$A == 0,"Time"]) > 0) { TS.r.f <- TS.r.f[1:min(TS.r.f[TS.r.f$J == 0 & TS.r.f$A == 0, "Time"]),] } # remove any data after extinction in future density-independent model
   
-  # Define temperature function for density-dependent and density-independent models
+  # Define temperature function for models (Eq. 5) for historical (.h) and future (.f) time periods
   T.h <- function(t) { (t.param$meanT.h + t.param$delta_mean.h*t) - (t.param$amplT.h + t.param$delta_ampl.h*t)*cos(2*pi*(t + t.param$shiftT.h)/365) }
   T.f <- function(t) { (t.param$meanT.f + t.param$delta_mean.f*t) - (t.param$amplT.f + t.param$delta_ampl.f*t)*cos(2*pi*(t + t.param$shiftT.f)/365) }
 
@@ -81,10 +80,10 @@ for(s in 1:nrow(tr.param)) {
   }
 
   # Start and end times for integration
-  start.h <- TS.h[1, "Time"]
-  start.f <- TS.f[1, "Time"]
-  end.h <- TS.h[nrow(TS.h), "Time"]
-  end.f <- TS.f[nrow(TS.f), "Time"]
+  start.h <- TS.h[1, "Time"] # start of integration for historical period
+  start.f <- TS.f[1, "Time"] # start of integration for future period
+  end.h <- TS.h[nrow(TS.h), "Time"] # end of integration for historical period
+  end.f <- TS.f[nrow(TS.f), "Time"] # end of integration for future period
   if(ext == FALSE) {
     start.r.h <- 73*365 # population model begins 73 years into simulation (see "start_yr" in "DDE population dynamics.py")
     start.r.f <- 73*365 # population model begins 73 years into simulation (see "start_yr" in "DDE population dynamics.py")

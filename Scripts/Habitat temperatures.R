@@ -6,8 +6,7 @@
 library(tidyverse)
 
 # Set working directory (if necessary)
-#setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
-#setwd('..')
+#setwd() # enter working directory of main downloaded file (containing R project file)
 
 # USER: enter location of climate data (see "Climate station data.xlsx") OR set "all" to TRUE to run analysis for all species
 location <- "Benin"
@@ -16,7 +15,7 @@ all <- FALSE
 # USER: Save model fits?
 save <- FALSE
 
-# Read model parameters file
+# Read habitat temperature file
 params <- as.data.frame(read_csv("Model parameters/Habitat temperature parameters.csv"))
 
 # Run analyses for all species
@@ -31,7 +30,7 @@ for(s in 1:nrow(params)) {
     data.f <- as.data.frame(read_csv(paste0("Climate data/Future climate data ",params[s,]$Location,".csv")))
   }
     
-  # Find model parameters for climate in selected location or move iteratively through rows of “Habitat temperature parameters.csv”
+  # Find population in “Habitat temperature parameters.csv”
   if(all == FALSE) {
     sp.num <- -1
     for(i in 1:nrow(params)) {

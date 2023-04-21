@@ -25,18 +25,17 @@ from matplotlib.pyplot import subplots, xlabel, ylabel, xlim, ylim, yscale
 from pandas import read_csv
 from jitcxde_common import conditional
 import os
-#from sympy import N
 
 
 # USER: Enter species, location, and time period (i.e., "Historical" or "Future") or set all_sp to True
-species = "Aphis gossypii"
-location = "China Henan"
+species = "Clavigralla shadabi"
+location = "Benin"
 period = "Historical"
 #period = "Future"
-all_sp = False
+all_sp = True
 
 # USER: Save population dynamics data to CSV file?
-save_data = True
+save_data = False
 
 # USER: Include competition (i.e., density-dependent population growth)?
 comp = True
@@ -81,7 +80,7 @@ T_params = read_csv(path + "/Model parameters/Habitat temperature parameters.csv
 if all_sp == True:
     sp = 0
 else:
-    sp = TR_params[TR_params["Species"] == species + " " + location].index[0]
+    sp = TR_params[TR_params["Population"] == species + " " + location].index[0]
 
 
 # REPEAT CODE FOR ALL SPECIES
@@ -211,13 +210,13 @@ while(True):
     if save_data == True:
         if census == False:
             if comp == True:
-                filename = 'Time series data/' + period + ' time series ' + sp_params["Species"] + '.csv'
+                filename = 'Time series data/' + period + ' time series ' + sp_params["Population"] + '.csv'
                 savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
             else:
-                filename = 'Time series data DI/' + period + ' time series ' + sp_params["Species"] + '.csv'
+                filename = 'Time series data DI/' + period + ' time series ' + sp_params["Population"] + '.csv'
                 savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
         else:
-            filename = 'Time series data/Census time series ' + sp_params["Species"] + '.csv'
+            filename = 'Time series data/Census time series ' + sp_params["Population"] + '.csv'
             savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
     
     
