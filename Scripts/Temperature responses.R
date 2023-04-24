@@ -64,22 +64,17 @@ for(s in 1:nrow(params)) {
   
   ###################### INTRINSIC GROWTH RATE, r_m (Eq. 1a) #####################
   # Nonlinear regression
-  error <- tryCatch({
+  if(params[s,1] != "Clavigralla tomentosicollis Burkina Faso") {
     r.nls <- nls(r_m ~ ifelse(T_K <= Toptr, rMax*exp(-(T_K-Toptr)^2/(2*sr^2)), rMax*(1 - ((T_K-Toptr)/(Toptr-Tmaxr))^2)),
-           data=sp.data, start=list(rMax=params[s,]$rMax, Toptr=params[s,]$Toptr, Tmaxr=params[s,]$Tmaxr, sr=params[s,]$sr))
+                 data=sp.data, start=list(rMax=params[s,]$rMax, Toptr=params[s,]$Toptr, Tmaxr=params[s,]$Tmaxr, sr=params[s,]$sr))
     print(summary(r.nls))
-
-    # Function nls does not return an error
-    error <- FALSE
-  }, error = function(err) { error <- TRUE; return(error) })
-
-  # If there are no errors, then assign parameters
-  if(error == FALSE) {
+  
+    # Assign parameters
     params[s,]$rMax <- round(coef(r.nls)[1], 3)
     params[s,]$Toptr <- round(coef(r.nls)[2], 1)
     params[s,]$Tmaxr <- round(coef(r.nls)[3], 1)
     params[s,]$sr <- round(coef(r.nls)[4], 2)
-  # If nls returns an error, then set rMax and Toptr to data and use nls to estimate Tmaxr and sr (Note: this only applies to Clavigralla tomentosicollis Burkina Faso)
+  # For Clavigralla tomentosicollis Burkina Faso, must set rMax and Toptr to data and use nls to estimate Tmaxr and sr
   } else {
     rMax.test <- max(na.omit(sp.data[,"r_m"]))
     Toptr.test <- sp.data[which.max(sp.data$r), "T_K"]
@@ -143,7 +138,7 @@ for(s in 1:nrow(params)) {
     if(coef(dJ.nls)[1] > 0.001) { params[s,]$dJTR <- round(coef(dJ.nls)[1], 3)
     } else { params[s,]$dJTR <- 0.0001*trunc(10000*coef(dJ.nls)[1]) } # For populations in which dJTR is really low, simply truncate at the 4th decimal point
     params[s,]$AdJ <- round(coef(dJ.nls)[2], 0)
-  # For these populations, must set dJTR to data and then fit AdJ via nls (otherwise, curve poorly fits data for most habitat temperatures)
+  # For Myzus persicae Canada Chatham and Aulacorthum solani US Ithaca, must set dJTR to data and then fit AdJ via nls (otherwise, curve poorly fits data for most habitat temperatures)
   } else {
     if(params[s,1] == "Myzus persicae Canada Chatham") { dJTR.test <- sp.data[2,"Juv_Mortality"] }
     if(params[s,1] == "Aulacorthum solani US Ithaca") { dJTR.test <- sp.data[3,"Juv_Mortality"] }
