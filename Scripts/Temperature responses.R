@@ -9,7 +9,7 @@ library(stringr)
 # Set working directory (if necessary)
 #setwd() # enter working directory of main downloaded file (containing R project file)
 
-# USER: enter species name and location (used in "temperature response data.csv") OR set "all" to TRUE to run analysis for all species
+# USER: enter species name and location (used in "temperature response data.csv") OR set "all" to TRUE to run analysis for all populations
 species <- "Clavigralla shadabi"
 location <- "Benin"
 all <- FALSE
@@ -22,10 +22,10 @@ name <- paste(species, location)
 data <- as.data.frame(read_csv("Biological data/Temperature response data.csv"))
 params <- as.data.frame(read_csv("Model parameters/Temperature response parameters.csv"))
 
-# Run analyses for all species
+# Run analyses for all populations
 for(s in 1:nrow(params)) {
 
-  # Find model parameters for selected species or move iteratively through rows of “Temperature response parameters.csv”
+  # Find model parameters for selected populations or move iteratively through rows of “Temperature response parameters.csv”
   if(all == FALSE) {
     found <- FALSE
     for(i in 1:nrow(params)) {
@@ -55,9 +55,9 @@ for(s in 1:nrow(params)) {
     Xmin <- 275
     Xmax <- 305
   }
-  if(params[s,]$Population == "Clavigralla tomentosicollis Burkina Faso") { TR <- 300 # must use a higher TR for this species
-  } else if(params[s,]$Population == "Aulacorthum solani Brazil") { TR <- 292 # must use a different TR for this species b/c mortality rate must be set to data
-  } else if(params[s,]$Population == "Myzus persicae Canada Chatham") { TR <- 283 # must use a different TR for this species b/c mortality rate must be set to data
+  if(params[s,]$Population == "Clavigralla tomentosicollis Burkina Faso") { TR <- 300 # must use a higher TR for this populations
+  } else if(params[s,]$Population == "Aulacorthum solani Brazil") { TR <- 292 # must use a different TR for this populations b/c mortality rate must be set to data
+  } else if(params[s,]$Population == "Myzus persicae Canada Chatham") { TR <- 283 # must use a different TR for this populations b/c mortality rate must be set to data
   } else { TR <- 293 }
   params[s,]$TR <- TR
   
@@ -192,8 +192,8 @@ for(s in 1:nrow(params)) {
     Tmaxg <- (sp.data[j,"T_K"] + sp.data[j+1,"T_K"])/2 # set Tmaxg to the average between this temperature and the next highest laboratory temperature
   }
 
-  # For Brazil populations, set i index to minimum number of temperature treatments for nls below
-  if(word(params[s,2],1) == "Brazil") { i <- 3 }
+  # Update i index (if necessary)
+  if(word(params[s,2],1) == "Brazil") { i <- 3 } # For Brazil populations, set i index to minimum number of temperature treatments for nls below
   if(word(params[s,1],1,2) == "Apolygus lucorum") { # For Apolygus lucorum, set i index to maximum laboratory temperature for nls below
     for(i in nrow(sp.data):1) { if(sp.data[i,"Dev_Rate"] != 0) { break } }
   }
@@ -226,11 +226,10 @@ for(s in 1:nrow(params)) {
                   start=list(gTR=params[s,]$gTR, Ag=params[s,]$Ag))
     print(summary(g.nls1))
 
-    # Assign parameters for next nonlinear regression and update params
+    # Assign parameters for next nonlinear regression and update parameters
     gTR.test <- coef(g.nls1)[1]
     Ag.test <- coef(g.nls1)[2]
-    if(params[s,1] == "Clavigralla shadabi Benin") { params[s,]$gTR <- round(gTR.test, 2) # For this species, it is useful to round at few decimal points
-    } else { params[s,]$gTR <- round(gTR.test, 3) }
+    params[s,]$gTR <- round(gTR.test, 3)
     params[s,]$Ag <- round(Ag.test, 0)
 
     # Nonlinear regression for AL and TL
@@ -294,14 +293,14 @@ for(s in 1:nrow(params)) {
      params[s,2] == "UK Sand Hutton") { params[s,]$Tmin <- 278.1 # for Acyrthosiphon pisum, Tmin set to 5C (rough habitat temperature when the population emerges in the field); otherwise, population doesn't overwinter
   } else { params[s,]$Tmin <- round(Tmin, 1) }
   
-  # Break for loop (line 23) if analyses are run for a specified species (all <- FALSE)
+  # Break for loop (line 26) if analyses are run for a specified population (all <- FALSE)
   if(all == FALSE) { break }
 }
 
 # Save model parameters to "Temperature response parameters.csv" (if desired)
 if(save == TRUE && found == TRUE) { write.csv(params, "Model parameters/Temperature response parameters.csv", row.names = FALSE) }
 
-# Print model fit
+# Print model fit (if the population was found in "Temperature response parameters.csv")
 if(found == TRUE) {
   if(all == FALSE) { params[s,]
   } else { params[1:s,] }
