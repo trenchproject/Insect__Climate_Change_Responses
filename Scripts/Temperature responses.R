@@ -12,7 +12,7 @@ library(stringr)
 # USER: enter species name and location (used in "temperature response data.csv") OR set "all" to TRUE to run analysis for all populations
 species <- "Clavigralla shadabi"
 location <- "Benin"
-all <- FALSE
+all <- TRUE
 
 # USER: Save model fit?
 save <- FALSE

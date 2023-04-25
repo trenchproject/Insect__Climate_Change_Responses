@@ -15,7 +15,7 @@ library(tidyverse)
 clim.data <- read_xlsx("Climate data/Climate station data.xlsx")
 
 # USER: Enter location of climate data (see "Climate station data.xlsx")
-loc <- "Benin"
+location <- "Benin"
 
 # USER: Save climate data?
 save <- FALSE
@@ -26,7 +26,7 @@ remove <- FALSE
 # Find information for selected location in "Climate station data.xlsx"
 sp.num <- -1
 for(i in 1:nrow(clim.data)) {
-  if(clim.data[i,]$Location == loc) {
+  if(clim.data[i,]$Location == location) {
     sp.num <- i
     break }
   }
@@ -43,8 +43,8 @@ start.date <- yday(paste0(clim.data[sp.num,]$Start_yr,"-",
 ################################## HISTORICAL CLIMATE DATA ##################################
 # Open netCDF files
 # NOTE: Must have first downloaded climate nc files, please read "ReadME download historical data.docx"
-nc.max <- nc_open(paste0("Climate data/Historical Tmax ",loc,".nc"))
-nc.min <- nc_open(paste0("Climate data/Historical Tmin ",loc,".nc"))
+nc.max <- nc_open(paste0("Climate data/Historical Tmax ",location,".nc"))
+nc.min <- nc_open(paste0("Climate data/Historical Tmin ",location,".nc"))
 
 # Get variables and data from netCDF files
 Tmax.time <- ncvar_get(nc.max, "time") # time in Tmax data frame
@@ -66,21 +66,21 @@ data <- data[order(data$day),]
 data <- na.omit(data)
 
 # Save data in CSV file
-if(save == TRUE) { write.csv(data, paste0("Climate Data/Historical climate data ",loc,".csv"), row.names = FALSE) }
+if(save == TRUE) { write.csv(data, paste0("Climate Data/Historical climate data ",location,".csv"), row.names = FALSE) }
 
 # Close and delete netCDF files
 nc_close(nc.max)
 nc_close(nc.min)
 if(remove == TRUE) {
-  file.remove(paste0("Climate Data/Historical Tmax ",loc,".nc"))
-  file.remove(paste0("Climate Data/Historical Tmin ",loc,".nc"))
+  file.remove(paste0("Climate Data/Historical Tmax ",location,".nc"))
+  file.remove(paste0("Climate Data/Historical Tmin ",location,".nc"))
 }
 
 
 #################################### FUTURE CLIMATE DATA ####################################
 # Get variables and data from CSV files created by climate data.py
-data.max <- as.data.frame(read_csv(paste0("Climate Data/Future Tmax ",loc,".csv")))
-data.min <- as.data.frame(read_csv(paste0("Climate Data/Future Tmin ",loc,".csv")))
+data.max <- as.data.frame(read_csv(paste0("Climate Data/Future Tmax ",location,".csv")))
+data.min <- as.data.frame(read_csv(paste0("Climate Data/Future Tmin ",location,".csv")))
 names(data.max) <- c("day", "time", "latitude", "longitude", "T")
 names(data.min) <- c("day", "time", "latitude", "longitude", "T")
 
@@ -106,10 +106,10 @@ data <- data[order(data$day),]
 data <- na.omit(data)
 
 # Save data in CSV file
-if(save == TRUE) { write.csv(data, paste0("Climate Data/Future climate data ",loc,".csv"), row.names = FALSE) }
+if(save == TRUE) { write.csv(data, paste0("Climate Data/Future climate data ",location,".csv"), row.names = FALSE) }
 
 # Remove Tmax and Tmin CSV files
 if(remove == TRUE) {
-  file.remove(paste0("Climate Data/Future Tmax ",loc,".csv"))
-  file.remove(paste0("Climate Data/Future Tmin ",loc,".csv"))
+  file.remove(paste0("Climate Data/Future Tmax ",location,".csv"))
+  file.remove(paste0("Climate Data/Future Tmin ",location,".csv"))
 }

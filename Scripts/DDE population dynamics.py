@@ -13,9 +13,9 @@
  
 # IMPORT PACKAGES
 # Install and import jitcdde from https://github.com/neurophysik/jitcdde
-#import sys
-#import subprocess
-#subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'jitcdde']) # check to see if jitcdde has been installed and if not, install it
+import sys
+import subprocess
+subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'jitcdde']) # check to see if jitcdde has been installed and if not, install it
 from jitcdde import jitcdde, y, t
 
 # Import other necessary packages
@@ -24,30 +24,43 @@ from symengine import exp, pi, cos
 from matplotlib.pyplot import subplots, xlabel, ylabel, xlim, ylim, yscale
 from pandas import read_csv
 from jitcxde_common import conditional
-import os
+from os import chdir, getcwd
+
+# Set working directory
+chdir("..")
 
 
-# USER: Enter species, location, and time period (i.e., "Historical" or "Future") or set all_sp to True
+# USER: Enter species name and location or set all_pops to True
 species = "Clavigralla shadabi"
 location = "Benin"
-period = "Historical"
-#period = "Future"
-all_sp = True
+all_pops = False
 
-# USER: Save population dynamics data to CSV file?
-save_data = False
+# USER: Run model for recent period (True) or future period (false)?
+recent = True
+if recent == True:
+    period = "Recent"
+else:
+    period = "Future"
+
+# USER: Save population dynamics data?
+save = True
 
 # USER: Include competition (i.e., density-dependent population growth)?
-comp = True
+competition = True
 
 # USER: Is model fit to census data?
 census = False
-    
+
+
+# INPUT TEMPERATURE RESPONSE PARAMETERS AND HABITAT TEMPERATURE PARAMETERS
+TR_params = read_csv(getcwd() + "/Model parameters/Temperature response parameters.csv")
+T_params = read_csv(getcwd() + "/Model parameters/Habitat temperature parameters.csv")
+
 
 # DEFINE MODEL PARAMETERS
 # Time parameters
 yr = 365 # days in year
-if comp == True:
+if competition == True:
     start_yr = 0 # how many years before starting population dynamics model
     num_yrs = 75 # how long to run model
 else: # NOTE: density-independent model is run between years 73 and 75 because otherwise densities become too large due to unbounded population growth
@@ -66,24 +79,14 @@ initJ = 100.
 initA = 10.
 
 
-# INPUT TEMPERATURE RESPONSE PARAMETERS AND TEMPERATURE PARAMETERS
-# Set path to temperature response and habitat temperature files
-path = os.getcwd()
-for root, dirs, files in os.walk(os.getcwd()):
-        if "Johnson_Insect_Responses" in dirs:
-            path = os.path.join(root, "Johnson_Insect_Responses")
-TR_params = read_csv(path + "/Model parameters/Temperature response parameters.csv")
-T_params = read_csv(path + "/Model parameters/Habitat temperature parameters.csv")
-
-
 # SELECT SPECIES
-if all_sp == True:
+if all_pops == True:
     sp = 0
 else:
     sp = TR_params[TR_params["Population"] == species + " " + location].index[0]
 
 
-# REPEAT CODE FOR ALL SPECIES
+# REPEAT CODE FOR ALL POPULATIONS
 while(True):
     
     # SELECT SPECIES AND ASSIGN PARAMETERS
@@ -91,12 +94,12 @@ while(True):
     t_params = T_params.iloc[sp]
     
     # Temperature parameters (see "Habitat temperature parameters.csv")
-    if period == "Historical":
-        meanT = t_params["meanT.h"]
-        amplT = t_params["amplT.h"] 
-        shiftT = t_params["shiftT.h"]
-        delta_mean = t_params["delta_mean.h"]
-        delta_ampl = t_params["delta_ampl.h"]
+    if recent == True:
+        meanT = t_params["meanT.r"]
+        amplT = t_params["amplT.r"] 
+        shiftT = t_params["shiftT.r"]
+        delta_mean = t_params["delta_mean.r"]
+        delta_ampl = t_params["delta_ampl.r"]
     else:
         meanT = t_params["meanT.f"]
         amplT = t_params["amplT.f"] 
@@ -125,28 +128,21 @@ while(True):
     dATR = sp_params["dATR"]
     AdA = sp_params["AdA"]
     # competition
-    if comp == True:
-        qTopt = sp_params["qTopt"]
+    if competition == True:
+        aMax = sp_params["aMax"]
     else:
-        qTopt = 0 # NOTE: can cause an "Unsuccessful Integration" error
-    Toptq = Toptb
-    sq = sb
+        aMax = 0 # NOTE: can cause an "Unsuccessful Integration" error
+    Topta = Toptb
+    sa = sb
     
     
     # FUNCTIONS (where x is time because t is reserved for the state variable time in the DDE model)
-    # Seasonal temperature variation (Eq. 5)
+    # Habitat temperature function (Eq. 5)
     def T(x):
             return conditional(x, 0, meanT, # during DDE "pre-history", habitat temperature is constant at its mean
                                (meanT + delta_mean*(x+start_yr*yr)) - (amplT + delta_ampl*(x+start_yr*yr)) * cos(2*pi*(x + shiftT)/yr))
 
-    # Model start date: day of year when insect emerges from overwintering (to avoid issues with initializing model during overwintering)
-    start_date = 0
-    '''for i in arange(0, yr, 1):
-        if N(T(i)) > Tmin:
-            start_date = i
-            break'''
-
-    # Life history functions
+    # Temperature response functions
     # per capita birth rate (Eq. 2a; see Eq. S3a for overwintering)
     if census == True and species == "Apolygus lucorum":
         def b(x):
@@ -168,8 +164,8 @@ while(True):
                                        conditional(T(x), Tmaxg, gMax, 1e-7)))  # If habitat temperature < developmental maximum (Tmaxg), then g(T) = gMax; otherwise, g(T) = 1e-5
         
     # density-dependence due to competition
-    def q(x):
-        return qTopt * exp(-(T(x)-Toptq)**2/(2*sq**2))
+    def a(x):
+        return aMax * exp(-(T(x)-Topta)**2/(2*sa**2))
     
     
     # DDE MODEL
@@ -178,21 +174,20 @@ while(True):
     
     # DDE model
     f = {
-        J: conditional(t, start_date, 0, b(t)*A*exp(-q(t)*A) - b(t-τ)*y(1,t-τ)*exp(-q(t-τ)*y(1,t-τ))*g(t)/g(t-τ)*S - dJ(t)*J), # juvenile density (Eq. 3a incorporating Eq. 4a); NOTE: python names this variable "y(0)"
+        J: b(t)*A*exp(-a(t)*A) - b(t-τ)*y(1,t-τ)*exp(-a(t-τ)*y(1,t-τ))*g(t)/g(t-τ)*S - dJ(t)*J, # juvenile density (Eq. 3a incorporating Eq. 4a); NOTE: python names this variable "y(0)"
         
-        A: conditional(t, start_date, 0, b(t-τ)*y(1,t-τ)*exp(-q(t-τ)*y(1,t-τ))*g(t)/g(t-τ)*S - dA(t)*A), # Adult density (Eq. 3b incorporating Eq. 4a); NOTE: python names this variable "y(1)"
+        A: b(t-τ)*y(1,t-τ)*exp(-a(t-τ)*y(1,t-τ))*g(t)/g(t-τ)*S - dA(t)*A, # Adult density (Eq. 3b incorporating Eq. 4a); NOTE: python names this variable "y(1)"
         
-        S: conditional(t, start_date, 0, S*(g(t)/g(t-τ)*dJ(t-τ) - dJ(t))), # Juvenile through-stage survival (Eq. 4c); NOTE: python names this variable "y(2)"
+        S: S*(g(t)/g(t-τ)*dJ(t-τ) - dJ(t)), # Juvenile through-stage survival (Eq. 4c); NOTE: python names this variable "y(2)"
         
-        τ: conditional(t, start_date, 0, 1 - g(t)/g(t-τ)), # Developmental time-delay (Eq. 4b); NOTE: python names this variable "y(3)"
+        τ: 1 - g(t)/g(t-τ) # Developmental time-delay (Eq. 4b); NOTE: python names this variable "y(3)"
         }
     
     
     # RUN DDE SOLVER
     # Time and initial conditions
     times = arange(0, num_yrs*yr, 1)
-    start_date = -1e-3 # NOTE: having start_date = 0 causes problems with model initialization
-    init = [ initJ, initA, exp(-dJ(start_date)/g(start_date)), 1./g(start_date)]
+    init = [ initJ, initA, exp(-dJ(-1e-3)/g(-1e-3)), 1./g(-1e-3)] # NOTE: using -1e-3 because 0 causes problems with model initialization
     
     # Run DDE solver
     DDE = jitcdde(f, max_delay=1e5, verbose=False)
@@ -206,10 +201,10 @@ while(True):
     data = vstack([ hstack([time, DDE.integrate(time)]) for time in times ])
     data[data < 1e-5] = 0 # set values below 1e-5 to 0
     
-    # save data to csv 
-    if save_data == True:
+    # save data to csv
+    if save == True:
         if census == False:
-            if comp == True:
+            if competition == True:
                 filename = 'Time series data/' + period + ' time series ' + sp_params["Population"] + '.csv'
                 savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
             else:
@@ -222,24 +217,23 @@ while(True):
     
     # PLOT
     fig,ax = subplots()
-    ax.plot(data[:,0], data[:,1], label='J')
-    ax.plot(data[:,0], data[:,2], label='A')
-    ax.plot(data[:,0], vstack([T(i) - 273 for i in arange(0,num_yrs*yr,1) ]), label='T')
-    #ax.plot(data[:,0], data[:,3], label='S')
-    #ax.plot(data[:,0], data[:,4], label='τ')
+    ax.plot(data[:,0], data[:,1], label='J') # plot juvenile density
+    ax.plot(data[:,0], data[:,2], label='A') # plot adult density
+    #ax.plot(data[:,0], vstack([T(i) - 273 for i in arange(0,num_yrs*yr,1) ]), label='T') # plot daily temperature
+    #ax.plot(data[:,0], data[:,3], label='S') # plot juvenile survival
+    #ax.plot(data[:,0], data[:,4], label='τ') # plot development time
     ax.legend(loc='best')
     xlabel("time (days)")
     ylabel("population density")
     yscale("linear")
-    #xlim(0,2*yr)
-    xlim((num_yrs-2)*yr,(num_yrs-0)*yr)
+    xlim((num_yrs-2)*yr,(num_yrs-0)*yr) # plot only last2 years of data
     ylim(0,100)
     
     
-    # END LOOP WHEN MODEL IS RUN FOR ALL SPECIES
-    if all_sp == True:
+    # EXIT LOOP WHEN MODEL HAS BEEN RUN FOR SPECIFIED POPULATION OR ALL POPULATIONS
+    if all_pops == True:
         sp = sp + 1
     else:
-        sp = TR_params.shape[0] # if all_sp == False, then set "sp" to a value that will cause the loop to break
+        sp = TR_params.shape[0] # if all_pops == False, then set "sp" to a value that will cause the loop to break
     if sp > TR_params.shape[0] - 1:
         break
