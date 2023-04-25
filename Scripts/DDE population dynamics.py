@@ -49,7 +49,7 @@ save = True
 competition = True
 
 # USER: Is model fit to census data?
-census = False
+census = True
 
 
 # INPUT TEMPERATURE RESPONSE PARAMETERS AND HABITAT TEMPERATURE PARAMETERS
@@ -70,7 +70,7 @@ if census == True:
     num_yrs = 10
     if species == "Clavigralla shadabi":
         start_yr = 1982
-    if species == "Apolygus lucorum":
+    elif species == "Apolygus lucorum":
         start_yr = 1996
         active_date = 137 # NOTE: for Apolygus lucorum during the census, insects only become active once the fields were planted on in mid-May (day = 137)
     
@@ -79,19 +79,26 @@ initJ = 100.
 initA = 10.
 
 
-# SELECT SPECIES
+# SELECT POPULATION
 if all_pops == True:
     sp = 0
 else:
     sp = TR_params[TR_params["Population"] == species + " " + location].index[0]
 
 
-# REPEAT CODE FOR ALL POPULATIONS
+# START LOOP
 while(True):
     
-    # SELECT SPECIES AND ASSIGN PARAMETERS
+    # ASSIGN PARAMETERS
     sp_params = TR_params.iloc[sp]
     t_params = T_params.iloc[sp]
+    
+    # Set minimum tolerance to avoid integration errors associated with development rate approaching zero
+    tol_min = 1e-8
+    if recent == False and competition == True and sp == 14: # for Myzus persicae Canada Chatham, minimum tolerance must be slightly higher
+        tol_min = 1e-7
+    elif recent == False and competition == True and sp == 17: # for Aulacorthum solani US Ithaca, minimum tolerance must be even higher
+        tol_min = 1e-4
     
     # Temperature parameters (see "Habitat temperature parameters.csv")
     if recent == True:
@@ -159,9 +166,9 @@ while(True):
    
     # development rate (Eq. 2c)
     def g(x):
-        return conditional(gTR * T(x)/TR * exp(Ag * (1/TR - 1/T(x))) / (1 + exp(AL*(1/TL-1/T(x)))), 1e-7, 1e-7, # If g(T) < jitcdde min tolerance, then g(T) = 1e-5
+        return conditional(gTR * T(x)/TR * exp(Ag * (1/TR - 1/T(x))) / (1 + exp(AL*(1/TL-1/T(x)))), tol_min, tol_min, # If g(T) < minimum tolerance, then g(T) = minimum tolerance (lines 96-100)
                            conditional(T(x), Toptg, gTR * T(x)/TR * exp(Ag * (1/TR - 1/T(x))) / (1 + exp(AL*(1/TL-1/T(x)))), # If habitat temperature < developmental optima (Toptg), then use monotonic g(T)
-                                       conditional(T(x), Tmaxg, gMax, 1e-7)))  # If habitat temperature < developmental maximum (Tmaxg), then g(T) = gMax; otherwise, g(T) = 1e-5
+                                       conditional(T(x), Tmaxg, gMax, tol_min)))  # If habitat temperature < developmental maximum (Tmaxg), then g(T) = gMax; otherwise, g(T) = minimum tolerance (lines 96-100)
         
     # density-dependence due to competition
     def a(x):

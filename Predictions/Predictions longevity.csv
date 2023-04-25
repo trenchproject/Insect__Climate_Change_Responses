@@ -1,22 +1,22 @@
-Species,Location,Latitude,Habitat,Subfamily,TPC.h,TPC.f,Model.h,Model.f,delta.TPC,delta.model
-Clavigralla shadabi Benin,Benin,6.45,Tropical,Heteroptera,0.858,0.56,0.858,0.56,-0.298,-0.298
-Clavigralla tomentosicollis Benin,Benin,6.45,Tropical,Heteroptera,0.914,0.709,0.914,0.708,-0.206,-0.205
-Clavigralla tomentosicollis Burkina Faso,Burkina Faso,12.38,Tropical,Heteroptera,0.887,0.681,0.887,0.68,-0.206,-0.206
-Apolygus lucorum China Dafeng,China Dafeng,33.33,Temperate,Heteroptera,0.455,0.38,0.455,0.38,-0.075,-0.075
-Adelphocoris suturalis China Xinxiang,China Xinxiang,35.53,Temperate,Heteroptera,0.266,0.211,0.266,0.211,-0.055,-0.055
-Adelphocoris fasciatiocollis China Tianjin,China Tianjin,38.55,Temperate,Heteroptera,0.403,0.368,0.402,0.368,-0.034,-0.034
-Adelphocoris lineolatus China Langfang,China Langfang,39.88,Temperate,Heteroptera,0.276,0.247,0.276,0.247,-0.029,-0.029
-Macrosiphum euphorbiae Brazil,Brazil,21.23,Tropical,Sternorrhyncha,0.834,0.617,0.833,0.616,-0.217,-0.217
-Aulacorthum solani Brazil,Brazil,21.23,Tropical,Sternorrhyncha,0.461,0.138,0.461,0.138,-0.323,-0.323
-Uroleucon ambrosiae Brazil,Brazil,21.23,Tropical,Sternorrhyncha,0.634,0.306,0.634,0.305,-0.329,-0.328
-Acyrthosiphon pisum UK Sand Hutton,UK Sand Hutton,54.02,Temperate,Sternorrhyncha,0.274,0.203,0.274,0.203,-0.071,-0.071
-Rhopalosiphum rufiabdominalis US Naples,US Naples,26.14,Subtropical,Sternorrhyncha,0.719,0.542,0.719,0.542,-0.177,-0.176
-Aphis nasturtii US Weston,US Weston,26.14,Subtropical,Sternorrhyncha,0.752,0.591,0.752,0.591,-0.161,-0.161
-Macrosiphum euphorbiae Canada Chatham,Canada Chatham,42.81,Temperate,Sternorrhyncha,0.054,0.025,0.054,0.025,-0.029,-0.029
-Myzus persicae Canada Chatham,Canada Chatham,42.81,Temperate,Sternorrhyncha,0.231,0.165,0.231,0.165,-0.066,-0.066
-Eriosoma lanigerum Australia Yathroo,Australia Yathroo,30.9,Subtropical,Sternorrhyncha,0.447,0.258,0.447,0.258,-0.189,-0.189
-Aphis gossypii China Henan,China Henan,36.07,Temperate,Sternorrhyncha,0.152,0.122,0.152,0.122,-0.03,-0.031
-Aulacorthum solani US Ithaca,US Ithaca,42.42,Temperate,Sternorrhyncha,0.038,0.01,0.038,0.01,-0.028,-0.028
-Brevicoryne brassicae US Columbia,US Columbia,38.93,Temperate,Sternorrhyncha,0.165,0.111,0.165,0.111,-0.054,-0.054
-Myzus persicae US Columbia,US Columbia,38.93,Temperate,Sternorrhyncha,0.158,0.096,0.158,0.096,-0.062,-0.062
-Hyadaphis pseudobrassicae US Columbia,US Columbia,38.93,Temperate,Sternorrhyncha,0.195,0.122,0.195,0.122,-0.073,-0.073
+Species,Location,Habitat,TPC.r,TPC.f,Model.r,Model.f,delta.TPC,delta.model
+Clavigralla shadabi Benin,Benin,Tropical,0.858,0.56,0.858,0.56,-0.298,-0.298
+Clavigralla tomentosicollis Benin,Benin,Tropical,0.914,0.709,0.914,0.708,-0.206,-0.205
+Clavigralla tomentosicollis Burkina Faso,Burkina Faso,Tropical,0.887,0.681,0.887,0.68,-0.206,-0.206
+Apolygus lucorum China Dafeng,China Dafeng,Temperate,0.455,0.38,0.455,0.38,-0.075,-0.075
+Adelphocoris suturalis China Xinxiang,China Xinxiang,Temperate,0.266,0.211,0.266,0.211,-0.055,-0.055
+Adelphocoris fasciatiocollis China Tianjin,China Tianjin,Temperate,0.403,0.368,0.402,0.368,-0.034,-0.034
+Adelphocoris lineolatus China Langfang,China Langfang,Temperate,0.276,0.247,0.276,0.247,-0.029,-0.029
+Macrosiphum euphorbiae Brazil,Brazil,Tropical,0.834,0.617,0.833,0.616,-0.217,-0.217
+Aulacorthum solani Brazil,Brazil,Tropical,0.461,0.138,0.461,0.138,-0.323,-0.323
+Uroleucon ambrosiae Brazil,Brazil,Tropical,0.634,0.306,0.634,0.305,-0.329,-0.328
+Acyrthosiphon pisum UK Sand Hutton,UK Sand Hutton,Temperate,0.274,0.203,0.274,0.203,-0.071,-0.071
+Rhopalosiphum rufiabdominalis US Naples,US Naples,Subtropical,0.719,0.542,0.719,0.542,-0.177,-0.176
+Aphis nasturtii US Weston,US Weston,Subtropical,0.752,0.591,0.752,0.591,-0.161,-0.161
+Macrosiphum euphorbiae Canada Chatham,Canada Chatham,Temperate,0.054,0.025,0.054,0.025,-0.029,-0.029
+Myzus persicae Canada Chatham,Canada Chatham,Temperate,0.231,0.165,0.231,0.165,-0.066,-0.066
+Eriosoma lanigerum Australia Yathroo,Australia Yathroo,Subtropical,0.447,0.258,0.447,0.258,-0.189,-0.189
+Aphis gossypii China Henan,China Henan,Temperate,0.152,0.122,0.152,0.122,-0.03,-0.031
+Aulacorthum solani US Ithaca,US Ithaca,Temperate,0.038,0.01,0.038,0.01,-0.028,-0.028
+Brevicoryne brassicae US Columbia,US Columbia,Temperate,0.165,0.111,0.165,0.111,-0.054,-0.054
+Myzus persicae US Columbia,US Columbia,Temperate,0.158,0.096,0.158,0.096,-0.062,-0.062
+Hyadaphis pseudobrassicae US Columbia,US Columbia,Temperate,0.195,0.122,0.195,0.122,-0.073,-0.073
