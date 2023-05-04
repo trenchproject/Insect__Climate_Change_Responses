@@ -8,7 +8,7 @@ library(tidyverse)
 library(ggplot2)
 library(cowplot)
 
-# Set working directory (if neccessary)
+# Set working directory (if necessary)
 #setwd() # enter working directory of main downloaded file (containing R project file)
 
 # Read in predictions from "Model TPC analyses.R"
@@ -26,7 +26,7 @@ pop.data <- as.data.frame(read_csv("Predictions/Predictions population dynamics.
 # FITNESS
 # Model vs Latitude (Fig. 3a)
 r.lat <- lm(delta.model ~ Latitude, data=r.data)
-summary(r.lat) # significant!
+summary(r.lat) # marginally-significant
 # Correlation (Fig. 4a)
 r.delta <- lm(delta.TPC ~ delta.model, data=r.data)
 summary(r.delta) # significant!
@@ -34,7 +34,7 @@ summary(r.delta) # significant!
 # R0
 # Model vs Latitude (Fig. 3b)
 R0.lat <- lm(delta.model ~ Latitude, data=R0.data)
-summary(R0.lat) # significant!
+summary(R0.lat) # significant
 # Correlation (Fig. 4b)
 R0.delta <- lm(delta.TPC ~ delta.model, data=R0.data)
 summary(R0.delta) # significant!
@@ -45,7 +45,7 @@ s.lat <- lm(delta.model ~ Latitude, data=s.data)
 summary(s.lat) # marginally-significant
 # Correlation (Fig. 4c)
 s.delta <- lm(delta.TPC ~ delta.model, data=s.data)
-summary(s.delta)  # significant!
+summary(s.delta) # significant!
 
 # BIRTH RATE
 # Model vs Latitude (Fig. 3d)

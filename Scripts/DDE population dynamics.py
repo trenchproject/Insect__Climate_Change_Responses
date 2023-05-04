@@ -33,7 +33,7 @@ chdir("..")
 # USER: Enter species name and location or set all_pops to True
 species = "Clavigralla shadabi"
 location = "Benin"
-all_pops = False
+all_pops = True
 
 # USER: Run model for recent period (True) or future period (false)?
 recent = True
@@ -43,13 +43,13 @@ else:
     period = "Future"
 
 # USER: Save population dynamics data?
-save = True
+save = False
 
 # USER: Include competition (i.e., density-dependent population growth)?
 competition = True
 
 # USER: Is model fit to census data?
-census = True
+census = False
 
 
 # INPUT TEMPERATURE RESPONSE PARAMETERS AND HABITAT TEMPERATURE PARAMETERS
@@ -95,7 +95,7 @@ while(True):
     
     # Set minimum tolerance to avoid integration errors associated with development rate approaching zero
     tol_min = 1e-8
-    if recent == False and competition == True and sp == 14: # for Myzus persicae Canada Chatham, minimum tolerance must be slightly higher
+    if recent == False and competition == True and (sp == 14 or sp == 19): # for Myzus persicae in Canada Chatham and US Columbia, minimum tolerance must be slightly higher
         tol_min = 1e-7
     elif recent == False and competition == True and sp == 17: # for Aulacorthum solani US Ithaca, minimum tolerance must be even higher
         tol_min = 1e-4

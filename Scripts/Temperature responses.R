@@ -15,7 +15,7 @@ location <- "Benin"
 all <- TRUE
 
 # USER: Save model fit?
-save <- FALSE
+save <- TRUE
 
 # Read data and model parameters file
 name <- paste(species, location)
@@ -136,7 +136,7 @@ for(s in 1:nrow(params)) {
 
     # Assign parameters
     if(coef(dJ.nls)[1] > 0.001) { params[s,]$dJTR <- round(coef(dJ.nls)[1], 3)
-    } else { params[s,]$dJTR <- 0.0001*trunc(10000*coef(dJ.nls)[1]) } # For populations in which dJTR is really low, simply truncate at the 4th decimal point
+    } else { params[s,]$dJTR <- 0.0001*trunc(10000*coef(dJ.nls)[1]) } # For populations in which dJTR is really low, simply truncate at the 4th decimal point (otherwise, dJTR is rounded to 0)
     params[s,]$AdJ <- round(coef(dJ.nls)[2], 0)
   # For Myzus persicae Canada Chatham and Aulacorthum solani US Ithaca, must set dJTR to data and then fit AdJ via nls (otherwise, curve poorly fits data for most habitat temperatures)
   } else {
@@ -202,25 +202,20 @@ for(s in 1:nrow(params)) {
   params[s,]$Toptg <- round(Toptg, 1)
   params[s,]$Tmaxg <- round(Tmaxg, 1)
 
-  # Try to fit remaining parameters to data (excluding data at high temperatures at which the development rate declines towards zero)
-  error1 <- tryCatch({
-    g.nls <- nls(Dev_Rate ~ gTR*(T_K/TR)*exp(Ag*(1/TR-1/T_K))/(1+exp(AL*(1/TL-1/T_K))), data=sp.data[1:i,],
+  # Fit remaining parameters to data via nls
+  if(params[s,1] == "Myzus persicae Canada Chatham") { # for this population, it is possible to estimate all parameters via a single nls
+    g.nls <- nls(Dev_Rate ~ gTR*(T_K/TR)*exp(Ag*(1/TR-1/T_K))/(1+exp(AL*(1/TL-1/T_K))), data=sp.data[1:i,],         # excluding data at high temperatures at which the development rate declines to zero
                               start=list(gTR=params[s,]$gTR, Ag=params[s,]$Ag, AL=params[s,]$AL, TL=params[s,]$TL))
     print(summary(g.nls))
-
-    # Function nls does not return an error
-    error1 <- FALSE
-  }, error = function(err) { error1 <- TRUE; return(error1) })
-
-  # If there are no errors, then assign parameters
-  if(error1 == FALSE) {
+  
+    # Assign parameters
     params[s,]$gTR <- round(coef(g.nls)[1], 3)
     params[s,]$Ag <- round(coef(g.nls)[2], 0)
     params[s,]$AL <- round(coef(g.nls)[3], 0)
     params[s,]$TL <- round(coef(g.nls)[4], 1)
     params[s,]$gMax <- round(params[s,]$gTR*(params[s,]$Toptg/TR)*exp(params[s,]$Ag*(1/TR-1/params[s,]$Toptg))/
                                     (1+exp(params[s,]$AL*(1/params[s,]$TL-1/params[s,]$Toptg))), 3)
-  } else { # If nls returns an error, then try alternative method of first fitting gTR and Ag and then fitting AL and TL afterwards
+  } else { # For all other population, it is necessary to first fit gTR and Ag and then fit AL and TL
     # Nonlinear regression for gTR and Ag
     g.nls1 <- nls(Dev_Rate ~ gTR*(T_K/TR)*exp(Ag*(1/TR-1/T_K)), data=sp.data[1:i,],
                   start=list(gTR=params[s,]$gTR, Ag=params[s,]$Ag))
@@ -233,24 +228,24 @@ for(s in 1:nrow(params)) {
     params[s,]$Ag <- round(Ag.test, 0)
 
     # Nonlinear regression for AL and TL
-    error2 <- tryCatch({
+    error <- tryCatch({
       g.nls2 <- nls(Dev_Rate ~ gTR.test*(T_K/TR)*exp(Ag.test*(1/TR-1/T_K))/(1+exp(AL*(1/TL-1/T_K))), data=sp.data[1:i,],
                    start=list(AL=params[s,]$AL, TL=params[s,]$TL))
       print(summary(g.nls2))
 
       # Function nls does not return an error
-      error2 <- FALSE
-    }, error = function(err) { error2 <- TRUE; return(error2) })
+      error <- FALSE
+    }, error = function(err) { error <- TRUE; return(error) })
 
     # If there are no errors in the alternative method above, then assign parameters
-    if(error2 == FALSE) {
+    if(error == FALSE) {
       # Assign parameters
       params[s,]$AL <- round(coef(g.nls2)[1], 0)
       params[s,]$TL <- round(coef(g.nls2)[2], 1)
       params[s,]$gMax <- round(params[s,]$gTR*(params[s,]$Toptg/TR)*exp(params[s,]$Ag*(1/TR-1/params[s,]$Toptg))/
                                       (1+exp(params[s,]$AL*(1/params[s,]$TL-1/params[s,]$Toptg))), 3)
     } else {
-      # If nls still returns an error, then try alternative method of first fitting AL and then TL
+      # If nls  returns an error, then try alternative method of first fitting AL and then fitting TL
       TL.test <- min(sp.data[,"T_K"]) + 2
       g.nls2 <- nls(Dev_Rate ~ gTR.test*(T_K/TR)*exp(Ag.test*(1/TR-1/T_K))/(1+exp(AL*(1/TL.test-1/T_K))), data=sp.data[1:i,],
                     start=list(AL=params[s,]$AL))
@@ -287,13 +282,13 @@ for(s in 1:nrow(params)) {
   plot(sp.data$T_K, sp.data$Dev_Rate, xlim=c(Xmin,Xmax))
   points(seq(Xmin,Xmax,1), coef(Tmin.nls)[1]*seq(Xmin,Xmax,1)+coef(Tmin.nls)[2], type="l", col="blue")
 
-  # Calculate minimum development temperature (Tmin)
+  # Calculate minimum development temperature (Tmin) or set to data (if reported)
   (Tmin <- (-coef(Tmin.nls)[2]/coef(Tmin.nls)[1])[[1]])
-  if(word(params[s,1],1,2) == "Apolygus lucorum" || # for Apolygus lucorum, Tmin was reported to be 283.1 in Lu et al. 2010
-     params[s,2] == "UK Sand Hutton") { params[s,]$Tmin <- 278.1 # for Acyrthosiphon pisum, Tmin set to 5C (rough habitat temperature when the population emerges in the field); otherwise, population doesn't overwinter
+  if(word(params[s,1],1,2) == "Apolygus lucorum") { params[s,]$Tmin <- 279.5 # Tmin was reported in Lu et al. 2010
+  } else if(params[s,2] == "UK Sand Hutton") { params[s,]$Tmin <- 278.1 # for Acyrthosiphon pisum, Tmin set to 5C (rough habitat temperature when the population emerges in the field); otherwise, population doesn't overwinter
   } else { params[s,]$Tmin <- round(Tmin, 1) }
   
-  # Break for loop (line 26) if analyses are run for a specified population (all <- FALSE)
+  # Break for loop if analyses are run for a specified population
   if(all == FALSE) { break }
 }
 
