@@ -2,7 +2,7 @@
 ## This R script plots model population dynamics (including field census data) ##
 #################################################################################
 
-# Load packages and set working directory
+# Load packages
 library(tidyverse)
 library(ggplot2) # for plotting
 library(cowplot) # for combining plots

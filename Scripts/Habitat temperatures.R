@@ -23,10 +23,10 @@ for(s in 1:nrow(params)) {
   
   # Input data
   if(all == FALSE) {
-    data.r <- as.data.frame(read_csv(paste0("Climate data/Historical climate data ",location,".csv")))
+    data.r <- as.data.frame(read_csv(paste0("Climate data/Recent climate data ",location,".csv")))
     data.f <- as.data.frame(read_csv(paste0("Climate data/Future climate data ",location,".csv")))
   } else {
-    data.r <- as.data.frame(read_csv(paste0("Climate data/Historical climate data ",params[s,]$Location,".csv")))
+    data.r <- as.data.frame(read_csv(paste0("Climate data/Recent climate data ",params[s,]$Location,".csv")))
     data.f <- as.data.frame(read_csv(paste0("Climate data/Future climate data ",params[s,]$Location,".csv")))
   }
     
@@ -44,7 +44,7 @@ for(s in 1:nrow(params)) {
   } else { sp.num <- s }
   
   # Quantify daily mean temperatures
-  # historical
+  # recent
   data.r$day <- floor(data.r$day) # removes the offset between daily min and daily max from "Read climate data.R"
   data.r.min <- data.r[duplicated(data.r$day),] # selects daily min for all days that also have a daily max
   data.r.max <- data.r[duplicated(data.r$day, fromLast=TRUE),] # selects daily max for all days that also have a daily min
@@ -58,7 +58,7 @@ for(s in 1:nrow(params)) {
   names(data.f) <- c("day", "T")
   
   # Fit sinusoidal function (Eq. 5 in manuscript) to climate data
-  # historical climate (note that delta_mean and delta_ampl are set to zero in the manuscript, so they are not fit)
+  # recent climate (note that delta_mean and delta_ampl are set to zero in the manuscript, so they are not fit)
   fit.r <- summary(nls(T ~ meanT - amplT*cos(2*pi*(day + shiftT)/365), data = data.r,
                         start = list(meanT = params[sp.num,]$meanT.r, amplT = params[sp.num,]$amplT.r, shiftT = params[sp.num,]$shiftT.r)))
   # future climate

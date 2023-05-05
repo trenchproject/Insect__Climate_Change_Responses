@@ -40,11 +40,11 @@ start.date <- yday(paste0(clim.data[sp.num,]$Start_yr,"-",
                     if(clim.data[sp.num,]$Start_day < 10) {"0"}, clim.data[sp.num,]$Start_day)) - 1 # add 0 before days < 10
 
 
-################################## HISTORICAL CLIMATE DATA ##################################
+################################## RECENT CLIMATE DATA ##################################
 # Open netCDF files
-# NOTE: Must have first downloaded climate nc files, please read "ReadME download historical data.docx"
-nc.max <- nc_open(paste0("Climate data/Historical Tmax ",location,".nc"))
-nc.min <- nc_open(paste0("Climate data/Historical Tmin ",location,".nc"))
+# NOTE: Must have first downloaded climate nc files, please read "ReadME download recent data.docx"
+nc.max <- nc_open(paste0("Climate data/Recent Tmax ",location,".nc"))
+nc.min <- nc_open(paste0("Climate data/Recent Tmin ",location,".nc"))
 
 # Get variables and data from netCDF files
 Tmax.time <- ncvar_get(nc.max, "time") # time in Tmax data frame
@@ -66,14 +66,14 @@ data <- data[order(data$day),]
 data <- na.omit(data)
 
 # Save data in CSV file
-if(save == TRUE) { write.csv(data, paste0("Climate Data/Historical climate data ",location,".csv"), row.names = FALSE) }
+if(save == TRUE) { write.csv(data, paste0("Climate Data/Recent climate data ",location,".csv"), row.names = FALSE) }
 
 # Close and delete netCDF files
 nc_close(nc.max)
 nc_close(nc.min)
 if(remove == TRUE) {
-  file.remove(paste0("Climate Data/Historical Tmax ",location,".nc"))
-  file.remove(paste0("Climate Data/Historical Tmin ",location,".nc"))
+  file.remove(paste0("Climate Data/Recent Tmax ",location,".nc"))
+  file.remove(paste0("Climate Data/Recent Tmin ",location,".nc"))
 }
 
 

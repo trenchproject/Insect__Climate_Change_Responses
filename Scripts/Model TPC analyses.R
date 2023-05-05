@@ -2,7 +2,7 @@
 #### This R script calculates species' traits using TPCs and DDE model #####
 ############################################################################
 
-# Load packages and set working directory
+# Load packages
 library(tidyverse)
 library(cubature) # for integrating over TPC and model predictions
 
@@ -257,13 +257,6 @@ for(s in 1:nrow(tr.param)) {
   # Calculate optimum development rate, maximum adult longevity, and survival at mean habitat temperature for scaling results
   gTopt <- param$gTR*(param$Toptg/param$TR)*exp(param$Ag*(1/param$TR-1/param$Toptg))/(1+exp(param$AL*(1/param$TL-1/param$Toptg))) #optimum development rate
   Lmax <- 1/min(param$dATR*exp(param$AdA*(1/param$TR-1/T.r(TS.r$Time)))) # maximum adult longevity
-  # g.r <- function(t) { ifelse(T.r(t) <= param$Toptg, param$gTR*(T.r(t)/param$TR)*exp(param$Ag*(1/param$TR-1/T.r(t)))/(1+exp(param$AL*(1/param$TL-1/T.r(t)))), # if T(t) < Toptg, use monotonic g(T)
-  #                                                            ifelse(T.r(t) <= param$Tmaxg, param$gMax, 0)) } # If T(t) < Tmaxg, g(T) = gMax; otherwise, g(T) = 0
-  # dJ.r <- function(t) { param$dJTR*exp(param$AdJ*(1/param$TR-1/T.r(t))) }
-  # Smean <- exp(-dJ.r(t.param$meanT.r)*g.r(t.param$meanT.r))
-  # Shot <- exp(-dJ.r(t.param$meanT.r+t.param$amplT.r)*g.r(t.param$meanT.r+t.param$amplT.r))
-  # Smax <- max(exp(-dJ.r(TS.r$Time)*g.r(TS.r$Time)))
-  # Smin <- min(exp(-dJ.r(TS.r$Time)*g.r(TS.r$Time)))
 
   # Input results into arrays
   if(all == TRUE) {
