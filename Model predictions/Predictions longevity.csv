@@ -1,4 +1,4 @@
-Species,Location,Latitude,Habitat,TPC.r,TPC.f,Model.r,Model.f,delta.TPC,delta.model
+Population,Location,Latitude,Habitat,TPC.r,TPC.f,Model.r,Model.f,delta.TPC,delta.model
 Clavigralla shadabi Benin,Benin,6.45,Tropical,0.858,0.56,0.858,0.56,-0.298,-0.298
 Clavigralla tomentosicollis Benin,Benin,6.45,Tropical,0.914,0.709,0.914,0.708,-0.206,-0.205
 Clavigralla tomentosicollis Burkina Faso,Burkina Faso,12.38,Tropical,0.887,0.681,0.887,0.68,-0.206,-0.206
