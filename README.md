@@ -6,7 +6,7 @@ Folder Structure:
 * Climate data: contains "Climate station data.xlsx" and climate data files for each site in the recent and future climates
 * Documentation: contains ReadMe files for downloading Python and climate data as well as running all scripts in "Scripts" folder
 * Model parameters: contains "Habitat temperature parameters.csv" and "Temperature response parameters.csv"
-* Model predictions: contains data files of model predictions of climate change effects on fitness metrics/components and population dynamics
+* Model predictions: contains model prediction files of climate change effects on fitness metrics/components and population dynamics
 * Scripts: contains all scripts for running models and analyses, which are briefly described below
 * DDE population dynamics.py: Python script for simulating insect population dynamics
  * Download future climate data.py: Python script for accessing and downloading future climate data from the Copernicus Climate Data Store
