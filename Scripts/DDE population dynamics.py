@@ -43,10 +43,10 @@ else:
     period = "Future"
 
 # USER: Save population dynamics data?
-save = False
+save = True
 
 # USER: Include competition (i.e., density-dependent population growth)?
-competition = True
+competition = False
 
 # USER: Is model fit to census data?
 census = False
@@ -167,8 +167,9 @@ while(True):
     # development rate (Eq. 2c)
     def g(x):
         return conditional(gTR * T(x)/TR * exp(Ag * (1/TR - 1/T(x))) / (1 + exp(AL*(1/TL-1/T(x)))), tol_min, tol_min, # If g(T) < minimum tolerance, then g(T) = minimum tolerance (lines 96-100)
-                           conditional(T(x), Toptg, gTR * T(x)/TR * exp(Ag * (1/TR - 1/T(x))) / (1 + exp(AL*(1/TL-1/T(x)))), # If habitat temperature < developmental optima (Toptg), then use monotonic g(T)
-                                       conditional(T(x), Tmaxg, gMax, tol_min)))  # If habitat temperature < developmental maximum (Tmaxg), then g(T) = gMax; otherwise, g(T) = minimum tolerance (lines 96-100)
+                           gTR * T(x)/TR * exp(Ag * (1/TR - 1/T(x))) / (1 + exp(AL*(1/TL-1/T(x))))) # If habitat temperature < developmental optima (Toptg), then use monotonic g(T)
+                           #conditional(T(x), Toptg, gTR * T(x)/TR * exp(Ag * (1/TR - 1/T(x))) / (1 + exp(AL*(1/TL-1/T(x)))), # If habitat temperature < developmental optima (Toptg), then use monotonic g(T)
+                                       #conditional(T(x), Tmaxg, gMax, tol_min)))  # If habitat temperature < developmental maximum (Tmaxg), then g(T) = gMax; otherwise, g(T) = minimum tolerance (lines 96-100)
         
     # density-dependence due to competition
     def a(x):
@@ -212,10 +213,10 @@ while(True):
     if save == True:
         if census == False:
             if competition == True:
-                filename = 'Time series data/' + period + ' time series ' + sp_params["Population"] + '.csv'
+                filename = 'Time series data new/' + period + ' time series ' + sp_params["Population"] + '.csv'
                 savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
             else:
-                filename = 'Time series data DI/' + period + ' time series ' + sp_params["Population"] + '.csv'
+                filename = 'Time series data DI new/' + period + ' time series ' + sp_params["Population"] + '.csv'
                 savetxt(filename, data, fmt='%s', delimiter=",", header="Time,J,A,S,tau", comments='')
         else:
             filename = 'Time series data/Census time series ' + sp_params["Population"] + '.csv'

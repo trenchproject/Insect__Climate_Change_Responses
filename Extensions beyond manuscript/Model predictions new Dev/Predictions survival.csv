@@ -1,0 +1,22 @@
+Population,Location,Latitude,Habitat,TPC.r,TPC.f,Model.r,Model.f,delta.TPC,delta.model
+Clavigralla shadabi Benin,Benin,6.45,Tropical,0.76,0.382,0.76,0.382,-0.498,-0.498
+Clavigralla tomentosicollis Benin,Benin,6.45,Tropical,0.522,0.527,0.522,0.527,0.009,0.009
+Clavigralla tomentosicollis Burkina Faso,Burkina Faso,12.38,Tropical,0.866,0.651,0.866,0.651,-0.248,-0.249
+Apolygus lucorum China Dafeng,China Dafeng,33.33,Temperate,0.455,0.371,0.477,0.408,-0.184,-0.151
+Adelphocoris suturalis China Xinxiang,China Xinxiang,35.53,Temperate,0.43,0.354,0.452,0.404,-0.177,-0.111
+Adelphocoris fasciatiocollis China Tianjin,China Tianjin,38.55,Temperate,0.312,0.238,0.4,0.352,-0.237,-0.152
+Adelphocoris lineolatus China Langfang,China Langfang,39.53,Temperate,0.556,0.478,0.549,0.47,-0.14,-0.142
+Macrosiphum euphorbiae Brazil,Brazil,21.23,Tropical,0.85,0.786,0.859,0.827,-0.076,-0.038
+Aulacorthum solani Brazil,Brazil,21.23,Tropical,0.857,0.706,0.858,0.762,-0.176,-0.112
+Uroleucon ambrosiae Brazil,Brazil,21.23,Tropical,0.848,0.744,0.862,0.815,-0.123,-0.055
+Acyrthosiphon pisum UK Sand Hutton,UK Sand Hutton,54.02,Temperate,0.479,0.385,0.465,0.393,-0.195,-0.149
+Rhopalosiphum rufiabdominalis US Naples,US Naples,26.14,Subtropical,0.725,0.497,0.726,0.584,-0.315,-0.195
+Aphis nasturtii US Weston,US Weston,26.14,Subtropical,0.656,0.624,0.656,0.633,-0.049,-0.035
+Macrosiphum euphorbiae Canada Chatham,Canada Chatham,42.81,Temperate,0.792,0.593,0.805,0.663,-0.251,-0.18
+Myzus persicae Canada Chatham,Canada Chatham,42.81,Temperate,0.856,0.598,0.858,0.672,-0.301,-0.217
+Eriosoma lanigerum Australia Yathroo,Australia Yathroo,30.9,Subtropical,0.987,0.735,0.988,0.775,-0.255,-0.215
+Aphis gossypii China Henan,China Henan,36.07,Temperate,0.643,0.616,0.623,0.611,-0.043,-0.018
+Aulacorthum solani US Ithaca,US Ithaca,42.42,Temperate,0.967,0.689,0.968,0.734,-0.288,-0.242
+Brevicoryne brassicae US Columbia,US Columbia,38.93,Temperate,0.518,0.38,0.559,0,-0.266,-1.078
+Myzus persicae US Columbia,US Columbia,38.93,Temperate,0.836,0.604,0.836,0.692,-0.277,-0.172
+Hyadaphis pseudobrassicae US Columbia,US Columbia,38.93,Temperate,0.612,0.442,0.59,0.626,-0.278,0.059
