@@ -34,7 +34,7 @@ To run all scripts used in the manuscript in the correct order, see the order of
 4. Run "Read climate data.R" to produce climate files in "climate data" folder
 5. Run "Habitat temperatures.R" to estimate habitat temperature parameters
 6. Run "Temperature responses.R" to estimate temperature response parameters
-7. Run "DDE population dynamics.py" to simulate the model for four cases involving two factors - recent climate (recent = True) and future climate (recent = false) as well as with competition (competition = True) and without competition (competition = False)
+7. Run "DDE population dynamics.py" to simulate the model for four cases involving two factors: recent climate (recent = True) and future climate (recent = false) as well as with competition (competition = True) and without competition (competition = False)
 8. Run "Fitness metrics and components.R" to produce the conceptual Figure 1
 9. Run "Time series.R" to produce Figure 2
 10. Run "TPC and model analyses.R" to quantify climate change effects on fitness metrics/components
