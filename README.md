@@ -8,7 +8,7 @@ Folder Structure:
 * Model parameters: contains "Habitat temperature parameters.csv" and "Temperature response parameters.csv"
 * Model predictions: contains data files of model predictions of climate change effects on fitness metrics/components and population dynamics
 * Scripts: contains all scripts for running models and analyses, which are briefly described below
-** DDE population dynamics.py: Python script for simulating insect population dynamics
+# * DDE population dynamics.py: Python script for simulating insect population dynamics
 ** Download future climate data.py: Python script for accessing and downloading future climate data from the Copernicus Climate Data Store
 ** Fitness metrics and components.R: R script for plotting fitness metrics and components for conceptual Figure 1
 ** Habitat temperatures.R: R script for fitting temperature response parameters (Eq. 5), which are saved in "Habitat temperature parameters.csv" in the "Model parameters" folder
