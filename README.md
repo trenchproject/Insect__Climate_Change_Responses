@@ -9,15 +9,15 @@ Folder Structure:
 * Model predictions: contains data files of model predictions of climate change effects on fitness metrics/components and population dynamics
 * Scripts: contains all scripts for running models and analyses, which are briefly described below
 * DDE population dynamics.py: Python script for simulating insect population dynamics
-  * Download future climate data.py: Python script for accessing and downloading future climate data from the Copernicus Climate Data Store
-** Fitness metrics and components.R: R script for plotting fitness metrics and components for conceptual Figure 1
-** Habitat temperatures.R: R script for fitting temperature response parameters (Eq. 5), which are saved in "Habitat temperature parameters.csv" in the "Model parameters" folder
-** Population analyses.R: R script for quantifying climate change effects on population dynamics
-** Read climate data.R: R script for reading downloaded climate data and producing the climate data files in "Climate data" folder
-** Statistical analyses.R: R script for analyzing and plotting fitness metrics/components and population dynamics for Figures 3-5
-** Temperature responses.R: R script for fitting temperature response parameters (Eqs. 1,2), which are saved in "Temperature response parameters.csv" in the "Model parameters" folder
-** Time series.R: R code for plotting predicted population dynamics for case studies in Figure 2
-** TPC and model analyses.R: R script for quantifying climate change effects on fitness metrics/components directly from TPCs and from the population model
+ * Download future climate data.py: Python script for accessing and downloading future climate data from the Copernicus Climate Data Store
+ * Fitness metrics and components.R: R script for plotting fitness metrics and components for conceptual Figure 1
+ * Habitat temperatures.R: R script for fitting temperature response parameters (Eq. 5), which are saved in "Habitat temperature parameters.csv" in the "Model parameters" folder
+ * Population analyses.R: R script for quantifying climate change effects on population dynamics
+ * Read climate data.R: R script for reading downloaded climate data and producing the climate data files in "Climate data" folder
+ * Statistical analyses.R: R script for analyzing and plotting fitness metrics/components and population dynamics for Figures 3-5
+ * Temperature responses.R: R script for fitting temperature response parameters (Eqs. 1,2), which are saved in "Temperature response parameters.csv" in the "Model parameters" folder
+ * Time series.R: R code for plotting predicted population dynamics for case studies in Figure 2
+ * TPC and model analyses.R: R script for quantifying climate change effects on fitness metrics/components directly from TPCs and from the population model
 * Time series data: contains density-dependent time-series data predicted by the population model (DDE population dynamics.py)
 * Time series DI data: contains density-independent ("DI") time-series data predicted by population model (DDE population dynamics.py)
 
