@@ -15,7 +15,7 @@ location <- "Benin"
 all <- TRUE
 
 # USER: save results in csv file?
-save <- TRUE
+save <- FALSE
 
 
 # READ IN TEMPERTURE RESPONSE PARAMETERS AND HABITAT TEMPERATURE PARAMETERS AND CREATE DATA FRAME FOR RESULTS
@@ -24,9 +24,9 @@ tr.param <- as.data.frame(read_csv("Model parameters/Temperature response parame
 temp.param <- as.data.frame(read_csv("Model parameters/Habitat temperature parameters.csv"))
 
 # Create data frames for results and for list of populations that have gone extinct in the population model
-results <- data.frame(tr.param[,1], tr.param[,2], tr.param[,3], tr.param[,4], tr.param[,5], 1:nrow(tr.param), 1:nrow(tr.param), 1:nrow(tr.param), 1:nrow(tr.param),
+results <- data.frame(tr.param[,1], tr.param[,2], tr.param[,3], tr.param[,4], 1:nrow(tr.param), 1:nrow(tr.param), 1:nrow(tr.param), 1:nrow(tr.param),
                       1:nrow(tr.param), 1:nrow(tr.param), 1:nrow(tr.param), 1:nrow(tr.param), 1:nrow(tr.param))
-names(results) <- c("Population","Location","Latitude","Habitat","Subfamily","mean.r","mean.f","CV.r","CV.f","active.r","active.f","delta.mean","delta.CV","delta.active")
+names(results) <- c("Population","Location","Latitude","Habitat","mean.r","mean.f","CV.r","CV.f","active.r","active.f","delta.mean","delta.CV","delta.active")
 extinctions <- data.frame(populations = NA) # data frame to list populations that have gone extinct in the population model
 
 
@@ -122,15 +122,15 @@ for(s in 1:nrow(tr.param)) {
   ############################### RECORD RESULTS ###############################
   # INPUT RESUTS INTO ARRAY
   if(all == TRUE) {
-      results[s,6] <- mean.r
-      results[s,7] <- mean.f
-      results[s,8] <- cv.r
-      results[s,9] <- cv.f
-      results[s,10] <- active.r
-      results[s,11] <- active.f
-      results[s,12] <- (mean.f - mean.r)/mean.r
-      results[s,13] <- cv.f - cv.r
-      results[s,14] <- (active.f - active.r)/365
+      results[s,5] <- mean.r
+      results[s,6] <- mean.f
+      results[s,7] <- cv.r
+      results[s,8] <- cv.f
+      results[s,9] <- active.r
+      results[s,10] <- active.f
+      results[s,11] <- (mean.f - mean.r)/mean.r
+      results[s,12] <- cv.f - cv.r
+      results[s,13] <- (active.f - active.r)/365
     }
 
   
