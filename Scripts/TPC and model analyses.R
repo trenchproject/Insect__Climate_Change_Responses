@@ -15,7 +15,7 @@ location <- "Benin"
 all <- TRUE
 
 # USER: save results in csv file? (only if all == TRUE)
-save <- FALSE
+save <- TRUE
 
 
 # READ IN TEMPERTURE RESPONSE PARAMETERS AND HABITAT TEMPERATURE PARAMETERS AND CREATE DATA FRAME FOR RESULTS
@@ -271,10 +271,10 @@ for(s in 1:nrow(tr.param)) {
   # Birth rate
   birth.data[s,5] <- round(b.TPC.r/param$bTopt,3)
   birth.data[s,6] <- round(b.TPC.f/param$bTopt,3)
-  birth.data[s,7] <- round(b.model.r/param$bTopt,3)
-  birth.data[s,8] <- round(b.model.f/param$bTopt,3)
+  birth.data[s,7] <- round(b.model.r/max(TS.r$b),3)
+  birth.data[s,8] <- round(b.model.f/max(TS.r$b),3)
   birth.data[s,9] <- round((b.TPC.f - b.TPC.r)/param$bTopt,3)
-  birth.data[s,10] <- round((b.model.f - b.model.r)/param$bTopt,3)
+  birth.data[s,10] <- round((b.model.f - b.model.r)/max(TS.r$b),3)
 
   # Development time
   dev.data[s,5] <- round((1/g.TPC.r)/(1/param$gMax),3)
@@ -285,21 +285,20 @@ for(s in 1:nrow(tr.param)) {
   dev.data[s,10] <- round((tau.model.f - tau.model.r)/min(TS.r$tau),3)
 
   # Longevity
-  Lmax <- 1/min(param$dATR*exp(param$AdA*(1/param$TR-1/T.r(TS.r$Time)))) # maximum adult longevity
-  long.data[s,5] <- round((1/dA.TPC.r)/Lmax,3)
-  long.data[s,6] <- round((1/dA.TPC.f)/Lmax,3)
+  long.data[s,5] <- round((1/dA.TPC.r)/(1/min(TS.r$dA)),3)
+  long.data[s,6] <- round((1/dA.TPC.f)/(1/min(TS.r$dA)),3)
   long.data[s,7] <- round((1/dA.model.r)/(1/min(TS.r$dA)),3)
   long.data[s,8] <- round((1/dA.model.f)/(1/min(TS.r$dA)),3)
-  long.data[s,9] <- round((1/dA.TPC.f - 1/dA.TPC.r)/Lmax,3)
+  long.data[s,9] <- round((1/dA.TPC.f - 1/dA.TPC.r)/(1/min(TS.r$dA)),3)
   long.data[s,10] <- round((1/dA.model.f - 1/dA.model.r)/(1/min(TS.r$dA)),3)
 
   # Survival
-  surv.data[s,5] <- round(s.TPC.r,3)
-  surv.data[s,6] <- round(s.TPC.f,3)
-  surv.data[s,7] <- round(s.model.r,3)
-  surv.data[s,8] <- round(s.model.f,3)
-  surv.data[s,9] <- round((s.TPC.f - s.TPC.r)/s.TPC.r,3)
-  surv.data[s,10] <- round((s.model.f - s.model.r)/s.TPC.r,3)
+  surv.data[s,5] <- round(s.TPC.r/max(TS.r$S),3)
+  surv.data[s,6] <- round(s.TPC.f/max(TS.r$S),3)
+  surv.data[s,7] <- round(s.model.r/max(TS.r$S),3)
+  surv.data[s,8] <- round(s.model.f/max(TS.r$S),3)
+  surv.data[s,9] <- round((s.TPC.f - s.TPC.r)/max(TS.r$S),3)
+  surv.data[s,10] <- round((s.model.f - s.model.r)/max(TS.r$S),3)
 
   
   # BREAK FOR LOOP IF ANALYSES ARE RUN FOR A SPECIFIED POPULATION
