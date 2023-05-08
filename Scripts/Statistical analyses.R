@@ -24,10 +24,10 @@ pop.data <- as.data.frame(read_csv("Model predictions/Predictions population dyn
 # INTRINSTIC GROWTH RATE, r_m
 # DDE model predictions vs latitude (Fig. 3a)
 r.lat <- lm(delta.model ~ Latitude, data=r.data)
-summary(r.lat) # marginally-significant
+summary(r.lat)
 # DDE model predictions vs directly integrating TPCs (Fig. 4a)
 r.delta <- lm(delta.TPC ~ delta.model, data=r.data)
-summary(r.delta) # significant!
+summary(r.delta)
 
 # NET REPRODUCTIVE RATE, R0
 # DDE model predictions vs latitude (Fig. 3b)
@@ -35,43 +35,43 @@ R0.lat <- lm(delta.model ~ Latitude, data=R0.data)
 summary(R0.lat) # significant
 # DDE model predictions vs directly integrating TPCs (Fig. 4b)
 R0.delta <- lm(delta.TPC ~ delta.model, data=R0.data)
-summary(R0.delta) # significant!
+summary(R0.delta)
 
 # SURVIVAL TO REPRODUCTION
 # DDE model predictions vs latitude (Fig. 3c)
 s.lat <- lm(delta.model ~ Latitude, data=s.data)
-summary(s.lat) # marginally-significant
+summary(s.lat)
 # DDE model predictions vs directly integrating TPCs (Fig. 4c)
 s.delta <- lm(delta.TPC ~ delta.model, data=s.data)
-summary(s.delta) # significant!
+summary(s.delta)
 
 # BIRTH RATE
 # DDE model predictions vs latitude (Fig. 3d)
 b.lat <- lm(delta.model ~ Latitude, data=b.data)
-summary(b.lat) # significant!
+summary(b.lat)
 
 # DEVELOPMENT TIME
 # DDE model predictions vs latitude (Fig. 3e)
 g.lat <- lm(delta.model ~ Latitude, data=g.data)
-summary(g.lat) # significant!
+summary(g.lat)
 # DDE model predictions vs directly integrating TPCs (Fig. 4d)
 g.delta <- lm(delta.TPC ~ delta.model, data=g.data)
-summary(g.delta)  # non-significant
+summary(g.delta)
 
 # ADULT LONGEVITY
 # DDE model predictions vs latitude (Fig. 3f)
 l.lat <- lm(delta.model ~ Latitude, data=l.data)
-summary(l.lat) # significant!
+summary(l.lat)
 
 # MEAN ADULT DENSITY
 # DDE model predictions vs latitude (Fig. 5a)
 mean.lat <- lm(delta.mean ~ Latitude, data=pop.data)
-summary(mean.lat) # non-significant
+summary(mean.lat)
 
 # POPULATION VARIATION
 # DDE model predictions vs latitude (Fig. 5b)
 CV.lat <- lm(delta.CV ~ Latitude, data=pop.data[-c(14,15,18:20),]) # excluding populations that went extinct
-summary(CV.lat) # significant!
+summary(CV.lat)
 
 
 
