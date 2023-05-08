@@ -277,3 +277,13 @@ if(t.param$Habitat == "Tropical") {
     draw_plot(model.A.r, x = 0, y = 0, width = 1, height = 0.4) +
     draw_plot(model.A.f, x = 0, y = 0, width = 1, height = 0.4)
 }
+
+
+# STATISTICS
+#linear regression of field data and model data
+stats.data <- data.frame(Time = data.census$Time, Census = data.census$A, Model = NA)
+for(i in seq(1:nrow(stats.data))) {
+  stats.data$Model[i] = model.r[model.r$Time == stats.data$Time[i],"A"]
+}
+summary(lm(stats.data$Model ~ 0 + stats.data$Census))
+plot(stats.data$Census,stats.data$Model, xlim = c(0,100), ylim = c(0,100))
