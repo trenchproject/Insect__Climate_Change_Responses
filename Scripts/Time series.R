@@ -286,4 +286,4 @@ for(i in seq(1:nrow(stats.data))) {
   stats.data$Model[i] = model.r[model.r$Time == stats.data$Time[i],"A"]
 }
 summary(lm(stats.data$Model ~ 0 + stats.data$Census))
-plot(stats.data$Census,stats.data$Model, xlim = c(0,100), ylim = c(0,100))
+#plot(stats.data$Census,stats.data$Model, xlim = c(0,100), ylim = c(0,100))
