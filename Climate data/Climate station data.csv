@@ -1,0 +1,22 @@
+﻿Population,Location,Latitude,Station_Name,Station_Lat,Station_Lon,Station_Elev,Station_Code,Station_WMO,Start_yr,Start_mo,Start_day,End_yr,End_mo,End_day,Years_of_data
+Clavigralla shadabi Benin,Benin,6.45,Cotonou,6.35,2.38,4,BN000005344,65344,1941,1,2,2021,10,1,81
+Clavigralla tomentosicollis Benin,Benin,6.45,Cotonou,6.35,2.38,4,BN000005344,65344,1941,1,2,2021,10,1,81
+Clavigralla tomentosicollis Burkina Faso,Burkina Faso,12.38,Ouagadougou,12.35,-1.51,316,UVM00065503,65503,1973,1,1,2023,2,7,51
+Apolygus lucorum China Dafeng,China Dafeng,33.33,DONGTAI,32.85,120.28,5,CHM00058251,58251,1953,1,1,2021,10,1,69
+Adelphocoris suturalis China Xinxiang,China Xinxiang,35.53,ANYANG,36.05,114.4,64,CHM00053898,53898,1951,1,1,2021,10,1,71
+Adelphocoris fasciatiocollis China Tianjin,China Tianjin,38.55,TIANJIN,39.1,117.17,5,CHM00054527,54527,1954,1,1,2023,3,7,70
+Adelphocoris lineolatus China Langfang,China Langfang,39.53,BEIJING,39.93,116.28,55,CHM00054511,54511,1951,1,1,2021,9,29,71
+Macrosiphum euphorbiae Brazil,Brazil,-21.23,JUIZ_DE_FORA,-21.77,-43.35,911,BR002143012,83692,1977,10,24,2017,8,7,41
+Aulacorthum solani Brazil,Brazil,-21.23,JUIZ_DE_FORA,-21.77,-43.35,911,BR002143013,83692,1977,10,24,2017,8,7,41
+Uroleucon ambrosiae Brazil,Brazil,-21.23,JUIZ_DE_FORA,-21.77,-43.35,911,BR002143014,83692,1977,10,24,2017,8,7,41
+Acyrthosiphon pisum UK Sand Hutton,UK Sand Hutton,54.02,LEEMING,54.3,-1.53,40,UKM00003257,3257,1973,1,1,2021,10,1,49
+Rhopalosiphum rufiabdominalis US Naples,US Naples,26.14,"NAPLES,_FL",26.17,-81.68,12,USC00086078,,1942,3,1,2021,10,2,80
+Aphis nasturtii US Weston,US Weston,26.14,"FT_LAUDERDALE,_FL",26.1,-80.2,5,USC00083163,,1912,11,1,2021,10,2,110
+Macrosiphum euphorbiae Canada Chatham,Canada Chatham,42.81,"PORT_HURON, _MI",42.97,-82.42,180,USC00206680,,1933,7,1,2023,3,7,91
+Myzus persicae Canada Chatham,Canada Chatham,42.81,"PORT_HURON, _MI",42.97,-82.42,180,USC00206680,,1933,7,1,2023,3,7,91
+Eriosoma lanigerum Australia Yathroo,Australia Yathroo,-30.9,WONGAN_HILLS,-30.89,116.72,283,ASN00008137,94622,1966,1,1,2021,9,30,56
+Aphis gossypii China Henan,China Henan,36.07,ANYANG,36.05,114.4,64,CHM00053898,53898,1951,1,1,2021,10,1,71
+Aulacorthum solani US Ithaca,US Ithaca,42.42,"ITHACA_CORNELL_UNIV,_NY",42.45,-76.45,293,USC00304174,,1893,1,1,2021,10,1,129
+Brevicoryne brassicae US Columbia,US Columbia,38.93,"FULTON, _MO",38.85,-91.94,235,USC00233079,,1900,1,28,2015,12,22,116
+Myzus persicae US Columbia,US Columbia,38.93,"FULTON, _MO",38.85,-91.94,235,USC00233079,,1900,1,28,2015,12,22,116
+Hyadaphis pseudobrassicae US Columbia,US Columbia,38.93,"FULTON, _MO",38.85,-91.94,235,USC00233079,,1900,1,28,2015,12,22,116

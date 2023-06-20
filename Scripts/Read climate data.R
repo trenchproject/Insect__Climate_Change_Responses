@@ -3,7 +3,6 @@
 #####################################################################################
 
 # Load packages
-library(readxl)
 library(lubridate)
 library(ncdf4)
 library(tidyverse)
@@ -12,9 +11,9 @@ library(tidyverse)
 #setwd() # enter working directory of main downloaded file (containing R project file)
 
 # Read climate station data
-clim.data <- read_xlsx("Climate data/Climate station data.xlsx")
+clim.data <- read_csv("Climate data/Climate station data.csv")
 
-# USER: Enter location of climate data (see "Climate station data.xlsx")
+# USER: Enter location of climate data (see "Climate station data.csv")
 location <- "Benin"
 
 # USER: Save climate data?
@@ -23,7 +22,7 @@ save <- FALSE
 # USER: Save remove climate netCDF files?
 remove <- FALSE
 
-# Find information for selected location in "Climate station data.xlsx"
+# Find information for selected location in "Climate station data.csv"
 sp.num <- -1
 for(i in 1:nrow(clim.data)) {
   if(clim.data[i,]$Location == location) {
@@ -31,7 +30,7 @@ for(i in 1:nrow(clim.data)) {
     break }
   }
 if(sp.num == -1) {
-  print("Location not found in Climate station data.xlsx, please update location")
+  print("Location not found in Climate station data.csv, please update location")
   }
 
 # Assign day number for the first date in which there is climate data

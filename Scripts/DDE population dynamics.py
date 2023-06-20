@@ -9,8 +9,10 @@
 # NOTE: if code yields warning: "ufunc 'isfinite' not supported for the input types" or "ValueError: cannot convert float NaN to integer",
 #       population densities are very high, but this is not a problem for the density-independent model
 #       if densities are not plotted, check the output .csv file and remove any rows with 0's after largest density
+# NOTE: Ignoring "UserWarning: The target time is smaller than the current time" because the sampling step is small (which is not a problem
+#       for jitcdde) and there is no backwards integration in time
 
- 
+
 # IMPORT PACKAGES
 # Install and import jitcdde from https://github.com/neurophysik/jitcdde
 import sys
@@ -33,7 +35,7 @@ chdir("..")
 # USER: Enter species name and location or set all_pops to True
 species = "Clavigralla shadabi"
 location = "Benin"
-all_pops = True
+all_pops = False
 
 # USER: Run model for recent period (True) or future period (false)?
 recent = True
@@ -43,10 +45,10 @@ else:
     period = "Future"
 
 # USER: Save population dynamics data?
-save = True
+save = False
 
 # USER: Include competition (i.e., density-dependent population growth)?
-competition = False
+competition = True
 
 # USER: Is model fit to census data?
 census = False

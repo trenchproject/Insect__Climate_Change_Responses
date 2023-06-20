@@ -15,7 +15,7 @@ location <- "Benin"
 all <- TRUE
 
 # USER: save results in csv file? (only if all == TRUE)
-save <- TRUE
+save <- FALSE
 
 
 # READ IN TEMPERTURE RESPONSE PARAMETERS AND HABITAT TEMPERATURE PARAMETERS AND CREATE DATA FRAME FOR RESULTS

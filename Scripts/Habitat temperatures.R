@@ -8,7 +8,7 @@ library(tidyverse)
 # Set working directory (if necessary)
 #setwd() # enter working directory of main downloaded file (containing R project file)
 
-# USER: enter location of climate data (see "Climate station data.xlsx") OR set "all" to TRUE to run analysis for all species
+# USER: enter location of climate data (see "Climate station data.csv") OR set "all" to TRUE to run analysis for all species
 location <- "Benin"
 all <- TRUE
 

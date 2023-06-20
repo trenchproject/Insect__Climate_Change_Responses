@@ -175,7 +175,7 @@ if(census == TRUE) {
 # Recent time period
 # Juvenile density
 model.J.r <- ggplot(model.r, aes(x=Time, y=J)) + 
-  geom_line(size=1.5, color="#0072B2") + # blue color
+  geom_line(linewidth=1.5, color="#0072B2") + # blue color
   labs(x="", y="") +
   scale_x_continuous(limits=c(xmin, xmax)) +
   scale_y_continuous(limits=c(ymin, ymax)) +
@@ -187,7 +187,7 @@ model.J.r <- ggplot(model.r, aes(x=Time, y=J)) +
 
 # Adult density
 model.A.r <- ggplot(model.r, aes(x=Time, y=A)) + 
-  geom_line(size=1.5, color="#0072B2") + # blue color
+  geom_line(linewidth=1.5, color="#0072B2") + # blue color
   labs(x="", y="") +
   scale_x_continuous(limits=c(xmin, xmax)) +
   scale_y_continuous(limits=c(ymin, ymax)) +
@@ -200,7 +200,7 @@ model.A.r <- ggplot(model.r, aes(x=Time, y=A)) +
 # Future time period
 # Juvenile density
 model.J.f <- ggplot(model.f, aes(x=Time, y=J)) + 
-  geom_line(size=1.5, color="#D55E00") + # red color
+  geom_line(linewidth=1.5, color="#D55E00") + # red color
   labs(x="", y="") +
   scale_x_continuous(limits=c(xmin, xmax)) +
   scale_y_continuous(limits=c(ymin, ymax)) +
@@ -212,7 +212,7 @@ model.J.f <- ggplot(model.f, aes(x=Time, y=J)) +
 
 # Adult density
 model.A.f <- ggplot(model.f, aes(x=Time, y=A)) + 
-  geom_line(size=1.5, color="#D55E00") + # red color
+  geom_line(linewidth=1.5, color="#D55E00") + # red color
   labs(x="", y="") +
   scale_x_continuous(limits=c(xmin, xmax)) +
   scale_y_continuous(limits=c(ymin, ymax)) +
